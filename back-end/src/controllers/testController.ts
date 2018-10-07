@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { log } from "util";
 
 /**
  * A template controller
