@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "description": "The back-end app for the GUH18 Hub",
   "main": "app.ts",
+  "engines": {
+    "node": ">=9.0.0"
+  },
   "scripts": {
     "build": "tsc -p .",
     "test": "mocha -r ts-node/register test/**/*.test.ts",
