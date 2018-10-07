@@ -1,7 +1,7 @@
 language: node_js
 
 install:
- - npm i
+ - npm i --prefix back-end/
 
 script:
  - npm test --prefix back-end/
