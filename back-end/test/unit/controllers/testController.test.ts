@@ -6,6 +6,6 @@ describe("TestController", () => {
   it("Index should return 'Hellow'", () => {
     const st: string = "hellow";
 
-    expect(st).to.equal("hello");
+    expect(st).to.equal("hellow");
   });
 });
