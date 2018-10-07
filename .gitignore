@@ -1,0 +1,8 @@
+#Environment variables
+.env
+
+#Compiled code
+dist
+
+#External libraries
+node_modules

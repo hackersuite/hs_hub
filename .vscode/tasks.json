@@ -1,0 +1,23 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "identifier": "build_back-end",
+      "type": "typescript",
+      "tsconfig": "back-end\\tsconfig.json",
+      "problemMatcher": [
+        "$tsc"
+      ],
+    },
+    {
+      "identifier": "build_front-end", // TODO: set up build task for front-end
+      "type": "typescript",
+      "tsconfig": "front-end\\tsconfig.json",
+      "problemMatcher": [
+        "$tsc"
+      ],
+    }
+  ]
+}

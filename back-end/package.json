@@ -1,0 +1,19 @@
+{
+  "name": "guh18_hub_back-end",
+  "version": "0.0.1",
+  "description": "The back-end app for the GUH18 Hub",
+  "main": "app.ts",
+  "scripts": {
+    "start": "node dist/app.js",
+    "start:dev": "",
+    "test": ""
+  },
+  "author": "CSSoc/HackSoc",
+  "license": "MIT",
+  "dependencies": {
+    "typescript": "^3.1.1"
+  },
+  "devDependencies": {
+    "tslint": "^5.11.0"
+  }
+}
