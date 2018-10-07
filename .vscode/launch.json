@@ -5,7 +5,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "node",
+      "type": "node", // TODO: set up lauch task for the entire hub
       "request": "launch",
       "name": "Launch Hub",
       "program": "${file}"
@@ -20,7 +20,7 @@
     {
       "type": "node", // TODO: set up launch task for front-end
       "request": "launch",
-      "name": "Launch Hub",
+      "name": "Launch Hub Front-end",
       "program": "${file}"
     }
   ]
