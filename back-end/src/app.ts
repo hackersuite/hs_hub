@@ -18,33 +18,9 @@ export function buildApp(callback: (app: Express) => void): void {
   // API keys and Passport configuration
   // TODO: set up passport
 
-  // Create Express server
-  const app = express();
+  const app: Express = expressSetup();
 
-  // Express configuration
-  app.set("port", process.env.PORT || 3000);
-  app.set("env", process.env.ENVIRONMENT || "production");
-  app.use(bodyParser.json());
-  app.use(bodyParser.urlencoded({ extended: true }));
-  app.use(
-    express.static(path.join(__dirname, "public"), { maxAge: 31557600000 })
-  );
-
-
-  // Development environment set up
-  if (app.get("env") === "dev") {
-    // Request logging
-    app.use(morgan("dev"));
-    // Disable browser caching
-    app.use((req: Request, res: Response, next: NextFunction) => {
-      res.header("Cache-Control", "private, no-cache, no-store, must-revalidate");
-      res.header("Expires", "-1");
-      res.header("Pragma", "no-cache");
-      next();
-    });
-    // Error Handler. Provides full stack
-    app.use(errorHandler());
-  }
+  devMiddlewareSetup(app);
 
   // Routes set up
   app.use("/", TestRouter());
@@ -65,3 +41,43 @@ export function buildApp(callback: (app: Express) => void): void {
     return callback(app);
   });
 }
+
+/**
+ * Creates an Express app
+ */
+const expressSetup = (): Express => {
+  // Create Express server
+  const app = express();
+
+  // Express configuration
+  app.set("port", process.env.PORT || 3000);
+  app.set("env", process.env.ENVIRONMENT || "production");
+  app.use(bodyParser.json());
+  app.use(bodyParser.urlencoded({ extended: true }));
+  app.use(
+    express.static(path.join(__dirname, "public"), { maxAge: 31557600000 })
+  );
+
+  return app;
+};
+
+/**
+ * Sets up middleware for develpment environments
+ * @param app The app to set up the middleware for
+ */
+const devMiddlewareSetup = (app: Express): void => {
+  // Development environment set up
+  if (app.get("env") === "dev") {
+    // Request logging
+    app.use(morgan("dev"));
+    // Disable browser caching
+    app.use((req: Request, res: Response, next: NextFunction) => {
+      res.header("Cache-Control", "private, no-cache, no-store, must-revalidate");
+      res.header("Expires", "-1");
+      res.header("Pragma", "no-cache");
+      next();
+    });
+    // Error Handler. Provides full stack
+    app.use(errorHandler());
+  }
+};
