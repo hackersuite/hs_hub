@@ -1,1 +1,1 @@
-* Kristijonas Zalys - https://github.com/kzalys
+  * Kristijonas Zalys - <https://github.com/kzalys>

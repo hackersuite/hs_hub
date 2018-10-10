@@ -4,4 +4,4 @@
 ![GitHub (pre-)release](https://img.shields.io/github/release/hacksoc-manchester/GUH18-Hub/all.svg)
 ![GitHub](https://img.shields.io/github/license/hacksoc-manchester/GUH18-Hub.svg)
 
-### WIP
+## WIP
