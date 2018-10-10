@@ -8,6 +8,7 @@ install:
 
 script:
  - npm test
+ - codeclimate-test-reporter < back-end/coverage/lcov.info
 
 notifications:
   email: false
