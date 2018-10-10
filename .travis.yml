@@ -5,7 +5,6 @@ node_js:
 
 install:
  - cd back-end/ && npm i
- - npm i -g codeclimate-test-reporter
 
 script:
  - npm run test:coverage
