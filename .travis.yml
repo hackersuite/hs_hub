@@ -5,10 +5,11 @@ node_js:
 
 install:
  - cd back-end/ && npm i
+ - npm i -g codeclimate-test-reporter
 
 script:
  - npm run test:coverage
- - codeclimate-test-reporter < back-end/coverage/lcov.info
+ - codeclimate-test-reporter < coverage/lcov.info
 
 notifications:
   email: false
