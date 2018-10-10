@@ -10,6 +10,7 @@
     "build": "tsc -p .",
     "test": "npx jest",
     "test:watch": "npx jest --watch",
+    "test:coverage": "npx jest --coverage",
     "start": "ts-node src/server.ts",
     "start:watch": "./node_modules/nodemon/bin/nodemon.js"
   },

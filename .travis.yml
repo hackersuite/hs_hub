@@ -7,7 +7,7 @@ install:
  - cd back-end/ && npm i
 
 script:
- - npm test
+ - npm run test:coverage
  - codeclimate-test-reporter < back-end/coverage/lcov.info
 
 notifications:
