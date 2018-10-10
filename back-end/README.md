@@ -22,3 +22,8 @@
 ## Production environment deployment
  - Complete the set up (above)
  - `./launch_production.sh`
+
+## Tests
+ - Complete the set up (above)
+ - `npm i`
+ - `npm t` or `npm run test:watch` to run tests automatically everytime a change has been made to the tests
