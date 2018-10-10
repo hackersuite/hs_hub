@@ -20,6 +20,8 @@ export function buildApp(callback: (app: Express) => void): void {
 
   const app: Express = expressSetup();
 
+  middlewareSetup(app);
+
   devMiddlewareSetup(app);
 
   // Routes set up
@@ -52,17 +54,25 @@ const expressSetup = (): Express => {
   // Express configuration
   app.set("port", process.env.PORT || 3000);
   app.set("env", process.env.ENVIRONMENT || "production");
-  app.use(bodyParser.json());
-  app.use(bodyParser.urlencoded({ extended: true }));
-  app.use(
-    express.static(path.join(__dirname, "public"), { maxAge: 31557600000 })
-  );
 
   return app;
 };
 
 /**
- * Sets up middleware for develpment environments
+ * Sets up middleware used by the app
+ * @param app The app to set up the middleware for
+ */
+const middlewareSetup = (app: Express): void => {
+  app.use(
+    express.static(path.join(__dirname, "public"),
+      { maxAge: 31557600000 })
+  );
+  app.use(bodyParser.json());
+  app.use(bodyParser.urlencoded({ extended: true }));
+};
+
+/**
+ * Sets up middleware used on development environments
  * @param app The app to set up the middleware for
  */
 const devMiddlewareSetup = (app: Express): void => {
