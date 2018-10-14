@@ -8,16 +8,22 @@ export abstract class CacheCollection<T extends CacheObject> extends CacheObject
   /**
    * Array containing all elements in the collection
    */
-  private elements: Map<string, T>;
+  protected elements: Map<string, T>;
 
   /**
    * Gets an element of the collection with the specified id
    * returns undefined if no object with given id is found
    * @param id The id of the requested element
    */
-  public getElement(id: string): T {
+  public async getElement(id: string): Promise<T> {
+    if (this.isExpired()) {
+      await this.sync();
+    }
     if (this.elements.has(id)) {
-      return this.elements[id];
+      if (this.elements[id].isExpired()) {
+        await this.elements[id].sync();
+      }
+      return await this.elements[id].get();
     } else {
       return undefined;
     }
