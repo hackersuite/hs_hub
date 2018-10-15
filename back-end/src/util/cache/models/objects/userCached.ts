@@ -42,7 +42,7 @@ export class UserCached extends CacheObject {
    * @param team The user's team
    * @param repo The repository where the user's hack is hosted
    */
-  constructor({ id, name, email, authLevel, team, repo }) {
+  constructor(id: number, name: string, email: string, authLevel: number, team: string, repo: string) {
     super(id);
     this.name = name;
     this.email = email;

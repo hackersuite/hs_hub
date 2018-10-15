@@ -6,6 +6,7 @@
         "outDir": "dist",
         "inlineSourceMap": true,
         "inlineSources": true,
+        "emitDecoratorMetadata": true,
         "experimentalDecorators": true
     },
     "exclude": [

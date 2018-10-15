@@ -14,7 +14,7 @@ dotenv.config({ path: ".env" });
 import { TestRouter } from "./routes";
 import { Connection, createConnection } from "typeorm";
 
-export function buildApp(callback: (app: Express) => void): void {
+export function buildApp(callback: (app: Express, err?: Error) => void): void {
   // API keys and Passport configuration
   // TODO: set up passport
 
@@ -37,10 +37,10 @@ export function buildApp(callback: (app: Express) => void): void {
     database: process.env.DB_DATABASE
   }).then((connection: Connection) => {
     return callback(app);
-  }).catch((err: any) => {
+  }).catch((err: Error) => {
     console.error("Could not connect to database");
     console.log(err);
-    return callback(app);
+    return callback(app, err);
   });
 }
 

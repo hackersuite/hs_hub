@@ -11,6 +11,13 @@ export abstract class CacheCollection<T extends CacheObject> extends CacheObject
   protected elements: Map<string, T>;
 
   /**
+   * Creates a collection for cached objects
+   */
+  constructor() {
+    super(0);
+  }
+
+  /**
    * Gets an element of the collection with the specified id
    * returns undefined if no object with given id is found
    * @param id The id of the requested element

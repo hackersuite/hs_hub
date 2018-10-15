@@ -5,7 +5,7 @@ export abstract class CacheObject {
   /**
    * The id of the object in the database
    */
-  public id: string;
+  public id: number;
   /**
    * The amount of time the object stays synced (miliseconds).
    * The expiration duration is set to 10 seconds by default.
@@ -21,7 +21,7 @@ export abstract class CacheObject {
    * Creates a new basic cache object
    * @param id The id of the object in the database
    */
-  constructor(id) {
+  constructor(id: number) {
     this.id = id;
     this.syncedAt = new Date();
   }

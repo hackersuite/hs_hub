@@ -1,12 +1,11 @@
-import { CacheCollection, CacheObject } from "./abstract-classes";
+import { UsersCacheCollection } from "./models/collections";
 
 /**
  * The top-level interface for the cache
  */
 export abstract class Cache {
-  private static collections: Map<CacheCollections, CacheCollection<CacheObject>>;
-}
-
-export enum CacheCollections {
-  TEST
+  /**
+   * The cached users collection
+   */
+  public static users: UsersCacheCollection = new UsersCacheCollection();
 }
