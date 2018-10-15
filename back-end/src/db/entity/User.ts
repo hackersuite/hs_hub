@@ -5,17 +5,23 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column("varchar", { length: 128 })
   name: string;
 
-  @Column()
+  @Column("varchar", { length: 255 })
   email: string;
 
-  @Column("integer")
+  @Column("boolean")
+  emailVerified: boolean;
+
+  @Column("varchar", { length: 255 })
+  password: string;
+
+  @Column("int")
   authLevel: number;
 
-  @Column()
-  team: string;
+  @Column("varchar", { length: 13 })
+  teamCode: string;
 
   @Column()
   repo: string;
