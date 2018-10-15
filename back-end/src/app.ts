@@ -34,11 +34,21 @@ export function buildApp(callback: (app: Express) => void): void {
     port: Number(process.env.DB_PORT),
     username: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    database: process.env.DB_DATABASE
+    database: process.env.DB_DATABASE,
+    entities: [
+      __dirname + "/db/entity/*.ts"
+    ],
+    // Per TypeOrm documentation, this is unsafe for production
+    // We should instead use migrations to change the database
+    // once we have it in production.
+    synchronize: true,
+    logging: false
   }).then((connection: Connection) => {
+
+    console.log("  Connection to database established.");
     return callback(app);
   }).catch((err: any) => {
-    console.error("Could not connect to database");
+    console.error("  Could not connect to database");
     console.log(err);
     return callback(app);
   });
