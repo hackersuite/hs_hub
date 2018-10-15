@@ -6,3 +6,6 @@ dist
 
 #External libraries
 node_modules
+
+#Tests coverage reports
+coverage

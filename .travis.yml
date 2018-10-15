@@ -1,7 +1,15 @@
 language: node_js
 
+node_js:
+  - "9"
+
 install:
- - npm i --prefix back-end/
+ - cd back-end/ && npm i
+ - npm i -g codeclimate-test-reporter
 
 script:
- - npm test --prefix back-end/
+ - npm run test:coverage
+ - codeclimate-test-reporter < coverage/lcov.info
+
+notifications:
+  email: false
