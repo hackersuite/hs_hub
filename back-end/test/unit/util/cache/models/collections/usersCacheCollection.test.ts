@@ -5,7 +5,6 @@ import { User } from "../../../../../../src/db/entity";
 import { Cache } from "../../../../../../src/util/cache";
 import { UserCached } from "../../../../../../src/util/cache/models/objects/userCached";
 
-let app: Express;
 const testUser: User = new User();
 
 testUser.name = "Billy Tester";
@@ -15,11 +14,18 @@ testUser.team = "The Testers";
 testUser.repo = "tests.git";
 
 /**
- * Building the app before running tests
+ * Preparing for the tests
  */
 beforeAll((done: jest.DoneCallback): void => {
-  buildApp((builtApp: Express): void => {
-    app = builtApp;
+  buildApp(async (builtApp: Express): Promise<void> => {
+    // Creating the test user
+    testUser.id = (await getConnection()
+      .createQueryBuilder()
+      .insert()
+      .into(User)
+      .values([testUser])
+      .execute()).identifiers[0].id;
+
     done();
   });
 });
@@ -32,13 +38,6 @@ describe("Users cache collection tests", (): void => {
    * Testing if a newly created user is imported to cache
    */
   test("Should sync a new user", async (): Promise<void> => {
-    testUser.id = (await getConnection()
-      .createQueryBuilder()
-      .insert()
-      .into(User)
-      .values([testUser])
-      .execute()).identifiers[0].id;
-
     await Cache.users.sync();
     const cachedUser: UserCached = await Cache.users.getElement(testUser.id);
     expect(cachedUser).not.toBe(undefined);
@@ -48,13 +47,16 @@ describe("Users cache collection tests", (): void => {
   /**
    * Testing if expired user gets updated
    */
-  test("Should update expired user", async (): Promise<void> => {
+  test("Should sync expired user", async (): Promise<void> => {
     let cachedUser = await Cache.users.getElement(testUser.id);
     expect(cachedUser.isExpired()).toBeFalsy();
     await new Promise(resolve => setTimeout(resolve, 1001));
     expect(cachedUser.isExpired()).toBeTruthy();
+    cachedUser.name = "not the real name";
+    expect(cachedUser.name).not.toBe(testUser.name);
     const lastSyncedAt = cachedUser.syncedAt;
     cachedUser = await Cache.users.getElement(testUser.id);
+    expect(cachedUser.name).toBe(testUser.name);
     expect(cachedUser.isExpired()).toBeFalsy();
     expect(cachedUser.syncedAt).toBeGreaterThan(lastSyncedAt);
   });
@@ -75,4 +77,18 @@ describe("Users cache collection tests", (): void => {
 
     expect(cachedUser).toBe(undefined);
   });
+});
+
+/**
+ * Cleaning up after the tests
+ */
+afterAll(async (done: jest.DoneCallback): Promise<void> => {
+  await getConnection()
+    .createQueryBuilder()
+    .delete()
+    .from(User)
+    .where("id = :id", { id: testUser.id })
+    .execute();
+
+  done();
 });
