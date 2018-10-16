@@ -7,9 +7,8 @@ import { UserCached } from "../objects/userCached";
  * A cached users collection
  */
 export class UsersCacheCollection extends CacheCollection<UserCached> {
-
   /**
-   * The amount of time the users collection stays synced (miliseconds).
+   * The amount of time the user collection stays synced (miliseconds).
    * Set to never expire
    */
   protected expiresIn: number = -1;
@@ -20,12 +19,12 @@ export class UsersCacheCollection extends CacheCollection<UserCached> {
   public async sync(): Promise<void> {
     // Fetchig the user object from the database
     const users: User[] = await getConnection()
-    .getRepository(User)
-    .createQueryBuilder("user")
-    .getMany();
+      .getRepository(User)
+      .createQueryBuilder("user")
+      .getMany();
     // Updating the instance variables
-    this.syncedAt = new Date();
-    this.elements = new Map<string, UserCached>();
+    this.syncedAt = Date.now();
+    this.elements = new Map<number, UserCached>();
     users.forEach(user => {
       const { id, name, email, authLevel, team, repo } = user;
       this.elements[user.id] = new UserCached(id, name, email, authLevel, team, repo);

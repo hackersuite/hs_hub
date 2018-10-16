@@ -55,7 +55,7 @@ export class UserCached extends CacheObject {
    * Syncs this cached user object with the database
    */
   public async sync(): Promise<void> {
-    // Fetchig the user object from the database
+    // Fetching the user object from the database
     const user: User = await getConnection()
       .getRepository(User)
       .createQueryBuilder("user")
@@ -68,6 +68,6 @@ export class UserCached extends CacheObject {
     this.authLevel = authLevel;
     this.team = team;
     this.repo = repo;
-    this.syncedAt = new Date();
+    this.syncedAt = Date.now();
   }
 }

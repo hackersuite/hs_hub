@@ -15,7 +15,7 @@ export abstract class CacheObject {
   /**
    * The date when the object was last synced
    */
-  protected syncedAt: Date;
+  public syncedAt: number;
 
   /**
    * Creates a new basic cache object
@@ -23,27 +23,18 @@ export abstract class CacheObject {
    */
   constructor(id: number) {
     this.id = id;
-    this.syncedAt = new Date();
-  }
-
-  /**
-   * Checks if the object is expired and syncs it if necessary,
-   * then returns this cached object
-   */
-  public async get(): Promise<CacheObject> {
-    if (this.isExpired()) {
-      await this.sync();
-    }
-    return this;
+    this.syncedAt = Date.now();
   }
 
   /**
    * Checks if the object is expired and needs syncing
    */
   public isExpired(): boolean {
+    if (this.expiresIn < 0) { // Object is set to never expire
+      return false;
+    }
     return this.syncedAt == undefined || // Object has not been initialized yet
-      this.expiresIn < 0 || // Object is set to never expire
-      Date.now() > this.syncedAt.getTime() + this.expiresIn; // Object is expired
+      Date.now() > this.syncedAt + this.expiresIn; // Object is expired
   }
   /**
    * Syncs the object with the database

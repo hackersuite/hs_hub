@@ -16,7 +16,7 @@ beforeAll((done: jest.DoneCallback): void => {
 });
 
 /**
- * Tests for testController
+ * Tests for TestController
  */
 describe("TestController tests", (): void => {
   /**

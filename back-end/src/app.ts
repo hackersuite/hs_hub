@@ -13,6 +13,7 @@ dotenv.config({ path: ".env" });
 // Routers
 import { TestRouter } from "./routes";
 import { Connection, createConnection } from "typeorm";
+import { User } from "./db/entity";
 
 export function buildApp(callback: (app: Express, err?: Error) => void): void {
   // API keys and Passport configuration
@@ -34,8 +35,14 @@ export function buildApp(callback: (app: Express, err?: Error) => void): void {
     port: Number(process.env.DB_PORT),
     username: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    database: process.env.DB_DATABASE
+    database: process.env.DB_DATABASE,
+    entities: [
+      __dirname + "/db/entity/*.ts"
+    ],
+    synchronize: true,
+    logging: false
   }).then((connection: Connection) => {
+    console.log("  Connection to database established.");
     return callback(app);
   }).catch((err: Error) => {
     console.error("Could not connect to database");
