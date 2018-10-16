@@ -6,6 +6,7 @@ import * as path from "path";
 import * as morgan from "morgan";
 import * as errorHandler from "errorhandler";
 import { Express, Request, Response, NextFunction } from "express";
+import { User } from "./db/entity/user";
 
 // Load environment variables from .env file
 dotenv.config({ path: ".env" });
@@ -13,7 +14,6 @@ dotenv.config({ path: ".env" });
 // Routers
 import { TestRouter } from "./routes";
 import { Connection, createConnection } from "typeorm";
-import { User } from "./db/entity";
 
 export function buildApp(callback: (app: Express, err?: Error) => void): void {
   // API keys and Passport configuration
