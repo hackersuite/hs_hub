@@ -37,7 +37,7 @@ export function buildApp(callback: (app: Express, err?: Error) => void): void {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE,
     entities: [
-      __dirname + "/db/entity/*.ts"
+      User
     ],
     synchronize: true,
     logging: false
