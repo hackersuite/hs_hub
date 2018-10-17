@@ -3,9 +3,9 @@ import { Request, Response } from "express";
 import { validateUser } from "../util/UserValidation";
 
 /**
- * A controller for handling user sign ins
+ * A controller for handling user logins
  */
-export class SignInController {
+export class LoginController {
 
   /**
    * Check if the current user exists in the database
@@ -13,7 +13,7 @@ export class SignInController {
    * @param req
    * @param res
    */
-  public async signin(req: Request, res: Response): Promise<void> {
+  public async login(req: Request, res: Response): Promise<void> {
     const email: string = req.body.email;
     const password: string = req.body.password;
 
@@ -32,7 +32,7 @@ export class SignInController {
         });
       }
     } catch (err) {
-      console.log();
+      console.log("Error occured");
     }
   }
 }

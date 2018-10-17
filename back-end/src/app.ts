@@ -11,7 +11,7 @@ import { Express, Request, Response, NextFunction } from "express";
 dotenv.config({ path: ".env" });
 
 // Routers
-import { SignInRouter } from "./routes";
+import { LoginRouter } from "./routes";
 import { Connection, createConnection } from "typeorm";
 
 export function buildApp(callback: (app: Express) => void): void {
@@ -25,7 +25,7 @@ export function buildApp(callback: (app: Express) => void): void {
   devMiddlewareSetup(app);
 
   // Routes set up
-  app.use("/", SignInRouter());
+  app.use("/", LoginRouter());
 
   // Connecting to database
   createConnection({

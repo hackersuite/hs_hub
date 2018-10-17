@@ -9,7 +9,7 @@ import * as bcrypt from "bcrypt";
 async function getPassword(submittedEmail: string): Promise<string> {
     // getRepository implicitly gets the connection from the conneciton manager
     // We then create and execute a query to get the hashed password based on the provided email
-    const user: User = await getConnection("hub")
+    const user: User = await getConnection()
     .getRepository(User)
     .createQueryBuilder("user")
     .select(
