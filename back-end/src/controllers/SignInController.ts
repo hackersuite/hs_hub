@@ -20,9 +20,15 @@ export class SignInController {
     validateUser(email, password).then((match) => {
 
       if (match) {
-        console.log("valid password");
+        res.send({
+          "status": 200,
+          "text": "valid"
+        });
       } else {
-        console.log("invalid password");
+        res.send({
+          "status": 401,
+          "text": "invalid"
+        });
       }
     });
   }
