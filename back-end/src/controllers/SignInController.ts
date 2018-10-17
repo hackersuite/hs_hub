@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
-import { validateUser } from "../db/helpers/UserValidation";
+import { validateUser } from "../util/UserValidation";
 
 /**
  * A controller for handling user sign ins
@@ -13,13 +13,14 @@ export class SignInController {
    * @param req
    * @param res
    */
-  public signin(req: Request, res: Response): void {
+  public async signin(req: Request, res: Response): Promise<void> {
     const email: string = req.body.email;
     const password: string = req.body.password;
 
-    validateUser(email, password).then((match) => {
+    try {
+      const valid = await validateUser(email, password);
 
-      if (match) {
+      if (valid) {
         res.send({
           "status": 200,
           "text": "valid"
@@ -30,6 +31,8 @@ export class SignInController {
           "text": "invalid"
         });
       }
-    });
+    } catch (err) {
+      console.log();
+    }
   }
 }
