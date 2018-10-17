@@ -11,9 +11,6 @@ export class User {
   @Column("varchar", { length: 255 })
   email: string;
 
-  @Column()
-  emailVerified: boolean;
-
   @Column("varchar", { length: 255 })
   password: string;
 
