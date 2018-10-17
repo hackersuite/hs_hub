@@ -26,7 +26,7 @@ async function getPassword(submittedEmail: string): Promise<string> {
  * @param submittedPassword password provided by the user
  * @param hashedPassword Hashed password we have got from the database
  */
-async function validatePassword(submittedPassword: string, hashedPassword: string): Promise<boolean> {
+export async function validatePassword(submittedPassword: string, hashedPassword: string): Promise<boolean> {
     // Finally, we check if the provided password was correct based on the hashed password from the database
     return await bcrypt.compare(submittedPassword, hashedPassword);
 }
@@ -44,4 +44,20 @@ export async function validateUser(submittedEmail: string, submittedPassword: st
     if (passwordFromDatabase) {
         return await validatePassword(submittedPassword, passwordFromDatabase);
     }
+    return false;
+}
+
+/**
+ * Gets the whole user object if it exists based on the user email
+ * @param submittedEmail
+ * @return Promise of a user
+ */
+export async function getUserByEmail(submittedEmail: string): Promise<User> {
+    const user: User = await getConnection()
+    .getRepository(User)
+    .createQueryBuilder("user")
+    .where("user.email = :email", { email: submittedEmail })
+    .getOne();
+
+    return user;
 }
