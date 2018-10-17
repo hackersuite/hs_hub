@@ -11,7 +11,7 @@ import { Express, Request, Response, NextFunction } from "express";
 dotenv.config({ path: ".env" });
 
 // Routers
-import { TestRouter } from "./routes";
+import { SignInRouter } from "./routes";
 import { Connection, createConnection } from "typeorm";
 
 export function buildApp(callback: (app: Express) => void): void {
@@ -25,7 +25,7 @@ export function buildApp(callback: (app: Express) => void): void {
   devMiddlewareSetup(app);
 
   // Routes set up
-  app.use("/", TestRouter());
+  app.use("/", SignInRouter());
 
   // Connecting to database
   createConnection({
@@ -44,7 +44,6 @@ export function buildApp(callback: (app: Express) => void): void {
     synchronize: true,
     logging: false
   }).then((connection: Connection) => {
-
     console.log("  Connection to database established.");
     return callback(app);
   }).catch((err: any) => {
