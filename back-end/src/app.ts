@@ -6,7 +6,6 @@ import * as path from "path";
 import * as morgan from "morgan";
 import * as errorHandler from "errorhandler";
 import { Express, Request, Response, NextFunction } from "express";
-import { User } from "./db/entity/user";
 
 // Load environment variables from .env file
 dotenv.config({ path: ".env" });
@@ -37,7 +36,7 @@ export function buildApp(callback: (app: Express, err?: Error) => void): void {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE,
     entities: [
-      User
+      __dirname + "/db/entity/*.ts"
     ],
     synchronize: true,
     logging: false
