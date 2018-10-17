@@ -27,7 +27,8 @@ export class UsersCacheCollection extends CacheCollection<UserCached> {
     this.elements = new Map<number, UserCached>();
     users.forEach(user => {
       const { id, name, email, authLevel, team, repo } = user;
-      this.elements[user.id] = new UserCached(id, name, email, authLevel, team, repo);
+      const cachedUser: UserCached = new UserCached(id, name, email, authLevel, team, repo);
+      this.storeElement(cachedUser);
     });
   }
 }

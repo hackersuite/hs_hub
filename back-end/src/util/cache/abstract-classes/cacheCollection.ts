@@ -8,14 +8,34 @@ export abstract class CacheCollection<T extends CacheObject> extends CacheObject
   /**
    * Array containing all elements in the collection
    */
-  public elements: Map<number, T>;
+  protected elements: Map<number, T>;
 
   /**
    * Creates a collection for cached objects
    */
   constructor() {
     super(0);
-    // super.expiresIn = this.expiresIn;
+    this.elements = new Map<number, T>();
+  }
+
+  /**
+   * Stores an element in the collection.
+   * If an element with the same id already exists, it gets overwritten.
+   * @param element The element to be stored in the collection
+   */
+  public storeElement(element: T): void {
+    this.elements[element.id] = element;
+  }
+
+  /**
+   * Removes an element from the collection, if given element is in collection
+   * @param element The element to be removed from the collection
+   */
+  public removeElement(element: T): void {
+    if (!this.elements[element.id]) {
+      return; // Element does not exist in collection
+    }
+    delete this.elements[element.id];
   }
 
   /**

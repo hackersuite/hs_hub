@@ -35,7 +35,41 @@ beforeAll((done: jest.DoneCallback): void => {
  */
 describe("Users cache collection tests", (): void => {
   /**
-   * Testing if a newly created user is imported to cache
+   * Testing if a newly created user gets added to cache
+   */
+  test("Should store a new user", async (): Promise<void> => {
+    const { id, name, email, authLevel, team, repo } = testUser;
+    const userToCache: UserCached = new UserCached(id, name, email, authLevel, team, repo);
+    expect(await Cache.users.getElement(testUser.id)).toBe(undefined);
+    Cache.users.storeElement(userToCache);
+    expect((await Cache.users.getElement(testUser.id)).id).toBe(testUser.id);
+  });
+
+  /**
+   * Testing if a user gets removed from the cache
+   */
+  test("Should remove user from collection", async (): Promise<void> => {
+    const { id, name, email, authLevel, team, repo } = testUser;
+    const userInCache: UserCached = new UserCached(id, name, email, authLevel, team, repo);
+    expect((await Cache.users.getElement(testUser.id)).id).toBe(testUser.id);
+    Cache.users.removeElement(userInCache);
+    expect(await Cache.users.getElement(testUser.id)).toBe(undefined);
+  });
+
+  /**
+   * Testing if removing a non-existant user from collection throws an error
+   */
+  test("Should not throw error when removing non-existant user", async (): Promise<void> => {
+    const { id, name, email, authLevel, team, repo } = testUser;
+    const userNotInCache: UserCached = new UserCached(id, name, email, authLevel, team, repo);
+    expect(await Cache.users.getElement(testUser.id)).toBe(undefined);
+    Cache.users.removeElement(userNotInCache);
+  });
+
+
+
+  /**
+   * Testing if a newly created user is imported to cache when syncing collection
    */
   test("Should sync a new user", async (): Promise<void> => {
     await Cache.users.sync();

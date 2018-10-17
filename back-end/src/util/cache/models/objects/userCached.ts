@@ -55,7 +55,7 @@ export class UserCached extends CacheObject {
    * Syncs this cached user object with the database
    */
   public async sync(): Promise<void> {
-    // Fetching the user object from the database
+    // Fetching the user from the database
     const user: User = await getConnection()
       .getRepository(User)
       .createQueryBuilder("user")
