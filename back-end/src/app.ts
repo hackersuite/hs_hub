@@ -27,22 +27,6 @@ export function buildApp(callback: (app: Express) => void): void {
 
   devMiddlewareSetup(app);
 
-  passport.serializeUser((user: User, done: Function): void => {
-    done(undefined, user.email);
-  });
-
-  passport.deserializeUser(async (email: string, done: Function): Promise<void> => {
-    try {
-      const user: User = await getUserByEmail(email);
-      if (!user) {
-        return done(new Error("User not found"));
-      }
-      done(undefined, user);
-    } catch (err) {
-      done(err);
-    }
-  });
-
   // Routes set up
   app.use("/", LoginRouter());
 
@@ -107,10 +91,28 @@ const setUpPassport = (): void => {
 
     const match: boolean = await validatePassword(password, user.password);
     if (!match) {
-      return done(undefined, false, { message: "Password did not match." });
+      return done(undefined, false, { message: "Password is incorrect." });
     }
     return done(undefined, user);
   }));
+
+  // Passport serialization
+  passport.serializeUser((user: User, done: Function): void => {
+    done(undefined, user.id);
+  });
+
+  // Passport deserialization
+  passport.deserializeUser(async (email: string, done: Function): Promise<void> => {
+    try {
+      const user: User = await getUserByEmail(email);
+      if (!user) {
+        return done(new Error("User not found"));
+      }
+      done(undefined, user.id);
+    } catch (err) {
+      done(err);
+    }
+  });
 };
 
 /**
