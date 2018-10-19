@@ -129,7 +129,7 @@ afterAll(async (done: jest.DoneCallback): Promise<void> => {
     .execute();
 
   // Closing the connection to the database
-  getConnection().close();
+  await getConnection().close();
 
   done();
 });
