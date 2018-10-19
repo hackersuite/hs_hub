@@ -42,13 +42,13 @@ export class UserCached extends CacheObject {
    * @param team The user's team
    * @param repo The repository where the user's hack is hosted
    */
-  constructor(id: number, name: string, email: string, authLevel: number, team: string, repo: string) {
-    super(id);
-    this.name = name;
-    this.email = email;
-    this.authLevel = authLevel;
-    this.team = team;
-    this.repo = repo;
+  constructor(user: User) {
+    super(user.id);
+    this.name = user.name;
+    this.email = user.email;
+    this.authLevel = user.authLevel;
+    this.team = user.team;
+    this.repo = user.repo;
   }
 
   /**
@@ -62,12 +62,11 @@ export class UserCached extends CacheObject {
       .where("user.id = :id", { id: this.id })
       .getOne();
     // Updating the instance variables
-    const { name, email, authLevel, team, repo } = user;
-    this.name = name;
-    this.email = email;
-    this.authLevel = authLevel;
-    this.team = team;
-    this.repo = repo;
+    this.name = user.name;
+    this.email = user.email;
+    this.authLevel = user.authLevel;
+    this.team = user.team;
+    this.repo = user.repo;
     this.syncedAt = Date.now();
   }
 }

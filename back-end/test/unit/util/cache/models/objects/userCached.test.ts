@@ -37,14 +37,7 @@ describe("Cached user tests", (): void => {
    * Testing if newly created user gets cached
    */
   test("Should sync new User", async (): Promise<void> => {
-    const cachedUser = new UserCached(
-      testUser.id,
-      testUser.name,
-      testUser.email,
-      testUser.authLevel,
-      testUser.team,
-      testUser.repo
-    );
+    const cachedUser = new UserCached(testUser);
     cachedUser.name = "not the real name";
     expect(cachedUser.name).not.toBe(testUser.name);
     await cachedUser.sync();
@@ -55,14 +48,7 @@ describe("Cached user tests", (): void => {
    * Testing if the cached user expires
    */
   test("Should expire after 1 second", async (): Promise<void> => {
-    const cachedUser = new UserCached(
-      testUser.id,
-      testUser.name,
-      testUser.email,
-      testUser.authLevel,
-      testUser.team,
-      testUser.repo
-    );
+    const cachedUser = new UserCached(testUser);
     await cachedUser.sync();
     expect(cachedUser.isExpired()).toBeFalsy();
     await new Promise(resolve => setTimeout(resolve, 1001));

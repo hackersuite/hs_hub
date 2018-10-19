@@ -26,8 +26,7 @@ export class UsersCacheCollection extends CacheCollection<UserCached> {
     this.syncedAt = Date.now();
     this.elements = new Map<number, UserCached>();
     users.forEach(user => {
-      const { id, name, email, authLevel, team, repo } = user;
-      const cachedUser: UserCached = new UserCached(id, name, email, authLevel, team, repo);
+      const cachedUser: UserCached = new UserCached(user);
       this.storeElement(cachedUser);
     });
   }
