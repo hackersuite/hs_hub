@@ -9,9 +9,9 @@
   "scripts": {
     "build": "tsc -p .",
     "build:watch": "tsc -p . -w",
-    "test": "npx jest --detectOpenHandles && exit 0",
-    "test:watch": "npx jest --watch --detectOpenHandles",
-    "test:coverage": "npx jest --coverage --detectOpenHandles && exit 0",
+    "test": "npx jest",
+    "test:watch": "npx jest --watch",
+    "test:coverage": "npx jest --coverage",
     "start": "ts-node src/server.ts",
     "start:watch": "./node_modules/nodemon/bin/nodemon.js"
   },
