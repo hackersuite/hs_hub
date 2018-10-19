@@ -14,6 +14,7 @@ dotenv.config({ path: ".env" });
 import { TestRouter } from "./routes";
 import { Connection, createConnection, ConnectionOptions } from "typeorm";
 
+// codebeat:disable[LOC]
 export function buildApp(callback: (app: Express, err?: Error) => void): void {
   // API keys and Passport configuration
   // TODO: set up passport
