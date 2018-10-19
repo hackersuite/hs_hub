@@ -6,12 +6,14 @@ export abstract class CacheObject {
    * The id of the object in the database
    */
   public id: number;
+
   /**
    * The amount of time the object stays synced (miliseconds).
    * The expiration duration is set to 10 seconds by default.
    * If this is set to a negative value, the object will never expire.
    */
   protected expiresIn: number = 10000;
+
   /**
    * The date when the object was last synced
    */

@@ -31,11 +31,11 @@ export abstract class CacheCollection<T extends CacheObject> extends CacheObject
    * Removes an element from the collection, if given element is in collection
    * @param element The element to be removed from the collection
    */
-  public removeElement(element: T): void {
-    if (!this.elements[element.id]) {
+  public removeElement(id: number): void {
+    if (!this.elements[id]) {
       return; // Element does not exist in collection
     }
-    delete this.elements[element.id];
+    delete this.elements[id];
   }
 
   /**

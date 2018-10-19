@@ -52,7 +52,7 @@ describe("Users cache collection tests", (): void => {
     const { id, name, email, authLevel, team, repo } = testUser;
     const userInCache: UserCached = new UserCached(id, name, email, authLevel, team, repo);
     expect((await Cache.users.getElement(testUser.id)).id).toBe(testUser.id);
-    Cache.users.removeElement(userInCache);
+    Cache.users.removeElement(userInCache.id);
     expect(await Cache.users.getElement(testUser.id)).toBe(undefined);
   });
 
@@ -63,7 +63,7 @@ describe("Users cache collection tests", (): void => {
     const { id, name, email, authLevel, team, repo } = testUser;
     const userNotInCache: UserCached = new UserCached(id, name, email, authLevel, team, repo);
     expect(await Cache.users.getElement(testUser.id)).toBe(undefined);
-    Cache.users.removeElement(userNotInCache);
+    Cache.users.removeElement(userNotInCache.id);
   });
 
 
