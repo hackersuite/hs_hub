@@ -22,4 +22,4 @@ Currently cached resources:
 
 ### Removing an object from the cache:
  - Import the `Cache` class from cache.ts
-- Call the `removeElement(id)` method on the required cache collection
+ - Call the `removeElement(id)` method on the required cache collection
