@@ -1,6 +1,7 @@
 import { Express } from "express";
 import * as request from "supertest";
 import { buildApp } from "../../../src/app";
+import { getConnection } from "typeorm";
 
 let app: Express;
 const HTTP_OK: number = 200;
@@ -54,4 +55,14 @@ describe("TestController tests", (): void => {
     expect(response.status).toBe(HTTP_OK);
     expect(response.text).toBe("myPassword");
   });
+});
+
+/**
+ * Cleaning up after the tests
+ */
+afterAll(async (done: jest.DoneCallback): Promise<void> => {
+  // Closing the connection to the database
+  await getConnection().close();
+
+  done();
 });
