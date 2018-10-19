@@ -42,6 +42,7 @@ describe("App startup tests", (): void => {
     buildApp(async (builtApp: Express, err: Error): Promise<void> => {
       expect(err).not.toBe(undefined);
       expect(getConnection().isConnected).toBeFalsy();
+      await getConnection().close();
       done();
     });
   });
