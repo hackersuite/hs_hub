@@ -81,5 +81,8 @@ afterAll(async (done: jest.DoneCallback): Promise<void> => {
     .where("id = :id", { id: testUser.id })
     .execute();
 
+  // Closing the connection to the database
+  getConnection().close();
+
   done();
 });

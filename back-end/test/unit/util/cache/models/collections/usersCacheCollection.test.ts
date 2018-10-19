@@ -13,11 +13,15 @@ testUser.authLevel = 3;
 testUser.team = "The Testers";
 testUser.repo = "tests.git";
 
+let app: Express;
+
 /**
  * Preparing for the tests
  */
 beforeAll((done: jest.DoneCallback): void => {
   buildApp(async (builtApp: Express): Promise<void> => {
+    app = builtApp;
+
     // Creating the test user
     testUser.id = (await getConnection()
       .createQueryBuilder()
@@ -123,6 +127,9 @@ afterAll(async (done: jest.DoneCallback): Promise<void> => {
     .from(User)
     .where("id = :id", { id: testUser.id })
     .execute();
+
+  // Closing the connection to the database
+  getConnection().close();
 
   done();
 });
