@@ -1,7 +1,5 @@
 import { buildApp } from "./app";
 import { Express } from "express";
-import { createConnection, Connection } from "typeorm";
-
 
 /**
  * Start Express server.
