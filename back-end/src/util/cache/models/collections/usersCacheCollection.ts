@@ -14,20 +14,21 @@ export class UsersCacheCollection extends CacheCollection<UserCached> {
   protected expiresIn: number = -1;
 
   /**
-   * Syncs this cached users collection with the database
+   * Syncs all cached users in the collection with the database
    */
   public async sync(): Promise<void> {
     // Fetchig the user object from the database
     const users: User[] = await getConnection()
       .getRepository(User)
       .createQueryBuilder("user")
+      .whereInIds(Array.from(this.elements.keys()))
       .getMany();
     // Updating the instance variables
     this.syncedAt = Date.now();
     this.elements = new Map<number, UserCached>();
     users.forEach(user => {
-      const cachedUser: UserCached = new UserCached(user);
-      this.storeElement(cachedUser);
+      const syncedUser = new UserCached(user);
+      this.elements[syncedUser.id] = syncedUser;
     });
   }
 }

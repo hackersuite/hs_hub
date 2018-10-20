@@ -43,7 +43,6 @@ export function buildApp(callback: (app: Express, err?: Error) => void): void {
     logging: false
   }).then((connection: Connection) => {
     console.log("  Connection to database established.");
-    console.log(process.env.DB_HOST);
     return callback(app);
   }).catch((err: Error) => {
     console.error("Could not connect to database");

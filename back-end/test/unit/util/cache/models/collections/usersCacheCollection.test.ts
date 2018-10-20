@@ -5,29 +5,25 @@ import { User } from "../../../../../../src/db/entity";
 import { Cache } from "../../../../../../src/util/cache";
 import { UserCached } from "../../../../../../src/util/cache/models/objects/userCached";
 
-const testUser: User = new User();
+const testUserInDatabase: User = new User();
 
-testUser.name = "Billy Tester";
-testUser.email = "billy@testing.com";
-testUser.authLevel = 3;
-testUser.team = "The Testers";
-testUser.repo = "tests.git";
-
-let app: Express;
+testUserInDatabase.name = "Billy Tester";
+testUserInDatabase.email = "billy@testing.com";
+testUserInDatabase.authLevel = 3;
+testUserInDatabase.team = "The Testers";
+testUserInDatabase.repo = "tests.git";
 
 /**
  * Preparing for the tests
  */
 beforeAll((done: jest.DoneCallback): void => {
   buildApp(async (builtApp: Express): Promise<void> => {
-    app = builtApp;
-
     // Creating the test user
-    testUser.id = (await getConnection()
+    testUserInDatabase.id = (await getConnection()
       .createQueryBuilder()
       .insert()
       .into(User)
-      .values([testUser])
+      .values([testUserInDatabase])
       .execute()).identifiers[0].id;
 
     done();
@@ -42,75 +38,129 @@ describe("Users cache collection tests", (): void => {
    * Testing if a newly created user gets added to cache
    */
   test("Should store a new user", async (): Promise<void> => {
-    const userToCache: UserCached = new UserCached(testUser);
-    expect(await Cache.users.getElement(testUser.id)).toBe(undefined);
+    const userToCache: UserCached = new UserCached(testUserInDatabase);
+
+    expect(await Cache.users.getElement(userToCache.id)).toBe(undefined);
     Cache.users.storeElement(userToCache);
-    expect((await Cache.users.getElement(testUser.id)).id).toBe(testUser.id);
+
+    const userInCache = await Cache.users.getElement(userToCache.id);
+    expect(userInCache.isEqualTo(userToCache)).toBeTruthy();
   });
 
   /**
    * Testing if a user gets removed from the cache
    */
   test("Should remove user from collection", async (): Promise<void> => {
-    const userInCache: UserCached = new UserCached(testUser);
-    expect((await Cache.users.getElement(testUser.id)).id).toBe(testUser.id);
+    const userThatShouldBeInCache: UserCached = new UserCached(testUserInDatabase);
+    Cache.users.storeElement(userThatShouldBeInCache);
+    let userInCache: UserCached = await Cache.users.getElement(userThatShouldBeInCache.id);
+    expect(userInCache.isEqualTo(userThatShouldBeInCache)).toBeTruthy();
+
     Cache.users.removeElement(userInCache.id);
-    expect(await Cache.users.getElement(testUser.id)).toBe(undefined);
+    userInCache = await Cache.users.getElement(userThatShouldBeInCache.id);
+    expect(userInCache).toBe(undefined);
   });
 
   /**
    * Testing if removing a non-existant user from collection throws an error
    */
-  test("Should not throw error when removing non-existant user", async (): Promise<void> => {
-    const userNotInCache: UserCached = new UserCached(testUser);
-    expect(await Cache.users.getElement(testUser.id)).toBe(undefined);
-    Cache.users.removeElement(userNotInCache.id);
+  test("Should not throw error when removing non-existent user", async (): Promise<void> => {
+    const userNotInCache: UserCached = await Cache.users.getElement(testUserInDatabase.id);
+
+    expect(userNotInCache).toBe(undefined);
   });
 
+  /**
+   * Testing if user is updated when syncing the collection
+   */
+  test("Should sync a user when syncing the collection", async (): Promise<void> => {
+    const userThatShouldBeInCache: UserCached = new UserCached(testUserInDatabase);
+    Cache.users.storeElement(userThatShouldBeInCache);
 
+    const userToCache: UserCached = new UserCached(testUserInDatabase);
+    userToCache.name = "Incorrect Name";
+
+    Cache.users.storeElement(userToCache);
+
+    let userInCache: UserCached = await Cache.users.getElement(userToCache.id);
+    expect(userInCache.isEqualTo(userThatShouldBeInCache)).toBeFalsy();
+    await Cache.users.sync();
+    userInCache = await Cache.users.getElement(userToCache.id);
+
+    expect(userInCache.isEqualTo(userThatShouldBeInCache)).toBeTruthy();
+  });
 
   /**
-   * Testing if a newly created user is imported to cache when syncing collection
+   * Testing if the collection manages to sync multiple users at once
    */
-  test("Should sync a new user", async (): Promise<void> => {
+  test("Should manage to sync multiple users", async (): Promise<void> => {
+    const secondUser = { ...testUserInDatabase, name: "John Tester", id: testUserInDatabase.id + 1 };
+    const secondUserId = (await getConnection()
+      .createQueryBuilder()
+      .insert()
+      .into(User)
+      .values([secondUser])
+      .execute()).identifiers[0].id;
+
     await Cache.users.sync();
-    const cachedUser: UserCached = await Cache.users.getElement(testUser.id);
-    expect(cachedUser).not.toBe(undefined);
-    expect(cachedUser.id).toBe(testUser.id);
+    const firstUserInDB = new UserCached(testUserInDatabase);
+    const secondUserInDB = new UserCached(secondUser);
+    const firstUserInCache = await Cache.users.getElement(testUserInDatabase.id);
+    const secondUserInCache = await Cache.users.getElement(secondUserId);
+    expect(firstUserInCache.isEqualTo(firstUserInDB)).toBeTruthy();
+    expect(secondUserInCache.isEqualTo(secondUserInDB)).toBeTruthy();
+
+    await getConnection()
+    .createQueryBuilder()
+    .delete()
+    .from(User)
+    .where("id = :id", { id: secondUserId })
+    .execute();
   });
 
   /**
    * Testing if expired user gets updated
    */
   test("Should sync expired user", async (): Promise<void> => {
-    let cachedUser = await Cache.users.getElement(testUser.id);
-    expect(cachedUser.isExpired()).toBeFalsy();
-    await new Promise(resolve => setTimeout(resolve, 1001));
-    expect(cachedUser.isExpired()).toBeTruthy();
-    cachedUser.name = "not the real name";
-    expect(cachedUser.name).not.toBe(testUser.name);
-    const lastSyncedAt = cachedUser.syncedAt;
-    cachedUser = await Cache.users.getElement(testUser.id);
-    expect(cachedUser.name).toBe(testUser.name);
-    expect(cachedUser.isExpired()).toBeFalsy();
-    expect(cachedUser.syncedAt).toBeGreaterThan(lastSyncedAt);
+    const userThatShouldBeInCache: UserCached = new UserCached(testUserInDatabase);
+    let userInCache = await Cache.users.getElement(testUserInDatabase.id);
+
+    expect(userInCache.isExpired()).toBeFalsy();
+    userInCache.syncedAt = Date.now() - 9999999;
+    expect(userInCache.isExpired()).toBeTruthy();
+
+    userInCache.name = "not the real name";
+    expect(userInCache.isEqualTo(userThatShouldBeInCache)).toBeFalsy();
+
+    const lastSyncedAt = userInCache.syncedAt;
+    userInCache = await Cache.users.getElement(userInCache.id);
+
+    expect(userInCache.isEqualTo(userThatShouldBeInCache)).toBeTruthy();
+    expect(userInCache.isExpired()).toBeFalsy();
+    expect(userInCache.syncedAt).toBeGreaterThan(lastSyncedAt);
   });
 
   /**
    * Testing if deleted user gets removed from cache
    */
-  test("Should remove deleted user", async (): Promise<void> => {
+  test("Should remove deleted user after syncing collection", async (): Promise<void> => {
+    const userThatShouldBeInCache: UserCached = new UserCached(testUserInDatabase);
+    Cache.users.storeElement(userThatShouldBeInCache);
+    let userInCache: UserCached = await Cache.users.getElement(testUserInDatabase.id);
+
+    expect(userInCache.isEqualTo(userThatShouldBeInCache)).toBeTruthy();
+
     await getConnection()
       .createQueryBuilder()
       .delete()
       .from(User)
-      .where("id = :id", { id: testUser.id })
+      .where("id = :id", { id: testUserInDatabase.id })
       .execute();
 
     await Cache.users.sync();
-    const cachedUser: UserCached = await Cache.users.getElement(testUser.id);
+    userInCache = await Cache.users.getElement(testUserInDatabase.id);
 
-    expect(cachedUser).toBe(undefined);
+    expect(userInCache).toBe(undefined);
   });
 });
 
@@ -122,7 +172,7 @@ afterAll(async (done: jest.DoneCallback): Promise<void> => {
     .createQueryBuilder()
     .delete()
     .from(User)
-    .where("id = :id", { id: testUser.id })
+    .where("id = :id", { id: testUserInDatabase.id })
     .execute();
 
   // Closing the connection to the database

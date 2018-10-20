@@ -1,5 +1,6 @@
 import { CacheObject } from "./cacheObject";
 
+
 /**
  * Abstract class for a collection of objects in the cache
  * @param T The type of objects to store in the collection
@@ -8,7 +9,7 @@ export abstract class CacheCollection<T extends CacheObject> extends CacheObject
   /**
    * Array containing all elements in the collection
    */
-  protected elements: Map<number, T>;
+  public elements: Map<number, T>;
 
   /**
    * Creates a collection for cached objects
@@ -32,7 +33,7 @@ export abstract class CacheCollection<T extends CacheObject> extends CacheObject
    * @param element The element to be removed from the collection
    */
   public removeElement(id: number): void {
-    if (!this.elements[id]) {
+    if (this.elements[id] === undefined) {
       return; // Element does not exist in collection
     }
     delete this.elements[id];
@@ -47,12 +48,11 @@ export abstract class CacheCollection<T extends CacheObject> extends CacheObject
     if (this.isExpired()) {
       await this.sync();
     }
-    if (this.elements[id] != undefined) {
+    if (this.elements[id] !== undefined) {
       if (this.elements[id].isExpired()) {
         await this.elements[id].sync();
       }
-      return this.elements[id] as T;
-      // TODO: Should try to sync object if not found
+      return this.elements[id];
     } else {
       return undefined;
     }

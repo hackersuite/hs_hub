@@ -31,7 +31,7 @@ export class UserCached extends CacheObject {
    * The amount of time the user object stays synced (miliseconds)
    * Set to 1 second
    */
-  protected expiresIn: number = 1000;
+  protected readonly expiresIn: number = 1000;
 
   /**
    * Creates a cached user object
@@ -49,6 +49,19 @@ export class UserCached extends CacheObject {
     this.authLevel = user.authLevel;
     this.team = user.team;
     this.repo = user.repo;
+  }
+
+  /**
+   * Compares this UserCached object to another, returns true if they are equal
+   * @param otherUser The other user to compare
+   */
+  public isEqualTo(otherUser: UserCached): boolean {
+    return super.isEqualTo(otherUser) &&
+      this.name === otherUser.name &&
+      this.email === otherUser.email &&
+      this.authLevel === otherUser.authLevel &&
+      this.team === otherUser.team &&
+      this.repo === otherUser.repo;
   }
 
   /**

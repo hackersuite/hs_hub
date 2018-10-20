@@ -12,7 +12,7 @@ export abstract class CacheObject {
    * The expiration duration is set to 10 seconds by default.
    * If this is set to a negative value, the object will never expire.
    */
-  protected expiresIn: number = 10000;
+  protected readonly expiresIn: number = 10000;
 
   /**
    * The date when the object was last synced
@@ -38,6 +38,15 @@ export abstract class CacheObject {
     return this.syncedAt == undefined || // Object has not been initialized yet
       Date.now() > this.syncedAt + this.expiresIn; // Object is expired
   }
+
+  /**
+   * Compares this CacheObject to another, returns true if they are equal
+   * @param otherObject The other object to compare
+   */
+  public isEqualTo(otherObject: CacheObject): boolean {
+    return this.id === otherObject.id;
+  }
+
   /**
    * Syncs the object with the database
    */
