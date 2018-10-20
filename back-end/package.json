@@ -21,13 +21,12 @@
   "author": "CSSoc/HackSoc",
   "license": "MIT",
   "dependencies": {
-    "@types/bcrypt": "^3.0.0",
     "@types/dotenv": "^4.0.3",
     "@types/express": "^4.16.0",
     "@types/morgan": "^1.7.35",
     "@types/node": "^10.11.4",
     "@types/passport-local": "^1.0.33",
-    "bcrypt": "^3.0.1",
+    "@types/pbkdf2": "^3.0.0",
     "body-parser": "^1.18.3",
     "dotenv": "^6.0.0",
     "express": "^4.16.3",
@@ -35,6 +34,8 @@
     "mysql": "^2.16.0",
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
+    "pbkdf2": "^3.0.17",
+    "pg": "^7.5.0",
     "reflect-metadata": "^0.1.12",
     "typeorm": "^0.2.7",
     "typescript": "^3.1.1"

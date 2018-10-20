@@ -8,8 +8,8 @@ import * as errorHandler from "errorhandler";
 import * as passport from "passport";
 import * as localstrategy from "passport-local";
 import { Express, Request, Response, NextFunction } from "express";
-import { getUserByEmail, validatePassword } from "./util/UserValidation";
-import { Connection, createConnection } from "typeorm";
+import { getUserByEmailFromHub, validatePassword } from "./util/UserValidation";
+import { Connection, createConnections } from "typeorm";
 import { User } from "../src/db/entity/User";
 
 // Load environment variables from .env file
@@ -31,7 +31,8 @@ export function buildApp(callback: (app: Express) => void): void {
   app.use("/", LoginRouter());
 
   // Connecting to database
-  createConnection({
+  createConnections([{
+    name: "hub",
     type: "mysql",
     host: process.env.DB_HOST,
     port: Number(process.env.DB_PORT),
@@ -39,15 +40,33 @@ export function buildApp(callback: (app: Express) => void): void {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE,
     entities: [
-      __dirname + "/db/entity/*{.js,.ts}"
+      __dirname + "/db/entity/User{.js,.ts}"
     ],
     // Per TypeOrm documentation, this is unsafe for production
     // We should instead use migrations to change the database
     // once we have it in production.
     synchronize: true,
     logging: false
-  }).then((connection: Connection) => {
-    console.log("  Connection to database established.");
+  }, {
+    name: "applications",
+    type: "postgres",
+    host: process.env.APP_DB_HOST,
+    port: Number(process.env.APP_DB_PORT),
+    username: process.env.APP_DB_USER,
+    password: process.env.APP_DB_PASSWORD,
+    database: process.env.APP_DB_DATABASE,
+    entities: [
+      __dirname + "/db/entity/ApplicationUser{.js,.ts}"
+    ],
+    synchronize: false,
+    logging: false,
+    extra: {
+      ssl: true
+    }
+  }]).then((connections: Connection[]) => {
+    connections.forEach(element => {
+      console.log("  Connection to database (" + element.name + ") established.");
+    });
     return callback(app);
   }).catch((err: any) => {
     console.error("  Could not connect to database");
@@ -81,14 +100,13 @@ const setUpPassport = (): void => {
   }, async (email: string, password: string, done: Function): Promise<any> => {
     let user: User;
     try {
-      user = await getUserByEmail(email);
+      user = await getUserByEmailFromHub(email);
       if (!user) {
         return done(undefined, false, { message: "No user by that email." });
       }
     } catch (err) {
       return done(err);
     }
-
     const match: boolean = await validatePassword(password, user.password);
     if (!match) {
       return done(undefined, false, { message: "Password is incorrect." });
@@ -104,7 +122,7 @@ const setUpPassport = (): void => {
   // Passport deserialization
   passport.deserializeUser(async (email: string, done: Function): Promise<void> => {
     try {
-      const user: User = await getUserByEmail(email);
+      const user: User = await getUserByEmailFromHub(email);
       if (!user) {
         return done(new Error("User not found"));
       }
