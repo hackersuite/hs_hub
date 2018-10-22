@@ -13,7 +13,7 @@ export const LoginRouter = (): Router => {
    */
   router.get("/home", (req, res): void => {
     console.log("Logged in");
-    res.send({ "message": "Logged in" });
+    res.send("Logged in");
   });
 
   /**

@@ -18,7 +18,7 @@ export class User {
   authLevel: any;
 
   @Column("varchar", { length: 13 })
-  teamCode: string;
+  team: string;
 
   @Column()
   repo: string;
