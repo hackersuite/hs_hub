@@ -18,7 +18,7 @@ dotenv.config({ path: ".env" });
 // Routers
 import { LoginRouter } from "./routes";
 
-export function buildApp(callback: (app: Express) => void): void {
+export function buildApp(callback: (app: Express, err?: Error) => void): void {
   const app: Express = expressSetup();
 
   setUpPassport();
@@ -71,7 +71,7 @@ export function buildApp(callback: (app: Express) => void): void {
   }).catch((err: any) => {
     console.error("  Could not connect to database");
     console.log(err);
-    return callback(app);
+    return callback(app, err);
   });
 }
 
