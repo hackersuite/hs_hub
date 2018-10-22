@@ -1,6 +1,8 @@
 import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity()
+@Entity({
+  name: "user_user"
+})
 export class ApplicationUser {
   @PrimaryGeneratedColumn()
   id: number;
@@ -15,7 +17,7 @@ export class ApplicationUser {
   email: string;
 
   @Column("varchar", { length: 255 })
-  name: number;
+  name: string;
 
   @Column("boolean")
   email_verified: boolean;
