@@ -3,3 +3,4 @@
   * 08/10/2018 - Implemented TypeORM
   * 08/10/2018 - Implemented Mocha and Chai tests
   * 10/10/2018 - Switched to Jest and Supertest for testing
+  * 22/10/2018 - Implemented User System
