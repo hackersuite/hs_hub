@@ -6,11 +6,11 @@ import * as path from "path";
 import * as morgan from "morgan";
 import * as errorHandler from "errorhandler";
 import * as passport from "passport";
-import * as localstrategy from "passport-local";
+import { createPassportLocalStrategy } from "./util/createPassportStrategy";
 import { Express, Request, Response, NextFunction } from "express";
-import { getUserByEmailFromHub, validatePassword } from "./util/UserValidation";
+import { getUserByEmailFromHub } from "./util/user/userValidation";
 import { Connection, createConnections } from "typeorm";
-import { User } from "../src/db/entity/User";
+import { User } from "./db/entity/user";
 
 // Load environment variables from .env file
 dotenv.config({ path: ".env" });
@@ -94,25 +94,7 @@ const expressSetup = (): Express => {
  */
 const setUpPassport = (): void => {
   // Passport configuration
-  passport.use(new localstrategy.Strategy({
-    usernameField: "email",
-    passwordField: "password"
-  }, async (email: string, password: string, done: Function): Promise<any> => {
-    let user: User;
-    try {
-      user = await getUserByEmailFromHub(email);
-      if (!user) {
-        return done(undefined, false, { message: "No user by that email." });
-      }
-    } catch (err) {
-      return done(err);
-    }
-    const match: boolean = await validatePassword(password, user.password);
-    if (!match) {
-      return done(undefined, false, { message: "Password is incorrect." });
-    }
-    return done(undefined, user);
-  }));
+  passport.use(createPassportLocalStrategy());
 
   // Passport serialization
   passport.serializeUser((user: User, done: Function): void => {
