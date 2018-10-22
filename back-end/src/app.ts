@@ -40,7 +40,7 @@ export function buildApp(callback: (app: Express) => void): void {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE,
     entities: [
-      __dirname + "/db/entity/User{.js,.ts}"
+      __dirname + "/db/entity/user{.js,.ts}"
     ],
     // Per TypeOrm documentation, this is unsafe for production
     // We should instead use migrations to change the database
@@ -56,7 +56,7 @@ export function buildApp(callback: (app: Express) => void): void {
     password: process.env.APP_DB_PASSWORD,
     database: process.env.APP_DB_DATABASE,
     entities: [
-      __dirname + "/db/entity/ApplicationUser{.js,.ts}"
+      __dirname + "/db/entity/applicationUser{.js,.ts}"
     ],
     synchronize: false,
     logging: false,
