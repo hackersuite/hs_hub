@@ -1,7 +1,6 @@
 import { getRepository, getConnection, Equal } from "typeorm";
-import { User } from "../../db/entity/user";
 import * as pbkdf2 from "pbkdf2";
-import { ApplicationUser } from "../../db/entity/applicationUser";
+import { ApplicationUser, User } from "../../db/entity/";
 
 /**
  * We check that the password hash is valid
