@@ -9,14 +9,6 @@ export const LoginRouter = (): Router => {
   const router = Router();
 
   /**
-   * GET /home
-   */
-  router.get("/home", (req, res): void => {
-    console.log("Logged in");
-    res.send("Logged in");
-  });
-
-  /**
    * POST /login
    */
   router.post("/login", function (req, res) {
