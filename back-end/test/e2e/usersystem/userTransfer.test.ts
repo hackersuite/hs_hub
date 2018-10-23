@@ -105,6 +105,9 @@ afterAll(async (done: jest.DoneCallback): Promise<void> => {
     .where("id = :id", { id: testApplicationUser.id })
     .execute();
 
+  await getConnection("applications").close();
+  await getConnection("hub").close();
+
   done();
 });
 
