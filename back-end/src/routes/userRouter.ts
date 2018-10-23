@@ -9,7 +9,7 @@ export const userRouter = (): Router => {
   const router = Router();
 
   /**
-   * POST /login
+   * POST /user/login
    */
   router.post("/login", function (req, res) {
     passport.authenticate("local", function (err, user, info) {

@@ -73,7 +73,7 @@ describe("Application user test", (): void => {
    */
   test("Should check the user is copied to hub on login", async (): Promise<void> => {
     const response = await request(bApp)
-      .post("/login")
+      .post("/user/login")
       .send({
         email: testApplicationUser.email,
         password: "password123"
