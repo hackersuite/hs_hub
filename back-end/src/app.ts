@@ -16,7 +16,7 @@ import { User } from "./db/entity/user";
 dotenv.config({ path: ".env" });
 
 // Routers
-import { UserRouter } from "./routes";
+import { userRouter } from "./routes";
 
 export function buildApp(callback: (app: Express, err?: Error) => void): void {
   const app: Express = expressSetup();
@@ -28,7 +28,7 @@ export function buildApp(callback: (app: Express, err?: Error) => void): void {
   devMiddlewareSetup(app);
 
   // Routes set up
-  app.use("/", UserRouter());
+  app.use("/", userRouter());
 
   // Connecting to database
   createConnections([{

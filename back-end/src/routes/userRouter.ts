@@ -4,7 +4,7 @@ import * as passport from "passport";
 /**
  * A router for handling the sign in of a user
  */
-export const UserRouter = (): Router => {
+export const userRouter = (): Router => {
   // Initializing the router
   const router = Router();
 
