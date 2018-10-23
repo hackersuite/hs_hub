@@ -8,6 +8,7 @@
   },
   "scripts": {
     "build": "tsc -p .",
+    "build:watch": "tsc -p . -w",
     "test": "npx jest",
     "test:watch": "npx jest --watch",
     "test:coverage": "npx jest --coverage",
