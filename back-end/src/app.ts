@@ -28,7 +28,7 @@ export function buildApp(callback: (app: Express, err?: Error) => void): void {
   devMiddlewareSetup(app);
 
   // Routes set up
-  app.use("/user", userRouter());
+  app.use("/user/", userRouter());
 
   // Connecting to database
   createConnections([{
