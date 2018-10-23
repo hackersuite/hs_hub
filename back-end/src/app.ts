@@ -8,7 +8,7 @@ import * as errorHandler from "errorhandler";
 import * as passport from "passport";
 import { createPassportLocalStrategy } from "./util/user/createPassportStrategy";
 import { Express, Request, Response, NextFunction } from "express";
-import { Connection, createConnections } from "typeorm";
+import { Connection, createConnections, ConnectionOptions } from "typeorm";
 
 // Load environment variables from .env file
 dotenv.config({ path: ".env" });
@@ -30,39 +30,7 @@ export const buildApp = (callback: (app: Express, err?: Error) => void): void =>
   app.use("/", mainRouter());
 
   // Connecting to database
-  createConnections([{
-    name: "hub",
-    type: "mysql",
-    host: process.env.DB_HOST,
-    port: Number(process.env.DB_PORT),
-    username: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_DATABASE,
-    entities: [
-      __dirname + "/db/entity/user{.js,.ts}"
-    ],
-    // Per TypeOrm documentation, this is unsafe for production
-    // We should instead use migrations to change the database
-    // once we have it in production.
-    synchronize: true,
-    logging: false
-  }, {
-    name: "applications",
-    type: "postgres",
-    host: process.env.APP_DB_HOST,
-    port: Number(process.env.APP_DB_PORT),
-    username: process.env.APP_DB_USER,
-    password: process.env.APP_DB_PASSWORD,
-    database: process.env.APP_DB_DATABASE,
-    entities: [
-      __dirname + "/db/entity/applicationUser{.js,.ts}"
-    ],
-    synchronize: false,
-    logging: false,
-    extra: {
-      ssl: true
-    }
-  }]).then((connections: Connection[]) => {
+  createConnections(createDatabaseOptions()).then((connections: Connection[]) => {
     connections.forEach(element => {
       console.log("  Connection to database (" + element.name + ") established.");
     });
@@ -132,4 +100,40 @@ const devMiddlewareSetup = (app: Express): void => {
     // Error Handler. Provides full stack
     app.use(errorHandler());
   }
+};
+
+const createDatabaseOptions = (): ConnectionOptions[] => {
+  return [{
+    name: "hub",
+    type: "mysql",
+    host: process.env.DB_HOST,
+    port: Number(process.env.DB_PORT),
+    username: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE,
+    entities: [
+      __dirname + "/db/entity/user{.js,.ts}"
+    ],
+    // Per TypeOrm documentation, this is unsafe for production
+    // We should instead use migrations to change the database
+    // once we have it in production.
+    synchronize: true,
+    logging: false
+  }, {
+    name: "applications",
+    type: "postgres",
+    host: process.env.APP_DB_HOST,
+    port: Number(process.env.APP_DB_PORT),
+    username: process.env.APP_DB_USER,
+    password: process.env.APP_DB_PASSWORD,
+    database: process.env.APP_DB_DATABASE,
+    entities: [
+      __dirname + "/db/entity/applicationUser{.js,.ts}"
+    ],
+    synchronize: false,
+    logging: false,
+    extra: {
+      ssl: true
+    }
+  }];
 };
