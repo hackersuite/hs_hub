@@ -18,5 +18,10 @@ export const userRouter = (): Router => {
       res.send({ message: user.email });
     })(req, res);
   });
+
+  router.get("/logout", function (req, res) {
+    req.logout();
+    res.send({ message: "Logged out" });
+  });
   return router;
 };

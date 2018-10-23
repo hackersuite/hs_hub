@@ -8,15 +8,14 @@ import * as errorHandler from "errorhandler";
 import * as passport from "passport";
 import { createPassportLocalStrategy } from "./util/user/createPassportStrategy";
 import { Express, Request, Response, NextFunction } from "express";
-import { getUserByEmailFromHub } from "./util/user/userValidation";
 import { Connection, createConnections } from "typeorm";
-import { User } from "./db/entity/user";
 
 // Load environment variables from .env file
 dotenv.config({ path: ".env" });
 
 // Routers
-import { userRouter } from "./routes";
+import { mainRouter } from "./routes";
+import { createPassportSerialization } from "./util/user/createPassportSerialization";
 
 export function buildApp(callback: (app: Express, err?: Error) => void): void {
   const app: Express = expressSetup();
@@ -28,7 +27,7 @@ export function buildApp(callback: (app: Express, err?: Error) => void): void {
   devMiddlewareSetup(app);
 
   // Routes set up
-  app.use("/user/", userRouter());
+  app.use("/", mainRouter());
 
   // Connecting to database
   createConnections([{
@@ -96,23 +95,7 @@ const setUpPassport = (): void => {
   // Passport configuration
   passport.use(createPassportLocalStrategy());
 
-  // Passport serialization
-  passport.serializeUser((user: User, done: Function): void => {
-    done(undefined, user.id);
-  });
-
-  // Passport deserialization
-  passport.deserializeUser(async (email: string, done: Function): Promise<void> => {
-    try {
-      const user: User = await getUserByEmailFromHub(email);
-      if (!user) {
-        return done(new Error("User not found"));
-      }
-      done(undefined, user.id);
-    } catch (err) {
-      done(err);
-    }
-  });
+  createPassportSerialization();
 };
 
 /**
