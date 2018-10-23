@@ -6,7 +6,7 @@ import * as path from "path";
 import * as morgan from "morgan";
 import * as errorHandler from "errorhandler";
 import * as passport from "passport";
-import { createPassportLocalStrategy } from "./util/createPassportStrategy";
+import { createPassportLocalStrategy } from "./util/user/createPassportStrategy";
 import { Express, Request, Response, NextFunction } from "express";
 import { getUserByEmailFromHub } from "./util/user/userValidation";
 import { Connection, createConnections } from "typeorm";

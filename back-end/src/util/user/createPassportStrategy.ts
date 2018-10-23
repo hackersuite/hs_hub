@@ -1,7 +1,7 @@
 import * as localstrategy from "passport-local";
-import { getUserByEmailFromHub, getUserByEmailFromApplications, validatePassword, insertNewHubUserToDatabase } from "./user/userValidation";
-import { User } from "../db/entity/user";
-import { ApplicationUser } from "../db/entity/applicationUser";
+import { getUserByEmailFromHub, getUserByEmailFromApplications, validatePassword, insertNewHubUserToDatabase } from "./userValidation";
+import { User } from "../../db/entity/user";
+import { ApplicationUser } from "../../db/entity/applicationUser";
 
 export const createPassportLocalStrategy = (): localstrategy.Strategy => {
   return new localstrategy.Strategy({
