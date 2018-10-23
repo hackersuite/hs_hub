@@ -6,6 +6,8 @@ import { getUserByEmailFromApplications, getUserByEmailFromHub } from "../../../
 import * as request from "supertest";
 import { doesNotReject } from "assert";
 
+let bApp: Express;
+
 const HTTP_OK: number = 200;
 const HTTP_FAIL: number = 401;
 
@@ -36,16 +38,22 @@ testApplicationUser.email_verified = true;
  * Preparing for the tests
  */
 beforeAll((done: jest.DoneCallback): void => {
-  buildApp(async (builtApp: Express): Promise<void> => {
-    // Creating the test user
-    testApplicationUser.id = (await getConnection("applications")
-      .createQueryBuilder()
-      .insert()
-      .into(ApplicationUser)
-      .values([testApplicationUser])
-      .execute()).identifiers[0].id;
+  try {
+    buildApp(async (builtApp: Express): Promise<void> => {
+      bApp = builtApp;
+      // Creating the test user
+      testApplicationUser.id = (await getConnection("applications")
+        .createQueryBuilder()
+        .insert()
+        .into(ApplicationUser)
+        .values([testApplicationUser])
+        .execute()).identifiers[0].id;
+      done();
+    });
+  } catch (err) {
+    console.error(err);
     done();
-  });
+  }
 });
 
 /**
@@ -64,20 +72,18 @@ describe("Application user test", (): void => {
    * Test that we can port the user from the applications to the hub
    */
   test("Should check the user is copied to hub on login", async (): Promise<void> => {
-    buildApp(async (builtApp: Express): Promise<void> => {
-      const response = await request(builtApp)
-        .post("/login")
-        .send({
-          email: "billy@testing.com",
-          password: "password123"
-        });
+    const response = await request(bApp)
+      .post("/login")
+      .send({
+        email: testApplicationUser.email,
+        password: "password123"
+      });
 
-      expect(response.status).toBe(HTTP_OK);
-      expect(response.body).toBe("Logged in");
+    expect(response.status).toBe(HTTP_OK);
+    expect(response.body.message).toBe(testApplicationUser.email);
 
-      const newHubUser: User = await getUserByEmailFromHub(testApplicationUser.email);
-      expect(newHubUser).not.toBe(undefined);
-    });
+    const newHubUser: User = await getUserByEmailFromHub(testApplicationUser.email);
+    expect(newHubUser).not.toBe(undefined);
   });
 });
 
