@@ -42,12 +42,12 @@ describe("App startup tests", (): void => {
    * Testing error handling with incorrect settings
    */
   test("App should throw error with invalid settings", async (done: jest.DoneCallback): Promise<void> => {
-    // process.env.DB_HOST = "invalid host";
+    process.env.DB_HOST = "invalidhost";
+    process.env.APP_DB_HOST = "invalidhost";
     buildApp(async (builtApp: Express, err: Error): Promise<void> => {
       expect(err).not.toBe(undefined);
       expect(getConnection("hub").isConnected).toBeFalsy();
-      expect(getConnection("applications").isConnected).toBeTruthy();
-      await getConnection("applications").close();
+      expect(getConnection("applications").isConnected).toBeFalsy();
       done();
     });
   });
