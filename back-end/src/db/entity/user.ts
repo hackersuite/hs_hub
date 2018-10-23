@@ -14,8 +14,8 @@ export class User {
   @Column("varchar", { length: 255 })
   password: string;
 
-  @Column("json")
-  authLevel: any;
+  @Column()
+  authLevel: number;
 
   @Column("varchar", { length: 13 })
   team: string;
