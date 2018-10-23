@@ -4,7 +4,6 @@ import { User, ApplicationUser } from "../../../src/db/entity/";
 import { getConnection } from "typeorm";
 import { getUserByEmailFromApplications, getUserByEmailFromHub } from "../../../src/util/user/userValidation";
 import * as request from "supertest";
-import { doesNotReject } from "assert";
 
 let bApp: Express;
 
@@ -57,17 +56,9 @@ beforeAll((done: jest.DoneCallback): void => {
 });
 
 /**
- * Testing the user porting from applications to the hub
+ * Testing authorisation requests
  */
-describe("Application user test", (): void => {
-  /**
-   * Test if the the user exists in applications
-   */
-  test("Should ensure the test user exists in the applications database", async (): Promise<void> => {
-    const applicationUser: ApplicationUser = await getUserByEmailFromApplications(testApplicationUser.email);
-    expect(applicationUser.id).toBe(testApplicationUser.id);
-  });
-
+describe("Authorisation tests", (): void => {
   /**
    * Test that we can port the user from the applications to the hub
    */

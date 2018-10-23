@@ -68,5 +68,4 @@ export const createPassportLocalStrategy = (): localstrategy.Strategy => {
     else if (isVolunteer) return 2;
     else return 3;
   }
-
 };
