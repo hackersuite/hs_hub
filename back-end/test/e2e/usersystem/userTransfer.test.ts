@@ -41,6 +41,7 @@ beforeAll((done: jest.DoneCallback): void => {
   buildApp(async (builtApp: Express, err: Error): Promise<void> => {
     if (err) {
       console.error("Could not start server!");
+      done();
     } else {
       bApp = builtApp;
       // Creating the test user
