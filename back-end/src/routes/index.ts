@@ -1,1 +1,1 @@
-export * from "./loginRouter";
+export * from "./userRouter";
