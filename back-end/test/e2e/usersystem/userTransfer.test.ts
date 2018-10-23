@@ -38,8 +38,10 @@ testApplicationUser.email_verified = true;
  * Preparing for the tests
  */
 beforeAll((done: jest.DoneCallback): void => {
-  try {
-    buildApp(async (builtApp: Express): Promise<void> => {
+  buildApp(async (builtApp: Express, err: Error): Promise<void> => {
+    if (err) {
+      console.error("Could not start server!");
+    } else {
       bApp = builtApp;
       // Creating the test user
       testApplicationUser.id = (await getConnection("applications")
@@ -49,11 +51,8 @@ beforeAll((done: jest.DoneCallback): void => {
         .values([testApplicationUser])
         .execute()).identifiers[0].id;
       done();
-    });
-  } catch (err) {
-    console.error(err);
-    done();
-  }
+    }
+  });
 });
 
 /**

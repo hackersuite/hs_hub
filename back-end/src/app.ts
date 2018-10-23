@@ -70,7 +70,7 @@ export function buildApp(callback: (app: Express, err?: Error) => void): void {
     return callback(app);
   }).catch((err: any) => {
     console.error("  Could not connect to database");
-    console.log(err);
+    console.error(err);
     return callback(app, err);
   });
 }
