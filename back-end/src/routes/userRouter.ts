@@ -1,5 +1,5 @@
 import { Router } from "express";
-import * as passport from "passport";
+import { UserController } from "../controllers/userController";
 
 /**
  * A router for handling the sign in of a user
@@ -8,20 +8,17 @@ export const userRouter = (): Router => {
   // Initializing the router
   const router = Router();
 
+  const userController = new UserController();
+
   /**
    * POST /user/login
    */
-  router.post("/login", function (req, res) {
-    passport.authenticate("local", function (err, user, info) {
-      if (err) { return res.status(401).json(err); }
-      if (!user) { return res.status(401).json({ message: info.message }); }
-      res.send({ message: user.email });
-    })(req, res);
-  });
+  router.post("/login", userController.login);
 
-  router.get("/logout", function (req, res) {
-    req.logout();
-    res.send({ message: "Logged out" });
-  });
+  /**
+   * GET /user/logout
+   */
+  router.get("/logout", userController.logout);
+
   return router;
 };

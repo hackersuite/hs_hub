@@ -17,7 +17,7 @@ dotenv.config({ path: ".env" });
 import { mainRouter } from "./routes";
 import { createPassportSerialization } from "./util/user/createPassportSerialization";
 
-export function buildApp(callback: (app: Express, err?: Error) => void): void {
+export const buildApp = (callback: (app: Express, err?: Error) => void): void => {
   const app: Express = expressSetup();
 
   setUpPassport();
