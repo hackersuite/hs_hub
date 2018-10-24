@@ -60,6 +60,20 @@ beforeAll((done: jest.DoneCallback): void => {
  */
 describe("Authorisation tests", (): void => {
   /**
+   * Test that we get notified when the user does not exist in either database
+   */
+  test("Should check that a non-existent user asked to register", async (): Promise<void> => {
+    const response = await request(bApp)
+      .post("/user/login")
+      .send({
+        email: "this.email.doesnt.exist@testing.com",
+        password: "password123"
+      });
+    expect(response.status).toBe(HTTP_FAIL);
+    expect(JSON.parse(response.error.text).message).toBe("Please create an account.");
+  });
+
+  /**
    * Test that we can port the user from the applications to the hub
    */
   test("Should check the user is copied to hub on login", async (): Promise<void> => {
@@ -75,6 +89,18 @@ describe("Authorisation tests", (): void => {
 
     const newHubUser: User = await getUserByEmailFromHub(testApplicationUser.email);
     expect(newHubUser).not.toBe(undefined);
+  });
+
+  /**
+   * Test that we can logout after we have logged in
+   */
+  test("Should check the user is logged out by passport", async (): Promise<void> => {
+    const response = await request(bApp)
+      .get("/user/logout")
+      .send();
+
+    expect(response.status).toBe(HTTP_OK);
+    expect(response.body.message).toBe("Logged out");
   });
 });
 
