@@ -2,7 +2,7 @@ import { buildApp } from "../../../../src/app";
 import { getConnection } from "typeorm";
 import { ApplicationUser, User } from "../../../../src/db/entity";
 import { Express } from "express";
-import { getUserByEmailFromApplications, getUserByEmailFromHub } from "../../../../src/util/user/userValidation";
+import { getUserByEmailFromApplications, getUserByEmailFromHub, validatePassword, validateUser } from "../../../../src/util/user/userValidation";
 
 let bApp: Express;
 
@@ -12,25 +12,11 @@ const HTTP_FAIL: number = 401;
 const testHubUser: User = new User();
 
 testHubUser.name = "Billy Tester II";
-testHubUser.email = "billyI@testing.com";
+testHubUser.email = "billyII@testing.com";
+testHubUser.password = "pbkdf2_sha256$30000$xmAiV8Wihzn5$BBVJrxmsVASkYuOI6XdIZoYLfy386hdMOF8S14WRTi8=";
 testHubUser.authLevel = 1;
-testHubUser.team = "The Testers II";
+testHubUser.team = "TeamCodeHere-";
 testHubUser.repo = "tests2.git";
-
-const testApplicationUser: ApplicationUser = new ApplicationUser();
-
-testApplicationUser.name = "Billy Tester";
-testApplicationUser.email = "billy@testing.com";
-testApplicationUser.password = "pbkdf2_sha256$30000$xmAiV8Wihzn5$BBVJrxmsVASkYuOI6XdIZoYLfy386hdMOF8S14WRTi8=";
-testApplicationUser.last_login = "2018-10-09 18:50:24.000262+00";
-testApplicationUser.created_time = "2018-09-24 18:30:00.16251+00";
-testApplicationUser.is_organizer = false;
-testApplicationUser.is_volunteer = false;
-testApplicationUser.is_admin = false;
-testApplicationUser.is_hardware_admin = false;
-testApplicationUser.is_active = true;
-testApplicationUser.is_director = false;
-testApplicationUser.email_verified = true;
 
 /**
  * Preparing for the tests
@@ -42,12 +28,13 @@ beforeAll((done: jest.DoneCallback): void => {
       done();
     } else {
       bApp = builtApp;
-      // Creating the test user
-      testApplicationUser.id = (await getConnection("applications")
+
+      // Creating the test user in the hub
+      testHubUser.id = (await getConnection("hub")
         .createQueryBuilder()
         .insert()
-        .into(ApplicationUser)
-        .values([testApplicationUser])
+        .into(User)
+        .values([testHubUser])
         .execute()).identifiers[0].id;
       done();
     }
@@ -61,11 +48,36 @@ beforeAll((done: jest.DoneCallback): void => {
  */
 describe("User validation tests", (): void => {
   /**
-   * Test if the the user exists in applications
+   * Test if the the user exists in the hub
    */
-  test("Should ensure the test user exists in the applications database", async (): Promise<void> => {
-    const applicationUser: ApplicationUser = await getUserByEmailFromApplications(testApplicationUser.email);
-    expect(applicationUser.id).toBe(testApplicationUser.id);
+  test("Should ensure the test user exists in the hub database", async (): Promise<void> => {
+    const hubUser: User = await getUserByEmailFromHub(testHubUser.email);
+    expect(hubUser.id).toBe(testHubUser.id);
+  });
+
+  /**
+   * Test if the the sumbitted email is in the database and has a valid password
+   */
+  test("Should ensure the test user exists and has valid password", async (): Promise<void> => {
+    const user: User = await getUserByEmailFromHub(testHubUser.email);
+    expect(user.id).toBe(testHubUser.id);
+
+    const validTestUser: boolean = await validateUser(testHubUser.email, "password123");
+    expect(validTestUser).toBeTruthy();
+    const invalidTestUser: boolean = await validateUser("doesnotwork@test.com", "randompassword");
+    expect(invalidTestUser).toBeFalsy();
+  });
+
+  /**
+   * Test if the password validation function works as expected
+   */
+  test("Should ensure that hashed passwords are validated correctly", async (): Promise<void> => {
+    const hashedPassword: string = "pbkdf2_sha512$40000$R*Tx2p|70i@vaRM*]Nv6j5=RtLY$x6E2s9AD/6V5I78wGXjmYmn4D1vfd+XggaYWksWsQO4=";
+    let plaintextPassword: string = "testPassword123";
+    expect(validatePassword(plaintextPassword, hashedPassword)).toBeTruthy();
+
+    plaintextPassword = "No-longer-valid";
+    expect(validatePassword(plaintextPassword, hashedPassword)).toBeFalsy();
   });
 });
 
@@ -73,18 +85,11 @@ describe("User validation tests", (): void => {
  * Cleaning up after the tests
  */
 afterAll(async (done: jest.DoneCallback): Promise<void> => {
-  await getConnection("applications")
-    .createQueryBuilder()
-    .delete()
-    .from(ApplicationUser)
-    .where("id = :id", { id: testApplicationUser.id })
-    .execute();
-
   await getConnection("hub")
     .createQueryBuilder()
     .delete()
     .from(User)
-    .where("id = :id", { id: testApplicationUser.id })
+    .where("id = :id", { id: testHubUser.id })
     .execute();
 
   await getConnection("applications").close();
