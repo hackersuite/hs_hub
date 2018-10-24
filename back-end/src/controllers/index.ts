@@ -1,1 +1,1 @@
-export * from "./LoginController";
+export * from "./userController";

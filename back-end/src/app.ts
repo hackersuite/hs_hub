@@ -40,7 +40,7 @@ export const buildApp = (callback: (app: Express, err?: Error) => void): void =>
     console.error(err);
     return callback(app, err);
   });
-}
+};
 
 /**
  * Creates an Express app

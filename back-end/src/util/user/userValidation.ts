@@ -1,4 +1,4 @@
-import { getRepository, getConnection, Equal } from "typeorm";
+import { getRepository, getConnection, Equal, AdvancedConsoleLogger } from "typeorm";
 import * as pbkdf2 from "pbkdf2";
 import { ApplicationUser, User } from "../../db/entity/";
 
@@ -61,8 +61,10 @@ async function getPasswordFromHub(submittedEmail: string): Promise<string> {
     )
     .where("user.email = :email", { email: submittedEmail })
     .getOne();
+  if (user)
+    return user.password;
 
-  return user.password;
+  return undefined;
 }
 
 /**
