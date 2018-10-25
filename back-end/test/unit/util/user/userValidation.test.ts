@@ -42,7 +42,6 @@ beforeAll((done: jest.DoneCallback): void => {
 });
 
 
-// TODO: tests are needed for other functions in userValidation.ts
 /**
  * User validation tests
  */

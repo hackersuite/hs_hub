@@ -6,16 +6,18 @@ import * as path from "path";
 import * as morgan from "morgan";
 import * as errorHandler from "errorhandler";
 import * as passport from "passport";
+import * as expressSession from "express-session";
+import * as cookieParser from "cookie-parser";
 import { createPassportLocalStrategy } from "./util/user/createPassportStrategy";
 import { Express, Request, Response, NextFunction } from "express";
 import { Connection, createConnections, ConnectionOptions } from "typeorm";
+import { createPassportSerialization } from "./util/user/createPassportSerialization";
 
 // Load environment variables from .env file
 dotenv.config({ path: ".env" });
 
 // Routers
 import { mainRouter } from "./routes";
-import { createPassportSerialization } from "./util/user/createPassportSerialization";
 
 export const buildApp = (callback: (app: Express, err?: Error) => void): void => {
   const app: Express = expressSetup();
@@ -75,8 +77,18 @@ const middlewareSetup = (app: Express): void => {
     express.static(path.join(__dirname, "public"),
       { maxAge: 31557600000 })
   );
+
+  const sessionOpts = {
+    saveUninitialized: true, // saved new sessions
+    resave: false, // do not automatically write to the session store
+    secret: process.env.SESSION_SECRET,
+    cookie: { secure: false, maxAge: 2419200000 }, // configure when sessions expires
+  };
+
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
+  app.use(cookieParser());
+  app.use(expressSession(sessionOpts));
   app.use(passport.initialize());
   app.use(passport.session());
 };

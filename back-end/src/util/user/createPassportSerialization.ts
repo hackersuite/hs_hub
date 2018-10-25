@@ -1,5 +1,5 @@
 import * as passport from "passport";
-import { getUserByEmailFromHub } from "./userValidation";
+import { getUserByIDFromHub } from "./userValidation";
 import { User } from "../../db/entity/user";
 
 export const createPassportSerialization = (): void => {
@@ -9,10 +9,10 @@ export const createPassportSerialization = (): void => {
   });
 
   // Passport deserialization
-  passport.deserializeUser(async (email: string, done: Function): Promise<void> => {
+  passport.deserializeUser(async (id: number, done: Function): Promise<void> => {
     let user: User = undefined;
     try {
-      user = await getUserByEmailFromHub(email);
+      user = await getUserByIDFromHub(id);
     } catch (err) {
       done(err);
     }

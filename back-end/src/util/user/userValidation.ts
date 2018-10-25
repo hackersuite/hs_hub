@@ -68,6 +68,21 @@ async function getPasswordFromHub(submittedEmail: string): Promise<string> {
 }
 
 /**
+ * Gets the whole user object if it exists based on the user id
+ * @param submittedID
+ * @return Promise of a user
+ */
+export async function getUserByIDFromHub(submittedID: number): Promise<User> {
+  const user: User = await getConnection("hub")
+    .getRepository(User)
+    .createQueryBuilder("user")
+    .where("user.id = :id", { id: submittedID })
+    .getOne();
+
+  return user;
+}
+
+/**
  * Gets the whole user object if it exists based on the user email
  * @param submittedEmail
  * @return Promise of a user

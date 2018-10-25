@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import passport = require("passport");
+import * as passport from "passport";
 
 /**
  * A controller for auth methods
@@ -8,11 +8,14 @@ export class UserController {
   /**
    * Logs in the user
    */
-  public login(req: Request, res: Response): void {
+  public login(req: Request, res: Response, next: Function): void {
     passport.authenticate("local", (err: Error, user: any, info: any) => {
       if (err) { return res.status(401).json(err); }
       if (!user) { return res.status(401).json({ message: info.message }); }
-      res.send({ message: user.email });
+      req.logIn(user, (err: any) => {
+        if (err) { return next(err); }
+        res.send({ message: user.email });
+      });
     })(req, res);
   }
 
