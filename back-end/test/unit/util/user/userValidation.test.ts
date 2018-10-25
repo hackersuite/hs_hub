@@ -1,8 +1,8 @@
 import { buildApp } from "../../../../src/app";
 import { getConnection } from "typeorm";
-import { ApplicationUser, User } from "../../../../src/db/entity";
+import { User } from "../../../../src/db/entity";
 import { Express } from "express";
-import { getUserByEmailFromApplications, getUserByEmailFromHub, validatePassword, validateUser } from "../../../../src/util/user/userValidation";
+import { getUserByIDFromHub, getUserByEmailFromHub, validatePassword, validateUser } from "../../../../src/util/user/userValidation";
 
 let bApp: Express;
 
@@ -65,6 +65,15 @@ describe("User validation tests", (): void => {
     expect(validTestUser).toBeTruthy();
     const invalidTestUser: boolean = await validateUser("doesnotwork@test.com", "randompassword");
     expect(invalidTestUser).toBeFalsy();
+  });
+
+  /**
+   * Test the user can be selected from the database using a unique id
+   */
+  test("Should ensure the user can be selected from the database using a unique id", async (): Promise<void> => {
+    const user: User = await getUserByIDFromHub(testHubUser.id);
+    expect(user).toBeDefined();
+    expect(user.id).toBe(testHubUser.id);
   });
 
   /**

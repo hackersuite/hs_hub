@@ -92,6 +92,21 @@ describe("Authorisation tests", (): void => {
   });
 
   /**
+   * Test that we get notified if the hub user password is incorrect
+   */
+  test("Should check we get notified if the hub user password is incorrect", async (): Promise<void> => {
+    const response = await request(bApp)
+      .post("/user/login")
+      .send({
+        email: testApplicationUser.email,
+        password: "password1234"
+      });
+
+    expect(response.status).toBe(HTTP_FAIL);
+    expect(response.body.message).toBe("Email or password is incorrect.");
+  });
+
+  /**
    * Test that we can logout after we have logged in
    */
   test("Should check the user is logged out by passport", async (): Promise<void> => {

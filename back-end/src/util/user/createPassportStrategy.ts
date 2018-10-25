@@ -12,7 +12,7 @@ export const createPassportLocalStrategy = (): localstrategy.Strategy => {
     // Check if the hub has the user
     const user: User = await checkIfHubHasUser(email);
     if (user && !validatePassword(password, user.password))
-      return done(undefined, false, { message: "Password is incorrect." });
+      return done(undefined, false, { message: "Email or password is incorrect." });
     else if (user)
       return done(undefined, user);
 
