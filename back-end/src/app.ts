@@ -78,17 +78,10 @@ const middlewareSetup = (app: Express): void => {
       { maxAge: 31557600000 })
   );
 
-  const sessionOpts = {
-    saveUninitialized: true, // saved new sessions
-    resave: false, // do not automatically write to the session store
-    secret: process.env.SESSION_SECRET,
-    cookie: { secure: false, maxAge: 2419200000 }, // configure when sessions expires
-  };
-
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(cookieParser());
-  app.use(expressSession(sessionOpts));
+  app.use(expressSession(getSessionOptions(app)));
   app.use(passport.initialize());
   app.use(passport.session());
 };
@@ -112,6 +105,18 @@ const devMiddlewareSetup = (app: Express): void => {
     // Error Handler. Provides full stack
     app.use(errorHandler());
   }
+};
+
+const getSessionOptions = (app: Express): any => {
+  return {
+    saveUninitialized: true, // Saved new sessions
+    resave: false, // Do not automatically write to the session store
+    secret: process.env.SESSION_SECRET,
+    cookie: { // Configure when sessions expires
+      secure: (app.get("env") === "dev" ? false : true),
+      maxAge: 2419200000
+    }
+  };
 };
 
 const createDatabaseOptions = (): ConnectionOptions[] => {
