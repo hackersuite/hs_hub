@@ -28,8 +28,8 @@ export const buildApp = (callback: (app: Express, err?: Error) => void): void =>
   app.use("/", mainRouter());
 
   // Setting up error handlers
-  app.use(errorHandler);
   app.use(error404Handler);
+  app.use(errorHandler);
 
   // Connecting to database
   createConnections(createDatabaseOptions()).then((connections: Connection[]) => {
