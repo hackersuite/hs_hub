@@ -18,7 +18,7 @@ export const passportLocalStrategy = (): localstrategy.Strategy => {
       if (!user) {
         return done(undefined, undefined);
       } else {
-        done(undefined, user.id);
+        done(undefined, user);
       }
     } catch (err) {
       done(err);

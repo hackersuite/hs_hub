@@ -24,9 +24,15 @@ export const userRouter = (): Router => {
 
   /**
    * GET /user/checkOrganizer
-   * Used of only to test out checkOrganizer, to be removed in next pull request
+   * Used of only to test out checkIsOrganizer, to be removed in next pull request
    */
   router.get("/checkOrganizer", checkIsOrganizer, userController.test);
+
+  /**
+   * GET /user/checkAttendee
+   * Used of only to test out checkIsLoggedIn, to be removed in next pull request
+   */
+  router.get("/checkAttendee", checkIsLoggedIn, userController.test);
 
   /**
    * GET /user/logout

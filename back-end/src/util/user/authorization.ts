@@ -12,9 +12,9 @@ import { HttpResponseCode } from "../errorHandling/httpResponseCode";
  */
 export const checkIsLoggedIn = (req: Request, res: Response, next: NextFunction): void => {
   if (!req.user) {
-    next(new ApiError(HttpResponseCode.FORBIDDEN, "You are not logged in!"));
+    return next(new ApiError(HttpResponseCode.FORBIDDEN, "You are not logged in!"));
   }
-  next();
+  return next();
 };
 
 /**
@@ -25,10 +25,12 @@ export const checkIsLoggedIn = (req: Request, res: Response, next: NextFunction)
  * @param next The next handler
  */
 export const checkIsVolunteer = (req: Request, res: Response, next: NextFunction): void => {
+  console.log("Hellow");
+  console.log(req.user.authLevel);
   if (!req.user || (req.user as User).authLevel < AuthLevels.Volunteer) {
-    next(new ApiError(HttpResponseCode.FORBIDDEN, "You are not logged in or you are not a volunteer!"));
+    return next(new ApiError(HttpResponseCode.FORBIDDEN, "You are not logged in or you are not a volunteer!"));
   }
-  next();
+  return next();
 };
 
 /**
@@ -40,7 +42,7 @@ export const checkIsVolunteer = (req: Request, res: Response, next: NextFunction
  */
 export const checkIsOrganizer = (req: Request, res: Response, next: NextFunction): void => {
   if (!req.user || (req.user as User).authLevel < AuthLevels.Organizer) {
-    next(new ApiError(HttpResponseCode.FORBIDDEN, "You are not logged in or you are not not an organizer!"));
+    return next(new ApiError(HttpResponseCode.FORBIDDEN, "You are not logged in or you are not not an organizer!"));
   }
-  next();
+  return next();
 };

@@ -55,9 +55,9 @@ beforeAll((done: jest.DoneCallback): void => {
 });
 
 /**
- * Testing authorisation requests
+ * Testing user controller requests
  */
-describe("Authorisation tests", (): void => {
+describe("User controller tests", (): void => {
   /**
    * Test that we get notified when the user does not exist in either database
    */
@@ -124,7 +124,7 @@ describe("Authorisation tests", (): void => {
   });
 
   /**
-   * Test that we cannot use methods that require authorization after loggin out
+   * Test that we cannot use methods that require authorization after logging out
    */
   test("Should not log out after already logged out", async (): Promise<void> => {
     const response = await request(bApp)
