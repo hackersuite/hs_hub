@@ -2,13 +2,12 @@ import { Express } from "express";
 import { buildApp } from "../../../src/app";
 import { User, ApplicationUser } from "../../../src/db/entity/";
 import { getConnection } from "typeorm";
-import { getUserByEmailFromApplications, getUserByEmailFromHub } from "../../../src/util/user/userValidation";
+import { getUserByEmailFromHub } from "../../../src/util/user/userValidation";
 import * as request from "supertest";
+import { HttpResponseCode } from "../../../src/util/errorHandling/httpResponseCode";
 
 let bApp: Express;
-
-const HTTP_OK: number = 200;
-const HTTP_FAIL: number = 401;
+let sessionCookie: string;
 
 const testHubUser: User = new User();
 
@@ -69,8 +68,8 @@ describe("Authorisation tests", (): void => {
         email: "this.email.doesnt.exist@testing.com",
         password: "password123"
       });
-    expect(response.status).toBe(HTTP_FAIL);
-    expect(JSON.parse(response.error.text).message).toBe("Please create an account.");
+    expect(response.status).toBe(HttpResponseCode.UNAUTHORIZED);
+    expect(response.body.message).toBe("Incorrect credentials provided.");
   });
 
   /**
@@ -84,8 +83,12 @@ describe("Authorisation tests", (): void => {
         password: "password123"
       });
 
-    expect(response.status).toBe(HTTP_OK);
-    expect(response.body.message).toBe(testApplicationUser.email);
+    expect(response.status).toBe(HttpResponseCode.OK);
+    expect(response.body.error).toBeUndefined();
+    expect(response.body.message).toBe("Logged in");
+    sessionCookie = response.header["set-cookie"].pop().split(";")[0];
+    expect(sessionCookie).not.toBeUndefined();
+    expect(sessionCookie).toMatch(/connect.sid=*/);
 
     const newHubUser: User = await getUserByEmailFromHub(testApplicationUser.email);
     expect(newHubUser).not.toBe(undefined);
@@ -102,8 +105,8 @@ describe("Authorisation tests", (): void => {
         password: "password1234"
       });
 
-    expect(response.status).toBe(HTTP_FAIL);
-    expect(response.body.message).toBe("Email or password is incorrect.");
+    expect(response.status).toBe(HttpResponseCode.UNAUTHORIZED);
+    expect(response.body.message).toBe("Incorrect credentials provided.");
   });
 
   /**
@@ -112,9 +115,10 @@ describe("Authorisation tests", (): void => {
   test("Should check the user is logged out by passport", async (): Promise<void> => {
     const response = await request(bApp)
       .get("/user/logout")
+      .set("Cookie", sessionCookie)
       .send();
 
-    expect(response.status).toBe(HTTP_OK);
+    expect(response.status).toBe(HttpResponseCode.OK);
     expect(response.body.message).toBe("Logged out");
   });
 });

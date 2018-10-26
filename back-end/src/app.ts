@@ -1,35 +1,35 @@
 import "reflect-metadata";
 import * as express from "express";
 import * as dotenv from "dotenv";
-import * as bodyParser from "body-parser";
 import * as path from "path";
 import * as morgan from "morgan";
-import * as errorHandler from "errorhandler";
 import * as passport from "passport";
 import * as expressSession from "express-session";
 import * as cookieParser from "cookie-parser";
-import { createPassportLocalStrategy } from "./util/user/createPassportStrategy";
+import { passportLocalStrategy } from "./util/user/passportLocalStrategy";
 import { Express, Request, Response, NextFunction } from "express";
 import { Connection, createConnections, ConnectionOptions } from "typeorm";
-import { createPassportSerialization } from "./util/user/createPassportSerialization";
+import { errorHandler, error404Handler } from "./util/errorHandling/errorHandler";
+import { mainRouter } from "./routes";
 
 // Load environment variables from .env file
 dotenv.config({ path: ".env" });
 
-// Routers
-import { mainRouter } from "./routes";
-
 export const buildApp = (callback: (app: Express, err?: Error) => void): void => {
   const app: Express = expressSetup();
-
-  setUpPassport();
 
   middlewareSetup(app);
 
   devMiddlewareSetup(app);
 
+  passportSetup(app);
+
   // Routes set up
   app.use("/", mainRouter());
+
+  // Setting up error handlers
+  app.use(errorHandler);
+  app.use(error404Handler);
 
   // Connecting to database
   createConnections(createDatabaseOptions()).then((connections: Connection[]) => {
@@ -59,16 +59,6 @@ const expressSetup = (): Express => {
 };
 
 /**
- * Creates the passport middleware for handling user authentication
- */
-const setUpPassport = (): void => {
-  // Passport configuration
-  passport.use(createPassportLocalStrategy());
-
-  createPassportSerialization();
-};
-
-/**
  * Sets up middleware used by the app
  * @param app The app to set up the middleware for
  */
@@ -78,12 +68,10 @@ const middlewareSetup = (app: Express): void => {
       { maxAge: 31557600000 })
   );
 
-  app.use(bodyParser.json());
-  app.use(bodyParser.urlencoded({ extended: true }));
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
   app.use(cookieParser());
   app.use(expressSession(getSessionOptions(app)));
-  app.use(passport.initialize());
-  app.use(passport.session());
 };
 
 /**
@@ -102,9 +90,18 @@ const devMiddlewareSetup = (app: Express): void => {
       res.header("Pragma", "no-cache");
       next();
     });
-    // Error Handler. Provides full stack
-    app.use(errorHandler());
   }
+};
+
+/**
+ * Creates the passport middleware for handling user authentication
+ * @param app The app to set up the middleware for
+ */
+const passportSetup = (app: Express): void => {
+  app.use(passport.initialize());
+  app.use(passport.session());
+  // Passport configuration
+  passport.use(passportLocalStrategy());
 };
 
 const getSessionOptions = (app: Express): any => {

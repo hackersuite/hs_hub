@@ -1,9 +1,31 @@
 import * as localstrategy from "passport-local";
-import { getUserByEmailFromHub, getUserByEmailFromApplications, validatePassword, insertNewHubUserToDatabase } from "./userValidation";
+import { getUserByEmailFromHub, getUserByEmailFromApplications, validatePassword, insertNewHubUserToDatabase, getUserByIDFromHub } from "./userValidation";
 import { User } from "../../db/entity/user";
 import { ApplicationUser } from "../../db/entity/applicationUser";
+import { AuthLevels } from "./authLevels";
+import passport = require("passport");
 
-export const createPassportLocalStrategy = (): localstrategy.Strategy => {
+export const passportLocalStrategy = (): localstrategy.Strategy => {
+  // Passport serialization
+  passport.serializeUser((user: User, done: Function): void => {
+    done(undefined, user.id);
+  });
+
+  // Passport deserialization
+  passport.deserializeUser(async (id: number, done: Function): Promise<void> => {
+    let user: User = undefined;
+    try {
+      user = await getUserByIDFromHub(id);
+    } catch (err) {
+      done(err);
+    }
+    if (!user) {
+      return done(new Error("User not found"));
+    } else {
+      done(undefined, user.id);
+    }
+  });
+
   return new localstrategy.Strategy({
     usernameField: "email",
     passwordField: "password"
@@ -12,7 +34,7 @@ export const createPassportLocalStrategy = (): localstrategy.Strategy => {
     // Check if the hub has the user
     const user: User = await checkIfHubHasUser(email);
     if (user && !validatePassword(password, user.password))
-      return done(undefined, false, { message: "Email or password is incorrect." });
+      return done(undefined, false, { message: "Incorrect credentials provided." });
     else if (user)
       return done(undefined, user);
 
@@ -23,7 +45,7 @@ export const createPassportLocalStrategy = (): localstrategy.Strategy => {
     if (applicationUser && applicationUser.email_verified) {
       // Step 3:
       // If the user is found and email is verified
-      if (!validatePassword(password, applicationUser.password)) done(undefined, false, { message: "Password is incorrect" });
+      if (!validatePassword(password, applicationUser.password)) done(undefined, false, { message: "Incorrect credentials provided." });
 
       const newHubUser: User = new User();
       newHubUser.id = applicationUser.id;
@@ -39,7 +61,7 @@ export const createPassportLocalStrategy = (): localstrategy.Strategy => {
     }
     // Step 4:
     // If not found on either, refer to applications platform
-    return done(undefined, false, { message: "Please create an account." });
+    return done(undefined, false, { message: "Incorrect credentials provided." });
   });
 
   async function checkIfHubHasUser(email: string): Promise<User> {
@@ -61,11 +83,8 @@ export const createPassportLocalStrategy = (): localstrategy.Strategy => {
   }
 
   function getAuthLevel(isOrganizer: boolean, isVolunteer: boolean): number {
-    // 1 -> Organizer
-    // 2 -> Volunteer
-    // 3 -> Attendee
-    if (isOrganizer) return 1;
-    else if (isVolunteer) return 2;
-    else return 3;
+    if (isOrganizer) return AuthLevels.Organizer;
+    else if (isVolunteer) return AuthLevels.Volunteer;
+    else return AuthLevels.Attendee;
   }
 };
