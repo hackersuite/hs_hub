@@ -13,14 +13,14 @@ export class UserController {
   public login(req: Request, res: Response, next: Function): void {
     passport.authenticate("local", (err: Error, user: any, info: any) => {
       if (err) {
-        return next(new ApiError(HttpResponseCode.UNAUTHORIZED, err));
+        return next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
       }
       if (!user) {
         return next(new ApiError(HttpResponseCode.UNAUTHORIZED, info.message));
       }
       req.logIn(user, (err: any) => {
         if (err) {
-          return next(new ApiError(HttpResponseCode.UNAUTHORIZED, err));
+          return next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
         }
         res.send({ message: "Logged in" });
       });

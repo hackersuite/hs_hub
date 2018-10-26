@@ -19,7 +19,6 @@ export const errorHandler = (err: ApiError|Error, req: Request, res: Response, n
  * Handles 404 errors
  */
 export const error404Handler = (req: Request, res: Response) => {
-  console.error("hellow");
   const error: ApiError = new ApiError(HttpResponseCode.NOT_FOUND);
   res.status(error.statusCode).send(error);
 };

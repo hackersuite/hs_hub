@@ -1,7 +1,7 @@
 import { Express } from "express";
 import { buildApp } from "../../../src/app";
 import { User, ApplicationUser } from "../../../src/db/entity/";
-import { getConnection } from "typeorm";
+import { getConnection, createConnection } from "typeorm";
 import { getUserByEmailFromHub } from "../../../src/util/user/userValidation";
 import * as request from "supertest";
 import { HttpResponseCode } from "../../../src/util/errorHandling/httpResponseCode";
@@ -92,6 +92,7 @@ describe("Authorisation tests", (): void => {
 
     const newHubUser: User = await getUserByEmailFromHub(testApplicationUser.email);
     expect(newHubUser).not.toBe(undefined);
+    testHubUser.id = newHubUser.id;
   });
 
   /**
@@ -121,12 +122,99 @@ describe("Authorisation tests", (): void => {
     expect(response.status).toBe(HttpResponseCode.OK);
     expect(response.body.message).toBe("Logged out");
   });
+
+  /**
+   * Test that we cannot use methods that require authorization after loggin out
+   */
+  test("Should not log out after already logged out", async (): Promise<void> => {
+    const response = await request(bApp)
+      .get("/user/logout")
+      .set("Cookie", sessionCookie)
+      .send();
+
+    expect(response.status).toBe(HttpResponseCode.FORBIDDEN);
+    expect(response.body.message).toBe("You are not logged in!");
+  });
+
+  /**
+   * Test that we cannot log in when the connection to the hub database has been closed
+   */
+  test("Should not log in when disconnected from hub database", async (): Promise<void> => {
+    await getConnection("hub").close();
+
+    const response = await request(bApp)
+      .post("/user/login")
+      .send({
+        email: testApplicationUser.email,
+        password: "password123"
+      });
+
+    expect(response.status).toBe(HttpResponseCode.INTERNAL_ERROR);
+    expect(response.body.message).toBe("Lost connection to database (hub)!");
+
+    await createConnection({
+      name: "hub",
+      type: "mysql",
+      host: process.env.DB_HOST,
+      port: Number(process.env.DB_PORT),
+      username: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_DATABASE,
+      entities: [
+        User
+      ],
+      synchronize: true,
+      logging: false
+    });
+  });
+
+  /**
+   * Test that we cannot log in when the connection to the applications database has been closed
+   */
+  test("Should not log in when disconnected from applications database", async (): Promise<void> => {
+    await getConnection("applications").close();
+
+    const response = await request(bApp)
+      .post("/user/login")
+      .send({
+        email: testApplicationUser.email + "making the app send a query to the applications DB",
+        password: "password123"
+      });
+
+    expect(response.status).toBe(HttpResponseCode.INTERNAL_ERROR);
+    expect(response.body.message).toBe("Lost connection to database (applications)!");
+
+    await createConnection({
+      name: "applications",
+      type: "postgres",
+      host: process.env.APP_DB_HOST,
+      port: Number(process.env.APP_DB_PORT),
+      username: process.env.APP_DB_USER,
+      password: process.env.APP_DB_PASSWORD,
+      database: process.env.APP_DB_DATABASE,
+      entities: [
+        ApplicationUser
+      ],
+      synchronize: false,
+      logging: false,
+      extra: {
+        ssl: true
+      }
+    });
+  });
 });
 
 /**
  * Cleaning up after the tests
  */
-afterAll(async (done: jest.DoneCallback): Promise<void> => {
+afterAll(async (): Promise<void> => {
+  await getConnection("hub")
+    .createQueryBuilder()
+    .delete()
+    .from(User)
+    .where("id = :id", { id: testHubUser.id })
+    .execute();
+
   await getConnection("applications")
     .createQueryBuilder()
     .delete()
@@ -134,16 +222,7 @@ afterAll(async (done: jest.DoneCallback): Promise<void> => {
     .where("id = :id", { id: testApplicationUser.id })
     .execute();
 
-  await getConnection("hub")
-    .createQueryBuilder()
-    .delete()
-    .from(User)
-    .where("id = :id", { id: testApplicationUser.id })
-    .execute();
-
-  await getConnection("applications").close();
   await getConnection("hub").close();
-
-  done();
+  await getConnection("applications").close();
 });
 

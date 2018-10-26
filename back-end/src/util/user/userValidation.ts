@@ -53,6 +53,9 @@ export async function validateUser(submittedEmail: string, submittedPassword: st
 async function getPasswordFromHub(submittedEmail: string): Promise<string> {
   // getRepository implicitly gets the connection from the conneciton manager
   // We then create and execute a query to get the hashed password based on the provided email
+  if (!getConnection("hub").isConnected) {
+    throw new Error("Lost connection to database (hub)!");
+  }
   const user: User = await getConnection("hub")
     .getRepository(User)
     .createQueryBuilder("user")
@@ -73,6 +76,9 @@ async function getPasswordFromHub(submittedEmail: string): Promise<string> {
  * @return Promise of a user
  */
 export async function getUserByIDFromHub(submittedID: number): Promise<User> {
+  if (!getConnection("hub").isConnected) {
+    throw new Error("Lost connection to database (hub)!");
+  }
   const user: User = await getConnection("hub")
     .getRepository(User)
     .createQueryBuilder("user")
@@ -88,6 +94,9 @@ export async function getUserByIDFromHub(submittedID: number): Promise<User> {
  * @return Promise of a user
  */
 export async function getUserByEmailFromHub(submittedEmail: string): Promise<User> {
+  if (!getConnection("hub").isConnected) {
+    throw new Error("Lost connection to database (hub)!");
+  }
   const user: User = await getConnection("hub")
     .getRepository(User)
     .createQueryBuilder("user")
@@ -103,6 +112,9 @@ export async function getUserByEmailFromHub(submittedEmail: string): Promise<Use
  * @return Promise of a application user
  */
 export async function getUserByEmailFromApplications(submittedEmail: string): Promise<ApplicationUser> {
+  if (!getConnection("applications").isConnected) {
+    throw new Error("Lost connection to database (applications)!");
+  }
   const applicationUser: ApplicationUser = await getConnection("applications")
     .getRepository(ApplicationUser)
     .createQueryBuilder()
@@ -116,6 +128,9 @@ export async function getUserByEmailFromApplications(submittedEmail: string): Pr
  * @param hubUser the new user to insert into the hub database
  */
 export async function insertNewHubUserToDatabase(hubUser: User): Promise<void> {
+  if (!getConnection("applications").isConnected) {
+    throw new Error("Lost connection to database (applications)!");
+  }
   // Insert the user to the database
   await getConnection("hub")
     .createQueryBuilder()
