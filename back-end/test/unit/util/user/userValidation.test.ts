@@ -1,5 +1,5 @@
 import { buildApp } from "../../../../src/app";
-import { getConnection } from "typeorm";
+import { getConnection, createConnection } from "typeorm";
 import { User } from "../../../../src/db/entity";
 import { Express } from "express";
 import { getUserByIDFromHub, getUserByEmailFromHub, validatePassword, validateUser } from "../../../../src/util/user/userValidation";
@@ -77,6 +77,15 @@ describe("User validation tests", (): void => {
   });
 
   /**
+   * Test the user can be selected from the database using a unique id
+   */
+  test("Should ensure the user can be selected from the database using a unique id", async (): Promise<void> => {
+    const user: User = await getUserByIDFromHub(testHubUser.id);
+    expect(user).toBeDefined();
+    expect(user.id).toBe(testHubUser.id);
+  });
+
+  /**
    * Test if the password validation function works as expected
    */
   test("Should ensure that hashed passwords are validated correctly", async (): Promise<void> => {
@@ -87,6 +96,30 @@ describe("User validation tests", (): void => {
     plaintextPassword = "No-longer-valid";
     expect(validatePassword(plaintextPassword, hashedPassword)).toBeFalsy();
   });
+
+  /**
+   * Test that an expected error is thrown when trying to get a user's password and the connection to the DB is closed
+   */
+  test("Should not log in when disconnected from hub database", async (): Promise<void> => {
+    await getConnection("hub").close();
+
+    await createConnection({
+      name: "hub",
+      type: "mysql",
+      host: process.env.DB_HOST,
+      port: Number(process.env.DB_PORT),
+      username: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_DATABASE,
+      entities: [
+        User
+      ],
+      synchronize: true,
+      logging: false
+    });
+  });
+
+
 });
 
 /**

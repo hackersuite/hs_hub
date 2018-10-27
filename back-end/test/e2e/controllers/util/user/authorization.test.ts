@@ -112,7 +112,7 @@ describe("Authorization tests", (): void => {
   });
 
   /**
-   * Test that am attendee can only access attendee methods
+   * Test that an attendee can only access attendee methods
    */
   test("Should allow volunteer to access all except organizer methods", async (): Promise<void> => {
     await getConnection("hub")
@@ -142,6 +142,32 @@ describe("Authorization tests", (): void => {
       .send();
 
     expect(response.status).toBe(HttpResponseCode.OK);
+  });
+
+  /**
+   * Test that a user with an invalid session token cannot access any methods that require authorization
+   */
+  test("Should give access to user with invalid session token", async (): Promise<void> => {
+    let response = await request(bApp)
+      .get("/user/checkOrganizer")
+      .set("Cookie", sessionCookie + "made the token invalid")
+      .send();
+
+    expect(response.status).toBe(HttpResponseCode.FORBIDDEN);
+
+    response = await request(bApp)
+      .get("/user/checkAttendee")
+      .set("Cookie", sessionCookie + "made the token invalid")
+      .send();
+
+    expect(response.status).toBe(HttpResponseCode.FORBIDDEN);
+
+    response = await request(bApp)
+      .get("/user/checkVolunteer")
+      .set("Cookie", sessionCookie + "made the token invalid")
+      .send();
+
+    expect(response.status).toBe(HttpResponseCode.FORBIDDEN);
   });
 });
 

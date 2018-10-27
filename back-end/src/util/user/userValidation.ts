@@ -53,21 +53,21 @@ export async function validateUser(submittedEmail: string, submittedPassword: st
 async function getPasswordFromHub(submittedEmail: string): Promise<string> {
   // getRepository implicitly gets the connection from the conneciton manager
   // We then create and execute a query to get the hashed password based on the provided email
-  if (!getConnection("hub").isConnected) {
-    throw new Error("Lost connection to database (hub)!");
+  try {
+    const user: User = await getConnection("hub")
+      .getRepository(User)
+      .createQueryBuilder("user")
+      .select(
+        "user.password"
+      )
+      .where("user.email = :email", { email: submittedEmail })
+      .getOne();
+    if (user)
+      return user.password;
+    return undefined;
+  } catch (err) {
+    throw new Error(`Lost connection to database (hub)! ${err}`);
   }
-  const user: User = await getConnection("hub")
-    .getRepository(User)
-    .createQueryBuilder("user")
-    .select(
-      "user.password"
-    )
-    .where("user.email = :email", { email: submittedEmail })
-    .getOne();
-  if (user)
-    return user.password;
-
-  return undefined;
 }
 
 /**
@@ -76,16 +76,17 @@ async function getPasswordFromHub(submittedEmail: string): Promise<string> {
  * @return Promise of a user
  */
 export async function getUserByIDFromHub(submittedID: number): Promise<User> {
-  if (!getConnection("hub").isConnected) {
-    throw new Error("Lost connection to database (hub)!");
-  }
-  const user: User = await getConnection("hub")
-    .getRepository(User)
-    .createQueryBuilder("user")
-    .where("user.id = :id", { id: submittedID })
-    .getOne();
+  try {
+    const user: User = await getConnection("hub")
+      .getRepository(User)
+      .createQueryBuilder("user")
+      .where("user.id = :id", { id: submittedID })
+      .getOne();
 
-  return user;
+    return user;
+  } catch (err) {
+    throw new Error(`Lost connection to database (hub)! ${err}`);
+  }
 }
 
 /**
@@ -94,16 +95,17 @@ export async function getUserByIDFromHub(submittedID: number): Promise<User> {
  * @return Promise of a user
  */
 export async function getUserByEmailFromHub(submittedEmail: string): Promise<User> {
-  if (!getConnection("hub").isConnected) {
-    throw new Error("Lost connection to database (hub)!");
-  }
-  const user: User = await getConnection("hub")
-    .getRepository(User)
-    .createQueryBuilder("user")
-    .where("user.email = :email", { email: submittedEmail })
-    .getOne();
+  try {
+    const user: User = await getConnection("hub")
+      .getRepository(User)
+      .createQueryBuilder("user")
+      .where("user.email = :email", { email: submittedEmail })
+      .getOne();
 
-  return user;
+    return user;
+  } catch (err) {
+    throw new Error(`Lost connection to database (hub)! ${err}`);
+  }
 }
 
 /**
@@ -112,15 +114,16 @@ export async function getUserByEmailFromHub(submittedEmail: string): Promise<Use
  * @return Promise of a application user
  */
 export async function getUserByEmailFromApplications(submittedEmail: string): Promise<ApplicationUser> {
-  if (!getConnection("applications").isConnected) {
-    throw new Error("Lost connection to database (applications)!");
+  try {
+    const applicationUser: ApplicationUser = await getConnection("applications")
+      .getRepository(ApplicationUser)
+      .createQueryBuilder()
+      .where("email = :email", { email: submittedEmail })
+      .getOne();
+    return applicationUser;
+  } catch (err) {
+    throw new Error(`Lost connection to database (applications)! ${err}`);
   }
-  const applicationUser: ApplicationUser = await getConnection("applications")
-    .getRepository(ApplicationUser)
-    .createQueryBuilder()
-    .where("email = :email", { email: submittedEmail })
-    .getOne();
-  return applicationUser;
 }
 
 /**
@@ -128,15 +131,16 @@ export async function getUserByEmailFromApplications(submittedEmail: string): Pr
  * @param hubUser the new user to insert into the hub database
  */
 export async function insertNewHubUserToDatabase(hubUser: User): Promise<void> {
-  if (!getConnection("applications").isConnected) {
-    throw new Error("Lost connection to database (applications)!");
+  try {
+    // Insert the user to the database
+    await getConnection("hub")
+      .createQueryBuilder()
+      .insert()
+      .into(User)
+      .values(hubUser)
+      .execute();
+    return;
+  } catch (err) {
+    throw new Error(`Lost connection to database (applications)! ${err}`);
   }
-  // Insert the user to the database
-  await getConnection("hub")
-    .createQueryBuilder()
-    .insert()
-    .into(User)
-    .values(hubUser)
-    .execute();
-  return;
 }

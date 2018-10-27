@@ -25,8 +25,6 @@ export const checkIsLoggedIn = (req: Request, res: Response, next: NextFunction)
  * @param next The next handler
  */
 export const checkIsVolunteer = (req: Request, res: Response, next: NextFunction): void => {
-  console.log("Hellow");
-  console.log(req.user.authLevel);
   if (!req.user || (req.user as User).authLevel < AuthLevels.Volunteer) {
     return next(new ApiError(HttpResponseCode.FORBIDDEN, "You are not logged in or you are not a volunteer!"));
   }
