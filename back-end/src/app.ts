@@ -15,7 +15,9 @@ import { mainRouter } from "./routes";
 // Load environment variables from .env file
 dotenv.config({ path: ".env" });
 
-export const buildApp = (callback: (app: Express, err?: Error) => void): void => {
+
+// codebeat:disable[LOC]
+export function buildApp(callback: (app: Express, err?: Error) => void): void {
   const app: Express = expressSetup();
 
   middlewareSetup(app);
@@ -42,7 +44,7 @@ export const buildApp = (callback: (app: Express, err?: Error) => void): void =>
     console.error(err);
     return callback(app, err);
   });
-};
+}
 
 /**
  * Creates an Express app
