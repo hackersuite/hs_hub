@@ -1,52 +1,47 @@
 import "reflect-metadata";
 import * as express from "express";
 import * as dotenv from "dotenv";
-import * as bodyParser from "body-parser";
 import * as path from "path";
 import * as morgan from "morgan";
-import * as errorHandler from "errorhandler";
+import * as passport from "passport";
+import * as expressSession from "express-session";
+import * as cookieParser from "cookie-parser";
+import { passportLocalStrategy } from "./util/user/passportLocalStrategy";
 import { Express, Request, Response, NextFunction } from "express";
+import { Connection, createConnections, ConnectionOptions } from "typeorm";
+import { errorHandler, error404Handler } from "./util/errorHandling/errorHandler";
+import { mainRouter } from "./routes";
 
 // Load environment variables from .env file
 dotenv.config({ path: ".env" });
 
-// Routers
-import { TestRouter } from "./routes";
-import { Connection, createConnection, ConnectionOptions } from "typeorm";
 
 // codebeat:disable[LOC]
 export function buildApp(callback: (app: Express, err?: Error) => void): void {
-  // API keys and Passport configuration
-  // TODO: set up passport
-
   const app: Express = expressSetup();
 
   middlewareSetup(app);
 
   devMiddlewareSetup(app);
 
+  passportSetup(app);
+
   // Routes set up
-  app.use("/", TestRouter());
+  app.use("/", mainRouter());
+
+  // Setting up error handlers
+  app.use(error404Handler);
+  app.use(errorHandler);
 
   // Connecting to database
-  createConnection({
-    type: "mysql",
-    host: process.env.DB_HOST,
-    port: Number(process.env.DB_PORT),
-    username: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_DATABASE,
-    entities: [
-      __dirname + "/db/entity/*.ts"
-    ],
-    synchronize: true,
-    logging: false
-  }).then((connection: Connection) => {
-    console.log("  Connection to database established.");
+  createConnections(createDatabaseOptions()).then((connections: Connection[]) => {
+    connections.forEach(element => {
+      console.log("  Connection to database (" + element.name + ") established.");
+    });
     return callback(app);
-  }).catch((err: Error) => {
-    console.error("Could not connect to database");
-    console.log(err);
+  }).catch((err: any) => {
+    console.error("  Could not connect to database");
+    console.error(err);
     return callback(app, err);
   });
 }
@@ -74,8 +69,11 @@ const middlewareSetup = (app: Express): void => {
     express.static(path.join(__dirname, "public"),
       { maxAge: 31557600000 })
   );
-  app.use(bodyParser.json());
-  app.use(bodyParser.urlencoded({ extended: true }));
+
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
+  app.use(cookieParser());
+  app.use(expressSession(getSessionOptions(app)));
 };
 
 /**
@@ -94,7 +92,64 @@ const devMiddlewareSetup = (app: Express): void => {
       res.header("Pragma", "no-cache");
       next();
     });
-    // Error Handler. Provides full stack
-    app.use(errorHandler());
   }
+};
+
+/**
+ * Creates the passport middleware for handling user authentication
+ * @param app The app to set up the middleware for
+ */
+const passportSetup = (app: Express): void => {
+  app.use(passport.initialize());
+  app.use(passport.session());
+  // Passport configuration
+  passport.use(passportLocalStrategy());
+};
+
+const getSessionOptions = (app: Express): any => {
+  return {
+    saveUninitialized: true, // Saved new sessions
+    resave: false, // Do not automatically write to the session store
+    secret: process.env.SESSION_SECRET,
+    cookie: { // Configure when sessions expires
+      secure: (app.get("env") === "dev" ? false : true),
+      maxAge: 2419200000
+    }
+  };
+};
+
+const createDatabaseOptions = (): ConnectionOptions[] => {
+  return [{
+    name: "hub",
+    type: "mysql",
+    host: process.env.DB_HOST,
+    port: Number(process.env.DB_PORT),
+    username: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE,
+    entities: [
+      __dirname + "/db/entity/user{.js,.ts}"
+    ],
+    // Per TypeOrm documentation, this is unsafe for production
+    // We should instead use migrations to change the database
+    // once we have it in production.
+    synchronize: true,
+    logging: false
+  }, {
+    name: "applications",
+    type: "postgres",
+    host: process.env.APP_DB_HOST,
+    port: Number(process.env.APP_DB_PORT),
+    username: process.env.APP_DB_USER,
+    password: process.env.APP_DB_PASSWORD,
+    database: process.env.APP_DB_DATABASE,
+    entities: [
+      __dirname + "/db/entity/applicationUser{.js,.ts}"
+    ],
+    synchronize: false,
+    logging: false,
+    extra: {
+      ssl: true
+    }
+  }];
 };

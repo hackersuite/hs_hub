@@ -18,7 +18,7 @@ export class UsersCacheCollection extends CacheCollection<UserCached> {
    */
   public async sync(): Promise<void> {
     // Fetchig the user object from the database
-    const users: User[] = await getConnection()
+    const users: User[] = await getConnection("hub")
       .getRepository(User)
       .createQueryBuilder("user")
       .whereInIds(Array.from(this.elements.keys()))

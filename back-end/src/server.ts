@@ -4,8 +4,10 @@ import { Express } from "express";
 /**
  * Start Express server.
  */
-buildApp(
-  (app: Express) => {
+buildApp((app: Express, err: Error) => {
+  if (err) {
+    console.error("Could not start server!");
+  } else {
     app.listen(app.get("port"), () => {
       console.log(
         "  App is running at http://localhost:%d in %s mode",
@@ -15,4 +17,4 @@ buildApp(
       console.log("  Press CTRL-C to stop\n");
     });
   }
-);
+});

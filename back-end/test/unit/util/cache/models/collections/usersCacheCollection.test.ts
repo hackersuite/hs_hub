@@ -19,7 +19,7 @@ testUserInDatabase.repo = "tests.git";
 beforeAll((done: jest.DoneCallback): void => {
   buildApp(async (builtApp: Express): Promise<void> => {
     // Creating the test user
-    testUserInDatabase.id = (await getConnection()
+    testUserInDatabase.id = (await getConnection("hub")
       .createQueryBuilder()
       .insert()
       .into(User)
@@ -95,7 +95,7 @@ describe("Users cache collection tests", (): void => {
    */
   test("Should manage to sync multiple users", async (): Promise<void> => {
     const secondUser = { ...testUserInDatabase, name: "John Tester", id: testUserInDatabase.id + 1 };
-    const secondUserId = (await getConnection()
+    const secondUserId = (await getConnection("hub")
       .createQueryBuilder()
       .insert()
       .into(User)
@@ -110,7 +110,7 @@ describe("Users cache collection tests", (): void => {
     expect(firstUserInCache.isEqualTo(firstUserInDB)).toBeTruthy();
     expect(secondUserInCache.isEqualTo(secondUserInDB)).toBeTruthy();
 
-    await getConnection()
+    await getConnection("hub")
     .createQueryBuilder()
     .delete()
     .from(User)
@@ -150,7 +150,7 @@ describe("Users cache collection tests", (): void => {
 
     expect(userInCache.isEqualTo(userThatShouldBeInCache)).toBeTruthy();
 
-    await getConnection()
+    await getConnection("hub")
       .createQueryBuilder()
       .delete()
       .from(User)
@@ -167,8 +167,8 @@ describe("Users cache collection tests", (): void => {
 /**
  * Cleaning up after the tests
  */
-afterAll(async (done: jest.DoneCallback): Promise<void> => {
-  await getConnection()
+afterAll(async (): Promise<void> => {
+  await getConnection("hub")
     .createQueryBuilder()
     .delete()
     .from(User)
@@ -176,7 +176,6 @@ afterAll(async (done: jest.DoneCallback): Promise<void> => {
     .execute();
 
   // Closing the connection to the database
-  await getConnection().close();
-
-  done();
+  await getConnection("hub").close();
+  await getConnection("applications").close();
 });

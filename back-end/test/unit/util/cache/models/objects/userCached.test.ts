@@ -18,7 +18,7 @@ testUser.repo = "tests.git";
 beforeAll((done: jest.DoneCallback): void => {
   buildApp(async (builtApp: Express): Promise<void> => {
     // Creating the test user in the database
-    testUser.id = (await getConnection()
+    testUser.id = (await getConnection("hub")
       .createQueryBuilder()
       .insert()
       .into(User)
@@ -59,8 +59,8 @@ describe("Cached user tests", (): void => {
 /**
  * Cleaning up after the tests
  */
-afterAll(async (done: jest.DoneCallback): Promise<void> => {
-  await getConnection()
+afterAll(async (): Promise<void> => {
+  await getConnection("hub")
     .createQueryBuilder()
     .delete()
     .from(User)
@@ -68,7 +68,6 @@ afterAll(async (done: jest.DoneCallback): Promise<void> => {
     .execute();
 
   // Closing the connection to the database
-  await getConnection().close();
-
-  done();
+  await getConnection("hub").close();
+  await getConnection("applications").close();
 });

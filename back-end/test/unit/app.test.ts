@@ -14,8 +14,10 @@ describe("App startup tests", (): void => {
       expect(err).toBe(undefined);
       expect(builtApp.get("port")).toBe(process.env.PORT || 3000);
       expect(builtApp.get("env")).toBe(process.env.ENVIRONMENT || "production");
-      expect(getConnection().isConnected).toBeTruthy();
-      await getConnection().close();
+      expect(getConnection("hub").isConnected).toBeTruthy();
+      expect(getConnection("applications").isConnected).toBeTruthy();
+      await getConnection("hub").close();
+      await getConnection("applications").close();
       done();
     });
   });
@@ -28,8 +30,10 @@ describe("App startup tests", (): void => {
     buildApp(async (builtApp: Express, err: Error): Promise<void> => {
       expect(builtApp.get("env")).toBe("dev");
       expect(err).toBe(undefined);
-      expect(getConnection().isConnected).toBeTruthy();
-      await getConnection().close();
+      expect(getConnection("hub").isConnected).toBeTruthy();
+      expect(getConnection("applications").isConnected).toBeTruthy();
+      await getConnection("hub").close();
+      await getConnection("applications").close();
       done();
     });
   });
@@ -38,10 +42,12 @@ describe("App startup tests", (): void => {
    * Testing error handling with incorrect settings
    */
   test("App should throw error with invalid settings", async (done: jest.DoneCallback): Promise<void> => {
-    process.env.DB_HOST = "invalid host";
+    process.env.DB_HOST = "invalidhost";
+    process.env.APP_DB_HOST = "invalidhost";
     buildApp(async (builtApp: Express, err: Error): Promise<void> => {
       expect(err).not.toBe(undefined);
-      expect(getConnection().isConnected).toBeFalsy();
+      expect(getConnection("hub").isConnected).toBeFalsy();
+      expect(getConnection("applications").isConnected).toBeFalsy();
       done();
     });
   });
