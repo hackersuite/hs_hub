@@ -128,7 +128,9 @@ const createDatabaseOptions = (): ConnectionOptions[] => {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE,
     entities: [
-      __dirname + "/db/entity/user{.js,.ts}"
+      __dirname + "/db/entity/user{.js,.ts}",
+      __dirname + "/db/entity/hardwareItem{.js,.ts}",
+      __dirname + "/db/entity/reservedHardwareItem{.js,.ts}"
     ],
     // Per TypeOrm documentation, this is unsafe for production
     // We should instead use migrations to change the database
