@@ -9,7 +9,7 @@ import * as cookieParser from "cookie-parser";
 import { passportLocalStrategy } from "./util/user/passportLocalStrategy";
 import { Express, Request, Response, NextFunction } from "express";
 import { Connection, createConnections, ConnectionOptions } from "typeorm";
-import { errorHandler, error404Handler } from "./util/errorHandling/errorHandler";
+import { errorHandler, error404Handler } from "./util/errorHandling";
 import { mainRouter } from "./routes";
 
 // Load environment variables from .env file
@@ -134,7 +134,7 @@ const createDatabaseOptions = (): ConnectionOptions[] => {
     // We should instead use migrations to change the database
     // once we have it in production.
     synchronize: true,
-    logging: true
+    logging: false
   }, {
     name: "applications",
     type: "postgres",

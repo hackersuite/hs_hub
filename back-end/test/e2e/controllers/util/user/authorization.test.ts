@@ -2,7 +2,7 @@ import { User } from "../../../../../src/db/entity/hub";
 import { buildApp } from "../../../../../src/app";
 import { getConnection } from "typeorm";
 import * as request from "supertest";
-import { HttpResponseCode } from "../../../../../src/util/errorHandling/httpResponseCode";
+import { HttpResponseCode } from "../../../../../src/util/errorHandling";
 import { AuthLevels } from "../../../../../src/util/user";
 import { Express } from "express";
 

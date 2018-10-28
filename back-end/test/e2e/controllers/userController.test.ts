@@ -5,7 +5,7 @@ import { ApplicationUser } from "../../../src/db/entity/applications";
 import { getConnection, createConnection } from "typeorm";
 import { getUserByEmailFromHub } from "../../../src/util/user/userValidation";
 import * as request from "supertest";
-import { HttpResponseCode } from "../../../src/util/errorHandling/httpResponseCode";
+import { HttpResponseCode } from "../../../src/util/errorHandling";
 
 let bApp: Express;
 let sessionCookie: string;

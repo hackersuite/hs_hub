@@ -1,4 +1,4 @@
-import { HttpResponseCode } from "./httpResponseCode";
+import { HttpResponseCode } from "./";
 
 export class ApiError {
   /**
