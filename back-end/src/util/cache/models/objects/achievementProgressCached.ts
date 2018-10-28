@@ -2,6 +2,7 @@ import { CacheObject } from "../../abstract-classes";
 import { Achievement } from "../../../achievements/abstract-classes";
 import { Achievements } from "../../../achievements";
 import { ApiError, HttpResponseCode } from "../../../errorHandling";
+import { AchievementProgress } from "../../../../db/entity/hub";
 
 /**
  * A cached user object
@@ -31,14 +32,14 @@ export class AchievementProgressCached extends CacheObject {
    * @param _achievement The achievement
    * @param _user The user
    */
-  constructor(achievementId: string, userId: number) {
-    super(userId + "->" + achievementId);
-    this.achievement = Achievements.getAchievementWithId(achievementId);
+  constructor(achievementProgress: AchievementProgress) {
+    super(`${achievementProgress.user.id}->${Achievements.getAchievementWithId(achievementProgress.achievementId)}`);
+    this.achievement = Achievements.getAchievementWithId(achievementProgress.achievementId);
     if (this.achievement === undefined) {
       throw new ApiError(HttpResponseCode.INTERNAL_ERROR,
-        `Achievement with id ${achievementId} is not implemented!`);
+        `Achievement with id ${achievementProgress.achievementId} is not implemented!`);
     }
-    this.userId = userId;
+    this.userId = achievementProgress.user.id;
     this.progress = 0;
   }
 

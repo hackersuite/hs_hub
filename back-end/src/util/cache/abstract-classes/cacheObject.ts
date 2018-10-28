@@ -3,7 +3,7 @@
  */
 export abstract class CacheObject {
   /**
-   * The id of the object in the database
+   * The id of the object
    */
   public id: string;
 
@@ -21,7 +21,7 @@ export abstract class CacheObject {
 
   /**
    * Creates a new basic cache object
-   * @param id The id of the object in the database
+   * @param id The id of the object
    */
   constructor(id: string) {
     this.id = id;
