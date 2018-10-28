@@ -1,5 +1,3 @@
-import { User } from "../../../db/entity/hub";
-
 /**
  * Abstract class for all achievements
  */

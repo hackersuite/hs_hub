@@ -16,6 +16,16 @@ export class AchievementProgressCacheCollection extends CacheCollection<Achievem
   protected expiresIn: number = -1;
 
   /**
+   * Gets the user's progress on given achievement
+   * @param userId The user
+   * @param achievementId The achievement
+   */
+  public async getElementForUser(userId: number, achievementId: string) {
+    const elementId = `${userId}->${achievementId}`;
+    return await this.getElement(elementId);
+  }
+
+  /**
    * Syncs the progress of all achievements with the database
    */
   public async sync(): Promise<void> {
@@ -30,7 +40,9 @@ export class AchievementProgressCacheCollection extends CacheCollection<Achievem
     achievementsProgressObjects.forEach((achievementProgress: AchievementProgress) => {
       const syncedAchievementProgress =
         new AchievementProgressCached(achievementProgress);
-      this.elements[syncedAchievementProgress.id] = syncedAchievementProgress;
+      // TODO: should probably have a method that generates an id for the object
+      const elementId = `${syncedAchievementProgress.userId}->${syncedAchievementProgress.achievement.id}`;
+      this.elements[elementId] = syncedAchievementProgress;
     });
   }
 
@@ -50,6 +62,10 @@ export class AchievementProgressCacheCollection extends CacheCollection<Achievem
       }
     });
 
+    if (achievementsProgressToSync.length == 0) {
+      return; // Preventing the DB query from being sent if nothing needs updating
+    }
+
     // Sending a query for the new data
     const achievementsProgressForUser = await getConnection("hub")
       .getRepository(AchievementProgress)
@@ -62,7 +78,8 @@ export class AchievementProgressCacheCollection extends CacheCollection<Achievem
     achievementsProgressForUser.forEach((achievementProgress: AchievementProgress) => {
       const syncedAchievementProgress =
         new AchievementProgressCached(achievementProgress);
-      this.elements[syncedAchievementProgress.id] = syncedAchievementProgress;
+      const elementId = `${syncedAchievementProgress.userId}->${syncedAchievementProgress.achievement.id}`;
+      this.elements[elementId] = syncedAchievementProgress;
     });
   }
 
@@ -79,9 +96,9 @@ export class AchievementProgressCacheCollection extends CacheCollection<Achievem
     for (const achievement of Achievements.getAchievements()) {
       const achievementProgressId = `${userId}->${achievement.id}`;
       if (this.elements.has(achievementProgressId)) {
-        userProgressOnAllAchievements[achievement.id] = await this.getElement(achievementProgressId);
+        userProgressOnAllAchievements[achievementProgressId] = await this.getElement(achievementProgressId);
       } else {
-        userProgressOnAllAchievements[achievement.id] = 0;
+        userProgressOnAllAchievements[achievementProgressId] = 0;
       }
     }
 

@@ -1,8 +1,6 @@
 import { Achievement } from "./abstract-classes";
-import { User } from "../../db/entity/hub";
-import { ApiError } from "../errorHandling";
-import { HttpResponseCode } from "../errorHandling";
 import { BeekeeperAchievement } from "./models";
+import { Cache } from "../cache";
 
 /**
  * The top-level interface for the achievements system
@@ -35,9 +33,8 @@ export abstract class Achievements {
    * Returns the user's progress on all implemented achievements
    * @param user The user to find progress for
    */
-  public static getUserProgressForAllAchievements(user: User): Map<string, number> {
-    // get the progress from cache
-    throw new ApiError(HttpResponseCode.NOT_IMPLEMENTED);
+  public static async getUserProgressForAllAchievements(userId: number): Promise<Map<string, number>> {
+    return await Cache.achievementsProgess.getUserProgressForAllAchievements(userId);
   }
 
   /**
@@ -45,10 +42,8 @@ export abstract class Achievements {
    * @param user The user to find progress for
    * @param achievementId The id of the achievement to find progress for
    */
-  public static getUserProgressForAchievement(user: User, achievementId: string): number {
-    // find in achievementsCollection
-    // get the progress from cache
-    throw new ApiError(HttpResponseCode.NOT_IMPLEMENTED);
+  public static async getUserProgressForAchievement(userId: number, achievementId: string): Promise<number> {
+    return (await Cache.achievementsProgess.getElementForUser(userId, achievementId)).progress;
   }
 
   /**
@@ -57,16 +52,26 @@ export abstract class Achievements {
    * @param achievementId The id of the achievement
    * @param token The token used to verify the validity of the request
    */
-  public static incrementUserProgressForAchievement(user: User, achievementId: string, token: string): number {
-    // find in achievementsCollection
-    // call incrementProgress
-    // update data in cache
-    throw new ApiError(HttpResponseCode.NOT_IMPLEMENTED);
+  public static async incrementUserProgressForAchievement(userId: number, achievementId: string, token: string): Promise<number> {
+    for (const achievement of this.achievementsCollection) {
+      if (achievement.id === achievementId) {
+        // REVIEW: would be possible to handle this with a single query (UPDATE to database and the update the data in the cache directly)
+        // though we might have some problems in terms of data synchronization
+        const currentProgress: number = await achievement.incrementProgress(userId, token);
+        (await Cache.achievementsProgess.getElementForUser(userId, achievementId)).sync();
+        return currentProgress;
+      }
+    }
+    return 0;
   }
 
-  public static refreshUserProgressForAchievement(user: User, achievementId: string) {
-    // find in cache
-    // call sync()
-    throw new ApiError(HttpResponseCode.NOT_IMPLEMENTED);
+  /**
+   * Forces a resync for the user's progress on the achievement and returns the latest progress
+   * @param userId The user id
+   * @param achievementId The achievement id
+   */
+  public static async refreshUserProgressForAchievement(userId: number, achievementId: string): Promise<number> {
+    (await Cache.achievementsProgess.getElementForUser(userId, achievementId)).sync();
+    return (await Cache.achievementsProgess.getElementForUser(userId, achievementId)).progress;
   }
 }

@@ -1,7 +1,6 @@
 import { Achievement } from "../abstract-classes";
 import { ApiError } from "../../errorHandling";
 import { HttpResponseCode } from "../../errorHandling";
-import { User } from "../../../db/entity/hub";
 
 /**
  * The "Beekeeper" achievement
