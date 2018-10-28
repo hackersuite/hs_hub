@@ -1,4 +1,4 @@
-import { User } from "../../../db/entity";
+import { User } from "../../../db/entity/hub";
 
 /**
  * Abstract class for all achievements
@@ -32,17 +32,17 @@ export abstract class Achievement {
   /**
    * A method to increment the user's progress on the achievement
    * after checking that the token is valid.
-   * @param user The user that completed a part of the achievement
+   * @param user The id of the user that completed a part of the achievement
    * @param token The token is a string that helps us check which part of the
    * achievement the user completed. It should be a random string
    * to allow us to use it for verification that the user has actually completed the task
    */
-  public abstract incrementProgress(user: User, token: string): number;
+  public abstract incrementProgress(userId: number, token: string): number;
 
 
   /**
    * A method to check a user's progress in this achievement
-   * @param user The user to check the achievemt progress for
+   * @param userId The id of the user to check the achievement progress for
    */
-  public abstract checkProgress(user: User): number;
+  public abstract checkProgress(userId: number): number;
 }
