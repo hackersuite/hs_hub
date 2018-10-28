@@ -24,7 +24,7 @@ export class UsersCacheCollection extends CacheCollection<UserCached> {
       .getMany();
     // Updating the instance variables
     this.syncedAt = Date.now();
-    this.elements = new Map<number, UserCached>();
+    this.elements = new Map<string, UserCached>();
     users.forEach(user => {
       const syncedUser = new UserCached(user);
       this.elements[syncedUser.id] = syncedUser;

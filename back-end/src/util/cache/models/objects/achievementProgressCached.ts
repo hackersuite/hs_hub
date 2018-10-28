@@ -1,15 +1,24 @@
 import { CacheObject } from "../../abstract-classes";
-import { getConnection } from "typeorm";
-import { User } from "../../../../db/entity/hub";
+import { Achievement } from "../../../achievements/abstract-classes";
+import { Achievements } from "../../../achievements";
+import { ApiError, HttpResponseCode } from "../../../errorHandling";
 
 /**
  * A cached user object
  */
 export class AchievementProgressCached extends CacheObject {
-  public achievementId: string;
-  public userId: string;
+  /**
+   * The achievement
+   */
+  public achievement: Achievement;
+  /**
+   * The user
+   */
+  public userId: number;
+  /**
+   * The user's progress on this achievement
+   */
   public progress: number;
-
 
   /**
    * The amount of time the achievement progress object stays synced (miliseconds)
@@ -17,25 +26,27 @@ export class AchievementProgressCached extends CacheObject {
    */
   protected readonly expiresIn: number = 180000;
 
-  constructor(user: User) {
+  /**
+   * Creates a cached achivement progress object
+   * @param _achievement The achievement
+   * @param _user The user
+   */
+  constructor(achievementId: string, userId: number) {
+    super(userId + "->" + achievementId);
+    this.achievement = Achievements.getAchievementWithId(achievementId);
+    if (this.achievement === undefined) {
+      throw new ApiError(HttpResponseCode.INTERNAL_ERROR,
+        `Achievement with id ${achievementId} is not implemented!`);
+    }
+    this.userId = userId;
+    this.progress = 0;
   }
 
   /**
-   * Syncs this cached user object with the database
+   * Syncs this cached achievement progress with remote services
    */
   public async sync(): Promise<void> {
-    // Fetching the user from the database
-    const user: User = await getConnection("hub")
-      .getRepository(User)
-      .createQueryBuilder("user")
-      .where("user.id = :id", { id: this.id })
-      .getOne();
-    // Updating the instance variables
-    this.name = user.name;
-    this.email = user.email;
-    this.authLevel = user.authLevel;
-    this.team = user.team;
-    this.repo = user.repo;
+    this.progress = await this.achievement.checkProgress(this.userId);
     this.syncedAt = Date.now();
   }
 }
