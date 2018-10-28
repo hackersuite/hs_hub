@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { AuthLevels } from "./authLevels";
-import { User } from "../../db/entity";
+import { User } from "../../db/entity/hub";
 import { ApiError } from "../errorHandling/apiError";
 import { HttpResponseCode } from "../errorHandling/httpResponseCode";
 

@@ -128,13 +128,13 @@ const createDatabaseOptions = (): ConnectionOptions[] => {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE,
     entities: [
-      __dirname + "/db/entity/user{.js,.ts}"
+      __dirname + "/db/entity/hub/*{.js,.ts}"
     ],
     // Per TypeOrm documentation, this is unsafe for production
     // We should instead use migrations to change the database
     // once we have it in production.
     synchronize: true,
-    logging: false
+    logging: true
   }, {
     name: "applications",
     type: "postgres",
@@ -144,7 +144,7 @@ const createDatabaseOptions = (): ConnectionOptions[] => {
     password: process.env.APP_DB_PASSWORD,
     database: process.env.APP_DB_DATABASE,
     entities: [
-      __dirname + "/db/entity/applicationUser{.js,.ts}"
+      __dirname + "/db/entity/applications/*{.js,.ts}"
     ],
     synchronize: false,
     logging: false,

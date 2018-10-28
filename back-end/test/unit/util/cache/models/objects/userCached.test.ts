@@ -1,6 +1,6 @@
 import { Express } from "express";
 import { buildApp } from "../../../../../../src/app";
-import { User } from "../../../../../../src/db/entity";
+import { User } from "../../../../../../src/db/entity/hub";
 import { getConnection } from "typeorm";
 import { UserCached } from "../../../../../../src/util/cache/models/objects/userCached";
 

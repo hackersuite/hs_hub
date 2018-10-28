@@ -1,4 +1,4 @@
-import { User } from "../../../../../src/db/entity";
+import { User } from "../../../../../src/db/entity/hub";
 import { buildApp } from "../../../../../src/app";
 import { getConnection } from "typeorm";
 import * as request from "supertest";
@@ -12,7 +12,7 @@ let sessionCookie: string;
 const testHubUser: User = new User();
 
 testHubUser.name = "Billy Tester II";
-testHubUser.email = "billyII@testing.com";
+testHubUser.email = "billyII@testing-authorization.com";
 testHubUser.authLevel = AuthLevels.Organizer;
 testHubUser.password = "pbkdf2_sha256$30000$xmAiV8Wihzn5$BBVJrxmsVASkYuOI6XdIZoYLfy386hdMOF8S14WRTi8=";
 testHubUser.team = "The Testers II";
@@ -35,6 +35,8 @@ beforeAll((done: jest.DoneCallback): void => {
         .into(User)
         .values([testHubUser])
         .execute()).identifiers[0].id;
+
+      console.log(testHubUser.id);
 
       const response = await request(bApp)
         .post("/user/login")
@@ -60,7 +62,6 @@ describe("Authorization tests", (): void => {
       .get("/user/checkOrganizer")
       .set("Cookie", sessionCookie)
       .send();
-
     expect(response.status).toBe(HttpResponseCode.OK);
 
     response = await request(bApp)
@@ -114,7 +115,7 @@ describe("Authorization tests", (): void => {
   /**
    * Test that an attendee can only access attendee methods
    */
-  test("Should allow volunteer to access all except organizer methods", async (): Promise<void> => {
+  test("Should allow attendee to access all except organizer methods", async (): Promise<void> => {
     await getConnection("hub")
       .createQueryBuilder()
       .update(User)

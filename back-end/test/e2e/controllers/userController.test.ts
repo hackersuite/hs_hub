@@ -1,6 +1,7 @@
 import { Express } from "express";
 import { buildApp } from "../../../src/app";
-import { User, ApplicationUser } from "../../../src/db/entity/";
+import { User } from "../../../src/db/entity/hub";
+import { ApplicationUser } from "../../../src/db/entity/applications";
 import { getConnection, createConnection } from "typeorm";
 import { getUserByEmailFromHub } from "../../../src/util/user/userValidation";
 import * as request from "supertest";
@@ -12,7 +13,7 @@ let sessionCookie: string;
 const testHubUser: User = new User();
 
 testHubUser.name = "Billy Tester II";
-testHubUser.email = "billyII@testing.com";
+testHubUser.email = "billyII@testing-userController.com";
 testHubUser.authLevel = 1;
 testHubUser.team = "The Testers II";
 testHubUser.repo = "tests2.git";

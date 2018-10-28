@@ -1,7 +1,7 @@
 import { Express } from "express";
 import { getConnection } from "typeorm";
 import { buildApp } from "../../../../../../src/app";
-import { User } from "../../../../../../src/db/entity";
+import { User } from "../../../../../../src/db/entity/hub";
 import { Cache } from "../../../../../../src/util/cache";
 import { UserCached } from "../../../../../../src/util/cache/models/objects/userCached";
 
