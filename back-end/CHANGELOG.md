@@ -6,4 +6,4 @@
   * 19/10/2018 - Implemented a caching mechanism
   * 21/10/2018 - Fixed inconsistencies in the caching mechanism
   * 22/10/2018 - Implemented User System
-  * 22/10/2018 - Implemented cache models for achievements progress
+  * 28/10/2018 - Implemented cache models for achievements progress
