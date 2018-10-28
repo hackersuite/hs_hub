@@ -17,11 +17,10 @@ export class UsersCacheCollection extends CacheCollection<UserCached> {
    * Syncs all cached users in the collection with the database
    */
   public async sync(): Promise<void> {
-    // Fetchig the user object from the database
+    // Fetching the user object from the database
     const users: User[] = await getConnection("hub")
       .getRepository(User)
       .createQueryBuilder("user")
-      .whereInIds(Array.from(this.elements.keys()))
       .getMany();
     // Updating the instance variables
     this.syncedAt = Date.now();
