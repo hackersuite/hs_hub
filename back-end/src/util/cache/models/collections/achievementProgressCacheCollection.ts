@@ -33,8 +33,9 @@ export class AchievementProgressCacheCollection extends CacheCollection<Achievem
     const achievementsProgressObjects: AchievementProgress[] = await getConnection("hub")
       .getRepository(AchievementProgress)
       .createQueryBuilder("achievementProgress")
+      .leftJoinAndSelect("achievementProgress.user", "user")
       .getMany();
-    // Updating the instance variables
+    // Updating the instance variables\
     this.syncedAt = Date.now();
     this.elements = new Map<string, AchievementProgressCached>();
     achievementsProgressObjects.forEach((achievementProgress: AchievementProgress) => {
@@ -70,14 +71,16 @@ export class AchievementProgressCacheCollection extends CacheCollection<Achievem
     const achievementsProgressForUser = await getConnection("hub")
       .getRepository(AchievementProgress)
       .createQueryBuilder("achievementProgress")
+      .leftJoinAndSelect("achievementProgress.user", "user")
       .where("achievementProgress.userId = :userId", { userId: user.id })
-      .andWhere("achievementProgress.achievementId IN :achievementsProgressToSync", { achievementsProgressToSync })
+      .andWhere("achievementProgress.achievementId IN (:achievementsProgressToSync)", { achievementsProgressToSync })
       .getMany();
 
     // Updating the collection
     achievementsProgressForUser.forEach((achievementProgress: AchievementProgress) => {
       const syncedAchievementProgress =
         new AchievementProgressCached(achievementProgress);
+      // REVIEW: refactor to use storeElement()
       const elementId = `${syncedAchievementProgress.user.id}->${syncedAchievementProgress.achievement.id}`;
       this.elements[elementId] = syncedAchievementProgress;
     });
@@ -95,10 +98,10 @@ export class AchievementProgressCacheCollection extends CacheCollection<Achievem
     const userProgressOnAllAchievements = new Map<string, number>();
     for (const achievement of Achievements.getAchievements()) {
       const achievementProgressId = `${user.id}->${achievement.id}`;
-      if (this.elements.has(achievementProgressId)) {
-        userProgressOnAllAchievements[achievementProgressId] = await this.getElement(achievementProgressId);
+      if (this.elements[achievementProgressId] !== undefined) {
+        userProgressOnAllAchievements[achievement.id] = (await this.getElement(achievementProgressId)).progress;
       } else {
-        userProgressOnAllAchievements[achievementProgressId] = 0;
+        userProgressOnAllAchievements[achievement.id] = 0;
       }
     }
 

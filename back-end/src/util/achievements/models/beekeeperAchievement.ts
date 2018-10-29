@@ -12,8 +12,4 @@ export class BeekeeperAchievement extends Achievement {
   public finishMessage: string = "nice job";
   public maxProgress: number = 8;
   protected requiresToken: boolean = true;
-
-  protected async tokenIsValid(token: string, step: string): Promise<boolean> {
-    return true;
-  }
 }

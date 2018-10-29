@@ -33,14 +33,14 @@ export class AchievementProgressCached extends CacheObject {
    * @param _user The user
    */
   constructor(achievementProgress: AchievementProgress) {
-    super(`${achievementProgress.user.id}->${Achievements.getAchievementWithId(achievementProgress.achievementId)}`);
+    super(`${achievementProgress.user.id}->${achievementProgress.achievementId}`);
     this.achievement = Achievements.getAchievementWithId(achievementProgress.achievementId);
     if (this.achievement === undefined) {
       throw new ApiError(HttpResponseCode.INTERNAL_ERROR,
         `Achievement with id ${achievementProgress.achievementId} is not implemented!`);
     }
     this.user = achievementProgress.user;
-    this.progress = 0;
+    this.progress = achievementProgress.progress;
   }
 
   /**

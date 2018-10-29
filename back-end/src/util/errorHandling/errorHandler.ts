@@ -9,7 +9,8 @@ import { NextFunction } from "connect";
 export const errorHandler = (err: ApiError|Error, req: Request, res: Response, next: NextFunction) => {
   if (err instanceof Error) {
     // TODO: send notification to admins when an uncaught error occurs
-    res.status(HttpResponseCode.INTERNAL_ERROR).send(new ApiError(HttpResponseCode.INTERNAL_ERROR, err));
+    res.status(HttpResponseCode.INTERNAL_ERROR).send(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
+    console.error(err.stack);
   } else {
     res.status(err.statusCode).send(err);
   }

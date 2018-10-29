@@ -3,6 +3,7 @@ import { getConnection } from "typeorm";
 import { AchievementProgress, User } from "../../../db/entity/hub";
 import { AchievementProgressCached } from "../../cache/models/objects/achievementProgressCached";
 import { ApiError, HttpResponseCode } from "../../errorHandling";
+import * as pbkdf2 from "pbkdf2";
 
 /**
  * Abstract class for all achievements
@@ -46,7 +47,7 @@ export abstract class Achievement {
   public async incrementProgress(user: User, token?: string, step?: string): Promise<number> {
     // Checking the validity of the request
     if (token && !(await this.tokenIsValid(token, step)) || !token && this.requiresToken) {
-      throw new ApiError(HttpResponseCode.FORBIDDEN, "Invalid token provided");
+      throw new ApiError(HttpResponseCode.BAD_REQUEST, "Invalid token provided");
     }
     const userProgress: AchievementProgressCached = await Cache.achievementsProgess.getElementForUser(user, this.id);
     if (userProgress) {
@@ -67,12 +68,12 @@ export abstract class Achievement {
    */
   private async updateUsersProgress(user: User, progress: number): Promise<void> {
     await getConnection("hub")
-    .createQueryBuilder()
-    .update(AchievementProgress)
-    .set({ progress })
-    .where("userId = :userId", { userId: user.id })
-    .andWhere("achievementId = :achievementId", { achievementId: this.id })
-    .execute();
+      .createQueryBuilder()
+      .update(AchievementProgress)
+      .set({ progress })
+      .where("userId = :userId", { userId: user.id })
+      .andWhere("achievementId = :achievementId", { achievementId: this.id })
+      .execute();
   }
 
   /**
@@ -81,14 +82,18 @@ export abstract class Achievement {
    */
   private async createUsersProgress(user: User): Promise<void> {
     await getConnection("hub")
-    .createQueryBuilder()
-    .insert()
-    .into(AchievementProgress)
-    .values([{
-      achievementId: this.id,
-      user: user,
-      progress: 1
-    }]);
+      .createQueryBuilder()
+      .insert()
+      .into(AchievementProgress)
+      .values([{
+        achievementId: this.id,
+        user: user,
+        progress: 1
+      }])
+      .execute();
+    // REVIEW: might be a good idea to check if the query was successful
+    const objInCache = new AchievementProgressCached(new AchievementProgress(this.id, user));
+    Cache.achievementsProgess.storeElement(objInCache);
   }
 
   /**
@@ -99,6 +104,7 @@ export abstract class Achievement {
     const progress = (await getConnection("hub")
       .getRepository(AchievementProgress)
       .createQueryBuilder("achievementProgress")
+      .leftJoinAndSelect("achievementProgress.user", "user")
       .where("achievementProgress.userId = :userId", { userId: user.id })
       .andWhere("achievementProgress.achievementId = :achievementId", { achievementId: this.id })
       .getOne()).progress;
@@ -113,6 +119,12 @@ export abstract class Achievement {
    * @param step The step of the achievement
    */
   protected async tokenIsValid(token: string, step?: string): Promise<boolean> {
-    return true;
+    const expectedToken = pbkdf2.pbkdf2Sync(
+      `${this.id}->${step ? step : ""}`,
+      process.env.ACHIEVEMENT_TOKEN_SALT,
+      1,
+      10
+    ).toString("base64");
+    return token === expectedToken;
   }
 }

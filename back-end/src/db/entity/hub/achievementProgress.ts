@@ -15,4 +15,10 @@ export class AchievementProgress {
     primary: true
   })
   user: User;
+
+  constructor(achievementId: string, user: User) {
+    this.achievementId = achievementId;
+    this.user = user;
+    this.progress = 0;
+  }
 }

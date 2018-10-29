@@ -2,6 +2,7 @@ import { getConnection } from "typeorm";
 import * as pbkdf2 from "pbkdf2";
 import { User } from "../../db/entity/hub";
 import { ApplicationUser } from "../../db/entity/applications";
+import { ApiError, HttpResponseCode } from "../errorHandling";
 
 /**
  * We check that the password hash is valid
@@ -67,7 +68,7 @@ async function getPasswordFromHub(submittedEmail: string): Promise<string> {
       return user.password;
     return undefined;
   } catch (err) {
-    throw new Error(`Lost connection to database (hub)! ${err}`);
+    throw new ApiError(HttpResponseCode.INTERNAL_ERROR, `Lost connection to database (hub)! ${err}`);
   }
 }
 
@@ -86,7 +87,7 @@ export async function getUserByIDFromHub(submittedID: number): Promise<User> {
 
     return user;
   } catch (err) {
-    throw new Error(`Lost connection to database (hub)! ${err}`);
+    throw new ApiError(HttpResponseCode.INTERNAL_ERROR, `Lost connection to database (hub)! ${err}`);
   }
 }
 
@@ -105,7 +106,7 @@ export async function getUserByEmailFromHub(submittedEmail: string): Promise<Use
 
     return user;
   } catch (err) {
-    throw new Error(`Lost connection to database (hub)! ${err}`);
+    throw new ApiError(HttpResponseCode.INTERNAL_ERROR, `Lost connection to database (hub)! ${err}`);
   }
 }
 
@@ -123,7 +124,7 @@ export async function getUserByEmailFromApplications(submittedEmail: string): Pr
       .getOne();
     return applicationUser;
   } catch (err) {
-    throw new Error(`Lost connection to database (applications)! ${err}`);
+    throw new ApiError(HttpResponseCode.INTERNAL_ERROR, `Lost connection to database (applications)! ${err}`);
   }
 }
 
@@ -142,6 +143,6 @@ export async function insertNewHubUserToDatabase(hubUser: User): Promise<void> {
       .execute();
     return;
   } catch (err) {
-    throw new Error(`Lost connection to database (applications)! ${err}`);
+    throw new ApiError(HttpResponseCode.INTERNAL_ERROR, `Lost connection to database (applications)! ${err}`);
   }
 }
