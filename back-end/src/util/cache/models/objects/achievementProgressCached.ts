@@ -2,7 +2,7 @@ import { CacheObject } from "../../abstract-classes";
 import { Achievement } from "../../../achievements/abstract-classes";
 import { Achievements } from "../../../achievements";
 import { ApiError, HttpResponseCode } from "../../../errorHandling";
-import { AchievementProgress } from "../../../../db/entity/hub";
+import { AchievementProgress, User } from "../../../../db/entity/hub";
 
 /**
  * A cached user object
@@ -15,7 +15,7 @@ export class AchievementProgressCached extends CacheObject {
   /**
    * The user
    */
-  public userId: number;
+  public user: User;
   /**
    * The user's progress on this achievement
    */
@@ -39,7 +39,7 @@ export class AchievementProgressCached extends CacheObject {
       throw new ApiError(HttpResponseCode.INTERNAL_ERROR,
         `Achievement with id ${achievementProgress.achievementId} is not implemented!`);
     }
-    this.userId = achievementProgress.user.id;
+    this.user = achievementProgress.user;
     this.progress = 0;
   }
 
@@ -47,7 +47,7 @@ export class AchievementProgressCached extends CacheObject {
    * Syncs this cached achievement progress with remote services
    */
   public async sync(): Promise<void> {
-    this.progress = await this.achievement.checkProgress(this.userId);
+    this.progress = await this.achievement.checkProgress(this.user);
     this.syncedAt = Date.now();
   }
 }

@@ -1,6 +1,6 @@
 import { AchievementProgressCached } from "../objects/achievementProgressCached";
 import { CacheCollection } from "../../abstract-classes";
-import { AchievementProgress } from "../../../../db/entity/hub";
+import { AchievementProgress, User } from "../../../../db/entity/hub";
 import { getConnection } from "typeorm";
 import { Achievements } from "../../../achievements";
 import { Achievement } from "../../../achievements/abstract-classes";
@@ -17,11 +17,11 @@ export class AchievementProgressCacheCollection extends CacheCollection<Achievem
 
   /**
    * Gets the user's progress on given achievement
-   * @param userId The user
+   * @param user The user
    * @param achievementId The achievement
    */
-  public async getElementForUser(userId: number, achievementId: string) {
-    const elementId = `${userId}->${achievementId}`;
+  public async getElementForUser(user: User, achievementId: string) {
+    const elementId = `${user.id}->${achievementId}`;
     return await this.getElement(elementId);
   }
 
@@ -41,7 +41,7 @@ export class AchievementProgressCacheCollection extends CacheCollection<Achievem
       const syncedAchievementProgress =
         new AchievementProgressCached(achievementProgress);
       // TODO: should probably have a method that generates an id for the object
-      const elementId = `${syncedAchievementProgress.userId}->${syncedAchievementProgress.achievement.id}`;
+      const elementId = `${syncedAchievementProgress.user.id}->${syncedAchievementProgress.achievement.id}`;
       this.elements[elementId] = syncedAchievementProgress;
     });
   }
@@ -49,13 +49,13 @@ export class AchievementProgressCacheCollection extends CacheCollection<Achievem
   /**
    * Syncs a user's progress on all achievements.
    * Faster than syncing each object separately as it uses a batch DB query.
-   * @param userId The user to sync the achievements progress for
+   * @param user The user to sync the achievements progress for
    */
-  public async syncForUser(userId: number): Promise<void> {
+  public async syncForUser(user: User): Promise<void> {
     // Finding the objects that need to be synced
     const achievementsProgressToSync: string[] = [];
     Achievements.getAchievements().forEach((achievement: Achievement) => {
-      const achievementProgressId = `${userId}->${achievement.id}`;
+      const achievementProgressId = `${user.id}->${achievement.id}`;
       if (!this.elements.has(achievementProgressId) ||
         this.elements[achievementProgressId].isExpired()) {
         achievementsProgressToSync.push(achievement.id);
@@ -70,7 +70,7 @@ export class AchievementProgressCacheCollection extends CacheCollection<Achievem
     const achievementsProgressForUser = await getConnection("hub")
       .getRepository(AchievementProgress)
       .createQueryBuilder("achievementProgress")
-      .where("achievementProgress.userId = :userId", { userId })
+      .where("achievementProgress.userId = :userId", { userId: user.id })
       .andWhere("achievementProgress.achievementId IN :achievementsProgressToSync", { achievementsProgressToSync })
       .getMany();
 
@@ -78,23 +78,23 @@ export class AchievementProgressCacheCollection extends CacheCollection<Achievem
     achievementsProgressForUser.forEach((achievementProgress: AchievementProgress) => {
       const syncedAchievementProgress =
         new AchievementProgressCached(achievementProgress);
-      const elementId = `${syncedAchievementProgress.userId}->${syncedAchievementProgress.achievement.id}`;
+      const elementId = `${syncedAchievementProgress.user.id}->${syncedAchievementProgress.achievement.id}`;
       this.elements[elementId] = syncedAchievementProgress;
     });
   }
 
   /**
    * Returns the user's progress on all implemented achievements
-   * @param userId The user
+   * @param user The user
    */
-  public async getUserProgressForAllAchievements(userId: number): Promise<Map<string, number>> {
+  public async getUserProgressForAllAchievements(user: User): Promise<Map<string, number>> {
     // Batch updating the user's progress in the cache
-    await this.syncForUser(userId);
+    await this.syncForUser(user);
 
     // Extracting the data from the cache
     const userProgressOnAllAchievements = new Map<string, number>();
     for (const achievement of Achievements.getAchievements()) {
-      const achievementProgressId = `${userId}->${achievement.id}`;
+      const achievementProgressId = `${user.id}->${achievement.id}`;
       if (this.elements.has(achievementProgressId)) {
         userProgressOnAllAchievements[achievementProgressId] = await this.getElement(achievementProgressId);
       } else {

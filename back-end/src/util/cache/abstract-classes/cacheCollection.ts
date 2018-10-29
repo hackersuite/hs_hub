@@ -51,8 +51,8 @@ export abstract class CacheCollection<T extends CacheObject> extends CacheObject
    */
   public async getElement(id: string): Promise<T> {
     if (this.isExpired() || !this.isInitialized) {
-      this.isInitialized = true;
       await this.sync();
+      this.isInitialized = true;
     }
     if (this.elements[id] !== undefined) {
       if (this.elements[id].isExpired()) {
