@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import * as passport from "passport";
 import { ApiError } from "../util/errorHandling/apiError";
 import { HttpResponseCode } from "../util/errorHandling/httpResponseCode";
 import { getConnection } from "typeorm";
@@ -19,15 +18,16 @@ export class ScheduleController {
     if (!title || !startTime || !endTime || !location)
       return next(new ApiError(HttpResponseCode.BAD_REQUEST,
                               "Not all parameters were specified. Expected: title, startTime, endTime, location"));
-    const createdEvent = await getConnection("hub")
+    // TODO: add an if to check if startTime and endTime are dates
+    const createdEventId = (await getConnection("hub")
     .createQueryBuilder()
     .insert()
     .into(Event)
     .values([
         { title, startTime, endTime, location }
      ])
-    .execute();
+    .execute()).identifiers[0].id;
     await Cache.events.sync();
-    res.send(createdEvent);
+    res.send(await Cache.events.getElement(createdEventId));
   }
 }
