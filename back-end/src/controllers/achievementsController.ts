@@ -6,6 +6,11 @@ import { NextFunction } from "connect";
  * A controller for the achievements methods
  */
 export class AchievementsController {
+  public getAllAchievements(req: Request, res: Response) {
+    const achievements = Achievements.getAchievements();
+    res.send(achievements);
+  }
+
   public async getProgressForAllAchievements(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const progress: Map<string, number> = await Achievements.getUserProgressForAllAchievements(req.user);

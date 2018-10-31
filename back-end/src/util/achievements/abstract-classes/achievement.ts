@@ -51,10 +51,17 @@ export abstract class Achievement {
     }
     const userProgress: AchievementProgressCached = await Cache.achievementsProgess.getElementForUser(user, this.id);
     if (userProgress) {
-      // TODO: check if the user has not completed this step yet
-      userProgress.progress += 1;
-      await this.updateUsersProgress(user, userProgress.progress);
-      return userProgress.progress;
+      if (userProgress.progress != this.maxProgress) {
+        // TODO: check if the user has not completed this step yet
+        userProgress.progress = Math.min(userProgress.progress + 1, this.maxProgress);
+        await this.updateUsersProgress(user, userProgress.progress);
+        if (userProgress.progress == this.maxProgress) {
+          this.finishAchievement(user);
+        }
+        return userProgress.progress;
+      } else {
+        throw new ApiError(HttpResponseCode.BAD_REQUEST, "You have already completed this achievement!");
+      }
     } else {
       await this.createUsersProgress(user);
       return 1;
@@ -126,5 +133,13 @@ export abstract class Achievement {
       10
     ).toString("base64");
     return token === expectedToken;
+  }
+
+  /**
+   * Sends a notification to the user that they have finished this achievement
+   * @param user The user who finished the achievement
+   */
+  protected async finishAchievement(user: User) {
+    // TODO: send a notification to the user
   }
 }

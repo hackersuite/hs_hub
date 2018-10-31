@@ -6,6 +6,8 @@ export const achievementsRouter = (): Router => {
   const router = Router();
   const achievementsController = new AchievementsController();
 
+  router.get("/", achievementsController.getAllAchievements);
+
   /**
    * GET /achievements/progress
    * Returns the user's progress on all achievements
