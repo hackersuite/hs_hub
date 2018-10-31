@@ -13,19 +13,12 @@ export class ScheduleController {
   public async listEvents(req: Request, res: Response) {
     // An array containing all the events
     // NOTE: not sure this type of declaration is safe in typeScript or not
-    const eventsArray = [];
+    let eventsArray = [];
 
     // Making an object of the eventsCacheCollection
     const objEventCache = Cache.events;
 
-    // Number of events in the cache
-    const numOfEvents: number = await objEventCache.elements.size;
-
-    // Make sure all events in the cache are up-to-date
-    // and put the up-to-date events to the eventsArray
-    for (let index = 0; index < numOfEvents; index++ ) {
-      eventsArray.push(await objEventCache.getElement(objEventCache.elements[index].id));
-    }
+    eventsArray = await objEventCache.getElements();
 
     // Return all the events to the user
     res.send(eventsArray);
