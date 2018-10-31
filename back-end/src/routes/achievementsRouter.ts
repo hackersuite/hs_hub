@@ -6,6 +6,10 @@ export const achievementsRouter = (): Router => {
   const router = Router();
   const achievementsController = new AchievementsController();
 
+  /**
+   * GET /achievements
+   * Returns all implemented achievements
+   */
   router.get("/", achievementsController.getAllAchievements);
 
   /**
