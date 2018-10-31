@@ -11,17 +11,7 @@ import { Cache } from "../util/cache";
 export class ScheduleController {
 
   public async listEvents(req: Request, res: Response) {
-    // An array containing all the events
-    // NOTE: not sure this type of declaration is safe in typeScript or not
-    let eventsArray = [];
-
-    // Making an object of the eventsCacheCollection
-    const objEventCache = Cache.events;
-
-    eventsArray = await objEventCache.getElements();
-
-    // Return all the events to the user
-    res.send(eventsArray);
+    res.send(await Cache.events.getElements());
   }
 
   public async createEvent(req: Request, res: Response, next: NextFunction) {
