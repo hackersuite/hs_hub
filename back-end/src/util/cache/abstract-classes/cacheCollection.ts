@@ -45,8 +45,11 @@ export abstract class CacheCollection<T extends CacheObject> extends CacheObject
     }
     const elementsArray: T[] = [];
     // REVIEW: very slow, should send a single batch-query
-    for (const id of this.elements.keys()) {
-      elementsArray.push(await this.getElement(id));
+    for (const key in this.elements) {
+      if (this.elements.hasOwnProperty(key)) {
+        const element = this.elements[key];
+        elementsArray.push(await this.getElement(element.id));
+      }
     }
     return elementsArray;
   }
