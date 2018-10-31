@@ -21,30 +21,12 @@ export const scheduleRouter = (): Router => {
   /**
    * POST /schedule/creat
    */
-  router.post("/create", scheduleController.createEvent);
+  router.post("/create", checkIsOrganizer, scheduleController.createEvent);
 
   /**
-   * GET /user/checkVolunteer
-   * Used only to test out checkIsVolunteer, to be removed in next pull request
+   * GET /schedule/*
    */
-  // router.get("/checkVolunteer", checkIsVolunteer, userController.test);
-
-  /**
-   * GET /user/checkOrganizer
-   * Used of only to test out checkIsOrganizer, to be removed in next pull request
-   */
-  // router.get("/checkOrganizer", checkIsOrganizer, userController.test);
-
-  /**
-   * GET /user/checkAttendee
-   * Used of only to test out checkIsLoggedIn, to be removed in next pull request
-   */
-  // router.get("/checkAttendee", checkIsLoggedIn, userController.test);
-
-  /**
-   * GET /user/logout
-   */
-  // router.get("/logout", checkIsLoggedIn, userController.logout);
+  router.get("/", checkIsOrganizer, scheduleController.listEvents);
 
   return router;
 };

@@ -10,7 +10,25 @@ import { Cache } from "../util/cache";
  */
 export class ScheduleController {
 
-  public listEvents(req: Request, res: Response) {
+  public async listEvents(req: Request, res: Response) {
+    // An array containing all the events
+    // NOTE: not sure this type of declaration is safe in typeScript or not
+    const eventsArray = [];
+
+    // Making an object of the eventsCacheCollection
+    const objEventCache = Cache.events;
+
+    // Number of events in the cache
+    const numOfEvents: number = await objEventCache.elements.size;
+
+    // Make sure all events in the cache are up-to-date
+    // and put the up-to-date events to the eventsArray
+    for (let index = 0; index < numOfEvents; index++ ) {
+      eventsArray.push(await objEventCache.getElement(objEventCache.elements[index].id));
+    }
+
+    // Return all the events to the user
+    res.send(eventsArray);
   }
 
   public async createEvent(req: Request, res: Response, next: NextFunction) {
@@ -29,5 +47,24 @@ export class ScheduleController {
     .execute()).identifiers[0].id;
     await Cache.events.sync();
     res.send(await Cache.events.getElement(createdEventId));
+  }
+
+  public async deleteEvent(req: Request, res: Response, next: NextFunction) {
+    const {title} = req.body;
+    /*
+    // Looping through the indetifiers[] to find the id
+    // of the intended event to get deleted
+    for (let index = 0; index < InsertResult.identifiers.length; index++) {
+
+    }
+    if (!title)
+      return next(new ApiError(HttpResponseCode.BAD_REQUEST,
+                                "The title of the deleted event is not provided. Expected: title "));
+    const deletedEvent = (await getConnection("hub")
+    .createQueryBuilder()
+    .delete()
+    .from(Event)
+    .where("title = :titleToDelete", { titleToDelete: title })
+    .execute()).id;*/
   }
 }
