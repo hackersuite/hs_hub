@@ -34,10 +34,20 @@ export abstract class Achievement {
    */
   public abstract maxProgress: number;
   /**
-   * Specifies wehter or not a token is required when incrementing the user's progress on this achievement.
+   * Specifies whether or not a token is required when incrementing the user's progress on this achievement.
    * Set to on a basic implementation of an achievement
    */
   protected requiresToken: boolean = false;
+
+  /**
+   * Specifies whether or not the achievement contains multiple steps
+   */
+  protected isMultiStep: boolean = false;
+
+  /**
+   * Specifies whether or not the steps of the achievement must be completed in order
+   */
+  protected mustCompleteStepsInOrder: boolean = false;
 
   /**
    * Increments the user's progress on this achievement on the database
@@ -46,24 +56,38 @@ export abstract class Achievement {
    */
   public async incrementProgress(user: User, token?: string, step?: string): Promise<number> {
     // Checking the validity of the request
-    if (token && !(await this.tokenIsValid(token, step)) || !token && this.requiresToken) {
+    if (this.requiresToken && !(await this.tokenIsValid(token, step))) {
       throw new ApiError(HttpResponseCode.BAD_REQUEST, "Invalid token provided");
     }
+    if (this.isMultiStep && (isNaN(parseInt(step)) || Number(step) > this.maxProgress)) {
+      throw new ApiError(HttpResponseCode.BAD_REQUEST, "Invalid step provided!");
+    }
     const userProgress: AchievementProgressCached = await Cache.achievementsProgess.getElementForUser(user, this.id);
+    // TODO: needs major refactoring
     if (userProgress) {
-      if (userProgress.progress != this.maxProgress) {
-        // TODO: check if the user has not completed this step yet
-        userProgress.progress = Math.min(userProgress.progress + 1, this.maxProgress);
-        await this.updateUsersProgress(user, userProgress.progress);
-        if (userProgress.progress == this.maxProgress) {
-          this.finishAchievement(user);
-        }
-        return userProgress.progress;
-      } else {
+      if (userProgress.progress === this.maxProgress) {
         throw new ApiError(HttpResponseCode.BAD_REQUEST, "You have already completed this achievement!");
       }
+      userProgress.progress = Math.min(userProgress.progress + 1, this.maxProgress);
+      if (this.isMultiStep) {
+        if (userProgress.stepsCompleted.includes(step)) {
+          throw new ApiError(HttpResponseCode.BAD_REQUEST, "You have already completed this step!");
+        }
+        if (this.mustCompleteStepsInOrder && userProgress.progress != Number(step)) {
+          throw new ApiError(HttpResponseCode.BAD_REQUEST, "The steps of this achievement must be completed in order!");
+        }
+        userProgress.stepsCompleted += ` ${step}`;
+      }
+      await this.updateUsersProgress(user, userProgress.progress, userProgress.stepsCompleted);
+      if (userProgress.progress === this.maxProgress) {
+        this.finishAchievement(user);
+      }
+      return userProgress.progress;
     } else {
-      await this.createUsersProgress(user);
+      if (this.mustCompleteStepsInOrder && Number(step) != 1) {
+        throw new ApiError(HttpResponseCode.BAD_REQUEST, "The steps of this achievement must be completed in order!");
+      }
+      await this.createUsersProgress(user, 1, step);
       return 1;
     }
   }
@@ -73,11 +97,11 @@ export abstract class Achievement {
    * @param user The user
    * @param progress The new progress value
    */
-  private async updateUsersProgress(user: User, progress: number): Promise<void> {
+  private async updateUsersProgress(user: User, progress: number, stepsCompleted: string): Promise<void> {
     await getConnection("hub")
       .createQueryBuilder()
       .update(AchievementProgress)
-      .set({ progress })
+      .set({ progress, stepsCompleted })
       .where("userId = :userId", { userId: user.id })
       .andWhere("achievementId = :achievementId", { achievementId: this.id })
       .execute();
@@ -87,7 +111,7 @@ export abstract class Achievement {
    * Creates an initial achievement progress row for this achievement
    * @param user The user that made progress
    */
-  private async createUsersProgress(user: User): Promise<void> {
+  private async createUsersProgress(user: User, progress: number, stepsCompleted?: string): Promise<void> {
     await getConnection("hub")
       .createQueryBuilder()
       .insert()
@@ -95,11 +119,12 @@ export abstract class Achievement {
       .values([{
         achievementId: this.id,
         user: user,
-        progress: 1
+        progress: progress || 0,
+        stepsCompleted: stepsCompleted || ""
       }])
       .execute();
     // REVIEW: might be a good idea to check if the query was successful
-    const objInCache = new AchievementProgressCached(new AchievementProgress(this.id, user));
+    const objInCache = new AchievementProgressCached(new AchievementProgress(this.id, user, progress, stepsCompleted));
     Cache.achievementsProgess.storeElement(objInCache);
   }
 
@@ -127,11 +152,12 @@ export abstract class Achievement {
    */
   protected async tokenIsValid(token: string, step?: string): Promise<boolean> {
     const expectedToken = pbkdf2.pbkdf2Sync(
-      `${this.id}->${step ? step : ""}`,
+      `${this.id}->${this.isMultiStep ? step : ""}`,
       process.env.ACHIEVEMENT_TOKEN_SALT,
       1,
       10
     ).toString("base64");
+    console.log(expectedToken);
     return token === expectedToken;
   }
 

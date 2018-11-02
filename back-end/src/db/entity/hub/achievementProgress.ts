@@ -16,9 +16,17 @@ export class AchievementProgress {
   })
   user: User;
 
-  constructor(achievementId: string, user: User) {
+  @Column({
+    type: "varchar",
+    length: "127",
+    nullable: false
+  })
+  stepsCompleted: string;
+
+  constructor(achievementId: string, user: User, progress?: number, stepsCompleted?: string) {
     this.achievementId = achievementId;
     this.user = user;
-    this.progress = 0;
+    this.progress = progress || 0;
+    this.stepsCompleted = stepsCompleted || "";
   }
 }

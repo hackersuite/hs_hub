@@ -20,6 +20,10 @@ export class AchievementProgressCached extends CacheObject {
    * The user's progress on this achievement
    */
   public progress: number;
+  /**
+   * The achievement's steps that the user has already completed
+   */
+  public stepsCompleted: string;
 
   /**
    * The amount of time the achievement progress object stays synced (miliseconds)
@@ -41,6 +45,7 @@ export class AchievementProgressCached extends CacheObject {
     }
     this.user = achievementProgress.user;
     this.progress = achievementProgress.progress;
+    this.stepsCompleted = achievementProgress.stepsCompleted;
   }
 
   /**
