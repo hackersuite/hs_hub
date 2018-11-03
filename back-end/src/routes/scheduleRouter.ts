@@ -21,7 +21,7 @@ export const scheduleRouter = (): Router => {
   /**
    * POST /schedule/creat
    */
-  router.post("/create", checkIsOrganizer, scheduleController.createEvent);
+  router.post("/create", scheduleController.createEvent);
 
   /**
    * GET /schedule/*
