@@ -34,12 +34,6 @@ export class ScheduleController {
 
   public async deleteEvent(req: Request, res: Response, next: NextFunction) {
     const {title} = req.body;
-    /*
-    // Looping through the indetifiers[] to find the id
-    // of the intended event to get deleted
-    for (let index = 0; index < InsertResult.identifiers.length; index++) {
-
-    }
     if (!title)
       return next(new ApiError(HttpResponseCode.BAD_REQUEST,
                                 "The title of the deleted event is not provided. Expected: title "));
@@ -48,6 +42,7 @@ export class ScheduleController {
     .delete()
     .from(Event)
     .where("title = :titleToDelete", { titleToDelete: title })
-    .execute()).id;*/
+    .execute());
+    await Cache.events.sync;
   }
 }

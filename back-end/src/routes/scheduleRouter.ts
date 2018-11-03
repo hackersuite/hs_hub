@@ -21,12 +21,18 @@ export const scheduleRouter = (): Router => {
   /**
    * POST /schedule/creat
    */
-  router.post("/create", scheduleController.createEvent);
+  router.post("/create", checkIsOrganizer, scheduleController.createEvent);
+
+  /**
+   * POST /schedule/delete
+   */
+  router.get("/delete", checkIsOrganizer, scheduleController.deleteEvent);
+
 
   /**
    * GET /schedule/*
    */
-  router.get("/", checkIsOrganizer, scheduleController.listEvents);
+  router.get("/", scheduleController.listEvents);
 
   return router;
 };
