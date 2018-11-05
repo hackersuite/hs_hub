@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne } from "typeorm";
+import { Entity, Column, ManyToOne, JoinColumn } from "typeorm";
 import { HardwareItem } from "./hardwareItem";
 import { User } from "./user";
 
@@ -11,5 +11,11 @@ export class ReservedHardwareItem {
   hardwareItem: HardwareItem;
 
   @Column()
-  reservationStatus: boolean;
+  isReserved: boolean;
+
+  @Column("varchar")
+  reservationToken: string;
+
+  @Column("datetime")
+  reservationExpiry: Date;
 }
