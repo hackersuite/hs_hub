@@ -116,7 +116,7 @@ export const isItemReservable = async (user: User, hardwareItem: HardwareItem): 
  */
 export const takeItem = async (token: string): Promise<boolean> => {
   const reservation: ReservedHardwareItem = await parseToken(token);
-  if (!reservation) return false;
+  if (!reservation) return undefined;
 
   const userID: number = reservation.user.id,
     itemID: number = reservation.hardwareItem.id,
@@ -124,14 +124,14 @@ export const takeItem = async (token: string): Promise<boolean> => {
 
   if (isReserved) {
     // Checks that reservation is not expired
-    if (!isReservationValid(reservation.reservationExpiry)) return false;
+    if (!isReservationValid(reservation.reservationExpiry)) return undefined;
 
     await itemToBeTakenFromLibrary(userID, itemID);
   } else {
     await itemToBeReturnedToLibrary(itemID, token);
   }
 
-  return true;
+  return isReserved;
 };
 
 /**

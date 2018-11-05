@@ -36,9 +36,11 @@ export class HardwareController {
    */
   public async take(req: Request, res: Response, next: Function): Promise<void> {
     try {
-      const success: boolean = await takeItem(req.body.token);
-      if (success) {
-        res.send({"message": "Success"});
+      const takenItem: boolean  = await takeItem(req.body.token);
+      if (takenItem !== undefined) {
+        res.send({
+          "message": takenItem ? "Item has been taken from the library" : "Item has been returned to the library"
+        });
       } else {
         return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Action failed!"));
       }
