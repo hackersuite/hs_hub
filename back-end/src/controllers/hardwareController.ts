@@ -35,9 +35,9 @@ export class HardwareController {
     try {
       const success: boolean = await takeItem(req.body.token);
       if (success) {
-        res.send({"message": "Item has been taken!"});
+        res.send({"message": "Success"});
       } else {
-        return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Item cannot be taken!"));
+        return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Action failed!"));
       }
     } catch (err) {
       return next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
