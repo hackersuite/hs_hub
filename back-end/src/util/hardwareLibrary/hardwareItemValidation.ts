@@ -67,8 +67,7 @@ export const reserveItemQuery = async (user: User, hardwareItem: HardwareItem): 
     newItemReservation.isReserved = true;
 
     // Sets the reservation expiry to be current time + 30 minutes
-    // newItemReservation.reservationExpiry = new Date(new Date().getTime() + (1000 * 60 * 30));
-    newItemReservation.reservationExpiry = new Date(new Date().getTime());
+    newItemReservation.reservationExpiry = new Date(new Date().getTime() + (1000 * 60 * 30));
 
     // Insert the reservation into the database
     await getConnection("hub")
@@ -117,6 +116,8 @@ export const isItemReservable = async (user: User, hardwareItem: HardwareItem): 
  */
 export const takeItem = async (token: string): Promise<boolean> => {
   const reservation: ReservedHardwareItem = await parseToken(token);
+  if (!reservation) return false;
+
   const userID: number = reservation.user.id,
     itemID: number = reservation.hardwareItem.id,
     isReserved: boolean = reservation.isReserved;
