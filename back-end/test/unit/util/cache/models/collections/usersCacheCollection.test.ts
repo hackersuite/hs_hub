@@ -142,6 +142,15 @@ describe("Users cache collection tests", (): void => {
   });
 
   /**
+   * Testing if all elements in the collection get returned
+   */
+  test("Should return all elements in cache", async (): Promise<void> => {
+    const userInCache = await Cache.users.getElement(testUserInDatabase.id);
+    const usersInCache = await Cache.users.getElements();
+    expect(usersInCache.find(user => user.isEqualTo(userInCache))).toBeTruthy();
+  });
+
+  /**
    * Testing if deleted user gets removed from cache
    */
   test("Should remove deleted user after syncing collection", async (): Promise<void> => {
