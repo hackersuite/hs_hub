@@ -128,6 +128,21 @@ export abstract class Achievement {
     Cache.achievementsProgess.storeElement(objInCache);
   }
 
+  public async setProgress(user: User, progress: number): Promise<void> {
+    progress = Math.min(progress, this.maxProgress);
+    await getConnection("hub")
+      .createQueryBuilder()
+      .update(AchievementProgress)
+      .set({ progress })
+      .where("userId = :userId", { userId: user.id })
+      .execute();
+    const userProgressInCache = await Cache.achievementsProgess.getElementForUser(user, this.id);
+    userProgressInCache.progress = progress;
+    if (userProgressInCache.progress === this.maxProgress) {
+      this.finishAchievement(user);
+    }
+  }
+
   /**
    * A method to check a user's progress in this achievement
    * @param user The user to check the achievement progress for

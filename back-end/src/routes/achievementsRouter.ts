@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { AchievementsController } from "../controllers/achievementsController";
-import { checkIsLoggedIn } from "../util/user";
+import { checkIsLoggedIn, checkIsOrganizer } from "../util/user";
 
 export const achievementsRouter = (): Router => {
   const router = Router();
@@ -29,6 +29,12 @@ export const achievementsRouter = (): Router => {
    * Increments the user's progress on a specific achievement
    */
   router.post("/:achievementId/incrementProgress", checkIsLoggedIn, achievementsController.incrementProgressForAchievement);
+
+  /**
+   * POST /achievements/:achievementId/setProgress
+   * Sets a users progress to a given value
+   */
+  router.post("/:achievementId/setProgress", checkIsOrganizer, achievementsController.setUserProgressForAchievement);
 
   return router;
 };
