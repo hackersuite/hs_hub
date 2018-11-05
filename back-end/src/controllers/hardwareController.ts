@@ -17,9 +17,12 @@ export class HardwareController {
     // then the item can be reserved (reserve the item and return success (+ create qr))
     // otherwise, return that the item can't be reserved
     try {
-      const success: boolean = await reserveItem(req.user, req.body.item);
-      if (success) {
-        res.send({"message": "Item reserved!"});
+      const token: string = await reserveItem(req.user, req.body.item);
+      if (token) {
+        res.send({
+          "message": "Item reserved!",
+          "token": token
+        });
       } else {
         return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Item cannot be reserved!"));
       }

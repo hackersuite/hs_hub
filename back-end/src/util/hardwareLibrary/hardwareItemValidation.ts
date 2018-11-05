@@ -7,12 +7,12 @@ import { getConnection } from "typeorm";
  * @param itemToReserve
  * @return A boolean indicating if the item was successfully reserved
  */
-export const reserveItem = async (user: User, itemToReserve: string): Promise<boolean> => {
+export const reserveItem = async (user: User, itemToReserve: string): Promise<string> => {
   const hardwareItem: HardwareItem = await getHardwareItemByName(itemToReserve);
   if (await isItemReservable(user, hardwareItem)) {
     return reserveItemQuery(user, hardwareItem);
   }
-  return false;
+  return undefined;
 };
 
 /**
@@ -57,7 +57,7 @@ export const getHardwareItemByID = async (hardwareItemID: number): Promise<Hardw
  * @param user
  * @param hardwareItem
  */
-export const reserveItemQuery = async (user: User, hardwareItem: HardwareItem): Promise<boolean> => {
+export const reserveItemQuery = async (user: User, hardwareItem: HardwareItem): Promise<string> => {
   try {
     // Create the new item reservation object
     const newItemReservation: ReservedHardwareItem = new ReservedHardwareItem();
@@ -82,7 +82,7 @@ export const reserveItemQuery = async (user: User, hardwareItem: HardwareItem): 
     .getRepository(HardwareItem)
     .increment({ id: hardwareItem.id }, "reservedStock", 1);
 
-    return true;
+    return newItemReservation.reservationToken;
   } catch (err) {
     throw new Error(`Lost connection to database (hub)! ${err}`);
   }
