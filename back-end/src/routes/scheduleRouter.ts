@@ -3,11 +3,6 @@ import { UserController } from "../controllers/userController";
 import { checkIsLoggedIn, checkIsVolunteer, checkIsOrganizer } from "../util/user";
 import { ScheduleController } from "../controllers";
 
-// get(/schedule) -> returns all the events
-// post(/schedule/creat) -> to create and event done
-// put (/schedule/update) -> to update event
-// delte(/schedule/delete) -> to delete and event
-
 
 /**
  * A router for handling the sign in of a user
@@ -27,6 +22,11 @@ export const scheduleRouter = (): Router => {
    * POST /schedule/delete
    */
   router.get("/delete", checkIsOrganizer, scheduleController.deleteEvent);
+
+  /**
+   * POST /schedule/update
+   */
+  router.get("/update", checkIsOrganizer, scheduleController.updateEvent);
 
 
   /**
