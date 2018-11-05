@@ -6,7 +6,7 @@ export class HardwareItem {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column("varchar", { length: 255 })
+  @Column("varchar", { length: 255, nullable: false, unique: true })
   name: string;
 
   @Column("varchar", { length: 255 })
