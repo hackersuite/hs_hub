@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne, JoinColumn } from "typeorm";
+import { Entity, Column, ManyToOne } from "typeorm";
 import { HardwareItem } from "./hardwareItem";
 import { User } from "./user";
 

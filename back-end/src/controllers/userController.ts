@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import * as passport from "passport";
-import { ApiError } from "../util/errorHandling/apiError";
-import { HttpResponseCode } from "../util/errorHandling/httpResponseCode";
+import { ApiError } from "../util/errorHandling";
+import { HttpResponseCode } from "../util/errorHandling";
 
 /**
  * A controller for auth methods

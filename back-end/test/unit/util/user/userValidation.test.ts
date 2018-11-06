@@ -1,6 +1,6 @@
 import { buildApp } from "../../../../src/app";
-import { getConnection, createConnection } from "typeorm";
-import { User, HardwareItem, ReservedHardwareItem } from "../../../../src/db/entity";
+import { getConnection } from "typeorm";
+import { User } from "../../../../src/db/entity/hub";
 import { Express } from "express";
 import { getUserByIDFromHub, getUserByEmailFromHub, validatePassword, validateUser } from "../../../../src/util/user/userValidation";
 
@@ -12,7 +12,7 @@ const HTTP_FAIL: number = 401;
 const testHubUser: User = new User();
 
 testHubUser.name = "Billy Tester II";
-testHubUser.email = "billyII@testing.com";
+testHubUser.email = "billyII@testing-validation.com";
 testHubUser.password = "pbkdf2_sha256$30000$xmAiV8Wihzn5$BBVJrxmsVASkYuOI6XdIZoYLfy386hdMOF8S14WRTi8=";
 testHubUser.authLevel = 1;
 testHubUser.team = "TeamCodeHere-";
@@ -96,32 +96,6 @@ describe("User validation tests", (): void => {
     plaintextPassword = "No-longer-valid";
     expect(validatePassword(plaintextPassword, hashedPassword)).toBeFalsy();
   });
-
-  /**
-   * Test that an expected error is thrown when trying to get a user's password and the connection to the DB is closed
-   */
-  test("Should not log in when disconnected from hub database", async (): Promise<void> => {
-    await getConnection("hub").close();
-
-    await createConnection({
-      name: "hub",
-      type: "mysql",
-      host: process.env.DB_HOST,
-      port: Number(process.env.DB_PORT),
-      username: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_DATABASE,
-      entities: [
-        User,
-        HardwareItem,
-        ReservedHardwareItem
-      ],
-      synchronize: true,
-      logging: false
-    });
-  });
-
-
 });
 
 /**

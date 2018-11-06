@@ -1,7 +1,7 @@
 import * as localstrategy from "passport-local";
 import { getUserByEmailFromHub, getUserByEmailFromApplications, validatePassword, insertNewHubUserToDatabase, getUserByIDFromHub } from "./userValidation";
-import { User } from "../../db/entity/user";
-import { ApplicationUser } from "../../db/entity/applicationUser";
+import { User } from "../../db/entity/hub";
+import { ApplicationUser } from "../../db/entity/applications";
 import { AuthLevels } from "./authLevels";
 import passport = require("passport");
 

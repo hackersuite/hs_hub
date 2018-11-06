@@ -4,3 +4,4 @@
 * 22/10/2018 - Created User System
 * 05/11/2018 - Implemented hardware library system
 * 06/11/2018 - Implemented a cached event schedule
+* 06/11/2018 - Implement back-end achievements system

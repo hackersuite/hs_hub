@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { AuthLevels } from "./authLevels";
-import { User } from "../../db/entity";
-import { ApiError } from "../errorHandling/apiError";
-import { HttpResponseCode } from "../errorHandling/httpResponseCode";
+import { User } from "../../db/entity/hub";
+import { ApiError } from "../errorHandling";
+import { HttpResponseCode } from "../errorHandling";
 
 /**
  * Checks if the request's sender is logged in

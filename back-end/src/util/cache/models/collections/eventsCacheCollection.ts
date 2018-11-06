@@ -1,6 +1,6 @@
 import { CacheCollection } from "../../abstract-classes";
 import { getConnection } from "typeorm";
-import { Event } from "../../../../db/entity";
+import { Event } from "../../../../db/entity/hub";
 import { EventCached } from "../objects";
 
 /**
@@ -25,7 +25,7 @@ export class EventsCacheCollection extends CacheCollection<EventCached> {
       .getMany();
     // Updating the instance variables
     this.syncedAt = Date.now();
-    this.elements = new Map<number, EventCached>();
+    this.elements = new Map<string, EventCached>();
     events.forEach(event => {
       const syncedUser = new EventCached(event);
       this.elements[syncedUser.id] = syncedUser;

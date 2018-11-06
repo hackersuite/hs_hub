@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { ApiError } from "./apiError";
-import { HttpResponseCode } from "./httpResponseCode";
+import { ApiError } from "./";
+import { HttpResponseCode } from "./";
 import { NextFunction } from "connect";
 import { sendEmail } from "../mail";
 

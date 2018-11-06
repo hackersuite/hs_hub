@@ -1,4 +1,4 @@
-import { HardwareItem, User, ReservedHardwareItem } from "../../db/entity";
+import { HardwareItem, User, ReservedHardwareItem } from "../../db/entity/hub";
 import { createToken, parseToken } from "./hardwareItemToken";
 import { getConnection } from "typeorm";
 
