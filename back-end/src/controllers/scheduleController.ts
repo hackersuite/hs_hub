@@ -18,50 +18,58 @@ export class ScheduleController {
     const { title, startTime, endTime, location } = req.body;
     if (!title || !startTime || !endTime || !location)
       return next(new ApiError(HttpResponseCode.BAD_REQUEST,
-                              "Not all parameters were specified. Expected: title, startTime, endTime, location"));
-    // TODO: add an if to check if startTime and endTime are dates
-    const dateObj = new Date();
-    if (dateObj === startTime && dateObj === endTime) {
-      const createdEventId = (await getConnection("hub")
+        "Not all parameters were specified. Expected: title, startTime, endTime, location"));
+    const startTimeDateObj = new Date(startTime);
+    const endTimeDateObj = new Date(endTime);
+    if (isNaN(startTimeDateObj.getDate()) || isNaN(endTimeDateObj.getDate())) {
+      return next(new ApiError(HttpResponseCode.BAD_REQUEST,
+        "The startTime and/or endTime was provided in an invalid format!"));
+    }
+    const createdEventId = (await getConnection("hub")
       .createQueryBuilder()
       .insert()
       .into(Event)
       .values([
-          { title, startTime, endTime, location }
+        { title,
+          startTime: startTimeDateObj,
+          endTime: endTimeDateObj,
+          location }
       ])
       .execute()).identifiers[0].id;
-      await Cache.events.sync();
-      res.send(await Cache.events.getElement(createdEventId));
-    }
+    await Cache.events.sync();
+    res.send(await Cache.events.getElement(createdEventId));
   }
 
   public async deleteEvent(req: Request, res: Response, next: NextFunction) {
-    const {title} = req.body;
+    const { title } = req.body;
     if (!title)
       return next(new ApiError(HttpResponseCode.BAD_REQUEST,
-                                "The title of the deleted event is not provided. Expected: title "));
-    const deletedEvent = (await getConnection("hub")
-    .createQueryBuilder()
-    .delete()
-    .from(Event)
-    .where("title = :titleToDelete", { titleToDelete: title })
-    .execute());
-    await Cache.events.sync;
+        "The title of the deleted event is not provided. Expected: title "));
+    await getConnection("hub")
+      .createQueryBuilder()
+      .delete()
+      .from(Event)
+      .where("title = :titleToDelete", { titleToDelete: title })
+      .execute();
+    await Cache.events.sync();
+    res.send(`Event ${title} deleted`);
   }
 
   public async updateEvent(req: Request, res: Response, next: NextFunction) {
     const { title, startTime, endTime, location } = req.body;
     if (!title || !startTime || !endTime || !location)
       return next(new ApiError(HttpResponseCode.BAD_REQUEST,
-                              "Not all parameters were specified. Expected: title, startTime, endTime, location"));
+        "Not all parameters were specified. Expected: title, startTime, endTime, location"));
     // Making the data update in the database
-    await getConnection()
-    .createQueryBuilder()
-    .update(Event)
-    .set({ startTime , endTime, location })
-    .where("title = :titleToUpdate", { titleToUpdate: title })
-    .execute();
+    await getConnection("hub")
+      .createQueryBuilder()
+      .update(Event)
+      .set({ startTime, endTime, location })
+      .where("title = :titleToUpdate", { titleToUpdate: title })
+      .execute();
     // Make the events update for the user
-    res.send(await Cache.events.getElements());
+    await Cache.events.sync();
+    const updatedEvent = (await Cache.events.getElements()).find(event => event.title === title);
+    res.send(updatedEvent);
   }
 }
