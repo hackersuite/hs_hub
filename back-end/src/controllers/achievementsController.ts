@@ -4,6 +4,7 @@ import { NextFunction } from "connect";
 import { ApiError, HttpResponseCode } from "../util/errorHandling";
 import { User } from "../db/entity/hub";
 import { getConnection } from "typeorm";
+import { Cache } from "../util/cache";
 
 /**
  * A controller for the achievements methods
@@ -46,7 +47,7 @@ export class AchievementsController {
 
   public async setUserProgressForAchievement(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { userId, progress } = req.body;
+      const { userId, progress, steps } = req.body;
       const achievementId = req.params.achievementId;
       if (!userId || !achievementId || !progress) {
         throw new ApiError(HttpResponseCode.BAD_REQUEST, "Not all parameters provided! Expected: achievementId, userId, progress");
@@ -59,11 +60,10 @@ export class AchievementsController {
       if (!user) {
         throw new ApiError(HttpResponseCode.BAD_REQUEST, "User with given id not found!");
       }
-      await Achievements.getAchievementWithId(achievementId).setProgress(user, progress);
-      res.send({
-          user,
-          progress: await Achievements.getUserProgressForAchievement(user, achievementId)
-      });
+      const userProgressInCache = await Cache.achievementsProgess.getElementForUser(user, achievementId);
+      const stepsCompleted = userProgressInCache ? userProgressInCache.stepsCompleted : "" + steps || "";
+      const userProgress = await Achievements.getAchievementWithId(achievementId).updateUsersProgress(user, progress, stepsCompleted);
+      res.send(userProgress);
     } catch (err) {
       next(err);
     }

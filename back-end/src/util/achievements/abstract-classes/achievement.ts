@@ -54,7 +54,7 @@ export abstract class Achievement {
    * @param user The user
    * @param token Token used to verify the validity of the request to increment progress
    */
-  public async incrementProgress(user: User, token?: string, step?: string): Promise<number> {
+  public async incrementProgress(user: User, token?: string, step?: string): Promise<AchievementProgress> {
     // Checking the validity of the request
     if (this.requiresToken && !(await this.tokenIsValid(token, step))) {
       throw new ApiError(HttpResponseCode.BAD_REQUEST, "Invalid token provided");
@@ -62,34 +62,20 @@ export abstract class Achievement {
     if (this.isMultiStep && (isNaN(parseInt(step)) || Number(step) > this.maxProgress)) {
       throw new ApiError(HttpResponseCode.BAD_REQUEST, "Invalid step provided!");
     }
-    const userProgress: AchievementProgressCached = await Cache.achievementsProgess.getElementForUser(user, this.id);
-    // TODO: needs major refactoring
-    if (userProgress) {
-      if (userProgress.progress === this.maxProgress) {
-        throw new ApiError(HttpResponseCode.BAD_REQUEST, "You have already completed this achievement!");
-      }
-      userProgress.progress = Math.min(userProgress.progress + 1, this.maxProgress);
-      if (this.isMultiStep) {
-        if (userProgress.stepsCompleted.includes(step)) {
-          throw new ApiError(HttpResponseCode.BAD_REQUEST, "You have already completed this step!");
-        }
-        if (this.mustCompleteStepsInOrder && userProgress.progress != Number(step)) {
-          throw new ApiError(HttpResponseCode.BAD_REQUEST, "The steps of this achievement must be completed in order!");
-        }
-        userProgress.stepsCompleted += ` ${step}`;
-      }
-      await this.updateUsersProgress(user, userProgress.progress, userProgress.stepsCompleted);
-      if (userProgress.progress === this.maxProgress) {
-        this.finishAchievement(user);
-      }
-      return userProgress.progress;
+    let userProgressInDB: AchievementProgress;
+    const userProgressInCache: AchievementProgressCached = await Cache.achievementsProgess.getElementForUser(user, this.id);
+    if (userProgressInCache) {
+      userProgressInDB = new AchievementProgress(this.id, user, userProgressInCache.progress, userProgressInCache.stepsCompleted);
     } else {
-      if (this.mustCompleteStepsInOrder && Number(step) != 1) {
-        throw new ApiError(HttpResponseCode.BAD_REQUEST, "The steps of this achievement must be completed in order!");
-      }
-      await this.createUsersProgress(user, 1, step);
-      return 1;
+      userProgressInDB = new AchievementProgress(this.id, user);
     }
+    userProgressInDB.stepsCompleted = this.checkCompletedSteps(step, userProgressInCache.progress, userProgressInCache.stepsCompleted);
+    userProgressInDB.progress += 1;
+    await this.updateUsersProgress(user, userProgressInDB.progress, userProgressInDB.stepsCompleted);
+    if (userProgressInDB.progress === this.maxProgress) {
+      this.finishAchievement(user);
+    }
+    return userProgressInDB;
   }
 
   /**
@@ -97,50 +83,14 @@ export abstract class Achievement {
    * @param user The user
    * @param progress The new progress value
    */
-  private async updateUsersProgress(user: User, progress: number, stepsCompleted: string): Promise<void> {
+  public async updateUsersProgress(user: User, progress: number, stepsCompleted?: string): Promise<AchievementProgress> {
+    const userProgress = new AchievementProgress(this.id, user, progress, stepsCompleted);
     await getConnection("hub")
-      .createQueryBuilder()
-      .update(AchievementProgress)
-      .set({ progress, stepsCompleted })
-      .where("userId = :userId", { userId: user.id })
-      .andWhere("achievementId = :achievementId", { achievementId: this.id })
-      .execute();
-  }
-
-  /**
-   * Creates an initial achievement progress row for this achievement
-   * @param user The user that made progress
-   */
-  private async createUsersProgress(user: User, progress: number, stepsCompleted?: string): Promise<void> {
-    await getConnection("hub")
-      .createQueryBuilder()
-      .insert()
-      .into(AchievementProgress)
-      .values([{
-        achievementId: this.id,
-        user: user,
-        progress: progress || 0,
-        stepsCompleted: stepsCompleted || ""
-      }])
-      .execute();
-    // REVIEW: might be a good idea to check if the query was successful
-    const objInCache = new AchievementProgressCached(new AchievementProgress(this.id, user, progress, stepsCompleted));
-    Cache.achievementsProgess.storeElement(objInCache);
-  }
-
-  public async setProgress(user: User, progress: number): Promise<void> {
-    progress = Math.min(progress, this.maxProgress);
-    await getConnection("hub")
-      .createQueryBuilder()
-      .update(AchievementProgress)
-      .set({ progress })
-      .where("userId = :userId", { userId: user.id })
-      .execute();
-    const userProgressInCache = await Cache.achievementsProgess.getElementForUser(user, this.id);
-    userProgressInCache.progress = progress;
-    if (userProgressInCache.progress === this.maxProgress) {
-      this.finishAchievement(user);
-    }
+      .getRepository(AchievementProgress)
+      .save(userProgress);
+    const userProgressInCache = new AchievementProgressCached(userProgress);
+    Cache.achievementsProgess.storeElement(userProgressInCache);
+    return userProgress;
   }
 
   /**
@@ -174,6 +124,25 @@ export abstract class Achievement {
     ).toString("base64");
     console.log(expectedToken);
     return token === expectedToken;
+  }
+
+  /**
+   * Checks if the user completed the correct step of the achievement and returns a new string of completed steps.
+   * @param step The step that was just completed
+   * @param userProgress The user's progress before completing the step
+   * @param stepsCompleted The steps that the user has already completed
+   */
+  protected checkCompletedSteps(step: string, userProgress: number, stepsCompleted: string): string {
+    if (this.isMultiStep) {
+      if (stepsCompleted.includes(step)) {
+        throw new ApiError(HttpResponseCode.BAD_REQUEST, "You have already completed this step!");
+      }
+      if (this.mustCompleteStepsInOrder && userProgress + 1 != Number(step)) {
+        throw new ApiError(HttpResponseCode.BAD_REQUEST, "The steps of this achievement must be completed in order!");
+      }
+      stepsCompleted += ` ${step}`;
+    }
+    return stepsCompleted;
   }
 
   /**
