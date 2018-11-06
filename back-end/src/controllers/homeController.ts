@@ -9,7 +9,7 @@ import { Cache } from "../util/cache";
  * A controller for auth methods
  */
 export class HomeController {
-  public login(req: Request, res: Response, next: NextFunction) {
-    res.render("pages/index");
+  public dashboard(req: Request, res: Response, next: NextFunction) {
+    res.render("pages/dashboard");
   }
 }
