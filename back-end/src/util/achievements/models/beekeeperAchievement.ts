@@ -13,5 +13,4 @@ export class BeekeeperAchievement extends Achievement {
   public maxProgress: number = 8;
   protected requiresToken: boolean = true;
   protected isMultiStep: boolean = true;
-  protected mustCompleteStepsInOrder: boolean = true;
 }
