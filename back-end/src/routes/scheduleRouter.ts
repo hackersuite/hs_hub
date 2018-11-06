@@ -1,6 +1,5 @@
 import { Router } from "express";
-import { UserController } from "../controllers/userController";
-import { checkIsLoggedIn, checkIsVolunteer, checkIsOrganizer } from "../util/user";
+import { checkIsOrganizer } from "../util/user";
 import { ScheduleController } from "../controllers";
 
 
@@ -14,23 +13,22 @@ export const scheduleRouter = (): Router => {
   const scheduleController = new ScheduleController();
 
   /**
-   * POST /schedule/creat
+   * POST /schedule/create
    */
   router.post("/create", checkIsOrganizer, scheduleController.createEvent);
 
   /**
    * POST /schedule/delete
    */
-  router.get("/delete", checkIsOrganizer, scheduleController.deleteEvent);
+  router.delete("/delete", checkIsOrganizer, scheduleController.deleteEvent);
 
   /**
    * POST /schedule/update
    */
-  router.get("/update", checkIsOrganizer, scheduleController.updateEvent);
-
+  router.put("/update", checkIsOrganizer, scheduleController.updateEvent);
 
   /**
-   * GET /schedule/*
+   * GET /schedule/
    */
   router.get("/", scheduleController.listEvents);
 
