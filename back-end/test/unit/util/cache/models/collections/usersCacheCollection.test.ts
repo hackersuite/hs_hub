@@ -9,6 +9,7 @@ const testUserInDatabase: User = new User();
 
 testUserInDatabase.name = "Billy Tester";
 testUserInDatabase.email = "billy@testing.com";
+testUserInDatabase.password = "pbkdf2_sha256$30000$xmAiV8Wihzn5$BBVJrxmsVASkYuOI6XdIZoYLfy386hdMOF8S14WRTi8=";
 testUserInDatabase.authLevel = 3;
 testUserInDatabase.team = "The Testers";
 testUserInDatabase.repo = "tests.git";
@@ -135,6 +136,15 @@ describe("Users cache collection tests", (): void => {
     expect(userInCache.isEqualTo(userThatShouldBeInCache)).toBeTruthy();
     expect(userInCache.isExpired()).toBeFalsy();
     expect(userInCache.syncedAt).toBeGreaterThan(lastSyncedAt);
+  });
+
+  /**
+   * Testing if all elements in the collection get returned
+   */
+  test("Should return all elements in cache", async (): Promise<void> => {
+    const userInCache = await Cache.users.getElement(testUserInDatabase.id);
+    const usersInCache = await Cache.users.getElements();
+    expect(usersInCache.find(user => user.isEqualTo(userInCache))).toBeTruthy();
   });
 
   /**

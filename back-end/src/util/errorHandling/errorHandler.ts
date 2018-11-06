@@ -2,15 +2,23 @@ import { Request, Response } from "express";
 import { ApiError } from "./";
 import { HttpResponseCode } from "./";
 import { NextFunction } from "connect";
+import { sendEmail } from "../mail";
+
+const toEmails: string[] = ["kzalys@gmail.com"];
 
 /**
  * Handles errors thrown by requests
  */
 export const errorHandler = (err: ApiError|Error, req: Request, res: Response, next: NextFunction) => {
   if (err instanceof Error) {
-    // TODO: send notification to admins when an uncaught error occurs
-    res.status(HttpResponseCode.INTERNAL_ERROR).send(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
-    console.error(err.stack);
+    // Send notification to admins when an uncaught error occurs
+    sendEmail("noreply@hacksoc.com",
+    toEmails,
+      "Uncaught Error: " + err.name,
+      err.message
+    );
+
+    res.status(HttpResponseCode.INTERNAL_ERROR).send(new ApiError(HttpResponseCode.INTERNAL_ERROR, err));
   } else {
     res.status(err.statusCode).send(err);
   }

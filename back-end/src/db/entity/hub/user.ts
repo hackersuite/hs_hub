@@ -1,5 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from "typeorm";
 import { AchievementProgress } from "./achievementProgress";
+import { ReservedHardwareItem } from "./reservedHardwareItem";
 
 @Entity()
 export class User {
@@ -26,4 +27,6 @@ export class User {
 
   @OneToMany(type => AchievementProgress, aProgress => aProgress.user)
   achievementsProgress: AchievementProgress;
+  @OneToMany(() => ReservedHardwareItem, reservedHardwareItem => reservedHardwareItem.user)
+  hardwareItems: ReservedHardwareItem[];
 }

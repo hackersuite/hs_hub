@@ -1,5 +1,5 @@
 import { buildApp } from "../../../../src/app";
-import { getConnection, createConnection } from "typeorm";
+import { getConnection } from "typeorm";
 import { User } from "../../../../src/db/entity/hub";
 import { Express } from "express";
 import { getUserByIDFromHub, getUserByEmailFromHub, validatePassword, validateUser } from "../../../../src/util/user/userValidation";

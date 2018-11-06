@@ -44,6 +44,22 @@ export abstract class CacheCollection<T extends CacheObject> extends CacheObject
     delete this.elements[id];
   }
 
+  public async getElements(): Promise<T[]> {
+    if (this.isExpired() || !this.isInitialized) {
+      await this.sync();
+      this.isInitialized = true;
+    }
+    const elementsArray: T[] = [];
+    // REVIEW: very slow, should send a single batch-query
+    for (const key in this.elements) {
+      if (this.elements.hasOwnProperty(key)) {
+        const element = this.elements[key];
+        elementsArray.push(await this.getElement(element.id));
+      }
+    }
+    return elementsArray;
+  }
+
   /**
    * Gets an element of the collection with the specified id
    * returns undefined if no object with given id is found
