@@ -1,5 +1,5 @@
 import { Achievement } from "./abstract-classes";
-import { BeekeeperAchievement } from "./models";
+import * as AchievementTypes from "./models";
 import { Cache } from "../cache";
 import { User, AchievementProgress } from "../../db/entity/hub";
 import { AchievementProgressCached } from "../cache/models/objects/achievementProgressCached";
@@ -12,7 +12,15 @@ export abstract class Achievements {
    * The collection of all implemented achievements
    */
   private static readonly achievementsCollection: Achievement[] = [
-    new BeekeeperAchievement()
+    new AchievementTypes.BeekeeperAchievement(),
+    new AchievementTypes.BusinessAchievement(),
+    new AchievementTypes.BuzzingAchievement(),
+    new AchievementTypes.NectarOfKnowledgeAchievement(),
+    new AchievementTypes.ParticipationAchievement(),
+    new AchievementTypes.PhotogenicAchievement(),
+    new AchievementTypes.SleepingAchievement(),
+    new AchievementTypes.SocialAchievement(),
+    new AchievementTypes.WhizKidAchievement()
   ];
 
   /**

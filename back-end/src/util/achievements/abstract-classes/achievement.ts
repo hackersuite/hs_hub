@@ -45,6 +45,11 @@ export abstract class Achievement {
   protected isMultiStep: boolean = false;
 
   /**
+   * Specifies whether or not this achievement can only be rewarded by organizers
+   */
+  protected isManual: boolean = false;
+
+  /**
    * Specifies whether or not the steps of the achievement must be completed in order
    */
   protected mustCompleteStepsInOrder: boolean = false;
@@ -55,6 +60,9 @@ export abstract class Achievement {
    * @param token Token used to verify the validity of the request to increment progress
    */
   public async incrementProgress(user: User, token?: string, step?: string): Promise<AchievementProgress> {
+    if (this.isManual) {
+      throw new ApiError(HttpResponseCode.BAD_REQUEST, "Cannot increment progress for this achievement");
+    }
     // Checking the validity of the request
     if (this.requiresToken && !(await this.tokenIsValid(token, step))) {
       throw new ApiError(HttpResponseCode.BAD_REQUEST, "Invalid token provided");
