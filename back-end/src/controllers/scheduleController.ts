@@ -20,16 +20,19 @@ export class ScheduleController {
       return next(new ApiError(HttpResponseCode.BAD_REQUEST,
                               "Not all parameters were specified. Expected: title, startTime, endTime, location"));
     // TODO: add an if to check if startTime and endTime are dates
-    const createdEventId = (await getConnection("hub")
-    .createQueryBuilder()
-    .insert()
-    .into(Event)
-    .values([
-        { title, startTime, endTime, location }
-     ])
-    .execute()).identifiers[0].id;
-    await Cache.events.sync();
-    res.send(await Cache.events.getElement(createdEventId));
+    const dateObj = new Date();
+    if (dateObj === startTime && dateObj === endTime) {
+      const createdEventId = (await getConnection("hub")
+      .createQueryBuilder()
+      .insert()
+      .into(Event)
+      .values([
+          { title, startTime, endTime, location }
+      ])
+      .execute()).identifiers[0].id;
+      await Cache.events.sync();
+      res.send(await Cache.events.getElement(createdEventId));
+    }
   }
 
   public async deleteEvent(req: Request, res: Response, next: NextFunction) {
