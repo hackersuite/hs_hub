@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from "typeorm";
+import { ReservedHardwareItem } from "./reservedHardwareItem";
 
 @Entity()
 export class User {
@@ -22,4 +23,7 @@ export class User {
 
   @Column()
   repo: string;
+
+  @OneToMany(() => ReservedHardwareItem, reservedHardwareItem => reservedHardwareItem.user)
+  hardwareItems: ReservedHardwareItem[];
 }
