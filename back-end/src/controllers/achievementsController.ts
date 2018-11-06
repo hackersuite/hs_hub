@@ -25,21 +25,21 @@ export class AchievementsController {
   }
   public async getProgressForAchievement(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const progress: number = await Achievements.getUserProgressForAchievement(req.user, req.params.achievementId);
-      res.send(String(progress));
+      const progress = await Achievements.getUserProgressForAchievement(req.user, req.params.achievementId);
+      res.send(progress);
     } catch (err) {
       next(err);
     }
   }
   public async incrementProgressForAchievement(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const progress: number = await Achievements.incrementUserProgressForAchievement(
+      const progress = await Achievements.incrementUserProgressForAchievement(
         req.user,
         req.params.achievementId,
         req.body.token,
         req.body.step
       );
-      res.send(String(progress));
+      res.send(progress);
     } catch (err) {
       next(err);
     }

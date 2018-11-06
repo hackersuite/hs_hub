@@ -1,8 +1,8 @@
 import { Achievement } from "./abstract-classes";
 import { BeekeeperAchievement } from "./models";
 import { Cache } from "../cache";
-import { User } from "../../db/entity/hub";
-import { ApiError, HttpResponseCode } from "../errorHandling";
+import { User, AchievementProgress } from "../../db/entity/hub";
+import { AchievementProgressCached } from "../cache/models/objects/achievementProgressCached";
 
 /**
  * The top-level interface for the achievements system
@@ -44,9 +44,9 @@ export abstract class Achievements {
    * @param user The user to find progress for
    * @param achievementId The id of the achievement to find progress for
    */
-  public static async getUserProgressForAchievement(user: User, achievementId: string): Promise<number> {
+  public static async getUserProgressForAchievement(user: User, achievementId: string): Promise<AchievementProgressCached> {
     const achievementProgress = await Cache.achievementsProgess.getElementForUser(user, achievementId);
-    return achievementProgress ? achievementProgress.progress : 0;
+    return achievementProgress;
   }
 
   /**
@@ -55,17 +55,17 @@ export abstract class Achievements {
    * @param achievementId The id of the achievement
    * @param token The token used to verify the validity of the request
    */
-  public static async incrementUserProgressForAchievement(user: User, achievementId: string, token?: string, step?: string): Promise<number> {
+  public static async incrementUserProgressForAchievement(user: User, achievementId: string, token?: string, step?: string): Promise<AchievementProgress> {
     for (const achievement of this.achievementsCollection) {
       if (achievement.id === achievementId) {
         // REVIEW: would be possible to handle this with a single query (UPDATE to database and the update the data in the cache directly)
         // though we might have some problems in terms of data synchronization
-        const currentProgress: number = await achievement.incrementProgress(user, token, step);
+        const currentProgress = await achievement.incrementProgress(user, token, step);
         await (await Cache.achievementsProgess.getElementForUser(user, achievementId)).sync();
         return currentProgress;
       }
     }
-    return 0;
+    return undefined;
   }
 
   /**

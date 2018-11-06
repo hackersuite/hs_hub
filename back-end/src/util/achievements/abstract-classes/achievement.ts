@@ -122,7 +122,6 @@ export abstract class Achievement {
       1,
       10
     ).toString("base64");
-    console.log(expectedToken);
     return token === expectedToken;
   }
 
