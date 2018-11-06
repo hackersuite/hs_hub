@@ -167,6 +167,11 @@ export const itemToBeTakenFromLibrary = async (userID: number, hardwareItemID: n
     }
 };
 
+/**
+ * Using the unique token the item is returned to the hardware library
+ * @param hardwareItemID
+ * @param token
+ */
 export const itemToBeReturnedToLibrary = async (hardwareItemID: number, token: string): Promise<void> => {
     // The item is being returned
     try {
@@ -186,4 +191,64 @@ export const itemToBeReturnedToLibrary = async (hardwareItemID: number, token: s
     } catch (err) {
       throw new Error(`Lost connection to database (hub)! ${err}`);
     }
+};
+
+/**
+ * Returns all the hardware items from the database in a formatted array
+ */
+export const getAllHardwareItems = async (): Promise<Object[]> => {
+  const hardwareItems: HardwareItem[] = await getConnection("hub")
+    .getRepository(HardwareItem)
+    .createQueryBuilder()
+    .getMany();
+
+  const formattedData = [];
+  hardwareItems.forEach((item: HardwareItem) => {
+    formattedData.push({
+      "itemName": item.name,
+      "itemDescription": item.description,
+      "itemURL": item.itemURL,
+      "itemStock": item.totalStock,
+      "itemHasStock": (item.totalStock - (item.reservedStock + item.takenStock) > 0 ? "true" : "false")
+    });
+  });
+  return formattedData;
+};
+
+interface HardwareObject {
+  itemName?: string;
+  itemURL?: string;
+  itemDescription?: string;
+  itemStock?: number;
+}
+/**
+ * Adds new hardware items to the database
+ *
+ * @param items
+ */
+export const addAllHardwareItems = async (items: HardwareObject[]): Promise<void> => {
+  const hardwareItems: Array<HardwareItem> = new Array<HardwareItem>();
+
+  items.forEach((item: HardwareObject) => {
+    const newHardwareItem = new HardwareItem();
+    newHardwareItem.name = item.itemName;
+    newHardwareItem.description = item.itemDescription;
+    newHardwareItem.itemURL = item.itemURL;
+    newHardwareItem.totalStock = item.itemStock;
+    newHardwareItem.reservedStock = 0;
+    newHardwareItem.takenStock = 0;
+
+    hardwareItems.push(newHardwareItem);
+  });
+
+  try {
+    await getConnection("hub")
+      .createQueryBuilder()
+      .insert()
+      .into(HardwareItem)
+      .values(hardwareItems)
+      .execute();
+  } catch (err) {
+    throw new Error(`Lost connection to database (hub)! ${err}`);
+  }
 };

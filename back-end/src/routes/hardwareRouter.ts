@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { HardwareController } from "../controllers/hardwareController";
-import { checkIsLoggedIn, checkIsVolunteer } from "../util/user";
+import { checkIsLoggedIn, checkIsVolunteer, checkIsOrganizer } from "../util/user";
 
 export const hardwareRouter = (): Router => {
   const router = Router();
@@ -16,6 +16,16 @@ export const hardwareRouter = (): Router => {
    * POST /hardware/take
    */
   router.post("/take", checkIsVolunteer, hardwareController.take);
+
+  /**
+   * POST /hardware/addItems
+   */
+  router.post("/addItems", checkIsOrganizer, hardwareController.addAllItems);
+
+  /**
+   * GET /hardware/allItems
+   */
+  router.get("/allItems", hardwareController.getAllItems);
 
   return router;
 };

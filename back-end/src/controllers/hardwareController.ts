@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { reserveItem, takeItem } from "../util/hardwareLibrary";
+import { reserveItem, takeItem, getAllHardwareItems, addAllHardwareItems } from "../util/hardwareLibrary";
 import { ApiError } from "../util/errorHandling/apiError";
 import { HttpResponseCode } from "../util/errorHandling/httpResponseCode";
 /**
@@ -44,6 +44,47 @@ export class HardwareController {
       } else {
         return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Action failed!"));
       }
+    } catch (err) {
+      return next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
+    }
+  }
+
+  /**
+   * Gets all the items from the database
+   */
+  public async getAllItems(req: Request, res: Response, next: Function): Promise<void> {
+    try {
+      const allItems: Object[] = await getAllHardwareItems();
+      if (allItems !== undefined) {
+        res.send(allItems);
+      } else {
+        return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Action failed!"));
+      }
+    } catch (err) {
+      return next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
+    }
+  }
+
+  /**
+   * Adds all the items in the request to the database
+   * Use the following format to add the items:
+   * [{
+   * "itemName": "...",
+   * "itemURL": "...",
+   * "itemDescription": "...",
+   * "itemStock": 0
+   * },
+   * {
+   * "itemName": "...",
+   * "itemURL": "...",
+   * "itemDescription": "...",
+   * "itemStock": 0
+   * }]
+   */
+  public async addAllItems(req: Request, res: Response, next: Function): Promise<void> {
+    try {
+      await addAllHardwareItems(req.body);
+      res.send({"message": "Added all items"});
     } catch (err) {
       return next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
     }
