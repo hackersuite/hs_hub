@@ -1,6 +1,6 @@
 import { buildApp } from "../../../../src/app";
 import { getConnection, createConnection } from "typeorm";
-import { User } from "../../../../src/db/entity";
+import { User, HardwareItem, ReservedHardwareItem } from "../../../../src/db/entity";
 import { Express } from "express";
 import { getUserByIDFromHub, getUserByEmailFromHub, validatePassword, validateUser } from "../../../../src/util/user/userValidation";
 
@@ -112,7 +112,9 @@ describe("User validation tests", (): void => {
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
       entities: [
-        User
+        User,
+        HardwareItem,
+        ReservedHardwareItem
       ],
       synchronize: true,
       logging: false
@@ -125,7 +127,7 @@ describe("User validation tests", (): void => {
 /**
  * Cleaning up after the tests
  */
-afterAll(async (done: jest.DoneCallback): Promise<void> => {
+afterAll(async (): Promise<void> => {
   await getConnection("hub")
     .createQueryBuilder()
     .delete()
@@ -135,6 +137,4 @@ afterAll(async (done: jest.DoneCallback): Promise<void> => {
 
   await getConnection("applications").close();
   await getConnection("hub").close();
-
-  done();
 });
