@@ -12,6 +12,11 @@ export abstract class CacheCollection<T extends CacheObject> extends CacheObject
   public elements: Map<number, T>;
 
   /**
+   * Determines whether or not the collection has been initialized (synced for the first time)
+   */
+  private isInitialized: boolean = false;
+
+  /**
    * Creates a collection for cached objects
    */
   constructor() {
@@ -40,8 +45,9 @@ export abstract class CacheCollection<T extends CacheObject> extends CacheObject
   }
 
   public async getElements(): Promise<T[]> {
-    if (this.isExpired()) {
+    if (this.isExpired() || !this.isInitialized) {
       await this.sync();
+      this.isInitialized = true;
     }
     const elementsArray: T[] = [];
     // REVIEW: very slow, should send a single batch-query
