@@ -15,13 +15,21 @@
       "request": "launch",
       "name": "Launch Hub Back-end",
       "preLaunchTask": "build_back-end",
-      "program": "${workspaceFolder}/back-end/dist/app.js"
+      "program": "${workspaceFolder}/back-end/dist/server.js"
     },
     {
       "type": "node", // TODO: set up launch task for front-end
       "request": "launch",
       "name": "Launch Hub Front-end",
       "program": "${file}"
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Attach to Back-End Process",
+      "port": 5858,
+      "restart": true,
+      "protocol": "inspector"
     }
   ]
 }

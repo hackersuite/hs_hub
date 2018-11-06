@@ -9,7 +9,7 @@
       "tsconfig": "back-end\\tsconfig.json",
       "problemMatcher": [
         "$tsc"
-      ],
+      ]
     },
     {
       "identifier": "build_front-end", // TODO: set up build task for front-end
@@ -17,7 +17,7 @@
       "tsconfig": "front-end\\tsconfig.json",
       "problemMatcher": [
         "$tsc"
-      ],
+      ]
     }
   ]
 }
