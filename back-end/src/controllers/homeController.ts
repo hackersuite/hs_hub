@@ -16,6 +16,7 @@ export class HomeController {
 
 
   public login(req: Request, res: Response, next: NextFunction) {
+    console.log("hellow");
     res.render("pages/login");
   }
 

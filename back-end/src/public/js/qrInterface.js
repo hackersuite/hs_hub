@@ -5,7 +5,18 @@ function startScanner() {
   $("#qr-scanner-container").fadeIn("slow");
   scanner = new Instascan.Scanner({ video: document.getElementById('qr-scanner') });
   scanner.addListener('scan', function (content) {
-    $.get(content);
+    var info = JSON.parse(content);
+    // console.log(response);
+    $.post({
+      url: "/achievements/" + info.id + "/incrementProgress",
+      data: {
+        step: info.step,
+        token: info.token
+      },
+      success: function(response) {
+        console.log(response);
+      }
+    })
   });
   Instascan.Camera.getCameras().then(function (cameras) {
     if (cameras.length > 0) {
