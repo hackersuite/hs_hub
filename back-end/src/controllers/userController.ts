@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import * as passport from "passport";
 import { ApiError } from "../util/errorHandling/apiError";
 import { HttpResponseCode } from "../util/errorHandling/httpResponseCode";
+import { AuthLevels } from "../util/user";
 
 /**
  * A controller for auth methods
@@ -22,7 +23,12 @@ export class UserController {
         if (err) {
           return next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
         }
-        res.send({ message: "Logged in" });
+        if (user.authLevel > AuthLevels.Attendee) {
+          res.redirect("/admin");
+        } else {
+          res.redirect("/");
+        }
+        // res.send({ message: "Logged in" });
       });
     })(req, res);
   }

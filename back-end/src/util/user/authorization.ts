@@ -12,7 +12,8 @@ import { HttpResponseCode } from "../errorHandling/httpResponseCode";
  */
 export const checkIsLoggedIn = (req: Request, res: Response, next: NextFunction): void => {
   if (!req.user) {
-    return next(new ApiError(HttpResponseCode.FORBIDDEN, "You are not logged in!"));
+    return res.redirect("/login");
+    // return next(new ApiError(HttpResponseCode.FORBIDDEN, "You are not logged in!"));
   }
   return next();
 };
