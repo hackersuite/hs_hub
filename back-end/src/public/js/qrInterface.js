@@ -5,7 +5,25 @@ function startScanner() {
   $("#qr-scanner-container").fadeIn("slow");
   scanner = new Instascan.Scanner({ video: document.getElementById('qr-scanner') });
   scanner.addListener('scan', function (content) {
-    console.log(content);
+    $.get(content);
+  });
+  Instascan.Camera.getCameras().then(function (cameras) {
+    if (cameras.length > 0) {
+      camera = cameras[0];
+      scanner.start(camera);
+    } else {
+      couldNotStartCamera();
+    }
+  }).catch(function (e) {
+    couldNotStartCamera();
+    console.error(e);
+  });
+}
+
+function startCustomScanner(videoObj, callback) {
+  scanner = new Instascan.Scanner({ video: document.getElementById(videoObj) });
+  scanner.addListener('scan', function (content) {
+    callback(content);
   });
   Instascan.Camera.getCameras().then(function (cameras) {
     if (cameras.length > 0) {
