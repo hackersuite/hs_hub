@@ -9,6 +9,10 @@ export class HomeController {
     res.render("pages/dashboard");
   }
 
+  public login(req: Request, res: Response, next: NextFunction) {
+    res.render("pages/login");
+  }
+
   public async admin(req: Request, res: Response, next: NextFunction) {
     try {
       const reservations = await getAllReservations();

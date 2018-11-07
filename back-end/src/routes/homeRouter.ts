@@ -7,13 +7,16 @@ export const homeRouter = (): Router => {
 
   const homeController = new HomeController();
 
-  router.get("/dashboard",
-  // checkIsLoggedIn,
-  homeController.dashboard);
-
   router.get("/admin",
-  // checkIsVolunteer,
-  homeController.admin);
+    checkIsVolunteer,
+    homeController.admin);
+
+  router.get("/login",
+    homeController.login);
+
+  router.get("/",
+    checkIsLoggedIn,
+    homeController.dashboard);
 
   return router;
 };
