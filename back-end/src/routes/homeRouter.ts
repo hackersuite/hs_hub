@@ -14,6 +14,10 @@ export const homeRouter = (): Router => {
   router.get("/login",
     homeController.login);
 
+  router.get("/hardware",
+    checkIsLoggedIn,
+    homeController.hardware);
+
   router.get("/",
     checkIsLoggedIn,
     homeController.dashboard);

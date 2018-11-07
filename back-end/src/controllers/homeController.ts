@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { getAllReservations } from "../util/hardwareLibrary";
+import { getAllReservations, getAllHardwareItems } from "../util/hardwareLibrary";
 
 /**
  * A controller for auth methods
@@ -7,6 +7,11 @@ import { getAllReservations } from "../util/hardwareLibrary";
 export class HomeController {
   public dashboard(req: Request, res: Response, next: NextFunction) {
     res.render("pages/dashboard");
+  }
+
+  public async hardware(req: Request, res: Response, next: NextFunction) {
+    const items = await getAllHardwareItems();
+    res.render("pages/hardware", { items });
   }
 
   public login(req: Request, res: Response, next: NextFunction) {
