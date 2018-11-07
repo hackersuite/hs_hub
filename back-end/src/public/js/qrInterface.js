@@ -20,10 +20,11 @@ function startScanner() {
   });
 }
 
-function startCustomScanner(videoObj, callback) {
-  scanner = new Instascan.Scanner({ video: document.getElementById(videoObj) });
+function startCustomScanner(videoObjId, callback) {
+  closeScanner();
+  scanner = new Instascan.Scanner({ video: document.getElementById(videoObjId) });
   scanner.addListener('scan', function (content) {
-    callback(content);
+    callback(content, );
   });
   Instascan.Camera.getCameras().then(function (cameras) {
     if (cameras.length > 0) {
@@ -39,8 +40,10 @@ function startCustomScanner(videoObj, callback) {
 }
 
 function closeScanner() {
-  scanner.stop(camera);
-  $("#qr-scanner-container").fadeOut("slow");
+  if (camera && scanner) {
+    scanner.stop(camera);
+    $("#qr-scanner-container").fadeOut("slow");
+  }
 }
 
 function couldNotStartCamera() {

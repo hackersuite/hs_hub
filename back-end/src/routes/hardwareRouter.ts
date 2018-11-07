@@ -15,7 +15,9 @@ export const hardwareRouter = (): Router => {
   /**
    * POST /hardware/take
    */
-  router.post("/take", checkIsVolunteer, hardwareController.take);
+  router.post("/take",
+  // heckIsVolunteer,
+  hardwareController.take);
 
   /**
    * POST /hardware/addItems

@@ -24,12 +24,12 @@
                       <div class="col-md-6">
                         <video id="hardware-qr-scanner">
                         </video>
-                        <button class="btn btn-warning pull-right">SCAN</button>
+                        <button class="btn btn-warning pull-right" onclick="scanHardwareQR()">SCAN</button>
                       </div>
                       <div class="col-md-6">
                         <label for="token"><b>Manual controls as a backup</b></label>
                         <input id="token" type="text" class="form-control" placeholder="enter the user's token here">
-                        <button class="btn btn-warning pull-right">SEND</button>
+                        <button class="btn btn-warning pull-right" onclick="sendTokenManually()">SEND</button>
                       </div>
                     </div>
                   </div>
@@ -90,6 +90,7 @@
     <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
     <script src="/js/material-dashboard.js?v=2.1.0"></script>
     <script src="/js/animations.js"></script>
+    <script src="/js/hardwareAdmin.js"></script>
 </body>
 
 </html>
