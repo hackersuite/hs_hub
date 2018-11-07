@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { reserveItem, takeItem, getAllHardwareItems, addAllHardwareItems, getAllReservations } from "../util/hardwareLibrary";
+import { reserveItem, takeItem, getAllHardwareItems, addAllHardwareItems, getAllReservations, returnItem, getReservation } from "../util/hardwareLibrary";
 import { ApiError } from "../util/errorHandling/apiError";
 import { HttpResponseCode } from "../util/errorHandling/httpResponseCode";
 /**
@@ -39,10 +39,25 @@ export class HardwareController {
       const takenItem: boolean  = await takeItem(req.body.token);
       if (takenItem !== undefined) {
         res.send({
-          "message": takenItem ? "Item has been taken from the library" : "Item has been returned to the library"
+          message: "Item has been taken from the library"
         });
       } else {
-        return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Action failed!"));
+        return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Incorrect token provided!"));
+      }
+    } catch (err) {
+      return next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
+    }
+  }
+
+  public async return(req: Request, res: Response, next: Function): Promise<void> {
+    try {
+      const returnedItem: boolean  = await returnItem(req.body.token);
+      if (returnedItem !== undefined) {
+        res.send({
+          message: "Item has been returned to the library"
+        });
+      } else {
+        return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Incorrect token provided!"));
       }
     } catch (err) {
       return next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
@@ -99,6 +114,24 @@ export class HardwareController {
       res.send(reservations);
     } catch (err) {
       return next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
+    }
+  }
+
+  /**
+   * Gets a reservation
+   */
+  public async getReservation(req: Request, res: Response, next: Function): Promise<void> {
+    try {
+      if (!req.params.token) {
+        throw new ApiError(HttpResponseCode.BAD_REQUEST, "No reservation token provided!");
+      }
+      const reservation = await getReservation(req.params.token);
+      if (!reservation) {
+        throw new ApiError(HttpResponseCode.BAD_REQUEST, "No reservation with given token found!");
+      }
+      res.send(reservation);
+    } catch (err) {
+      return next(err);
     }
   }
 }
