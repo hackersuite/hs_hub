@@ -24,7 +24,7 @@ function startCustomScanner(videoObjId, callback) {
   closeScanner();
   scanner = new Instascan.Scanner({ video: document.getElementById(videoObjId) });
   scanner.addListener('scan', function (content) {
-    callback(content, );
+    callback(content);
   });
   Instascan.Camera.getCameras().then(function (cameras) {
     if (cameras.length > 0) {

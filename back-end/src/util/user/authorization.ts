@@ -27,7 +27,8 @@ export const checkIsLoggedIn = (req: Request, res: Response, next: NextFunction)
  */
 export const checkIsVolunteer = (req: Request, res: Response, next: NextFunction): void => {
   if (!req.user || (req.user as User).authLevel < AuthLevels.Volunteer) {
-    return next(new ApiError(HttpResponseCode.FORBIDDEN, "You are not logged in or you are not a volunteer!"));
+    return res.redirect("/login");
+    // return next(new ApiError(HttpResponseCode.FORBIDDEN, "You are not logged in or you are not a volunteer!"));
   }
   return next();
 };
@@ -41,7 +42,8 @@ export const checkIsVolunteer = (req: Request, res: Response, next: NextFunction
  */
 export const checkIsOrganizer = (req: Request, res: Response, next: NextFunction): void => {
   if (!req.user || (req.user as User).authLevel < AuthLevels.Organizer) {
-    return next(new ApiError(HttpResponseCode.FORBIDDEN, "You are not logged in or you are not not an organizer!"));
+    return res.redirect("/login");
+    // return next(new ApiError(HttpResponseCode.FORBIDDEN, "You are not logged in or you are not not an organizer!"));
   }
   return next();
 };

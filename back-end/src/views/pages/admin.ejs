@@ -9,88 +9,141 @@
 
 <body>
   <div class="wrapper">
-      <% include ../partials/navbar.ejs %>
-      <div class="main-panel">
-        <div class="content">
-          <div class="container-fluid">
-            <div class="row">
-              <div class="col-lg-6 col-md-12">
-                <div class="card">
-                  <div class="card-header card-header-warning">
-                    <h4 class="card-title">Hardware library controls</h4>
-                  </div>
-                  <div class="card-body">
-                    <div class="row">
-                      <div class="col-md-6">
-                        <video id="hardware-qr-scanner">
-                        </video>
-                        <button class="btn btn-warning pull-right" onclick="scanHardwareQR()">SCAN</button>
-                      </div>
-                      <div class="col-md-6">
-                        <label for="token"><b>Manual controls as a backup</b></label>
-                        <input id="token" type="text" class="form-control" placeholder="enter the user's token here">
-                        <button class="btn btn-warning pull-right" onclick="sendTokenManually()">SEND</button>
-                      </div>
+    <% include ../partials/navbar.ejs %>
+
+    <div class="main-panel">
+      <div class="content">
+        <!-- Info Modal -->
+        <div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="infoModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="infoModalLabel"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <img src="" alt="" id="infoModalImg">
+                <div id="infoModalBody">
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Confirmation Modal -->
+        <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="confirmationModalLabel">Are you sure that this person is returning the correct item?</h5>
+              </div>
+              <div class="modal-body">
+                <img src="" alt="" id="confirmationModalImg">
+                <div id="confirmationModalBody">
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-dismiss="modal" onclick="sendReturnConfirmRequest()">Confirm</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-lg-6 col-md-12">
+              <div class="card">
+                <div class="card-header card-header-warning">
+                  <h4 class="card-title">Hardware library controls</h4>
+                </div>
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <video id="hardware-qr-scanner">
+                      </video>
+                      <button class="btn btn-warning" onclick="takeQR()">TAKE</button>
+                      <button class="btn btn-danger" onclick="returnQR()">RETURN</button>
+                      <button class="btn btn-primary" onclick="infoQR()">INFO</button>
+                    </div>
+                    <div class="col-md-6">
+                      <label for="token"><b>Manual controls as a backup</b></label>
+                      <input id="token" type="text" class="form-control" placeholder="enter the user's token here">
+                      <button class="btn btn-warning" onclick="takeManual()">TAKE</button>
+                      <button class="btn btn-danger" onclick="returnManual()">RETURN</button>
+                      <button class="btn btn-primary" onclick="infoManual()">INFO</button>
                     </div>
                   </div>
                 </div>
               </div>
-              <div class="col-lg-6 col-md-12">
-                <div class="card">
-                  <div class="card-header card-header-primary">
-                    <h4 class="card-title">Hardware library loans</h4>
-                  </div>
-                  <div class="card-body table-responsive">
-                    <table class="table table-hover">
-                      <thead class="text-warning">
-                        <th>User</th>
-                        <th>Item</th>
-                        <th>Status</th>
-                        <th>Token</th>
-                      </thead>
-                      <tbody>
+            </div>
+            <div class="col-lg-6 col-md-12">
+              <div class="card">
+                <div class="card-header card-header-primary">
+                  <h4 class="card-title">Hardware library loans</h4>
+                </div>
+                <div class="card-body table-responsive">
+                  <table class="table table-hover">
+                    <thead class="text-warning">
+                      <th>User</th>
+                      <th>Item</th>
+                      <th>Status</th>
+                      <th>Token</th>
+                    </thead>
+                    <tbody>
                       <% reservations.forEach(reservation => { %>
-                        <tr>
-                          <td><%- reservation.user.name %></td>
-                          <td><%- reservation.hardwareItem.name %></td>
-                          <td><%- reservation.isReserved ? "Reserved" : "Taken" %></td>
-                          <td><%- reservation.reservationToken %></td>
-                        </tr>
+                      <tr>
+                        <td>
+                          <%- reservation.user.name %>
+                        </td>
+                        <td>
+                          <%- reservation.hardwareItem.name %>
+                        </td>
+                        <td>
+                          <%- reservation.isReserved ? "Reserved" : "Taken" %>
+                        </td>
+                        <td>
+                          <%- reservation.reservationToken %>
+                        </td>
+                      </tr>
                       <% }) %>
-                      </tbody>
-                    </table>
-                  </div>
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <% include ../partials/footer.ejs %>
-        <script>
-          const x = new Date().getFullYear();
-          let date = document.getElementById('date');
-          date.innerHTML = '&copy; ' + x + date.innerHTML;
-        </script>
       </div>
+      <% include ../partials/footer.ejs %>
+      <script>
+        const x = new Date().getFullYear();
+        let date = document.getElementById('date');
+        date.innerHTML = '&copy; ' + x + date.innerHTML;
+      </script>
     </div>
-    <!--   Core JS Files   -->
-    <script src="/js/core/jquery.min.js"></script>
-    <script src="/js/core/popper.min.js"></script>
-    <script src="/js/core/bootstrap-material-design.min.js"></script>
-    <script src="https://unpkg.com/default-passive-events"></script>
-    <script src="/js/plugins/perfect-scrollbar.jquery.min.js"></script>
-    <!-- Place this tag in your head or just before your close body tag. -->
-    <script async defer src="https://buttons.github.io/buttons.js"></script>
-    <!--  Google Maps Plugin    -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY_HERE"></script>
-    <!-- Chartist JS -->
-    <script src="/js/plugins/chartist.min.js"></script>
-    <!--  Notifications Plugin    -->
-    <script src="/js/plugins/bootstrap-notify.js"></script>
-    <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
-    <script src="/js/material-dashboard.js?v=2.1.0"></script>
-    <script src="/js/animations.js"></script>
-    <script src="/js/hardwareAdmin.js"></script>
+  </div>
+  <!--   Core JS Files   -->
+  <script src="/js/core/jquery.min.js"></script>
+  <script src="/js/core/popper.min.js"></script>
+  <script src="/js/core/bootstrap-material-design.min.js"></script>
+  <script src="https://unpkg.com/default-passive-events"></script>
+  <script src="/js/plugins/perfect-scrollbar.jquery.min.js"></script>
+  <!-- Place this tag in your head or just before your close body tag. -->
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <!--  Google Maps Plugin    -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY_HERE"></script>
+  <!-- Chartist JS -->
+  <script src="/js/plugins/chartist.min.js"></script>
+  <!--  Notifications Plugin    -->
+  <script src="/js/plugins/bootstrap-notify.js"></script>
+  <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
+  <script src="/js/material-dashboard.js?v=2.1.0"></script>
+  <script src="/js/animations.js"></script>
+  <script src="/js/hardwareAdmin.js"></script>
 </body>
 
 </html>
