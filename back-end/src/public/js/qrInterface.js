@@ -33,3 +33,7 @@ function couldNotStartCamera() {
     });
   $("#qr-scanner-container").fadeOut("slow");
 }
+
+function getQRCode(url) {
+  return "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + url;
+}
