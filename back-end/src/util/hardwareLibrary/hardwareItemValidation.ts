@@ -234,12 +234,14 @@ export const getAllHardwareItems = async (): Promise<Object[]> => {
 
   const formattedData = [];
   hardwareItems.forEach((item: HardwareItem) => {
+    const remainingItemCount: number = item.totalStock - (item.reservedStock + item.takenStock);
     formattedData.push({
       "itemName": item.name,
       "itemDescription": item.description,
       "itemURL": item.itemURL,
       "itemStock": item.totalStock,
-      "itemHasStock": (item.totalStock - (item.reservedStock + item.takenStock) > 0 ? "true" : "false")
+      "itemsLeft": remainingItemCount,
+      "itemHasStock": remainingItemCount > 0 ? "true" : "false"
     });
   });
   return formattedData;
