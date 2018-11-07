@@ -21,7 +21,7 @@ export const parseToken = async (resToken: string): Promise<ReservedHardwareItem
     .createQueryBuilder("reservation")
     .innerJoin("reservation.user", "user")
     .innerJoin("reservation.hardwareItem", "item")
-    .select(["user.id", "item.id", "reservation.isReserved", "reservation.reservationExpiry"])
+    .select(["user.id", "item.id", "reservation.isReserved", "reservation.reservationExpiry", "reservation.reservationQuantity"])
     .where("reservation.reservationToken = :token", { token: resToken })
     .getOne();
 

@@ -37,7 +37,7 @@ export class HardwareController {
    */
   public async take(req: Request, res: Response, next: Function): Promise<void> {
     try {
-      const takenItem: boolean = await takeItem(req.body.token);
+      const takenItem: boolean  = await takeItem(req.body.token);
       if (takenItem !== undefined) {
         res.send({
           message: "Item has been taken from the library"
@@ -52,7 +52,7 @@ export class HardwareController {
 
   public async return(req: Request, res: Response, next: Function): Promise<void> {
     try {
-      const returnedItem: boolean = await returnItem(req.body.token);
+      const returnedItem: boolean  = await returnItem(req.body.token);
       if (returnedItem !== undefined) {
         res.send({
           message: "Item has been returned to the library"
@@ -100,7 +100,7 @@ export class HardwareController {
   public async addAllItems(req: Request, res: Response, next: Function): Promise<void> {
     try {
       await addAllHardwareItems(JSON.parse(req.body.items));
-      res.send({ "message": "Added all items" });
+      res.send({"message": "Added all items"});
     } catch (err) {
       return next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
     }
