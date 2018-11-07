@@ -9,10 +9,12 @@ import { HttpResponseCode } from "../errorHandling/httpResponseCode";
  * @param itemToReserve
  * @return A boolean indicating if the item was successfully reserved
  */
-export const reserveItem = async (user: User, itemToReserve: string): Promise<string> => {
+export const reserveItem = async (user: User, itemToReserve: string, requestedQuantity?: number): Promise<string> => {
+  if (!requestedQuantity) requestedQuantity = 1;
+
   const hardwareItem: HardwareItem = await getHardwareItemByName(itemToReserve);
-  if (await isItemReservable(user, hardwareItem)) {
-    return reserveItemQuery(user, hardwareItem);
+  if (await isItemReservable(user, hardwareItem, requestedQuantity)) {
+    return reserveItemQuery(user, hardwareItem, requestedQuantity);
   }
   return undefined;
 };
@@ -59,7 +61,7 @@ export const getHardwareItemByID = async (hardwareItemID: number): Promise<Hardw
  * @param user
  * @param hardwareItem
  */
-export const reserveItemQuery = async (user: User, hardwareItem: HardwareItem): Promise<string> => {
+export const reserveItemQuery = async (user: User, hardwareItem: HardwareItem, requestedQuantity: number): Promise<string> => {
   try {
     // Create the new item reservation object
     const newItemReservation: ReservedHardwareItem = new ReservedHardwareItem();
@@ -67,6 +69,7 @@ export const reserveItemQuery = async (user: User, hardwareItem: HardwareItem): 
     newItemReservation.hardwareItem = hardwareItem;
     newItemReservation.reservationToken = createToken();
     newItemReservation.isReserved = true;
+    newItemReservation.reservationQuantity = requestedQuantity;
 
     // Sets the reservation expiry to be current time + 30 minutes
     newItemReservation.reservationExpiry = new Date(new Date().getTime() + (1000 * 60 * 30));
@@ -82,7 +85,7 @@ export const reserveItemQuery = async (user: User, hardwareItem: HardwareItem): 
     // Increment the reservation count for the hardware item
     await getConnection("hub")
       .getRepository(HardwareItem)
-      .increment({ id: hardwareItem.id }, "reservedStock", 1);
+      .increment({ id: hardwareItem.id }, "reservedStock", requestedQuantity);
 
     return newItemReservation.reservationToken;
   } catch (err) {
@@ -95,7 +98,7 @@ export const reserveItemQuery = async (user: User, hardwareItem: HardwareItem): 
  * @param user
  * @param hardwareItem
  */
-export const isItemReservable = async (user: User, hardwareItem: HardwareItem): Promise<boolean> => {
+export const isItemReservable = async (user: User, hardwareItem: HardwareItem, requestedQuantity: number): Promise<boolean> => {
   // Check the user has not reserved this item yet
   const hasUserNotReserved: boolean = await getConnection("hub")
     .getRepository(User)
@@ -107,7 +110,7 @@ export const isItemReservable = async (user: User, hardwareItem: HardwareItem): 
     .getCount() == 0;
 
   // Check the requested item still has non reserved stock
-  const hasStock: boolean = hardwareItem.totalStock - (hardwareItem.reservedStock + hardwareItem.takenStock) > 0;
+  const hasStock: boolean = (hardwareItem.totalStock - (hardwareItem.reservedStock + hardwareItem.takenStock) - requestedQuantity) >= 0;
 
   return hasStock && hasUserNotReserved;
 };
@@ -124,13 +127,14 @@ export const takeItem = async (token: string): Promise<boolean> => {
 
   const userID: number = reservation.user.id,
     itemID: number = reservation.hardwareItem.id,
-    isReserved: boolean = reservation.isReserved;
+    isReserved: boolean = reservation.isReserved,
+    itemQuantity: number = reservation.reservationQuantity;
 
   if (isReserved) {
     // Checks that reservation is not expired
     if (!isReservationValid(reservation.reservationExpiry)) return undefined;
 
-    await itemToBeTakenFromLibrary(userID, itemID);
+    await itemToBeTakenFromLibrary(userID, itemID, itemQuantity);
   } else {
     throw new ApiError(HttpResponseCode.BAD_REQUEST, "This item is already taken");
   }
@@ -148,10 +152,11 @@ export const returnItem = async (token: string): Promise<boolean> => {
 
   const userID: number = reservation.user.id,
     itemID: number = reservation.hardwareItem.id,
-    isReserved: boolean = reservation.isReserved;
+    isReserved: boolean = reservation.isReserved,
+    itemQuantity: number = reservation.reservationQuantity;
 
   if (!isReserved) {
-    await itemToBeReturnedToLibrary(itemID, token);
+    await itemToBeReturnedToLibrary(itemID, token, itemQuantity);
   } else {
     throw new ApiError(HttpResponseCode.BAD_REQUEST, "This has not been taken yet");
   }
@@ -167,7 +172,7 @@ const isReservationValid = (expiryDate: Date): boolean => {
   return Date.now() <= expiryDate.getTime();
 };
 
-export const itemToBeTakenFromLibrary = async (userID: number, hardwareItemID: number): Promise<void> => {
+export const itemToBeTakenFromLibrary = async (userID: number, hardwareItemID: number, itemQuantity: number): Promise<void> => {
   // The item is reserved and we mark the item as taken
   try {
     await getConnection("hub")
@@ -182,8 +187,8 @@ export const itemToBeTakenFromLibrary = async (userID: number, hardwareItemID: n
       .createQueryBuilder()
       .update(HardwareItem)
       .set({
-        takenStock: () => "takenStock + 1",
-        reservedStock: () => "reservedStock - 1"
+        takenStock: () => `takenStock + ${itemQuantity}`,
+        reservedStock: () => `reservedStock - ${itemQuantity}`
       })
       .where("id = :id", { id: hardwareItemID })
       .execute();
@@ -197,13 +202,13 @@ export const itemToBeTakenFromLibrary = async (userID: number, hardwareItemID: n
  * @param hardwareItemID
  * @param token
  */
-export const itemToBeReturnedToLibrary = async (hardwareItemID: number, token: string): Promise<void> => {
+export const itemToBeReturnedToLibrary = async (hardwareItemID: number, token: string, itemQuantity: number): Promise<void> => {
   // The item is being returned
   try {
     // Decrement the reservation count for the hardware item
     await getConnection("hub")
       .getRepository(HardwareItem)
-      .decrement({ id: hardwareItemID }, "takenStock", 1);
+      .decrement({ id: hardwareItemID }, "takenStock", itemQuantity);
 
     // Delete the user reservation from the database
     await getConnection("hub")
