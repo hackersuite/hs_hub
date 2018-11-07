@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { reserveItem, takeItem, getAllHardwareItems, addAllHardwareItems } from "../util/hardwareLibrary";
+import { reserveItem, takeItem, getAllHardwareItems, addAllHardwareItems, getAllReservations } from "../util/hardwareLibrary";
 import { ApiError } from "../util/errorHandling/apiError";
 import { HttpResponseCode } from "../util/errorHandling/httpResponseCode";
 /**
@@ -83,8 +83,20 @@ export class HardwareController {
    */
   public async addAllItems(req: Request, res: Response, next: Function): Promise<void> {
     try {
-      await addAllHardwareItems(req.body);
+      await addAllHardwareItems(JSON.parse(req.body.items));
       res.send({"message": "Added all items"});
+    } catch (err) {
+      return next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
+    }
+  }
+
+  /**
+   * Gets all reservations
+   */
+  public async getAllReservations(req: Request, res: Response, next: Function): Promise<void> {
+    try {
+      const reservations = await getAllReservations();
+      res.send(reservations);
     } catch (err) {
       return next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
     }

@@ -27,5 +27,10 @@ export const hardwareRouter = (): Router => {
    */
   router.get("/allItems", hardwareController.getAllItems);
 
+  /**
+   * GET /hardware/reservations
+   */
+  router.get("/reservations", checkIsVolunteer, hardwareController.getAllReservations);
+
   return router;
 };

@@ -11,12 +11,14 @@ const toEmails: string[] = ["kzalys@gmail.com"];
  */
 export const errorHandler = (err: ApiError|Error, req: Request, res: Response, next: NextFunction) => {
   if (err instanceof Error) {
-    // Send notification to admins when an uncaught error occurs
-    sendEmail("noreply@hacksoc.com",
-    toEmails,
-      "Uncaught Error: " + err.name,
-      err.message
-    );
+    if (process.env.ENVIRONMENT === "production") {
+      // Send notification to admins when an uncaught error occurs
+      sendEmail("noreply@hacksoc.com",
+      toEmails,
+        "Uncaught Error: " + err.name,
+        err.message
+      );
+    }
 
     res.status(HttpResponseCode.INTERNAL_ERROR).send(new ApiError(HttpResponseCode.INTERNAL_ERROR, err));
   } else {

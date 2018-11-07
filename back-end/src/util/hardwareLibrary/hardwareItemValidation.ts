@@ -252,3 +252,17 @@ export const addAllHardwareItems = async (items: HardwareObject[]): Promise<void
     throw new Error(`Lost connection to database (hub)! ${err}`);
   }
 };
+
+export const getAllReservations = async (): Promise<ReservedHardwareItem[]> => {
+  try {
+    const reservations = await getConnection("hub")
+      .getRepository(ReservedHardwareItem)
+      .createQueryBuilder("reservation")
+      .innerJoinAndSelect("reservation.hardwareItem", "item")
+      .innerJoinAndSelect("reservation.user", "user")
+      .getMany();
+    return reservations;
+  } catch (err) {
+    throw new Error(`Lost connection to database (hub)! ${err}`);
+  }
+};

@@ -1,9 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { ApiError } from "../util/errorHandling/apiError";
-import { HttpResponseCode } from "../util/errorHandling/httpResponseCode";
-import { getConnection } from "typeorm";
-import { Event } from "../db/entity";
-import { Cache } from "../util/cache";
+import { getAllReservations } from "../util/hardwareLibrary";
 
 /**
  * A controller for auth methods
@@ -11,5 +7,14 @@ import { Cache } from "../util/cache";
 export class HomeController {
   public dashboard(req: Request, res: Response, next: NextFunction) {
     res.render("pages/dashboard");
+  }
+
+  public async admin(req: Request, res: Response, next: NextFunction) {
+    try {
+      const reservations = await getAllReservations();
+      res.render("pages/admin", { reservations: reservations || [] });
+    } catch (err) {
+      return next(err);
+    }
   }
 }

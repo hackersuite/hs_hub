@@ -1,0 +1,6 @@
+#hardware-qr-scanner {
+  width: 100%;
+  height: 300px;
+  background: url("/img/qrScanner.png") center no-repeat;
+  background-size: cover;
+}
