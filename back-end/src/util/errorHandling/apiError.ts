@@ -26,6 +26,9 @@ export class ApiError {
     this.message = _message;
 
     switch (this.statusCode) {
+      case HttpResponseCode.BAD_REQUEST:
+        this.error = "Invalid request";
+        break;
       case HttpResponseCode.UNAUTHORIZED:
         this.error = "Could not login";
         break;

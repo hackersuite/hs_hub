@@ -16,8 +16,15 @@ export const hardwareRouter = (): Router => {
    * POST /hardware/take
    */
   router.post("/take",
-  // heckIsVolunteer,
-  hardwareController.take);
+    checkIsVolunteer,
+    hardwareController.take);
+
+  /**
+   * POST /hardware/return
+   */
+  router.post("/return",
+    checkIsVolunteer,
+    hardwareController.return);
 
   /**
    * POST /hardware/addItems
@@ -28,6 +35,11 @@ export const hardwareRouter = (): Router => {
    * GET /hardware/allItems
    */
   router.get("/allItems", hardwareController.getAllItems);
+
+  /**
+   * GET /hardware/reservation
+   */
+  router.get("/reservation/:token", checkIsVolunteer, hardwareController.getReservation);
 
   /**
    * GET /hardware/reservations
