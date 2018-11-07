@@ -1,4 +1,4 @@
-import { HardwareItem, User, ReservedHardwareItem } from "../../db/entity";
+import { HardwareItem, User, ReservedHardwareItem } from "../../db/entity/hub";
 import { createToken, parseToken } from "./hardwareItemToken";
 import { getConnection } from "typeorm";
 import { ApiError } from "../errorHandling/apiError";
@@ -118,8 +118,6 @@ export const isItemReservable = async (user: User, hardwareItem: HardwareItem): 
  */
 export const takeItem = async (token: string): Promise<boolean> => {
   const reservation: ReservedHardwareItem = await parseToken(token);
-  console.log(token);
-  console.log(reservation);
   if (!reservation) return undefined;
 
   const userID: number = reservation.user.id,

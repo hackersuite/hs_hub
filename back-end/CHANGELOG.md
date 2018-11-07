@@ -6,5 +6,7 @@
 * 19/10/2018 - Implemented a caching mechanism
 * 21/10/2018 - Fixed inconsistencies in the caching mechanism
 * 22/10/2018 - Implemented User System
+* 28/10/2018 - Implemented cache models for achievements progress
 * 05/11/2018 - Implemented hardware library system and tests
 * 06/11/2018 - Implemented a cached event schedule
+* 06/11/2018 - Implement back-end achievements system

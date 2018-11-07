@@ -1,7 +1,7 @@
 import { Express } from "express";
 import { buildApp } from "../../../src/app";
-import { User, HardwareItem, ReservedHardwareItem } from "../../../src/db/entity/";
-import { getConnection, ObjectLiteral } from "typeorm";
+import { User, HardwareItem, ReservedHardwareItem } from "../../../src/db/entity/hub";
+import { getConnection } from "typeorm";
 import * as request from "supertest";
 import { HttpResponseCode } from "../../../src/util/errorHandling/httpResponseCode";
 import { exec } from "child_process";
