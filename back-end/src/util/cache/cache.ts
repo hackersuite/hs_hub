@@ -1,4 +1,5 @@
 import { UsersCacheCollection, EventsCacheCollection } from "./models/collections";
+import { ChallengesCacheCollection } from "./models/collections/challengesCacheCollection";
 
 /**
  * The top-level interface for the cache
@@ -9,5 +10,5 @@ export abstract class Cache {
    */
   public static users: UsersCacheCollection = new UsersCacheCollection();
   public static events: EventsCacheCollection = new EventsCacheCollection();
-
+  public static challenges: ChallengesCacheCollection = new ChallengesCacheCollection();
 }
