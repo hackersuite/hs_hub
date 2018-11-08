@@ -125,8 +125,6 @@ export const isItemReservable = async (user: User, hardwareItem: HardwareItem, r
  */
 export const takeItem = async (token: string): Promise<boolean> => {
   const reservation: ReservedHardwareItem = await parseToken(token);
-  console.log(token);
-  console.log(reservation);
   if (!reservation) return undefined;
 
   const userID: number = reservation.user.id,

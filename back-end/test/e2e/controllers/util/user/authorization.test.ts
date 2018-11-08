@@ -36,8 +36,6 @@ beforeAll((done: jest.DoneCallback): void => {
         .values([testHubUser])
         .execute()).identifiers[0].id;
 
-      console.log(testHubUser.id);
-
       const response = await request(bApp)
         .post("/user/login")
         .send({
