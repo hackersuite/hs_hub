@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { ApiError } from "../util/errorHandling/apiError";
 import { HttpResponseCode } from "../util/errorHandling/httpResponseCode";
 import { getConnection } from "typeorm";
-import { Challenge } from "../db/entity";
+import { Challenge } from "../db/entity/hub";
 import { Cache } from "../util/cache";
 
 export class ChallengesController {

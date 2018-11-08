@@ -1,6 +1,6 @@
 import { CacheObject } from "../../abstract-classes";
 import { getConnection } from "typeorm";
-import { Challenge } from "../../../../db/entity";
+import { Challenge } from "../../../../db/entity/hub";
 
 /**
  * A cached challenge object
@@ -37,7 +37,7 @@ export class ChallengeCached extends CacheObject {
    * @param prizes Challenge prizes
    */
   constructor(challenge: Challenge) {
-      super(challenge.id);
+      super(String(challenge.id));
       this.title = challenge.title;
       this.description = challenge.description;
       this.company = challenge.company;

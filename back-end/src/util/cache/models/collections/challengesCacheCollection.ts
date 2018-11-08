@@ -1,6 +1,6 @@
 import { CacheCollection } from "../../abstract-classes";
 import { getConnection } from "typeorm";
-import { Challenge } from "../../../../db/entity";
+import { Challenge } from "../../../../db/entity/hub";
 import { ChallengeCached } from "../objects/challengeCached";
 
 /**
@@ -25,7 +25,7 @@ export class ChallengesCacheCollection extends CacheCollection<ChallengeCached> 
       .getMany();
     // Updating the instance variables
     this.syncedAt = Date.now();
-    this.elements = new Map<number, ChallengeCached>();
+    this.elements = new Map<string, ChallengeCached>();
     challenges.forEach(challenge => {
       const syncedChallenge = new ChallengeCached(challenge);
       this.elements[syncedChallenge.id] = syncedChallenge;
