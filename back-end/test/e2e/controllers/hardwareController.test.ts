@@ -107,10 +107,11 @@ describe("Hardware controller tests", (): void => {
       .set("Cookie", sessionCookie)
       .send({
         item: piHardwareItem.name,
+        quantity: 1
       });
 
     expect(response.status).toBe(HttpResponseCode.OK);
-    expect(response.body.message).toBe("Item reserved!");
+    expect(response.body.message).toBe("Item(s) reserved!");
     expect(response.body.token).not.toBeUndefined();
     userReservationToken = response.body.token;
   });
@@ -156,7 +157,7 @@ describe("Hardware controller tests", (): void => {
    */
   test("Should check that item can be returned and database is updated", async (): Promise<void> => {
     const response = await request(bApp)
-      .post("/hardware/take")
+      .post("/hardware/return")
       .set("Cookie", sessionCookie)
       .send({
         token: userReservationToken,
