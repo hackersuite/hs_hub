@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { reserveItem, takeItem, getAllHardwareItems, addAllHardwareItems, getAllReservations, returnItem, getReservation } from "../util/hardwareLibrary";
+import { reserveItem, takeItem, getAllHardwareItems, addAllHardwareItems, getAllReservations, returnItem, getReservation, cancelReservation } from "../util/hardwareLibrary";
 import { ApiError } from "../util/errorHandling/apiError";
 import { HttpResponseCode } from "../util/errorHandling/httpResponseCode";
 /**
@@ -17,12 +17,16 @@ export class HardwareController {
     // then the item can be reserved (reserve the item and return success (+ create qr))
     // otherwise, return that the item can't be reserved
     try {
-      const token: string = await reserveItem(req.user, req.body.item, req.body.quantity);
+      const { item, quantity } = req.body;
+      if (isNaN(quantity) || Number(quantity) < 0) {
+        return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Invalid quantity provided!"));
+      }
+      const token: string = await reserveItem(req.user, item, quantity);
       if (token) {
         res.send({
           "message": "Item(s) reserved!",
           "token": token,
-          "quantity": req.body.quantity || 1
+          "quantity": quantity || 1
         });
       } else {
         return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Item cannot be reserved!"));
@@ -131,6 +135,21 @@ export class HardwareController {
         throw new ApiError(HttpResponseCode.BAD_REQUEST, "No reservation with given token found!");
       }
       res.send(reservation);
+    } catch (err) {
+      return next(err);
+    }
+  }
+
+  /**
+   * Cancels a reservation
+   */
+  public async cancelReservation(req: Request, res: Response, next: Function): Promise<void> {
+    try {
+      if (!req.body.token) {
+        throw new ApiError(HttpResponseCode.BAD_REQUEST, "No reservation token provided!");
+      }
+      await cancelReservation(req.body.token, req.user.id);
+      res.send({ message: "Success" });
     } catch (err) {
       return next(err);
     }

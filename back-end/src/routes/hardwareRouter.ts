@@ -13,6 +13,11 @@ export const hardwareRouter = (): Router => {
   router.post("/reserve", checkIsLoggedIn, hardwareController.reserve);
 
   /**
+   * POST /hardware/cancelReservation
+   */
+  router.post("/cancelReservation", checkIsLoggedIn, hardwareController.cancelReservation);
+
+  /**
    * POST /hardware/take
    */
   router.post("/take",

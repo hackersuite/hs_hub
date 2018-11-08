@@ -112,6 +112,10 @@ export const isItemReservable = async (user: User, hardwareItem: HardwareItem, r
   // Check the requested item still has non reserved stock
   const hasStock: boolean = (hardwareItem.totalStock - (hardwareItem.reservedStock + hardwareItem.takenStock) - requestedQuantity) >= 0;
 
+  if (!hasStock) {
+    throw new ApiError(HttpResponseCode.BAD_REQUEST, "Not enough items in stock!");
+  }
+
   return hasStock && hasUserNotReserved;
 };
 
@@ -226,22 +230,34 @@ export const itemToBeReturnedToLibrary = async (hardwareItemID: number, token: s
 /**
  * Returns all the hardware items from the database in a formatted array
  */
-export const getAllHardwareItems = async (): Promise<Object[]> => {
+export const getAllHardwareItems = async (userId?: number): Promise<Object[]> => {
   const hardwareItems: HardwareItem[] = await getConnection("hub")
     .getRepository(HardwareItem)
     .createQueryBuilder()
     .getMany();
 
+  const userReservations: ReservedHardwareItem[] = await getConnection("hub")
+    .getRepository(ReservedHardwareItem)
+    .createQueryBuilder("reservation")
+    .leftJoinAndSelect("reservation.hardwareItem", "hardwareItem")
+    .where("userId = :userId", { userId })
+    .getMany();
+
   const formattedData = [];
   hardwareItems.forEach((item: HardwareItem) => {
     const remainingItemCount: number = item.totalStock - (item.reservedStock + item.takenStock);
+    const reservationForItem = userReservations.find(reservation => reservation.hardwareItem.name === item.name);
     formattedData.push({
       "itemName": item.name,
       "itemDescription": item.description,
       "itemURL": item.itemURL,
       "itemStock": item.totalStock,
       "itemsLeft": remainingItemCount,
-      "itemHasStock": remainingItemCount > 0 ? "true" : "false"
+      "itemHasStock": remainingItemCount > 0 ? "true" : "false",
+      "reserved": reservationForItem ? reservationForItem.isReserved : false,
+      "taken": reservationForItem ? !reservationForItem.isReserved : false,
+      "reservationQuantity": reservationForItem ? reservationForItem.reservationQuantity : 0,
+      "reservationToken": reservationForItem ? reservationForItem.reservationToken : ""
     });
   });
   return formattedData;
@@ -312,5 +328,39 @@ export const getReservation = async (token: string): Promise<ReservedHardwareIte
     return reservation;
   } catch (err) {
     throw new Error(`Lost connection to database (hub)! ${err}`);
+  }
+};
+
+export const cancelReservation = async (token: string, userId: number): Promise<void> => {
+  const reservation = await getConnection("hub")
+    .getRepository(ReservedHardwareItem)
+    .createQueryBuilder("reservation")
+    .innerJoinAndSelect("reservation.hardwareItem", "item")
+    .innerJoinAndSelect("reservation.user", "user")
+    .where("reservation.reservationToken = :token", { token })
+    .andWhere("userId = :userId", { userId })
+    .getOne();
+  if (!reservation) {
+    throw new ApiError(HttpResponseCode.BAD_REQUEST, "Could not find reservation!");
+  }
+  if (!reservation.isReserved) {
+    throw new ApiError(HttpResponseCode.BAD_REQUEST, "This reservation cannot be cancelled!");
+  }
+  const response = await getConnection("hub")
+    .createQueryBuilder()
+    .delete()
+    .from(ReservedHardwareItem)
+    .where("reservationToken = :token", { token })
+    .execute();
+  if (response.raw.affectedRows != 1) {
+    await getConnection("hub")
+      .getRepository(ReservedHardwareItem)
+      .save(reservation);
+    throw new ApiError(HttpResponseCode.INTERNAL_ERROR, "Could not cancel reservation, please inform us that this error occured.");
+  } else {
+    reservation.hardwareItem.reservedStock -= reservation.reservationQuantity;
+    await getConnection("hub")
+      .getRepository(HardwareItem)
+      .save(reservation.hardwareItem);
   }
 };

@@ -103,10 +103,11 @@ var reservationInfoTemplate = "<p><b>Item(s):</b> #countx#itemName</p>" +
 function sendInfoRequest(token) {
   $.get("/hardware/reservation/" + token)
     .done(function (response) {
+      console.log(response);
       $('#infoModalLabel').html(response.user.name + "->" + response.hardwareItem.name);
       $('#infoModalImg').attr("src", response.hardwareItem.itemURL);
       $('#infoModalBody').html(reservationInfoTemplate
-        .replace(/#count/g, 1)
+        .replace(/#count/g, response.reservationQuantity)
         .replace(/#itemName/g, response.hardwareItem.name)
         .replace(/#userName/g, response.user.name)
         .replace(/#reservationStatus/g, response.isReserved ? "Reserved" : "Taken")

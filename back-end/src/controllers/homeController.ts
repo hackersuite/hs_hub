@@ -10,7 +10,7 @@ export class HomeController {
   }
 
   public async hardware(req: Request, res: Response, next: NextFunction) {
-    const items = await getAllHardwareItems();
+    const items = await getAllHardwareItems(req.user.id);
     res.render("pages/hardware", { items });
   }
 
