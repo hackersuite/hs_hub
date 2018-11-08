@@ -95,9 +95,7 @@ describe("Hardware controller tests", (): void => {
       .send({
         token: "58zb1a546e4ad19b97bdcapc6ce",
       });
-    expect(response.status).toBe(HttpResponseCode.FORBIDDEN);
-    expect(response.body.error).toBe("You do not have authorization to use this method");
-    expect(response.body.message).toBe("You are not logged in or you are not a volunteer!");
+    expect(response.status).toBe(HttpResponseCode.REDIRECT);
   });
 
   /**

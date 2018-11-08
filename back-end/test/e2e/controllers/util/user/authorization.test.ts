@@ -95,7 +95,7 @@ describe("Authorization tests", (): void => {
       .set("Cookie", sessionCookie)
       .send();
 
-    expect(response.status).toBe(HttpResponseCode.FORBIDDEN);
+    expect(response.status).toBe(HttpResponseCode.REDIRECT);
 
     response = await request(bApp)
       .get("/user/checkVolunteer")
@@ -128,14 +128,14 @@ describe("Authorization tests", (): void => {
       .set("Cookie", sessionCookie)
       .send();
 
-    expect(response.status).toBe(HttpResponseCode.FORBIDDEN);
+    expect(response.status).toBe(HttpResponseCode.REDIRECT);
 
     response = await request(bApp)
       .get("/user/checkVolunteer")
       .set("Cookie", sessionCookie)
       .send();
 
-    expect(response.status).toBe(HttpResponseCode.FORBIDDEN);
+    expect(response.status).toBe(HttpResponseCode.REDIRECT);
 
     response = await request(bApp)
       .get("/user/checkAttendee")
@@ -148,27 +148,27 @@ describe("Authorization tests", (): void => {
   /**
    * Test that a user with an invalid session token cannot access any methods that require authorization
    */
-  test("Should give access to user with invalid session token", async (): Promise<void> => {
+  test("Should not give access to user with invalid session token", async (): Promise<void> => {
     let response = await request(bApp)
       .get("/user/checkOrganizer")
       .set("Cookie", sessionCookie + "made the token invalid")
       .send();
 
-    expect(response.status).toBe(HttpResponseCode.FORBIDDEN);
+    expect(response.status).toBe(HttpResponseCode.REDIRECT);
 
     response = await request(bApp)
       .get("/user/checkAttendee")
       .set("Cookie", sessionCookie + "made the token invalid")
       .send();
 
-    expect(response.status).toBe(HttpResponseCode.FORBIDDEN);
+    expect(response.status).toBe(HttpResponseCode.REDIRECT);
 
     response = await request(bApp)
       .get("/user/checkVolunteer")
       .set("Cookie", sessionCookie + "made the token invalid")
       .send();
 
-    expect(response.status).toBe(HttpResponseCode.FORBIDDEN);
+    expect(response.status).toBe(HttpResponseCode.REDIRECT);
   });
 });
 

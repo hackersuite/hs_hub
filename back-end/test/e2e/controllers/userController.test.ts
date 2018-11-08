@@ -84,9 +84,7 @@ describe("User controller tests", (): void => {
         password: "password123"
       });
 
-    expect(response.status).toBe(HttpResponseCode.OK);
-    expect(response.body.error).toBeUndefined();
-    expect(response.body.message).toBe("Logged in");
+    expect(response.status).toBe(HttpResponseCode.REDIRECT);
     sessionCookie = response.header["set-cookie"].pop().split(";")[0];
     expect(sessionCookie).not.toBeUndefined();
     expect(sessionCookie).toMatch(/connect.sid=*/);
@@ -133,8 +131,7 @@ describe("User controller tests", (): void => {
       .set("Cookie", sessionCookie)
       .send();
 
-    expect(response.status).toBe(HttpResponseCode.FORBIDDEN);
-    expect(response.body.message).toBe("You are not logged in!");
+    expect(response.status).toBe(HttpResponseCode.REDIRECT);
   });
 });
 
