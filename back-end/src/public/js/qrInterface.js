@@ -6,15 +6,19 @@ function startScanner() {
   scanner = new Instascan.Scanner({ video: document.getElementById('qr-scanner') });
   scanner.addListener('scan', function (content) {
     var info = JSON.parse(content);
-    // console.log(response);
+    console.log(content);
+    console.log(info);
     $.post({
       url: "/achievements/" + info.id + "/incrementProgress",
       data: {
         step: info.step,
-        token: info.token
+        token: info.token.replace(/ /g, "+")
       },
       success: function(response) {
         console.log(response);
+      },
+      error: function(error) {
+        console.log(error);
       }
     })
   });

@@ -16,11 +16,12 @@ export const errorHandler = (err: ApiError|Error, req: Request, res: Response, n
       sendEmail("noreply@hacksoc.com",
       toEmails,
         "Uncaught Error: " + err.name,
-        err.message
+        err.message + err.stack
       );
     }
 
-    res.status(HttpResponseCode.INTERNAL_ERROR).send(new ApiError(HttpResponseCode.INTERNAL_ERROR, err));
+    console.error(err.stack);
+    res.status(HttpResponseCode.INTERNAL_ERROR).send(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.stack));
   } else {
     res.status(err.statusCode).send(err);
   }

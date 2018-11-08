@@ -14,9 +14,7 @@ export class HomeController {
     res.render("pages/hardware", { items });
   }
 
-
   public login(req: Request, res: Response, next: NextFunction) {
-    console.log("hellow");
     res.render("pages/login");
   }
 

@@ -64,7 +64,7 @@ export abstract class Achievement {
       throw new ApiError(HttpResponseCode.BAD_REQUEST, "Cannot increment progress for this achievement");
     }
     // Checking the validity of the request
-    if (this.requiresToken && !(await this.tokenIsValid(token, step))) {
+    if (this.requiresToken && !(this.tokenIsValid(token, step))) {
       throw new ApiError(HttpResponseCode.BAD_REQUEST, "Invalid token provided");
     }
     if (this.isMultiStep && (isNaN(parseInt(step)) || Number(step) > this.maxProgress)) {
@@ -77,7 +77,7 @@ export abstract class Achievement {
     } else {
       userProgressInDB = new AchievementProgress(this.id, user);
     }
-    userProgressInDB.stepsCompleted = this.checkCompletedSteps(step, userProgressInCache.progress, userProgressInCache.stepsCompleted);
+    userProgressInDB.stepsCompleted = this.checkCompletedSteps(step, userProgressInDB.progress, userProgressInDB.stepsCompleted);
     userProgressInDB.progress += 1;
     await this.updateUsersProgress(user, userProgressInDB.progress, userProgressInDB.stepsCompleted);
     if (userProgressInDB.progress === this.maxProgress) {
@@ -123,7 +123,7 @@ export abstract class Achievement {
    * @param token The token
    * @param step The step of the achievement
    */
-  protected async tokenIsValid(token: string, step?: string): Promise<boolean> {
+  protected tokenIsValid(token: string, step?: string): boolean {
     const expectedToken = pbkdf2.pbkdf2Sync(
       `${this.id}->${this.isMultiStep ? step : ""}`,
       process.env.ACHIEVEMENT_TOKEN_SALT,
@@ -141,13 +141,13 @@ export abstract class Achievement {
    */
   protected checkCompletedSteps(step: string, userProgress: number, stepsCompleted: string): string {
     if (this.isMultiStep) {
-      if (stepsCompleted.includes(step)) {
+      if (stepsCompleted.includes(`(${step})`)) {
         throw new ApiError(HttpResponseCode.BAD_REQUEST, "You have already completed this step!");
       }
       if (this.mustCompleteStepsInOrder && userProgress + 1 != Number(step)) {
         throw new ApiError(HttpResponseCode.BAD_REQUEST, "The steps of this achievement must be completed in order!");
       }
-      stepsCompleted += ` ${step}`;
+      stepsCompleted += `(${step})`;
     }
     return stepsCompleted;
   }
