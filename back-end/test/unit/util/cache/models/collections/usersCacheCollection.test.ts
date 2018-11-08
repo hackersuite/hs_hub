@@ -1,7 +1,7 @@
 import { Express } from "express";
 import { getConnection } from "typeorm";
 import { buildApp } from "../../../../../../src/app";
-import { User } from "../../../../../../src/db/entity";
+import { User } from "../../../../../../src/db/entity/hub";
 import { Cache } from "../../../../../../src/util/cache";
 import { UserCached } from "../../../../../../src/util/cache/models/objects/userCached";
 
@@ -38,14 +38,11 @@ describe("Users cache collection tests", (): void => {
   /**
    * Testing if a newly created user gets added to cache
    */
-  test("Should store a new user", async (): Promise<void> => {
-    const userToCache: UserCached = new UserCached(testUserInDatabase);
+  test("Should import users on intialization", async (): Promise<void> => {
+    const userThatShouldBeInCache: UserCached = new UserCached(testUserInDatabase);
+    const userInCache: UserCached = await Cache.users.getElement(String(userThatShouldBeInCache.id));
 
-    expect(await Cache.users.getElement(userToCache.id)).toBe(undefined);
-    Cache.users.storeElement(userToCache);
-
-    const userInCache = await Cache.users.getElement(userToCache.id);
-    expect(userInCache.isEqualTo(userToCache)).toBeTruthy();
+    expect(userInCache.isEqualTo(userThatShouldBeInCache)).toBeTruthy();
   });
 
   /**
@@ -66,7 +63,7 @@ describe("Users cache collection tests", (): void => {
    * Testing if removing a non-existant user from collection throws an error
    */
   test("Should not throw error when removing non-existent user", async (): Promise<void> => {
-    const userNotInCache: UserCached = await Cache.users.getElement(testUserInDatabase.id);
+    const userNotInCache: UserCached = await Cache.users.getElement(String(testUserInDatabase.id));
 
     expect(userNotInCache).toBe(undefined);
   });
@@ -106,7 +103,7 @@ describe("Users cache collection tests", (): void => {
     await Cache.users.sync();
     const firstUserInDB = new UserCached(testUserInDatabase);
     const secondUserInDB = new UserCached(secondUser);
-    const firstUserInCache = await Cache.users.getElement(testUserInDatabase.id);
+    const firstUserInCache = await Cache.users.getElement(String(testUserInDatabase.id));
     const secondUserInCache = await Cache.users.getElement(secondUserId);
     expect(firstUserInCache.isEqualTo(firstUserInDB)).toBeTruthy();
     expect(secondUserInCache.isEqualTo(secondUserInDB)).toBeTruthy();
@@ -124,7 +121,7 @@ describe("Users cache collection tests", (): void => {
    */
   test("Should sync expired user", async (): Promise<void> => {
     const userThatShouldBeInCache: UserCached = new UserCached(testUserInDatabase);
-    let userInCache = await Cache.users.getElement(testUserInDatabase.id);
+    let userInCache = await Cache.users.getElement(String(testUserInDatabase.id));
 
     expect(userInCache.isExpired()).toBeFalsy();
     userInCache.syncedAt = Date.now() - 9999999;
@@ -145,7 +142,7 @@ describe("Users cache collection tests", (): void => {
    * Testing if all elements in the collection get returned
    */
   test("Should return all elements in cache", async (): Promise<void> => {
-    const userInCache = await Cache.users.getElement(testUserInDatabase.id);
+    const userInCache = await Cache.users.getElement(String(testUserInDatabase.id));
     const usersInCache = await Cache.users.getElements();
     expect(usersInCache.find(user => user.isEqualTo(userInCache))).toBeTruthy();
   });
@@ -156,7 +153,7 @@ describe("Users cache collection tests", (): void => {
   test("Should remove deleted user after syncing collection", async (): Promise<void> => {
     const userThatShouldBeInCache: UserCached = new UserCached(testUserInDatabase);
     Cache.users.storeElement(userThatShouldBeInCache);
-    let userInCache: UserCached = await Cache.users.getElement(testUserInDatabase.id);
+    let userInCache: UserCached = await Cache.users.getElement(String(testUserInDatabase.id));
 
     expect(userInCache.isEqualTo(userThatShouldBeInCache)).toBeTruthy();
 
@@ -168,7 +165,7 @@ describe("Users cache collection tests", (): void => {
       .execute();
 
     await Cache.users.sync();
-    userInCache = await Cache.users.getElement(testUserInDatabase.id);
+    userInCache = await Cache.users.getElement(String(testUserInDatabase.id));
 
     expect(userInCache).toBe(undefined);
   });

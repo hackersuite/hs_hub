@@ -1,6 +1,6 @@
 import { CacheObject } from "../../abstract-classes";
 import { getConnection } from "typeorm";
-import { User } from "../../../../db/entity";
+import { User } from "../../../../db/entity/hub";
 
 /**
  * A cached user object
@@ -43,7 +43,7 @@ export class UserCached extends CacheObject {
    * @param repo The repository where the user's hack is hosted
    */
   constructor(user: User) {
-    super(user.id);
+    super(String(user.id));
     this.name = user.name;
     this.email = user.email;
     this.authLevel = user.authLevel;

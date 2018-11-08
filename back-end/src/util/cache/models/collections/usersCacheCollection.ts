@@ -1,6 +1,6 @@
 import { CacheCollection } from "../../abstract-classes";
 import { getConnection } from "typeorm";
-import { User } from "../../../../db/entity";
+import { User } from "../../../../db/entity/hub";
 import { UserCached } from "../objects/userCached";
 
 /**
@@ -17,15 +17,14 @@ export class UsersCacheCollection extends CacheCollection<UserCached> {
    * Syncs all cached users in the collection with the database
    */
   public async sync(): Promise<void> {
-    // Fetchig the user object from the database
+    // Fetching the user object from the database
     const users: User[] = await getConnection("hub")
       .getRepository(User)
       .createQueryBuilder("user")
-      .whereInIds(Array.from(this.elements.keys()))
       .getMany();
     // Updating the instance variables
     this.syncedAt = Date.now();
-    this.elements = new Map<number, UserCached>();
+    this.elements = new Map<string, UserCached>();
     users.forEach(user => {
       const syncedUser = new UserCached(user);
       this.elements[syncedUser.id] = syncedUser;

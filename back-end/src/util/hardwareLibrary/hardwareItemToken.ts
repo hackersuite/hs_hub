@@ -1,5 +1,5 @@
 import * as crypto from "crypto";
-import { ReservedHardwareItem } from "../../db/entity";
+import { ReservedHardwareItem } from "../../db/entity/hub";
 import { getConnection } from "typeorm";
 
 /**

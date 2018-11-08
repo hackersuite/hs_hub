@@ -9,10 +9,10 @@ export abstract class CacheCollection<T extends CacheObject> extends CacheObject
   /**
    * Array containing all elements in the collection
    */
-  public elements: Map<number, T>;
+  public elements: Map<string, T>;
 
   /**
-   * Determines whether or not the collection has been initialized (synced for the first time)
+   * Specifies if the collection has been initialized (synced for the first time)
    */
   private isInitialized: boolean = false;
 
@@ -20,8 +20,8 @@ export abstract class CacheCollection<T extends CacheObject> extends CacheObject
    * Creates a collection for cached objects
    */
   constructor() {
-    super(0);
-    this.elements = new Map<number, T>();
+    super("collection");
+    this.elements = new Map<string, T>();
   }
 
   /**
@@ -37,7 +37,7 @@ export abstract class CacheCollection<T extends CacheObject> extends CacheObject
    * Removes an element from the collection, if given element is in collection
    * @param element The element to be removed from the collection
    */
-  public removeElement(id: number): void {
+  public removeElement(id: string): void {
     if (this.elements[id] === undefined) {
       return; // Element does not exist in collection
     }
@@ -65,9 +65,10 @@ export abstract class CacheCollection<T extends CacheObject> extends CacheObject
    * returns undefined if no object with given id is found
    * @param id The id of the requested element
    */
-  public async getElement(id: number): Promise<T> {
-    if (this.isExpired()) {
+  public async getElement(id: string): Promise<T> {
+    if (this.isExpired() || !this.isInitialized) {
       await this.sync();
+      this.isInitialized = true;
     }
     if (this.elements[id] !== undefined) {
       if (this.elements[id].isExpired()) {

@@ -3,7 +3,7 @@ import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
 @Entity()
 export class Event {
   @PrimaryGeneratedColumn()
-  id: number;
+  id: string;
 
   @Column("varchar", {length : 127})
   title: string;

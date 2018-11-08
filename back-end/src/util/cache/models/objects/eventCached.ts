@@ -1,6 +1,6 @@
 import { CacheObject } from "../../abstract-classes";
 import { getConnection } from "typeorm";
-import { Event } from "../../../../db/entity";
+import { Event } from "../../../../db/entity/hub";
 
 /**
  * A cached user object

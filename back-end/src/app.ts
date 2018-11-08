@@ -9,7 +9,7 @@ import * as cookieParser from "cookie-parser";
 import { passportLocalStrategy } from "./util/user/passportLocalStrategy";
 import { Express, Request, Response, NextFunction } from "express";
 import { Connection, createConnections, ConnectionOptions } from "typeorm";
-import { errorHandler, error404Handler } from "./util/errorHandling/errorHandler";
+import { errorHandler, error404Handler } from "./util/errorHandling";
 import { mainRouter } from "./routes";
 
 // Load environment variables from .env file
@@ -133,6 +133,7 @@ const createDatabaseOptions = (): ConnectionOptions[] => {
       __dirname + "/db/entity/hardwareItem{.js,.ts}",
       __dirname + "/db/entity/reservedHardwareItem{.js,.ts}",
       __dirname + "/db/entity/challenge{.js,.ts}"
+      __dirname + "/db/entity/hub/*{.js,.ts}"
     ],
     // Per TypeOrm documentation, this is unsafe for production
     // We should instead use migrations to change the database
@@ -148,7 +149,7 @@ const createDatabaseOptions = (): ConnectionOptions[] => {
     password: process.env.APP_DB_PASSWORD,
     database: process.env.APP_DB_DATABASE,
     entities: [
-      __dirname + "/db/entity/applicationUser{.js,.ts}"
+      __dirname + "/db/entity/applications/*{.js,.ts}"
     ],
     synchronize: false,
     logging: false,
