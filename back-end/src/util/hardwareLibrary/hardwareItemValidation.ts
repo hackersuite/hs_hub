@@ -321,12 +321,22 @@ export const getReservation = async (token: string): Promise<ReservedHardwareIte
 
 export const deleteReservation = async (tokenToDelete: string): Promise<void> => {
   try {
+    const reservation: ReservedHardwareItem = await parseToken(tokenToDelete);
+    const itemID: number = reservation.hardwareItem.id,
+      itemQuantity: number = reservation.reservationQuantity;
+
     await getConnection("hub")
       .createQueryBuilder()
       .delete()
       .from(ReservedHardwareItem)
       .where("reservationToken = :token", { token: tokenToDelete })
       .execute();
+
+    // Decrement the reservation count for the hardware item
+    await getConnection("hub")
+      .getRepository(HardwareItem)
+      .decrement({ id: itemID }, "reservedStock", itemQuantity);
+
   } catch (err) {
     throw new Error(`Lost connection to database (hub)! ${err}`);
   }
