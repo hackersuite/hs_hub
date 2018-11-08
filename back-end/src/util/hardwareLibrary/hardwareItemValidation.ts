@@ -132,7 +132,11 @@ export const takeItem = async (token: string): Promise<boolean> => {
 
   if (isReserved) {
     // Checks that reservation is not expired
-    if (!isReservationValid(reservation.reservationExpiry)) return undefined;
+    if (!isReservationValid(reservation.reservationExpiry)) {
+      // Remove the reservation from the database
+      await deleteReservation(token);
+      return undefined;
+    }
 
     await itemToBeTakenFromLibrary(userID, itemID, itemQuantity);
   } else {
@@ -310,6 +314,29 @@ export const getReservation = async (token: string): Promise<ReservedHardwareIte
       .where("reservation.reservationToken = :token", { token })
       .getOne();
     return reservation;
+  } catch (err) {
+    throw new Error(`Lost connection to database (hub)! ${err}`);
+  }
+};
+
+export const deleteReservation = async (tokenToDelete: string): Promise<void> => {
+  try {
+    const reservation: ReservedHardwareItem = await parseToken(tokenToDelete);
+    const itemID: number = reservation.hardwareItem.id,
+      itemQuantity: number = reservation.reservationQuantity;
+
+    await getConnection("hub")
+      .createQueryBuilder()
+      .delete()
+      .from(ReservedHardwareItem)
+      .where("reservationToken = :token", { token: tokenToDelete })
+      .execute();
+
+    // Decrement the reservation count for the hardware item
+    await getConnection("hub")
+      .getRepository(HardwareItem)
+      .decrement({ id: itemID }, "reservedStock", itemQuantity);
+
   } catch (err) {
     throw new Error(`Lost connection to database (hub)! ${err}`);
   }
