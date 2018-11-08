@@ -1,5 +1,5 @@
 import { UsersCacheCollection, EventsCacheCollection } from "./models/collections";
-import { ChallengesCacheCollection } from "./models/collections/challengesCacheCollection";
+import { ChallengesCacheCollection } from "./models/collections";
 
 /**
  * The top-level interface for the cache
