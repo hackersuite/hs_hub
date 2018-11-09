@@ -1,1 +1,0 @@
-  * 07/10/2018 - Created project

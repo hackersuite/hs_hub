@@ -18,4 +18,7 @@ export class ReservedHardwareItem {
 
   @Column("datetime")
   reservationExpiry: Date;
+
+  @Column()
+  reservationQuantity: number;
 }

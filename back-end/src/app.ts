@@ -53,6 +53,10 @@ const expressSetup = (): Express => {
   // Create Express server
   const app = express();
 
+  // view engine setup
+  app.set("views", path.join(__dirname, "views"));
+  app.set("view engine", "ejs");
+
   // Express configuration
   app.set("port", process.env.PORT || 3000);
   app.set("env", process.env.ENVIRONMENT || "production");

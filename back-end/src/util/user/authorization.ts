@@ -1,8 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { AuthLevels } from "./authLevels";
 import { User } from "../../db/entity/hub";
-import { ApiError } from "../errorHandling";
-import { HttpResponseCode } from "../errorHandling";
 
 /**
  * Checks if the request's sender is logged in
@@ -12,7 +10,8 @@ import { HttpResponseCode } from "../errorHandling";
  */
 export const checkIsLoggedIn = (req: Request, res: Response, next: NextFunction): void => {
   if (!req.user) {
-    return next(new ApiError(HttpResponseCode.FORBIDDEN, "You are not logged in!"));
+    return res.redirect("/login");
+    // return next(new ApiError(HttpResponseCode.FORBIDDEN, "You are not logged in!"));
   }
   return next();
 };
@@ -26,7 +25,8 @@ export const checkIsLoggedIn = (req: Request, res: Response, next: NextFunction)
  */
 export const checkIsVolunteer = (req: Request, res: Response, next: NextFunction): void => {
   if (!req.user || (req.user as User).authLevel < AuthLevels.Volunteer) {
-    return next(new ApiError(HttpResponseCode.FORBIDDEN, "You are not logged in or you are not a volunteer!"));
+    return res.redirect("/login");
+    // return next(new ApiError(HttpResponseCode.FORBIDDEN, "You are not logged in or you are not a volunteer!"));
   }
   return next();
 };
@@ -40,7 +40,8 @@ export const checkIsVolunteer = (req: Request, res: Response, next: NextFunction
  */
 export const checkIsOrganizer = (req: Request, res: Response, next: NextFunction): void => {
   if (!req.user || (req.user as User).authLevel < AuthLevels.Organizer) {
-    return next(new ApiError(HttpResponseCode.FORBIDDEN, "You are not logged in or you are not not an organizer!"));
+    return res.redirect("/login");
+    // return next(new ApiError(HttpResponseCode.FORBIDDEN, "You are not logged in or you are not not an organizer!"));
   }
   return next();
 };

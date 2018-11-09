@@ -10,7 +10,7 @@ export class BeekeeperAchievement extends Achievement {
   public description: string = "Find all bees in around the building";
   public prizes: string = "something cool";
   public finishMessage: string = "nice job";
-  public maxProgress: number = 8;
+  public maxProgress: number = 15;
   protected requiresToken: boolean = true;
   protected isMultiStep: boolean = true;
 }
