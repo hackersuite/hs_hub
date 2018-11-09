@@ -18,9 +18,14 @@ export const homeRouter = (): Router => {
     checkIsLoggedIn,
     homeController.hardware);
 
+  router.get("/achievements",
+    checkIsLoggedIn,
+    homeController.achievements);
+
   router.get("/contacts",
     checkIsLoggedIn,
     homeController.contacts);
+
 
   router.get("/",
     checkIsLoggedIn,
