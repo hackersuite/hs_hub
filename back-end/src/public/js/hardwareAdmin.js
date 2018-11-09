@@ -1,125 +1,93 @@
-var hardwareScannerStarted = false;
-
-function takeQR() {
-  closeScanner();
-  startCustomScanner("hardware-qr-scanner", function (token) {
-    sendTakeRequest();
-    hardwareScannerStarted = true;
-  });
-}
-function returnQR() {
-  closeScanner();
-  startCustomScanner("hardware-qr-scanner", function (token) {
-    sendReturnInformationRequest(token);
-    hardwareScannerStarted = true;
-  });
-}
-function infoQR() {
-  closeScanner();
-  startCustomScanner("hardware-qr-scanner", function (token) {
-    sendInfoRequest(token);
-    hardwareScannerStarted = true;
-  });
-}
-
-function takeManual() {
-  sendTakeRequest($("#token").val());
-}
-
-function returnManual() {
-  sendReturnInformationRequest($("#token").val());
-}
-function infoManual() {
-  sendInfoRequest($("#token").val());
-}
-
-function sendTakeRequest(token) {
-  $.post({
-    url: "/hardware/take",
-    data: {
-      token: token
-    },
-    success: function (response) {
-      location.reload();
-    },
-    error: function (error) {
-      $.notify({
-        message: error.responseJSON.message
-      }, {
-          type: 'danger'
-        });
-      return;
-    }
-  });
-  closeScanner();
-  hardwareScannerStarted = false;
-}
-
-var returnToken;
-
-function sendReturnInformationRequest(token) {
-  returnToken = token;
-  $.get("/hardware/reservation/" + token, function (response) {
-    $('#confirmationModalImg').attr("src", response.hardwareItem.itemURL);
-    $('#confirmationModalBody').html(reservationInfoTemplate
-      .replace(/#count/g, 1)
-      .replace(/#itemName/g, response.hardwareItem.name)
-      .replace(/#userName/g, response.user.name)
-      .replace(/#reservationStatus/g, response.isReserved ? "Reserved" : "Taken")
-    );
-    $('#confirmationModal').modal()
-  }, "json");
-  closeScanner();
-  hardwareScannerStarted = false;
-}
-
-function sendReturnConfirmRequest() {
-  $.post({
-    url: "/hardware/return",
-    data: {
-      token: returnToken
-    },
-    success: function (response) {
-      location.reload();
-    },
-    error: function (error) {
-      $.notify({
-        message: error.responseJSON.message
-      }, {
-          type: 'danger'
-        });
-      return;
-    }
-  });
-  closeScanner();
-  hardwareScannerStarted = false;
-  returnToken = "";
+var modalLabels = {
+  take: "This person wants to take these items.",
+  return: "Are you sure this person is returning these items?"
 }
 
 var reservationInfoTemplate = "<p><b>Item(s):</b> #countx#itemName</p>" +
   "<p><b>User:</b> #userName</p>" +
   "<p><b>Status:</b> #reservationStatus</p>";
 
-function sendInfoRequest(token) {
-  $.get("/hardware/reservation/" + token)
-    .done(function (response) {
-      $('#infoModalLabel').html(response.user.name + "->" + response.hardwareItem.name);
-      $('#infoModalImg').attr("src", response.hardwareItem.itemURL);
-      $('#infoModalBody').html(reservationInfoTemplate
-        .replace(/#count/g, response.reservationQuantity)
-        .replace(/#itemName/g, response.hardwareItem.name)
-        .replace(/#userName/g, response.user.name)
-        .replace(/#reservationStatus/g, response.isReserved ? "Reserved" : "Taken")
-      );
-      $('#infoModal').modal()
-    })
-    .fail(function (error) {
-      $.notify({
-        message: error.responseJSON.message
-      }, {
-          type: 'danger'
-        });
-    });
+function scanReservationToken(callback) {
   closeScanner();
-  hardwareScannerStarted = false;
+  startCustomScanner("hardware-qr-scanner", callback);
+}
+
+function showError(error) {
+  $.notify({
+    message: error.responseJSON.message
+  }, {
+      type: 'danger'
+    });
+}
+
+function updateReservationStatus(token, action) {
+  $.post({
+    url: "/hardware/" + action,
+    data: {
+      token: token || ""
+    },
+    success: function () {
+      location.reload();
+    },
+    error: showError
+  });
+}
+
+function reservationInfo(token) {
+  getReservationInfo(token, showInfoModal, showError);
+}
+
+function takeItem(token) {
+  getReservationInfo(token,
+    function (response) {
+      if (!response.isReserved) {
+        return showError({ responseJSON: { message: "This item has already been taken!" } });
+      }
+      showConfirmationModal(response, "take", function () {
+        updateReservationStatus(token, "take");
+      });
+    }, showError);
+}
+
+function returnItem(token) {
+  getReservationInfo(token,
+    function (response) {
+      if (response.isReserved) {
+        return showError({ responseJSON: { message: "This item has not been taken yet!" } });
+      }
+      showConfirmationModal(response, "return", function () {
+        updateReservationStatus(token, "return");
+      });
+    }, showError);
+}
+
+function showConfirmationModal(reservation, action, confirmCallback) {
+  $("#confirmModalLabel").html(modalLabels[action])
+  $('#confirmModalImg').attr("src", reservation.hardwareItem.itemURL);
+  $('#confirmModalBody').html(getModalBodyString(reservation));
+  $("#modal-confirm-button").off( "click" );
+  $("#modal-confirm-button").click(confirmCallback);
+  $('#confirmModal').modal()
+}
+
+function showInfoModal(reservation) {
+  $("#infoModalLabel").html(reservation.hardwareItem.name + " taken/reserved by " + reservation.user.name);
+  $("#infoModalImg").attr("src", reservation.hardwareItem.itemURL);
+  $('#infoModalBody').html(getModalBodyString(reservation));
+  $('#infoModal').modal()
+}
+
+function getModalBodyString(reservation) {
+  return reservationInfoTemplate
+    .replace(/#count/g, reservation.reservationQuantity)
+    .replace(/#itemName/g, reservation.hardwareItem.name)
+    .replace(/#userName/g, reservation.user.name)
+    .replace(/#reservationStatus/g, reservation.isReserved ? "Reserved" : "Taken");
+}
+
+function getReservationInfo(token, success, fail) {
+  $.get("/hardware/reservation/" + token)
+    .done(success)
+    .fail(fail);
+  closeScanner();
 }

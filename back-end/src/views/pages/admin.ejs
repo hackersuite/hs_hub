@@ -5,6 +5,7 @@
   <% include ../partials/head.ejs %>
   <title>GUH18 Hub - Admin</title>
   <link rel="stylesheet" href="/css/admin.css">
+  <script src="/js/hardwareAdmin.js"></script>
 </head>
 
 <body>
@@ -35,19 +36,19 @@
           </div>
         </div>
         <!-- Confirmation Modal -->
-        <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+        <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title" id="confirmationModalLabel">Are you sure that this person is returning the correct item?</h5>
+                <h5 class="modal-title" id="confirmModalLabel">Does this reservation look good?</h5>
               </div>
               <div class="modal-body">
-                <img src="" alt="" id="confirmationModalImg">
-                <div id="confirmationModalBody">
+                <img src="" alt="" id="confirmModalImg">
+                <div id="confirmModalBody">
                 </div>
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-success" data-dismiss="modal" onclick="sendReturnConfirmRequest()">Confirm</button>
+                <button id="modal-confirm-button" type="button" class="btn btn-success" data-dismiss="modal">Confirm</button>
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
               </div>
             </div>
@@ -65,16 +66,16 @@
                     <div class="col-md-6">
                       <video id="hardware-qr-scanner">
                       </video>
-                      <button class="btn btn-warning" onclick="takeQR()">TAKE</button>
-                      <button class="btn btn-danger" onclick="returnQR()">RETURN</button>
-                      <button class="btn btn-primary" onclick="infoQR()">INFO</button>
+                      <button class="btn btn-warning" onclick="scanReservationToken(takeItem)">TAKE</button>
+                      <button class="btn btn-danger" onclick="scanReservationToken(returnItem)">RETURN</button>
+                      <button class="btn btn-primary" onclick="scanReservationToken(reservationInfo)">INFO</button>
                     </div>
                     <div class="col-md-6">
                       <label for="token"><b>Manual controls as a backup</b></label>
                       <input id="token" type="text" class="form-control" placeholder="enter the user's token here">
-                      <button class="btn btn-warning" onclick="takeManual()">TAKE</button>
-                      <button class="btn btn-danger" onclick="returnManual()">RETURN</button>
-                      <button class="btn btn-primary" onclick="infoManual()">INFO</button>
+                      <button class="btn btn-warning" onclick="takeItem($('#token').val())">TAKE</button>
+                      <button class="btn btn-danger" onclick="returnItem($('#token').val())">RETURN</button>
+                      <button class="btn btn-primary" onclick="reservationInfo($('#token').val())">INFO</button>
                     </div>
                   </div>
                 </div>
@@ -100,6 +101,7 @@
                           <%- reservation.user.name %>
                         </td>
                         <td>
+                          <%- reservation.reservationQuantity %> x
                           <%- reservation.hardwareItem.name %>
                         </td>
                         <td>
@@ -143,7 +145,6 @@
   <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
   <script src="/js/material-dashboard.js?v=2.1.0"></script>
   <script src="/js/animations.js"></script>
-  <script src="/js/hardwareAdmin.js"></script>
 </body>
 
 </html>
