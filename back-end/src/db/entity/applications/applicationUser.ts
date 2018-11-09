@@ -42,4 +42,6 @@ export class ApplicationUser {
 
   @Column("timestamp with time zone")
   created_time: string;
+
+  teamCode: string;
 }

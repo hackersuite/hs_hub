@@ -5,6 +5,7 @@ import { ApiError, HttpResponseCode } from "../util/errorHandling";
 import { User } from "../db/entity/hub";
 import { getConnection } from "typeorm";
 import { Cache } from "../util/cache";
+import { Achievement } from "../util/achievements/abstract-classes";
 
 /**
  * A controller for the achievements methods
@@ -39,7 +40,12 @@ export class AchievementsController {
         req.body.token,
         req.body.step
       );
-      res.send(progress);
+      const achievement: Achievement = Achievements.getAchievementWithId(req.params.achievementId);
+      if (progress.progress == achievement.maxProgress) {
+        res.send({ message: `You have completed the achievement ${achievement.title}! Congratulations!`});
+      } else {
+        res.send({ message: `Progress for achviement "${achievement.title}" updated. Your new progress is: ${progress.progress}/${achievement.maxProgress}!`});
+      }
     } catch (err) {
       next(err);
     }

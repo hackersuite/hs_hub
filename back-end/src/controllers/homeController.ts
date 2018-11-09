@@ -25,6 +25,10 @@ export class HomeController {
     res.render("pages/login");
   }
 
+  public contacts(req: Request, res: Response, next: NextFunction) {
+    res.render("pages/contacts");
+  }
+
   public async admin(req: Request, res: Response, next: NextFunction) {
     try {
       const reservations = await getAllReservations();
