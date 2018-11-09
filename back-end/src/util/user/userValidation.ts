@@ -3,6 +3,7 @@ import * as pbkdf2 from "pbkdf2";
 import { User } from "../../db/entity/hub";
 import { ApplicationUser } from "../../db/entity/applications";
 import { ApiError, HttpResponseCode } from "../errorHandling";
+import { ApplicationTeam } from "../../db/entity/applications/applicationTeam";
 
 /**
  * We check that the password hash is valid
@@ -123,6 +124,21 @@ export async function getUserByEmailFromApplications(submittedEmail: string): Pr
       .where("email = :email", { email: submittedEmail })
       .getOne();
     return applicationUser;
+  } catch (err) {
+    throw new ApiError(HttpResponseCode.INTERNAL_ERROR, `Lost connection to database (applications)! ${err}`);
+  }
+}
+
+export async function getTeamCodeByUserIDFromApplications(userID: number): Promise<string> {
+  try {
+    const team: any = await getConnection("applications")
+      .getRepository(ApplicationTeam)
+      .createQueryBuilder("teams_team")
+      .select("teams_team.team_code")
+      .where("user_id = :id", { id: userID })
+      .getOne();
+
+    return team ? team.team_code : "";
   } catch (err) {
     throw new ApiError(HttpResponseCode.INTERNAL_ERROR, `Lost connection to database (applications)! ${err}`);
   }

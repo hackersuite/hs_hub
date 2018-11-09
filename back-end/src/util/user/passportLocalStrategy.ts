@@ -1,5 +1,5 @@
 import * as localstrategy from "passport-local";
-import { getUserByEmailFromHub, getUserByEmailFromApplications, validatePassword, insertNewHubUserToDatabase, getUserByIDFromHub } from "./userValidation";
+import { getUserByEmailFromHub, getUserByEmailFromApplications, validatePassword, insertNewHubUserToDatabase, getUserByIDFromHub, getTeamCodeByUserIDFromApplications } from "./userValidation";
 import { User } from "../../db/entity/hub";
 import { ApplicationUser } from "../../db/entity/applications";
 import { AuthLevels } from "./authLevels";
@@ -53,7 +53,7 @@ export const passportLocalStrategy = (): localstrategy.Strategy => {
         newHubUser.email = applicationUser.email;
         newHubUser.password = applicationUser.password;
         newHubUser.repo = "";
-        newHubUser.team = "";
+        newHubUser.team = applicationUser.teamCode;
         newHubUser.authLevel = getAuthLevel(applicationUser.is_organizer, applicationUser.is_volunteer);
 
         insertNewHubUserToDatabase(newHubUser);
@@ -73,8 +73,16 @@ export const passportLocalStrategy = (): localstrategy.Strategy => {
   }
 
   async function checkIfApplicationsHasUser(email: string): Promise<ApplicationUser> {
+    // Get the application user from the applications platform
     const applicationUser: ApplicationUser = await getUserByEmailFromApplications(email);
-    if (applicationUser) return applicationUser;
+
+    if (applicationUser) {
+      // Try to get the team code for the user, if they are in a team
+      const userTeamCode: string = await getTeamCodeByUserIDFromApplications(applicationUser.id);
+      applicationUser.teamCode = userTeamCode;
+
+      return applicationUser;
+    }
   }
 
   function getAuthLevel(isOrganizer: boolean, isVolunteer: boolean): number {
