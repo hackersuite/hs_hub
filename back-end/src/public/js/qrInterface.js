@@ -6,17 +6,32 @@ function startScanner() {
   scanner = new Instascan.Scanner({ video: document.getElementById('qr-scanner') });
   scanner.addListener('scan', function (content) {
     var info = JSON.parse(content);
-    $.post({
-      url: "/achievements/" + info.id + "/incrementProgress",
-      data: {
-        step: info.step,
-        token: info.token.replace(/ /g, "+")
-      },
-      success: function(response) {
-      },
-      error: function(error) {
-      }
-    })
+    if (info.type == "achievementStep") {
+      $.post({
+        url: "/achievements/" + info.id + "/incrementProgress",
+        data: {
+          step: info.step,
+          token: info.token.replace(/ /g, "+")
+        },
+        success: function (response) {
+          $.notify({
+            message: response.message
+          }, {
+              type: 'success'
+            });
+        },  
+        error: function (error) {
+          $.notify({
+            message: error.responseJSON.message
+          }, {
+              type: 'danger'
+            });
+        }
+      });
+    } else {
+      location.href = content;
+    }
+    closeScanner();
   });
   Instascan.Camera.getCameras().then(function (cameras) {
     if (cameras.length > 0) {
