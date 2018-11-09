@@ -264,7 +264,8 @@ export const getAllHardwareItems = async (userId?: number): Promise<Object[]> =>
       "reserved": reservationForItem ? reservationForItem.isReserved : false,
       "taken": reservationForItem ? !reservationForItem.isReserved : false,
       "reservationQuantity": reservationForItem ? reservationForItem.reservationQuantity : 0,
-      "reservationToken": reservationForItem ? reservationForItem.reservationToken : ""
+      "reservationToken": reservationForItem ? reservationForItem.reservationToken : "",
+      "expiresIn": reservationForItem ? Math.floor((reservationForItem.reservationExpiry.getTime() - Date.now()) / 60000) : 0
     });
   }
   return formattedData;
