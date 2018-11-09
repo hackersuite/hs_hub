@@ -1,12 +1,15 @@
 import { Request, Response, NextFunction } from "express";
 import { getAllReservations, getAllHardwareItems } from "../util/hardwareLibrary";
+import { Cache } from "../util/cache";
+import { EventCached } from "../util/cache/models/objects";
 
 /**
  * A controller for auth methods
  */
 export class HomeController {
-  public dashboard(req: Request, res: Response, next: NextFunction) {
-    res.render("pages/dashboard");
+  public async dashboard(req: Request, res: Response, next: NextFunction) {
+    const events: EventCached[] = await Cache.events.getElements();
+    res.render("pages/dashboard", { events, announcements: [] });
   }
 
   public async hardware(req: Request, res: Response, next: NextFunction) {

@@ -4,6 +4,7 @@
 <head>
   <% include ../partials/head.ejs %>
   <title>GUH18 Hub - Dashboard</title>
+  <link rel="stylesheet" href="/css/dashboard.css">
 </head>
 
 <body>
@@ -19,12 +20,14 @@
               <div class="card text-center">
                 <div class="card-body">
                   <!--Timer code here-->
-                  <h1>24:00:00</h1>
+                  <h1>
+                    <span id="hours">24</span>:<span id="minutes">00</span>:<span id="seconds">00</span>
+                  </h1>
                 </div>
               </div>
             </div>
             <!-- USEFUL LINKS -->
-            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6">
+            <div class="col-xl-3 col-lg-4 col-sm-6">
               <a href="https://guh18.slack.com/" target="_blank" rel="noopener noreferrer">
                 <div class="card card-stats">
                   <div class="card-header card-header-success card-header-icon">
@@ -40,16 +43,31 @@
                 </div>
               </a>
             </div>
-            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6">
+            <div class="col-xl-3 col-lg-4 col-sm-6">
               <a href="https://guh18.slack.com/" target="_blank" rel="noopener noreferrer">
                 <div class="card card-stats">
                   <div class="card-header card-header-warning card-header-icon">
                     <div class="card-icon">
-                      <!-- <img src="/img/devPostLogo.png" alt="" style="max-width: 56px"> -->
                       <img src="https://img.icons8.com/color/50/000000/devpost.png">
                     </div>
                     <p class="card-category">Judging</p>
                     <h3 class="card-title">Devpost
+                    </h3>
+                  </div>
+                  <div class="card-footer">
+                  </div>
+                </div>
+              </a>
+            </div>
+            <div class="col-xl-3 col-lg-4 col-sm-6">
+              <a href="https://drive.google.com/file/d/1RkmgZyy68qg5j39I6mdX1UIQFXh5iSCZ/view" target="_blank" rel="noopener noreferrer">
+                <div class="card card-stats">
+                  <div class="card-header card-header-danger card-header-icon">
+                    <div class="card-icon">
+                      <i class="fas fa-file-alt"></i>
+                    </div>
+                    <p class="card-category"><br></p>
+                    <h3 class="card-title">Code of Conduct
                     </h3>
                   </div>
                   <div class="card-footer">
@@ -87,30 +105,26 @@
                       <table class="table">
                         <thead class="text-warning">
                           <th>Time</th>
-                          <th>Location</th>
                           <th>Event</th>
+                          <th>Location</th>
                         </thead>
                         <tbody>
+                          <% events.forEach(event => { %>
+                          <% if (event.startTime.getDay() == 6) { %>
                           <tr>
-                            <td>9:00</td>
-                            <td>Registration</td>
-                            <td>Registration starts</td>
+                            <td>
+                              <%- event.startTime.getHours() %>:
+                              <%- event.startTime.getMinutes() < 10 ? "0" + event.startTime.getMinutes() : event.startTime.getMinutes() %>
+                            </td>
+                            <td>
+                              <%- event.title %>
+                            </td>
+                            <td>
+                              <%- event.location %>
+                            </td>
                           </tr>
-                          <tr>
-                            <td>9:00</td>
-                            <td>Registration</td>
-                            <td>Registration starts</td>
-                          </tr>
-                          <tr>
-                            <td>9:00</td>
-                            <td>Registration</td>
-                            <td>Registration starts</td>
-                          </tr>
-                          <tr>
-                            <td>9:00</td>
-                            <td>Registration</td>
-                            <td>Registration starts</td>
-                          </tr>
+                          <% } %>
+                          <% }) %>
                         </tbody>
                       </table>
                     </div>
@@ -122,36 +136,22 @@
                           <th>Event</th>
                         </thead>
                         <tbody>
+                          <% events.forEach(event => { %>
+                          <% if (event.startTime.getDay() == 0) { %>
                           <tr>
-                            <td>9:00</td>
-                            <td>Registration</td>
-                            <td>Registration starts</td>
+                            <td>
+                              <%- event.startTime.getHours() %>:
+                              <%- event.startTime.getMinutes() < 10 ?  "0" + event.startTime.getMinutes() : event.startTime.getMinutes() %>
+                            </td>
+                            <td>
+                              <%- event.title %>
+                            </td>
+                            <td>
+                              <%- event.location %>
+                            </td>
                           </tr>
-                          <tr>
-                            <td>9:00</td>
-                            <td>Registration</td>
-                            <td>Registration starts</td>
-                          </tr>
-                          <tr>
-                            <td>9:00</td>
-                            <td>Registration</td>
-                            <td>Registration starts</td>
-                          </tr>
-                          <tr>
-                            <td>9:00</td>
-                            <td>Registration</td>
-                            <td>Registration starts</td>
-                          </tr>
-                          <tr>
-                            <td>9:00</td>
-                            <td>Registration</td>
-                            <td>Registration starts</td>
-                          </tr>
-                          <tr>
-                            <td>9:00</td>
-                            <td>Registration</td>
-                            <td>Registration starts</td>
-                          </tr>
+                          <% } %>
+                          <% }) %>
                         </tbody>
                       </table>
                     </div>
@@ -159,51 +159,87 @@
                 </div>
               </div>
             </div>
-            <!-- ANNOUNCEMENTS -->
-            <div class="col-lg-4 col-md-12">
-              <div class="card">
-                <div class="card-header card-header-tabs card-header-success">
-                  <div class="nav-tabs-navigation">
-                    <div class="nav-tabs-wrapper">
-                      <span class="nav-tabs-title"></span>
-                      <ul class="nav nav-tabs" data-tabs="tabs">
-                        <li class="nav-item">
-                          <a class="nav-link active" href="#profile" data-toggle="tab">
-                            <i class="material-icons">today</i> Announcements
-                            <div class="ripple-container"></div>
-                          </a>
-                        </li>
-                      </ul>
+            <div class="col-lg-7 col-md-12">
+              <div class="row">
+                <!-- ANNOUNCEMENTS -->
+                <div class="col-lg-8 col-md-12">
+                  <div class="card">
+                    <div class="card-header card-header-tabs card-header-success">
+                      <div class="nav-tabs-navigation">
+                        <div class="nav-tabs-wrapper">
+                          <span class="nav-tabs-title"></span>
+                          <ul class="nav nav-tabs" data-tabs="tabs">
+                            <li class="nav-item">
+                              <a class="nav-link active" href="#profile" data-toggle="tab">
+                                <i class="material-icons">today</i> Announcements
+                                <div class="ripple-container"></div>
+                              </a>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card-body">
+                      <div class="tab-content">
+                        <div class="tab-pane active" id="profile">
+                          <table class="table">
+                            <tbody>
+                              <% announcements.forEach(announcement => { %>
+                              <tr>
+                                <td>
+                                  <%- announcement.message %>
+                                </td>
+                              </tr>
+                              <% }) %>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-                <div class="card-body">
-                  <div class="tab-content">
-                    <div class="tab-pane active" id="profile">
-                      <table class="table">
-                        <tbody>
-                          <tr>
-                            <td>Lovely workshop incoming at 2 pm</td>
-                          </tr>
-                          <tr>
-                            <td>Lines From Great Russian Literature? Or E-mails From My Boss?</td>
-                          </tr>
-                          <tr>
-                            <td>Flooded: One year later, assessing what was lost and what was found when a ravaging
-                              rain swept through metro Detroit</td>
-                          </tr>
-                          <tr>
-                            <td>Kris is teachinng ya boons some coding</td>
-                          </tr>
-                        </tbody>
-                      </table>
+              </div>
+              <div class="row">
+                <!-- FLOOR PLAN -->
+                <div class="col-lg-12">
+                  <div class="card">
+                    <div class="card-header card-header-tabs card-header-danger">
+                      <div class="nav-tabs-navigation">
+                        <div class="nav-tabs-wrapper">
+                          <span class="nav-tabs-title">Floor Plan:</span>
+                          <ul class="nav nav-tabs" data-tabs="tabs">
+                            <li class="nav-item">
+                              <a class="nav-link active" href="#ground-floor" data-toggle="tab">
+                                Ground Floor
+                                <div class="ripple-container"></div>
+                              </a>
+                            </li>
+                            <li class="nav-item">
+                              <a class="nav-link" href="#first-floor" data-toggle="tab">
+                                First Floor
+                                <div class="ripple-container"></div>
+                              </a>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card-body">
+                      <div class="tab-content">
+                        <div class="tab-pane active" id="ground-floor">
+                          <img src="/img/floorplan/ground.png" class="floor-plan">
+                        </div>
+                        <div class="tab-pane" id="first-floor">
+                          <img src="/img/floorplan/first.png" class="floor-plan">
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
             <!-- TODO list -->
-            <div class="col-lg-3 col-md-12">
+            <!-- <div class="col-lg-3 col-md-12">
               <div class="card">
                 <div class="card-header card-header-tabs card-header-danger">
                   <div class="nav-tabs-navigation">
@@ -248,7 +284,7 @@
                   </div>
                 </div>
               </div>
-            </div>
+            </div> -->
           </div>
         </div>
         <% include ../partials/footer.ejs %>
@@ -276,6 +312,7 @@
     <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
     <script src="/js/material-dashboard.js?v=2.1.0"></script>
     <script src="/js/animations.js"></script>
+    <script src="/js/timer.js"></script>
 </body>
 
 </html>
