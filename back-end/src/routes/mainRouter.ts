@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { userRouter, homeRouter, achievementsRouter, hardwareRouter, scheduleRouter, teamRouter } from "./";
+import { userRouter, homeRouter, hardwareRouter, scheduleRouter,
+         challengesRouter, achievementsRouter, teamRouter } from "./";
 
 /**
  * Top-level router for the app
@@ -21,6 +22,8 @@ export const mainRouter = (): Router => {
 
   // Requests to /team/*
   router.use("/team/", teamRouter());
+  // Requests to /challenge/*
+  router.use("/challenges/", challengesRouter());
 
   // Requests to /*
   router.use("/", homeRouter());
