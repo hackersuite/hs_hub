@@ -11,7 +11,9 @@ export const announcementRouter = (): Router => {
   /**
    * POST /announcement/
    */
-  router.post("/", announcementController.announce);
+  router.post("/",
+    checkIsOrganizer,
+    announcementController.announce);
 
   return router;
 };

@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import { getAllReservations, getAllHardwareItems } from "../util/hardwareLibrary";
 import { Cache } from "../util/cache";
 import { EventCached } from "../util/cache/models/objects";
+import { Announcement } from "../db/entity/hub";
+import { getConnection } from "typeorm";
 
 /**
  * A controller for auth methods
@@ -9,7 +11,13 @@ import { EventCached } from "../util/cache/models/objects";
 export class HomeController {
   public async dashboard(req: Request, res: Response, next: NextFunction) {
     const events: EventCached[] = await Cache.events.getElements();
-    res.render("pages/dashboard", { events, announcements: [] });
+    const announcements: Announcement[] = await getConnection("hub")
+      .getRepository(Announcement)
+      .createQueryBuilder("announcement")
+      .orderBy("announcement.createdAt", "DESC")
+      .limit(5)
+      .getMany();
+    res.render("pages/dashboard", { events, announcements });
   }
 
   public async hardware(req: Request, res: Response, next: NextFunction) {

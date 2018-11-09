@@ -6,7 +6,7 @@ export class Announcement {
   id: number;
 
   @Column()
-  createdAt: number;
+  createdAt: string;
 
   @Column("varchar", { length: 255 })
   message: string;
@@ -16,7 +16,7 @@ export class Announcement {
    * @param message The announcement's message
    */
   constructor(message) {
-    this.createdAt = Date.now();
+    this.createdAt = String(Date.now());
     this.message = message;
   }
 }

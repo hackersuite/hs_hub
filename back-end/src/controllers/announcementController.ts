@@ -16,10 +16,11 @@ export class AnnouncementController {
       } else if (message.length > 255) {
         throw new ApiError(HttpResponseCode.BAD_REQUEST, "Message too long!");
       }
+      const announcement = new Announcement(message);
       await getConnection("hub")
         .getRepository(Announcement)
-        .save(new Announcement(message));
-      res.send({ message: "Announcement created successfully!" });
+        .save(announcement);
+      res.send(announcement);
     } catch (error) {
       return next(error);
     }
