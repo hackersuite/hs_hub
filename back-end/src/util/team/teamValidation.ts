@@ -47,9 +47,9 @@ export const getAllUsersInTeams = async (): Promise<User[]> => {
 
 export const getUsersTeam = async (teamCode: string): Promise<User[]> => {
   return await getConnection("hub")
-      .getRepository(User)
-      .createQueryBuilder("user")
-      .select(["user.name", "user.email", "user.team"])
-      .where("user.team = :team", { team: teamCode })
-      .getMany();
+    .getRepository(User)
+    .createQueryBuilder("user")
+    .select(["user.name", "user.email", "user.team"])
+    .where("user.team = :team", { team: teamCode })
+    .getMany();
 };
