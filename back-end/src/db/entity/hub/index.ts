@@ -4,3 +4,4 @@ export * from "./hardwareItem";
 export * from "./reservedHardwareItem";
 export * from "./challenge";
 export * from "./event";
+export * from "./announcement";
