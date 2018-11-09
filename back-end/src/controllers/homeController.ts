@@ -4,6 +4,7 @@ import { Cache } from "../util/cache";
 import { EventCached } from "../util/cache/models/objects";
 import { Announcement } from "../db/entity/hub";
 import { getConnection } from "typeorm";
+import { Achievements } from "../util/achievements";
 
 /**
  * A controller for auth methods
@@ -23,6 +24,12 @@ export class HomeController {
   public async hardware(req: Request, res: Response, next: NextFunction) {
     const items = await getAllHardwareItems(req.user.id);
     res.render("pages/hardware", { items });
+  }
+
+  public async achievements(req: Request, res: Response, next: NextFunction) {
+    const allAchievements = Achievements.getAchievements();
+    const progress: Map<string, number> = await Achievements.getUserProgressForAllAchievements(req.user);
+    res.render("pages/achievements", { allAchievements: allAchievements, progress: progress });
   }
 
   public login(req: Request, res: Response, next: NextFunction) {
