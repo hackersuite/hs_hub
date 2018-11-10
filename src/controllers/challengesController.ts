@@ -66,6 +66,6 @@ export class ChallengesController {
       .where("title = :titleToDelete", { titleToDelete: title })
       .execute();
     await Cache.challenges.sync();
-    res.send("Challenge ${title} deleted");
+    res.send(`Challenge ${title} deleted`);
   }
 }
