@@ -20,7 +20,7 @@ function reserve(itemName) {
     },
     success: function(response) {
       location.reload();
-    },
+    },  
     error: function(error) {
       $.notify({
         message: error.responseJSON.message
