@@ -1,1 +1,0 @@
-  * Kristijonas Zalys - <https://github.com/kzalys>

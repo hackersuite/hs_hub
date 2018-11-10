@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <% include ../partials/head.ejs %>
+  <title>GUH18 Hub - Hardware</title>
+  <link rel="stylesheet" href="/css/hardware.css">
+  <script src="/js/hardware.js"></script>
+</head>
+
+<body>
+  <div id="reservation-qr-panel">
+    <i id="reservation-qr-close" class="fas fa-times fa-3x" onclick="closeQR()"></i>
+    <div id="reservation-qr-container">
+      <b>Show this code to the volunteers at the hardware library</b>
+      <img id="reservation-qr" src="" alt="loading">
+      <div id="reservation-qr-spacer"></div>
+      <b>If it doesn't work, show them this token:</b>
+      <h3 id="reservation-qr-token"></h3>
+    </div>
+  </div>
+  <div class="wrapper">
+    <% include ../partials/navbar.ejs %>
+    <div class="main-panel">
+      <div class="content">
+        <div class="container-fluid">
+          <div class="row">
+            <% items.forEach(item => { %>
+            <div class="col-lg-3 col-md-6">
+              <div class="card">
+                <% if (item.reserved) { %>
+                <div class="card-header card-header-warning">
+                  <% } else if (item.taken) { %>
+                  <div class="card-header card-header-danger">
+                    <% } else { %>
+                    <div class="card-header card-header-success">
+                      <% } %>
+                      <h4 class="card-title">
+                        <%- item.itemName %>
+                      </h4>
+                    </div>
+                    <div class="card-body item-content">
+                      <div class="item-img-container">
+                        <img class="item-img" src="<%- item.itemURL %>" alt="">
+                      </div>
+                      <div>
+                        <%- item.itemDescription %>
+                      </div>
+                      <div><b>In stock:</b>
+                        <%- item.itemsLeft %>
+                      </div>
+                      <% if (item.reserved) { %>
+                      <div><b>You have reserved:</b>
+                        <%- item.reservationQuantity %>
+                      </div>
+                      <button type="button" class="btn btn-warning" data-dismiss="modal" onclick="openQR('<%- item.reservationToken %>')">QR</button>
+                      <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="cancelReservation('<%- item.reservationToken %>')">CANCEL</button>
+                      <% } else if (item.taken) { %>
+                      <div><b>You have taken:</b>
+                        <%- item.reservationQuantity %>
+                      </div>
+                      <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="openQR('<%- item.reservationToken %>')">QR</button>
+                      <% } else { %>
+                      <div>
+                        <span><b>Quantity to take:</b></span>
+                        <input type="number" name="quantity" id="<%- item.itemName %>-reservation-quantity" class="number-input"
+                          placeholder="quantity" value="1">
+                      </div>
+                      <button type="button" class="btn btn-success" data-dismiss="modal" onclick="reserve('<%- item.itemName %>')">TAKE</button>
+                      <% } %>
+                    </div>
+                  </div>
+                </div>
+                <% }) %>
+              </div>
+            </div>
+          </div>
+          <% include ../partials/footer.ejs %>
+          <script>
+            const x = new Date().getFullYear();
+            let date = document.getElementById('date');
+            date.innerHTML = '&copy; ' + x + date.innerHTML;
+          </script>
+        </div>
+      </div>
+      <!--   Core JS Files   -->
+      <script src="/js/core/jquery.min.js"></script>
+      <script src="/js/core/popper.min.js"></script>
+      <script src="/js/core/bootstrap-material-design.min.js"></script>
+      <script src="https://unpkg.com/default-passive-events"></script>
+      <script src="/js/plugins/perfect-scrollbar.jquery.min.js"></script>
+      <!-- Place this tag in your head or just before your close body tag. -->
+      <script async defer src="https://buttons.github.io/buttons.js"></script>
+      <!--  Google Maps Plugin    -->
+      <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY_HERE"></script>
+      <!-- Chartist JS -->
+      <script src="/js/plugins/chartist.min.js"></script>
+      <!--  Notifications Plugin    -->
+      <script src="/js/plugins/bootstrap-notify.js"></script>
+      <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
+      <script src="/js/material-dashboard.js?v=2.1.0"></script>
+      <script src="/js/animations.js"></script>
+      <script src="/js/hardwareAdmin.js"></script>
+</body>
+
+</html>
