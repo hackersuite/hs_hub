@@ -10,6 +10,14 @@ import {
 export const mainRouter = (): Router => {
   const router = Router();
 
+  router.use((req, res, next) => {
+    if (!/https/.test(req.protocol) && process.env.USE_SSL) {
+      res.redirect("https://" + req.headers.host + req.url);
+    } else {
+      return next();
+    }
+  });
+
   // Requests to /hardware/*
   router.use("/hardware/", hardwareRouter());
 
