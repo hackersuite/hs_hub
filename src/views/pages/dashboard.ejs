@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <% include ../partials/head.ejs %>
+  <title>GUH18 Hub - Dashboard</title>
+  <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+
+<body>
+  <div class="wrapper">
+    <% include ../partials/navbar.ejs %>
+    <div class="main-panel">
+
+      <div class="content">
+        <div class="container-fluid">
+          <div class="row">
+            <!-- TIMER -->
+            <div class="col-xl-3 col-lg-12">
+              <div class="card text-center">
+                <div class="card-body">
+                  <!--Timer code here-->
+                  <h1>
+                    <span id="hours">24</span>:<span id="minutes">00</span>:<span id="seconds">00</span>
+                  </h1>
+                </div>
+              </div>
+            </div>
+            <!-- USEFUL LINKS -->
+            <div class="col-xl-3 col-lg-4 col-sm-6">
+              <a href="https://guh18.slack.com/" target="_blank" rel="noopener noreferrer">
+                <div class="card card-stats">
+                  <div class="card-header card-header-success card-header-icon">
+                    <div class="card-icon">
+                      <i class="fab fa-slack"></i>
+                    </div>
+                    <p class="card-category">Communication</p>
+                    <h3 class="card-title">Slack
+                    </h3>
+                  </div>
+                  <div class="card-footer">
+                  </div>
+                </div>
+              </a>
+            </div>
+            <div class="col-xl-3 col-lg-4 col-sm-6">
+              <a href="https://guh18.slack.com/" target="_blank" rel="noopener noreferrer">
+                <div class="card card-stats">
+                  <div class="card-header card-header-warning card-header-icon">
+                    <div class="card-icon">
+                      <img src="https://img.icons8.com/color/50/000000/devpost.png">
+                    </div>
+                    <p class="card-category">Judging</p>
+                    <h3 class="card-title">Devpost
+                    </h3>
+                  </div>
+                  <div class="card-footer">
+                  </div>
+                </div>
+              </a>
+            </div>
+            <div class="col-xl-3 col-lg-4 col-sm-6">
+              <a href="https://drive.google.com/file/d/1RkmgZyy68qg5j39I6mdX1UIQFXh5iSCZ/view" target="_blank" rel="noopener noreferrer">
+                <div class="card card-stats">
+                  <div class="card-header card-header-danger card-header-icon">
+                    <div class="card-icon">
+                      <i class="fas fa-file-alt"></i>
+                    </div>
+                    <p class="card-category"><br></p>
+                    <h3 class="card-title">Code of Conduct
+                    </h3>
+                  </div>
+                  <div class="card-footer">
+                  </div>
+                </div>
+              </a>
+            </div>
+            <!-- SCHEDULE -->
+            <div class="col-lg-5 col-md-12">
+              <div class="card">
+                <div class="card-header card-header-tabs card-header-warning">
+                  <div class="nav-tabs-navigation">
+                    <div class="nav-tabs-wrapper">
+                      <span class="nav-tabs-title">Schedule:</span>
+                      <ul class="nav nav-tabs" data-tabs="tabs">
+                        <li class="nav-item">
+                          <a class="nav-link active" href="#saturday" data-toggle="tab">
+                            Saturday
+                            <div class="ripple-container"></div>
+                          </a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="#sunday" data-toggle="tab">
+                            Sunday
+                            <div class="ripple-container"></div>
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="tab-content">
+                    <div class="tab-pane active" id="saturday">
+                      <table class="table">
+                        <thead class="text-warning">
+                          <th>Time</th>
+                          <th>Event</th>
+                          <th>Location</th>
+                        </thead>
+                        <tbody>
+                          <% events.forEach(event => { %>
+                          <% if (event.startTime.getDay() == 6) { %>
+                          <tr>
+                            <td>
+                              <%- event.startTime.getHours() %>:
+                              <%- event.startTime.getMinutes() < 10 ? "0" + event.startTime.getMinutes() : event.startTime.getMinutes() %>
+                            </td>
+                            <td>
+                              <%- event.title %>
+                            </td>
+                            <td>
+                              <%- event.location %>
+                            </td>
+                          </tr>
+                          <% } %>
+                          <% }) %>
+                        </tbody>
+                      </table>
+                    </div>
+                    <div class="tab-pane" id="sunday">
+                      <table class="table">
+                        <thead class="text-warning">
+                          <th>Time</th>
+                          <th>Location</th>
+                          <th>Event</th>
+                        </thead>
+                        <tbody>
+                          <% events.forEach(event => { %>
+                          <% if (event.startTime.getDay() == 0) { %>
+                          <tr>
+                            <td>
+                              <%- event.startTime.getHours() %>:
+                              <%- event.startTime.getMinutes() < 10 ?  "0" + event.startTime.getMinutes() : event.startTime.getMinutes() %>
+                            </td>
+                            <td>
+                              <%- event.title %>
+                            </td>
+                            <td>
+                              <%- event.location %>
+                            </td>
+                          </tr>
+                          <% } %>
+                          <% }) %>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-7 col-md-12">
+              <div class="row">
+                <!-- ANNOUNCEMENTS -->
+                <div class="col-lg-8 col-md-12">
+                  <div class="card">
+                    <div class="card-header card-header-tabs card-header-success">
+                      <div class="nav-tabs-navigation">
+                        <div class="nav-tabs-wrapper">
+                          <span class="nav-tabs-title"></span>
+                          <ul class="nav nav-tabs" data-tabs="tabs">
+                            <li class="nav-item">
+                              <a class="nav-link active" href="#profile" data-toggle="tab">
+                                <i class="material-icons">today</i> Announcements
+                                <div class="ripple-container"></div>
+                              </a>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card-body">
+                      <div class="tab-content">
+                        <div class="tab-pane active" id="profile">
+                          <table class="table">
+                            <tbody>
+                              <% announcements.forEach(announcement => { %>
+                              <tr>
+                                <td>
+                                  <%- announcement.message %>
+                                </td>
+                              </tr>
+                              <% }) %>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <!-- FLOOR PLAN -->
+                <div class="col-lg-12">
+                  <div class="card">
+                    <div class="card-header card-header-tabs card-header-danger">
+                      <div class="nav-tabs-navigation">
+                        <div class="nav-tabs-wrapper">
+                          <span class="nav-tabs-title">Floor Plan:</span>
+                          <ul class="nav nav-tabs" data-tabs="tabs">
+                            <li class="nav-item">
+                              <a class="nav-link active" href="#ground-floor" data-toggle="tab">
+                                Ground Floor
+                                <div class="ripple-container"></div>
+                              </a>
+                            </li>
+                            <li class="nav-item">
+                              <a class="nav-link" href="#first-floor" data-toggle="tab">
+                                First Floor
+                                <div class="ripple-container"></div>
+                              </a>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card-body">
+                      <div class="tab-content">
+                        <div class="tab-pane active" id="ground-floor">
+                          <img src="/img/floorplan/ground.png" class="floor-plan">
+                        </div>
+                        <div class="tab-pane" id="first-floor">
+                          <img src="/img/floorplan/first.png" class="floor-plan">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- TODO list -->
+            <!-- <div class="col-lg-3 col-md-12">
+              <div class="card">
+                <div class="card-header card-header-tabs card-header-danger">
+                  <div class="nav-tabs-navigation">
+                    <div class="nav-tabs-wrapper">
+                      <span class="nav-tabs-title">To-do:</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div id="profile">
+                    <table class="table">
+                      <tbody>
+                        <tr>
+                          <td>
+                            <div class="form-check">
+                              <label class="form-check-label">
+                                <input class="form-check-input" type="checkbox" value="">
+                                <span class="form-check-sign">
+                                  <span class="check"></span>
+                                </span>
+                              </label>
+                            </div>
+                          </td>
+                          <td>Create your team on the <a href="/profile">profile page</a>.</td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <div class="form-check">
+                              <label class="form-check-label">
+                                <input class="form-check-input" type="checkbox" value="">
+                                <span class="form-check-sign">
+                                  <span class="check"></span>
+                                </span>
+                              </label>
+                            </div>
+                          </td>
+                          <td>Add a link to your team git repository on the <a href="/profile">profile page</a>.
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div> -->
+          </div>
+        </div>
+        <% include ../partials/footer.ejs %>
+        <script>
+          const x = new Date().getFullYear();
+          let date = document.getElementById('date');
+          date.innerHTML = '&copy; ' + x + date.innerHTML;
+        </script>
+      </div>
+    </div>
+    <!--   Core JS Files   -->
+    <script src="/js/core/jquery.min.js"></script>
+    <script src="/js/core/popper.min.js"></script>
+    <script src="/js/core/bootstrap-material-design.min.js"></script>
+    <script src="https://unpkg.com/default-passive-events"></script>
+    <script src="/js/plugins/perfect-scrollbar.jquery.min.js"></script>
+    <!-- Place this tag in your head or just before your close body tag. -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <!--  Google Maps Plugin    -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY_HERE"></script>
+    <!-- Chartist JS -->
+    <script src="/js/plugins/chartist.min.js"></script>
+    <!--  Notifications Plugin    -->
+    <script src="/js/plugins/bootstrap-notify.js"></script>
+    <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
+    <script src="/js/material-dashboard.js?v=2.1.0"></script>
+    <script src="/js/animations.js"></script>
+    <script src="/js/timer.js"></script>
+</body>
+
+</html>
