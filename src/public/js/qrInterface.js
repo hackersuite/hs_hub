@@ -35,7 +35,7 @@ function startScanner() {
   });
   Instascan.Camera.getCameras().then(function (cameras) {
     if (cameras.length > 0) {
-      camera = cameras[0];
+      camera = cameras[cameras.length - 1];
       scanner.start(camera);
     } else {
       couldNotStartCamera();
@@ -54,7 +54,7 @@ function startCustomScanner(videoObjId, callback) {
   });
   Instascan.Camera.getCameras().then(function (cameras) {
     if (cameras.length > 0) {
-      camera = cameras[0];
+      camera = cameras[cameras.length - 1];
       scanner.start(camera);
     } else {
       couldNotStartCamera();

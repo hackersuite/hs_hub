@@ -20,3 +20,8 @@
     font-weight: bold;
 }
 
+@media screen and (max-width: 736px) {
+    .w-50 {
+        width: 80% !important;
+    }
+}
