@@ -26,6 +26,9 @@ export const homeRouter = (): Router => {
     checkIsLoggedIn,
     homeController.contacts);
 
+  router.get("/challenges",
+    checkIsLoggedIn,
+    homeController.challenges);
 
   router.get("/",
     checkIsLoggedIn,

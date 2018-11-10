@@ -246,9 +246,14 @@ export const getAllHardwareItems = async (userId?: number): Promise<Object[]> =>
     .getMany();
 
   const formattedData = [];
-  hardwareItems.forEach((item: HardwareItem) => {
-    const remainingItemCount: number = item.totalStock - (item.reservedStock + item.takenStock);
-    const reservationForItem = userReservations.find(reservation => reservation.hardwareItem.name === item.name);
+  for (const item of hardwareItems) {
+    let remainingItemCount: number = item.totalStock - (item.reservedStock + item.takenStock);
+    let reservationForItem = userReservations.find(reservation => reservation.hardwareItem.name === item.name);
+    if (reservationForItem && !isReservationValid(reservationForItem.reservationExpiry)) {
+      remainingItemCount += reservationForItem.reservationQuantity;
+      await deleteReservation(reservationForItem.reservationToken);
+      reservationForItem = undefined;
+    }
     formattedData.push({
       "itemName": item.name,
       "itemDescription": item.description,
@@ -259,9 +264,10 @@ export const getAllHardwareItems = async (userId?: number): Promise<Object[]> =>
       "reserved": reservationForItem ? reservationForItem.isReserved : false,
       "taken": reservationForItem ? !reservationForItem.isReserved : false,
       "reservationQuantity": reservationForItem ? reservationForItem.reservationQuantity : 0,
-      "reservationToken": reservationForItem ? reservationForItem.reservationToken : ""
+      "reservationToken": reservationForItem ? reservationForItem.reservationToken : "",
+      "expiresIn": reservationForItem ? Math.floor((reservationForItem.reservationExpiry.getTime() - Date.now()) / 60000) : 0
     });
-  });
+  }
   return formattedData;
 };
 

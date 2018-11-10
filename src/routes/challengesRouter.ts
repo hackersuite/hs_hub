@@ -9,9 +9,9 @@ export const challengesRouter = (): Router => {
   const challengesController = new ChallengesController();
 
   /**
-   * GET /challenges/
+   * GET /challenges/all
    */
-  router.get("/", challengesController.listChallenges);
+  router.get("/all", challengesController.listChallenges);
 
   /**
    * POST /challenges/create

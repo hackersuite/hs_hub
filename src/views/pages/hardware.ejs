@@ -51,7 +51,7 @@
                       </div>
                       <% if (item.reserved) { %>
                       <div><b>You have reserved:</b>
-                        <%- item.reservationQuantity %>
+                        <%- item.reservationQuantity %>. Expires in <%- item.expiresIn %> minutes.
                       </div>
                       <button type="button" class="btn btn-warning" data-dismiss="modal" onclick="openQR('<%- item.reservationToken %>')">QR</button>
                       <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="cancelReservation('<%- item.reservationToken %>')">CANCEL</button>

@@ -6,3 +6,4 @@ export * from "./scheduleRouter";
 export * from "./hardwareRouter";
 export * from "./teamRouter";
 export * from "./challengesRouter";
+export * from "./announcementRouter";
