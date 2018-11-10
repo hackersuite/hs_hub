@@ -1,34 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>GUHub</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="/css/login-style.css">
-
+  <% include ../partials/head.ejs %>
+  <title>GUH18 Hub</title>
+  <link rel="stylesheet" type="text/css" href="/css/login-style.css">
 </head>
+
+
 <body>
-    <div class="login-form">
-        <form action="/user/login" method="post" autocomplete="on">
-            <h2 class="text-center">Log in</h2>       
-            <div class="form-group">
-                <input name="email" type="text" class="form-control" placeholder="Email" required="required">
-            </div>
-            <div class="form-group">
-                <input name="password" type="password" class="form-control" placeholder="Password" required="required">
-            </div>
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary btn-block">Log in</button>
-            </div>
-            <div class="clearfix">
-                <a href="#" class="pull-right">Forgot Password?</a>
-            </div>        
-        </form>
-        <p class="text-center"><a href="#">Create an Account</a></p>
-    </div>
+<div class="container">
+  <div class="container-fluid">
+    <div class="row">
+        <div class="card mx-auto align-middle w-50">
+          <!--Header-->
+          <div class="card-header card-header-primary">
+            <h2>Login</h2>
+          </div>
+          <!--Body-->
+          <div class="card-body">
+            <form action="/user/login" method="post" autocomplete="on">
+              <div class="form-group">
+                <i for="emailInput" class="fa fa-envelope prefix"></i>
+                <input type="email" name="email" class="form-control" id="emailInput" aria-describedby="emailHelp" placeholder="Email" required="required">
+              </div>
+              <div class="form-group">
+                <i for="passwordInput" class="fa fa-lock prefix"></i>
+                <input type="password" name="password" class="form-control" id="passwordInput" placeholder="Password" required="required">
+              </div>
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+          </div>
+          <!--Footer-->
+          <div class="modal-footer">
+              <div class="text-center">
+                  <p>Need an account? <a href="apply.greatunihack.com">Sign Up</a></p>
+                  <p>Forgot <a href="apply.greatunihack.com">Password?</a></p>
+              </div>
+          </div>
+        </div>
+
+</div>
+</div>
+</div>
+
 </body>
 </html>
