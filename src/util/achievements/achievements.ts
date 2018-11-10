@@ -14,7 +14,7 @@ export abstract class Achievements {
   private static readonly achievementsCollection: Achievement[] = [
     new AchievementTypes.BeekeeperAchievement(),
     new AchievementTypes.BusinessAchievement(),
-    new AchievementTypes.BuzzingAchievement(),
+    // new AchievementTypes.BuzzingAchievement(),
     new AchievementTypes.NectarOfKnowledgeAchievement(),
     new AchievementTypes.ParticipationAchievement(),
     new AchievementTypes.PhotogenicAchievement(),
