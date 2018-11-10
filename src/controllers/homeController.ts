@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import { getAllReservations, getAllHardwareItems } from "../util/hardwareLibrary";
 import { Cache } from "../util/cache";
+import { Achievements } from "../util/achievements";
 import { EventCached } from "../util/cache/models/objects";
 import { Announcement } from "../db/entity/hub";
 import { getConnection } from "typeorm";
-import { Achievements } from "../util/achievements";
 
 /**
  * A controller for auth methods
