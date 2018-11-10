@@ -26,6 +26,11 @@ export class HomeController {
     res.render("pages/hardware", { items });
   }
 
+  public async challenges(req: Request, res: Response, next: NextFunction) {
+    const challenges = await Cache.challenges.getElements();
+    res.render("pages/challenges", { challenges });
+  }
+
   public async achievements(req: Request, res: Response, next: NextFunction) {
     const allAchievements = Achievements.getAchievements();
     const progress: Map<string, number> = await Achievements.getUserProgressForAllAchievements(req.user);

@@ -1,0 +1,13 @@
+.item-content {
+  min-height: 200px;
+}
+
+.track-sponsor {
+  position: absolute;
+  right: 0;
+  color: grey;
+}
+
+h3 {
+  margin-left: 15px;
+}
