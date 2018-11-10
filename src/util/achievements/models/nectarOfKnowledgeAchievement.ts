@@ -10,7 +10,7 @@ export class NectarOfKnowledgeAchievement extends Achievement {
   public description: string = "Went to all workshops";
   public prizes: string = "something cool";
   public finishMessage: string = "nice job";
-  public maxProgress: number = 2;
+  public maxProgress: number = 4;
   protected requiresToken: boolean = true;
   protected isMultiStep: boolean = true;
 }
