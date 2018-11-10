@@ -17,7 +17,7 @@ export class UserController {
         return next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
       }
       if (!user) {
-        return next(new ApiError(HttpResponseCode.UNAUTHORIZED, info.message));
+        return res.render("pages/login", { error: info.message });
       }
       req.logIn(user, (err: any) => {
         if (err) {

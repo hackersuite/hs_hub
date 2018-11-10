@@ -1,47 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <% include ../partials/head.ejs %>
   <title>GUH18 Hub</title>
   <link rel="stylesheet" type="text/css" href="/css/login-style.css">
+  <script src="/js/core/jquery.min.js"></script>
+  <script src="/js/core/popper.min.js"></script>
+  <script src="/js/plugins/bootstrap-notify.js"></script>
+  <script src="/js/login.js"></script>
 </head>
 
-
 <body>
-<div class="container">
-  <div class="container-fluid">
-    <div class="row">
+  <div class="container">
+    <div class="container-fluid">
+      <div class="row">
         <div class="card mx-auto align-middle w-50">
           <!--Header-->
           <div class="card-header card-header-primary">
             <h2>Login</h2>
           </div>
+          <% if (locals.error) { %>
+          <script>
+            showError("<%- error %>");
+          </script>
+          <% } %>
           <!--Body-->
           <div class="card-body">
             <form action="/user/login" method="post" autocomplete="on">
               <div class="form-group">
                 <i for="emailInput" class="fa fa-envelope prefix"></i>
-                <input type="email" name="email" class="form-control" id="emailInput" aria-describedby="emailHelp" placeholder="Email" required="required">
+                <input type="email" name="email" class="form-control" id="emailInput" aria-describedby="emailHelp"
+                  placeholder="Email" required="required">
               </div>
               <div class="form-group">
                 <i for="passwordInput" class="fa fa-lock prefix"></i>
-                <input type="password" name="password" class="form-control" id="passwordInput" placeholder="Password" required="required">
+                <input type="password" name="password" class="form-control" id="passwordInput" placeholder="Password"
+                  required="required">
               </div>
               <button type="submit" class="btn btn-primary">Submit</button>
             </form>
           </div>
           <!--Footer-->
           <div class="modal-footer">
-              <div class="text-center">
-                  <p>Need an account? <a href="http://apply.greatunihack.com">Sign Up</a></p>
-                  <p>Forgot <a href="http://apply.greatunihack.com">Password?</a></p>
-              </div>
+            <div class="text-center">
+              <p>Need an account? <a href="http://apply.greatunihack.com">Sign Up</a></p>
+              <p>Forgot <a href="http://apply.greatunihack.com">Password?</a></p>
+            </div>
           </div>
         </div>
 
-</div>
-</div>
-</div>
-
+      </div>
+    </div>
+  </div>
 </body>
+
 </html>
