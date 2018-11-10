@@ -11,7 +11,7 @@ function closeQR() {
 }
 
 function reserve(itemName) {
-  var quantity = $("#" + itemName + "-reservation-quantity").val();
+  var quantity = $("#" + itemName.replace(/ /g, "-") + "-reservation-quantity").val();
   $.post({
     url: "/hardware/reserve",
     data: {

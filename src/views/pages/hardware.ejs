@@ -63,7 +63,7 @@
                       <% } else { %>
                       <div>
                         <span><b>Quantity to take:</b></span>
-                        <input type="number" name="quantity" id="<%- item.itemName %>-reservation-quantity" class="number-input"
+                        <input type="number" name="quantity" id="<%- item.itemName.replace(/ /g, '-') %>-reservation-quantity" class="number-input"
                           placeholder="quantity" value="1">
                       </div>
                       <button type="button" class="btn btn-success" data-dismiss="modal" onclick="reserve('<%- item.itemName %>')">TAKE</button>
