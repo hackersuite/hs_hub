@@ -22,6 +22,7 @@ export class EventsCacheCollection extends CacheCollection<EventCached> {
       .getRepository(Event)
       .createQueryBuilder("event")
       .whereInIds(Array.from(this.elements.keys()))
+      .orderBy("startTime", "ASC")
       .getMany();
     // Updating the instance variables
     this.syncedAt = Date.now();
