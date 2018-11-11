@@ -250,7 +250,7 @@ export const getAllHardwareItems = async (userId?: number): Promise<Object[]> =>
     let remainingItemCount: number = item.totalStock - (item.reservedStock + item.takenStock);
     let reservationForItem = userReservations.find(reservation => reservation.hardwareItem.name === item.name);
 
-    if (reservationForItem && !reservationForItem.isReserved && !isReservationValid(reservationForItem.reservationExpiry)) {
+    if (reservationForItem && reservationForItem.isReserved && !isReservationValid(reservationForItem.reservationExpiry)) {
       remainingItemCount += reservationForItem.reservationQuantity;
       await deleteReservation(reservationForItem.reservationToken);
       reservationForItem = undefined;
