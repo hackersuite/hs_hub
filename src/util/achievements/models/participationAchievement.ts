@@ -11,5 +11,5 @@ export class ParticipationAchievement extends Achievement {
   public prizes: string = "something cool";
   public finishMessage: string = "nice job";
   public maxProgress: number = 1;
-  protected isManual: boolean = true;
+  protected isManual: boolean = false;
 }
