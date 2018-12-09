@@ -106,7 +106,6 @@ describe("User controller tests", (): void => {
       });
 
     expect(response.status).toBe(HttpResponseCode.OK);
-    // expect(response.).toContain("Incorrect credentials provided.");
   });
 
   /**

@@ -4,7 +4,6 @@ import { User, HardwareItem, ReservedHardwareItem } from "../../../src/db/entity
 import { getConnection } from "typeorm";
 import * as request from "supertest";
 import { HttpResponseCode } from "../../../src/util/errorHandling/httpResponseCode";
-import { exec } from "child_process";
 
 let bApp: Express;
 let sessionCookie: string;
