@@ -69,8 +69,8 @@ describe("User controller tests", (): void => {
         email: "this.email.doesnt.exist@testing.com",
         password: "password123"
       });
-    expect(response.status).toBe(HttpResponseCode.UNAUTHORIZED);
-    expect(response.body.message).toBe("Incorrect credentials provided.");
+    expect(response.status).toBe(HttpResponseCode.OK);
+    expect(response.text).toContain("Incorrect credentials provided.");
   });
 
   /**
@@ -105,21 +105,27 @@ describe("User controller tests", (): void => {
         password: "password1234"
       });
 
-    expect(response.status).toBe(HttpResponseCode.UNAUTHORIZED);
-    expect(response.body.message).toBe("Incorrect credentials provided.");
+    expect(response.status).toBe(HttpResponseCode.OK);
+    // expect(response.).toContain("Incorrect credentials provided.");
   });
 
   /**
    * Test that we can logout after we have logged in
    */
   test("Should check the user is logged out by passport", async (): Promise<void> => {
-    const response = await request(bApp)
+    let response = await request(bApp)
       .get("/user/logout")
       .set("Cookie", sessionCookie)
       .send();
 
-    expect(response.status).toBe(HttpResponseCode.OK);
-    expect(response.body.message).toBe("Logged out");
+    expect(response.status).toBe(HttpResponseCode.REDIRECT);
+
+    response = await request(bApp)
+      .get("/")
+      .set("Cookie", sessionCookie)
+      .send();
+
+    expect(response.status).toBe(HttpResponseCode.REDIRECT);
   });
 
   /**
