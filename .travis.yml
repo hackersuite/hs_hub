@@ -4,7 +4,7 @@ node_js:
   - "9"
 
 install:
- - cd back-end/ && npm i
+ - npm i
  - npm i -g codeclimate-test-reporter
 
 script:
