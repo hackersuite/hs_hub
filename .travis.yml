@@ -7,6 +7,44 @@ install:
  - npm i
  - npm i -g codeclimate-test-reporter
 
+ services:
+  - mysql
+  - postgresql
+
+before_install:
+  - mysql -e 'CREATE DATABASE IF NOT EXISTS hub;'
+  - psql -c 'CREATE DATABASE IF NOT EXISTS applications;' -U postgres
+  - psql -c 'CREATE TABLE public.user_user (
+    id integer NOT NULL DEFAULT nextval('user_user_id_seq'::regclass),
+    password character varying(128) COLLATE pg_catalog."default" NOT NULL,
+    last_login timestamp with time zone,
+    email character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    name character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    email_verified boolean NOT NULL,
+    is_active boolean NOT NULL,
+    is_volunteer boolean NOT NULL,
+    is_organizer boolean NOT NULL,
+    is_director boolean NOT NULL,
+    is_admin boolean NOT NULL,
+    created_time timestamp with time zone NOT NULL,
+    is_hardware_admin boolean NOT NULL,
+    CONSTRAINT user_user_pkey PRIMARY KEY (id),
+    CONSTRAINT user_user_email_key UNIQUE (email)
+  );' -U postgres
+  - psql -c 'CREATE TABLE public.teams_team (
+    id integer NOT NULL DEFAULT nextval('teams_team_id_seq'::regclass),
+    team_code character varying(13) COLLATE pg_catalog."default" NOT NULL,
+    user_id integer NOT NULL,
+    CONSTRAINT teams_team_pkey PRIMARY KEY (id),
+    CONSTRAINT teams_team_team_code_0807880a_uniq UNIQUE (team_code, user_id)
+    CONSTRAINT teams_team_user_id_key UNIQUE (user_id),
+    CONSTRAINT teams_team_user_id_09c22005_fk_user_user_id FOREIGN KEY (user_id)
+        REFERENCES public.user_user (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        DEFERRABLE INITIALLY DEFERRED
+    );' -U postgres
+
 script:
  - npm run test:coverage
 
