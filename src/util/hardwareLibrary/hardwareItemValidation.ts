@@ -3,6 +3,7 @@ import { createToken, parseToken } from "./hardwareItemToken";
 import { getConnection } from "typeorm";
 import { ApiError } from "../errorHandling/apiError";
 import { HttpResponseCode } from "../errorHandling/httpResponseCode";
+import { QueryLogger } from "../logging/QueryLogger";
 
 /**
  * Finds the item by name and tries to reserve the item for the user
@@ -162,7 +163,7 @@ export const returnItem = async (token: string): Promise<boolean> => {
     itemQuantity: number = reservation.reservationQuantity;
 
   if (!isReserved) {
-    await itemToBeReturnedToLibrary(itemID, token, itemQuantity);
+    await itemToBeReturnedToLibrary(userID, itemID, token, itemQuantity);
   } else {
     throw new ApiError(HttpResponseCode.BAD_REQUEST, "This has not been taken yet");
   }
@@ -198,6 +199,9 @@ export const itemToBeTakenFromLibrary = async (userID: number, hardwareItemID: n
       })
       .where("id = :id", { id: hardwareItemID })
       .execute();
+
+      const message: string = `UID ${userID} took ${itemQuantity} of ${hardwareItemID}`;
+      new QueryLogger().log("log", message);
   } catch (err) {
     throw new Error(`Lost connection to database (hub)! ${err}`);
   }
@@ -208,7 +212,7 @@ export const itemToBeTakenFromLibrary = async (userID: number, hardwareItemID: n
  * @param hardwareItemID
  * @param token
  */
-export const itemToBeReturnedToLibrary = async (hardwareItemID: number, token: string, itemQuantity: number): Promise<void> => {
+export const itemToBeReturnedToLibrary = async (userID: number, hardwareItemID: number, token: string, itemQuantity: number): Promise<void> => {
   // The item is being returned
   try {
     // Decrement the reservation count for the hardware item
@@ -224,6 +228,8 @@ export const itemToBeReturnedToLibrary = async (hardwareItemID: number, token: s
       .where("reservationToken = :resToken", { resToken: token })
       .execute();
 
+    const message: string = `UID ${userID} returned ${itemQuantity} of ${hardwareItemID}`;
+    new QueryLogger().log("log", message);
   } catch (err) {
     throw new Error(`Lost connection to database (hub)! ${err}`);
   }
