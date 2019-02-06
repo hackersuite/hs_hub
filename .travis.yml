@@ -7,7 +7,8 @@ services:
   - mysql
   - postgresql
 
-before_install:
+before_script:
+ - psql -c 'CREATE DATABASE applications;' -U postgres 
  - CREATE TABLE public.user_user (
     id integer NOT NULL DEFAULT nextval('user_user_id_seq'::regclass),
     password character varying(128) COLLATE pg_catalog."default" NOT NULL,
