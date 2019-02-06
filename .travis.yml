@@ -29,7 +29,7 @@ before_script:
     CONSTRAINT user_user_pkey PRIMARY KEY (id),
     CONSTRAINT user_user_email_key UNIQUE (email)
   );' -U postgres;
-  - CREATE TABLE public.teams_team (
+  - psql -c 'CREATE TABLE teams_team (
     id integer NOT NULL DEFAULT nextval('teams_team_id_seq'::regclass),
     team_code character varying(13) COLLATE pg_catalog."default" NOT NULL,
     user_id integer NOT NULL,
