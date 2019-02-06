@@ -3,13 +3,13 @@ language: node_js
 node_js:
   - "9"
 
+ services:
+  - mysql
+  - postgresqls
+
 install:
  - npm i
  - npm i -g codeclimate-test-reporter
-
- services:
-  - mysql
-  - postgresql
 
 script:
  - npm run test:coverage
