@@ -135,9 +135,6 @@ const createDatabaseOptions = (): ConnectionOptions[] => {
     entities: [
       __dirname + "/db/entity/hub/*{.js,.ts}"
     ],
-    // Per TypeOrm documentation, this is unsafe for production
-    // We should instead use migrations to change the database
-    // once we have it in production.
     synchronize: true,
     // If we want full query logging, uncomment the line below, and set logging = true
     // logger: new QueryLogger(),
@@ -153,7 +150,7 @@ const createDatabaseOptions = (): ConnectionOptions[] => {
     entities: [
       __dirname + "/db/entity/applications/*{.js,.ts}"
     ],
-    synchronize: false,
+    synchronize: true,
     logging: false,
     extra: {
       ssl: true
