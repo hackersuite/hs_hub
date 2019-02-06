@@ -5,7 +5,7 @@ node_js:
 
  services:
   - mysql
-  - postgresqls
+  - postgresql
 
 install:
  - npm i
