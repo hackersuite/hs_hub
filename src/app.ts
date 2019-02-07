@@ -11,7 +11,6 @@ import { Express, Request, Response, NextFunction } from "express";
 import { Connection, createConnections, ConnectionOptions } from "typeorm";
 import { errorHandler, error404Handler } from "./util/errorHandling";
 import { mainRouter } from "./routes";
-import { QueryLogger } from "./util/logging/QueryLogger";
 
 // Load environment variables from .env file
 dotenv.config({ path: ".env" });
