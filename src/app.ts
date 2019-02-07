@@ -11,6 +11,7 @@ import { Express, Request, Response, NextFunction } from "express";
 import { Connection, createConnections, ConnectionOptions } from "typeorm";
 import { errorHandler, error404Handler } from "./util/errorHandling";
 import { mainRouter } from "./routes";
+import { QueryLogger } from "./util/logging/QueryLogger";
 
 // Load environment variables from .env file
 dotenv.config({ path: ".env" });
@@ -136,8 +137,7 @@ const createDatabaseOptions = (): ConnectionOptions[] => {
     ],
     synchronize: true,
     // If we want full query logging, uncomment the line below, and set logging = true
-    // logger: new QueryLogger(),
-    logging: false
+    logger: new QueryLogger()
   }, {
     name: "applications",
     type: "postgres",

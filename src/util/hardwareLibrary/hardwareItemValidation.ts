@@ -4,6 +4,7 @@ import { getConnection } from "typeorm";
 import { ApiError } from "../errorHandling/apiError";
 import { HttpResponseCode } from "../errorHandling/httpResponseCode";
 import { QueryLogger } from "../logging/QueryLogger";
+import { LoggerLevels } from "../logging/LoggerLevelsEnum";
 
 /**
  * Finds the item by name and tries to reserve the item for the user
@@ -201,7 +202,7 @@ export const itemToBeTakenFromLibrary = async (userID: number, hardwareItemID: n
       .execute();
 
       const message: string = `UID ${userID} took ${itemQuantity} of ${hardwareItemID}`;
-      new QueryLogger().log("log", message);
+      new QueryLogger().hardwareLog(LoggerLevels.LOG, message);
   } catch (err) {
     throw new Error(`Lost connection to database (hub)! ${err}`);
   }
@@ -229,7 +230,7 @@ export const itemToBeReturnedToLibrary = async (userID: number, hardwareItemID: 
       .execute();
 
     const message: string = `UID ${userID} returned ${itemQuantity} of ${hardwareItemID}`;
-    new QueryLogger().log("log", message);
+    new QueryLogger().hardwareLog(LoggerLevels.LOG, message);
   } catch (err) {
     throw new Error(`Lost connection to database (hub)! ${err}`);
   }

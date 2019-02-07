@@ -7,10 +7,12 @@ export class QueryLogger implements Logger {
 
   constructor(private options?: LoggerOptions) {}
 
-  protected writeToFile(message: string) {
+  protected writeToFile(message: string, file?: string) {
+    const fileName: string = file !== undefined ? file : process.env.HUB_LOG_FILE_NAME;
+
     if (!(message.endsWith("\n"))) message += "\n";
     const basePath: string = PlatformTools.load("app-root-path").path;
-    PlatformTools.appendFileSync(basePath + "/" + process.env.HUB_LOG_FILE_NAME, message);
+    PlatformTools.appendFileSync(basePath + "/" + fileName, message);
   }
 
   logQuery(query: string, parameters?: any[], queryRunner?: QueryRunner): any {
@@ -50,6 +52,10 @@ export class QueryLogger implements Logger {
    * Log has its own level and message.
    */
   log(level: LoggerLevels, message: any, queryRunner?: QueryRunner): any {
-    this.writeToFile(`[${level}]: ${message}`);
+    this.writeToFile(`[${level.toUpperCase()}]: ${message}`);
+  }
+
+  hardwareLog(level: LoggerLevels, message: string) {
+    this.writeToFile(`[${level.toUpperCase()}]: ${message}`, process.env.HARDWARE_LOG_FILE_NAME);
   }
 }
