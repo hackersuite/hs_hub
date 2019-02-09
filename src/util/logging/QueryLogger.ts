@@ -10,9 +10,8 @@ export class QueryLogger implements Logger {
   protected writeToFile(message: string, file?: string) {
     const fileName: string = file !== undefined ? file : process.env.HUB_LOG_FILE_NAME;
 
-    if (!(message.endsWith("\n"))) message += "\n";
     const basePath: string = PlatformTools.load("app-root-path").path;
-    PlatformTools.appendFileSync(basePath + "/" + fileName, message);
+    PlatformTools.appendFileSync(basePath + "/" + fileName, message + "\n");
   }
 
   logQuery(query: string, parameters?: any[], queryRunner?: QueryRunner): any {
