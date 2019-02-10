@@ -12,35 +12,11 @@ import { HttpResponseCode } from "../errorHandling/httpResponseCode";
 export const reserveItem = async (user: User, itemToReserve: string, requestedQuantity?: number): Promise<string> => {
   if (!requestedQuantity) requestedQuantity = 1;
 
-  const hardwareItem: HardwareItem = await getHardwareItemByName(itemToReserve);
+  const hardwareItem: HardwareItem = await getHardwareItemByID(Number(itemToReserve));
   if (await isItemReservable(user, hardwareItem, requestedQuantity)) {
     return reserveItemQuery(user, hardwareItem, requestedQuantity);
   }
   return undefined;
-};
-
-/**
- * Gets the hardware item based on the item name
- * @param itemToReserve the name of the item to reserve
- */
-export const getHardwareItemByName = async (itemToReserve: string): Promise<HardwareItem> => {
-  try {
-    const item: HardwareItem = await getConnection("hub")
-      .getRepository(HardwareItem)
-      .createQueryBuilder("item")
-      .select([
-        "item.id",
-        "item.name",
-        "item.totalStock",
-        "item.reservedStock",
-        "item.takenStock"
-      ])
-      .where("item.name = :name", { name: itemToReserve })
-      .getOne();
-    return item ? item : undefined;
-  } catch (err) {
-    throw new Error(`Lost connection to database (hub)! ${err}`);
-  }
 };
 
 export const getHardwareItemByID = async (hardwareItemID: number): Promise<HardwareItem> => {
@@ -256,6 +232,7 @@ export const getAllHardwareItems = async (userId?: number): Promise<Object[]> =>
       reservationForItem = undefined;
     }
     formattedData.push({
+      "itemID": item.id,
       "itemName": item.name,
       "itemDescription": item.description,
       "itemURL": item.itemURL,

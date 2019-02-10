@@ -105,7 +105,7 @@ describe("Hardware controller tests", (): void => {
       .post("/hardware/reserve")
       .set("Cookie", sessionCookie)
       .send({
-        item: piHardwareItem.name,
+        item: piHardwareItem.id,
         quantity: 1
       });
 
