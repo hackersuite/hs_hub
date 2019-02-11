@@ -1,5 +1,6 @@
 #Environment variables
 .env
+*.log
 
 #Compiled code
 dist
