@@ -1,6 +1,6 @@
-# GreatUniHack 2018 Attendee Hub Back-end
+# Hackathon Attendee Hub
 
-[![Build Status](https://travis-ci.org/hacksoc-manchester/GUH18-Hub.svg?branch=master)](https://travis-ci.org/hacksoc-manchester/GUH18-Hub)
+[![Build Status](https://travis-ci.org/hacksoc-manchester/Hackathon_Attendee_Hub.svg?branch=master)](https://travis-ci.org/hacksoc-manchester/Hackathon_Attendee_Hub/)
 ![GitHub](https://img.shields.io/github/license/hacksoc-manchester/GUH18-Hub.svg)
 
 ## Dependencies
@@ -9,8 +9,8 @@
  - MySQL database (will probably be replaced with PostreSQL)
 
 ## Set up
- - `git clone https://github.com/hacksoc-manchester/GUH18-Hub.git`
- - `cd GUH18-Hub/back-end`
+ - `git clone https://github.com/hacksoc-manchester/Hackathon_Attendee_Hub.git`
+ - `cd Hackathon_Attendee_Hub/back-end`
  - `cp .env.example .env`
  - Replace placeholders in .env
 
