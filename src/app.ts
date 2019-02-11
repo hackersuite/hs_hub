@@ -11,6 +11,7 @@ import { Express, Request, Response, NextFunction } from "express";
 import { Connection, createConnections, ConnectionOptions } from "typeorm";
 import { errorHandler, error404Handler } from "./util/errorHandling";
 import { mainRouter } from "./routes";
+import { QueryLogger } from "./util/logging/QueryLogger";
 
 // Load environment variables from .env file
 dotenv.config({ path: ".env" });
@@ -134,11 +135,9 @@ const createDatabaseOptions = (): ConnectionOptions[] => {
     entities: [
       __dirname + "/db/entity/hub/*{.js,.ts}"
     ],
-    // Per TypeOrm documentation, this is unsafe for production
-    // We should instead use migrations to change the database
-    // once we have it in production.
     synchronize: true,
-    logging: false
+    // If we want full query logging, uncomment the line below, and set logging = true
+    logger: new QueryLogger()
   }, {
     name: "applications",
     type: "postgres",
@@ -150,7 +149,7 @@ const createDatabaseOptions = (): ConnectionOptions[] => {
     entities: [
       __dirname + "/db/entity/applications/*{.js,.ts}"
     ],
-    synchronize: false,
+    synchronize: true,
     logging: false,
     extra: {
       ssl: true
