@@ -10,12 +10,12 @@ function closeQR() {
   $("#reservation-qr-token").html("");
 }
 
-function reserve(itemName) {
-  var quantity = $("#" + itemName.replace(/ /g, "-").replace(/-/g, "").replace(/./g, "").replace(/\/|(|)/g, "") + "-reservation-quantity").val();
+function reserve(itemID) {
+  var quantity = $("#" + itemID + "-reservation-quantity").val();
   $.post({
     url: "/hardware/reserve",
     data: {
-      item: itemName,
+      item: itemID,
       quantity: quantity
     },
     success: function(response) {
