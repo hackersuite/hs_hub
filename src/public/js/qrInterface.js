@@ -1,5 +1,7 @@
 let scanner;
 let camera;
+let maxCameras;
+let camera_option = 0;
 
 function startScanner() {
   $("#qr-scanner-container").fadeIn("slow");
@@ -35,7 +37,8 @@ function startScanner() {
   });
   Instascan.Camera.getCameras().then(function (cameras) {
     if (cameras.length > 0) {
-      camera = cameras[0];
+      maxCameras = cameras.length;
+      camera = cameras[camera_option];
       scanner.start(camera);
     } else {
       couldNotStartCamera();
@@ -54,7 +57,8 @@ function startCustomScanner(videoObjId, callback) {
   });
   Instascan.Camera.getCameras().then(function (cameras) {
     if (cameras.length > 0) {
-      camera = cameras[0];
+      maxCameras = cameras.length;
+      camera = cameras[camera_option];
       scanner.start(camera);
     } else {
       couldNotStartCamera();
@@ -70,6 +74,13 @@ function closeScanner() {
     scanner.stop(camera);
     $("#qr-scanner-container").fadeOut("slow");
   }
+}
+
+function changeScanner() {
+  if (maxCameras) {
+    camera_option = (camera_option + 1) % maxCameras;
+  }
+  console.log(camera_option);
 }
 
 function couldNotStartCamera() {
