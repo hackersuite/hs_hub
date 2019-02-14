@@ -5,7 +5,7 @@ let camera_option = 0;
 
 function startScanner() {
   $("#qr-scanner-container").fadeIn("slow");
-  scanner = new Instascan.Scanner({ video: document.getElementById('qr-scanner') });
+  scanner = new Instascan.Scanner({ video: document.getElementById('qr-scanner'), mirror: false });
   scanner.addListener('scan', function (content) {
     var info = JSON.parse(content);
     if (info.type == "achievementStep") {
@@ -51,7 +51,7 @@ function startScanner() {
 
 function startCustomScanner(videoObjId, callback) {
   closeScanner();
-  scanner = new Instascan.Scanner({ video: document.getElementById(videoObjId) });
+  scanner = new Instascan.Scanner({ video: document.getElementById(videoObjId), mirror: false });
   scanner.addListener('scan', function (content) {
     callback(content);
   });
