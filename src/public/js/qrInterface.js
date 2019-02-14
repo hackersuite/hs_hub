@@ -76,11 +76,14 @@ function closeScanner() {
   }
 }
 
-function changeScanner() {
+function changeScanner(isCustomScanner) {
   if (maxCameras) {
     camera_option = (camera_option + 1) % maxCameras;
+    if (!isCustomScanner) {
+      closeScanner();
+      startScanner();
+    }
   }
-  console.log(camera_option);
 }
 
 function couldNotStartCamera() {
