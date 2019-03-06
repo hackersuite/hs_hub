@@ -1,9 +1,11 @@
 let scanner;
 let camera;
+let maxCameras;
+let camera_option = 0;
 
 function startScanner() {
   $("#qr-scanner-container").fadeIn("slow");
-  scanner = new Instascan.Scanner({ video: document.getElementById('qr-scanner') });
+  scanner = new Instascan.Scanner({ video: document.getElementById('qr-scanner'), mirror: false });
   scanner.addListener('scan', function (content) {
     var info = JSON.parse(content);
     if (info.type == "achievementStep") {
@@ -35,7 +37,8 @@ function startScanner() {
   });
   Instascan.Camera.getCameras().then(function (cameras) {
     if (cameras.length > 0) {
-      camera = cameras[cameras.length - 1];
+      maxCameras = cameras.length;
+      camera = cameras[camera_option];
       scanner.start(camera);
     } else {
       couldNotStartCamera();
@@ -48,13 +51,14 @@ function startScanner() {
 
 function startCustomScanner(videoObjId, callback) {
   closeScanner();
-  scanner = new Instascan.Scanner({ video: document.getElementById(videoObjId) });
+  scanner = new Instascan.Scanner({ video: document.getElementById(videoObjId), mirror: false });
   scanner.addListener('scan', function (content) {
     callback(content);
   });
   Instascan.Camera.getCameras().then(function (cameras) {
     if (cameras.length > 0) {
-      camera = cameras[cameras.length - 1];
+      maxCameras = cameras.length;
+      camera = cameras[camera_option];
       scanner.start(camera);
     } else {
       couldNotStartCamera();
@@ -69,6 +73,16 @@ function closeScanner() {
   if (camera && scanner) {
     scanner.stop(camera);
     $("#qr-scanner-container").fadeOut("slow");
+  }
+}
+
+function changeScanner(isCustomScanner) {
+  if (maxCameras) {
+    camera_option = (camera_option + 1) % maxCameras;
+    if (!isCustomScanner) {
+      closeScanner();
+      startScanner();
+    }
   }
 }
 
