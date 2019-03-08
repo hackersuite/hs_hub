@@ -48,11 +48,21 @@ var headerClasses = {
 }
 
 function renderItems(items) {
+  items = items.sort(compareItems);
   for (var index = 0; index < items.length; index++) {
     var item = items[index];
     var itemString = makeItemString(item);
     $("#" + itemsContainerId).append(itemString);
   }
+}
+
+function compareItems(item1, item2) {
+  if (item1.itemName < item2.itemName)
+    return 1;
+  else if (item1.itemName > item2.itemName)
+    return -1;
+  else
+    return 0;
 }
 
 function makeItemString(item) {
