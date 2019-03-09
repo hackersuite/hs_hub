@@ -48,12 +48,20 @@ var headerClasses = {
 }
 
 function renderItems(items) {
-  items = items.sort(compareItems);
+  $("#" + itemsContainerId).empty();
   for (var index = 0; index < items.length; index++) {
     var item = items[index];
-    var itemString = makeItemString(item);
-    $("#" + itemsContainerId).append(itemString);
+    if (currentFilter === filters.all
+        || currentFilter === filters.reserved
+        && (item.taken || item.reserved)) {
+          renderItem(item);
+    }
   }
+}
+
+function renderItem(item) {
+  var itemString = makeItemString(item);
+  $("#" + itemsContainerId).append(itemString);
 }
 
 function compareItems(item1, item2) {
@@ -104,6 +112,7 @@ function getItemHeaderClass(item) {
 
 function setFilter(filter) {
   currentFilter = filters[filter];
+  renderItems();
 }
 
 function search(key) {

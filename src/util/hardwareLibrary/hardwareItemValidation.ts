@@ -219,6 +219,7 @@ export const getAllHardwareItems = async (userId?: number): Promise<Object[]> =>
   const hardwareItems: HardwareItem[] = await getConnection("hub")
     .getRepository(HardwareItem)
     .createQueryBuilder()
+    .orderBy("name", "ASC")
     .getMany();
 
   const userReservations: ReservedHardwareItem[] = await getConnection("hub")
