@@ -40,6 +40,7 @@ var outOfStockUI = '<div><b>Sorry. This item is currently out of stock!</b></div
 var hardwareItems = [];
 var filters = { all: "all", reserved: "reserved" };
 var currentFilter = filters.all;
+var currentSearchKey = "";
 
 var headerClasses = {
   default: "card-header-success",
@@ -47,16 +48,24 @@ var headerClasses = {
   taken: "card-header-danger"
 }
 
-function renderItems(items) {
+function renderItems() {
   $("#" + itemsContainerId).empty();
-  for (var index = 0; index < items.length; index++) {
-    var item = items[index];
-    if (currentFilter === filters.all
-        || currentFilter === filters.reserved
-        && (item.taken || item.reserved)) {
+  for (var index = 0; index < hardwareItems.length; index++) {
+    var item = hardwareItems[index];
+    if (passesCurrentFilter(item) && containsCurrentSearchKey(item)) {
           renderItem(item);
     }
   }
+}
+
+function passesCurrentFilter(item) {
+  return currentFilter === filters.all
+         || currentFilter === filters.reserved
+         && (item.taken || item.reserved);
+}
+
+function containsCurrentSearchKey(item) {
+  return currentSearchKey === "" || item.itemName.toLowerCase().includes(currentSearchKey);
 }
 
 function renderItem(item) {
@@ -116,7 +125,9 @@ function setFilter(filter) {
 }
 
 function search(key) {
-  
+  console.log(key);
+  currentSearchKey = key.toLowerCase();
+  renderItems();
 }
 
 function reserve(itemID) {

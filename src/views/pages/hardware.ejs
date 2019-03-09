@@ -28,7 +28,8 @@
             <div class="col-sm-2">
               <form class="form-inline md-form form-sm mt-0">
                 <i class="fas fa-search" aria-hidden="true"></i>
-                <input class="form-control form-control-sm ml-3 w-75" type="text" placeholder="Search" aria-label="Search">
+                <input class="form-control form-control-sm ml-3 w-75" type="text"
+                       placeholder="Search" aria-label="Search" oninput="search(this.value)">
               </form>
             </div>
           </div>
@@ -62,7 +63,8 @@
   <script src="/js/animations.js"></script>
   <script src="/js/hardwareAdmin.js"></script>
   <script>
-    renderItems(<%- JSON.stringify(items) %>);
+    hardwareItems = <%- JSON.stringify(items) %>;
+    renderItems();
   </script>
 </body>
 
