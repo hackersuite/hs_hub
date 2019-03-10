@@ -120,15 +120,33 @@ function getItemHeaderClass(item) {
 }
 
 function setFilter(filter) {
-  currentFilter = filters[filter];
-  renderItems();
+  if (currentFilter !== filters[filter]) {
+    $(".filter-btn").removeClass("active");
+    $("#filter-btn-" + filter).addClass("active");
+    currentFilter = filters[filter];
+    renderItems();
+  }
 }
 
 function search(key) {
-  console.log(key);
-  currentSearchKey = key.toLowerCase();
-  renderItems();
+  if (key !== currentSearchKey) {
+    currentSearchKey = key.toLowerCase();
+    renderItems();
+  }
 }
+
+function enterFilterButton(filter) {
+  if (currentFilter !== filters[filter]) {
+    $(".filter-btn").removeClass("active");
+    $("#filter-btn-" + filter).addClass("active");
+  }
+}
+
+function exitFilterButton() {
+  $(".filter-btn").removeClass("active");
+  $("#filter-btn-" + currentFilter).addClass("active");
+}
+
 
 function reserve(itemID) {
   var quantity = $("#" + itemID + "-reservation-quantity").val();

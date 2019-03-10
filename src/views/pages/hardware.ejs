@@ -32,10 +32,24 @@
                        placeholder="Search" aria-label="Search" oninput="search(this.value)">
               </form>
             </div>
+            <div class="col-sm-3">
+              <span>Filter: &nbsp;</span>
+              <span class="btn-group">
+                <div id="filter-btn-all" class="btn btn-radio filter-btn active"
+                        onclick="setFilter('all')"
+                        onmouseover="enterFilterButton('all')"
+                        onmouseout="exitFilterButton()">
+                        All</div>
+                <div id="filter-btn-reserved" class="btn btn-radio filter-btn"
+                        onclick="setFilter('reserved')"
+                        onmouseover="enterFilterButton('reserved')"
+                        onmouseout="exitFilterButton()">
+                        Reserved/Taken</div>
+              </span>
+            </div>
           </div>
           <div id="items-container" class="row">
           </div>
-          <button onclick="setFilter('reserved')">Filter</button>
         </div>
       </div>
       <% include ../partials/footer.ejs %>
