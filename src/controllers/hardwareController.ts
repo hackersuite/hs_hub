@@ -18,6 +18,7 @@ export class HardwareController {
     // otherwise, return that the item can't be reserved
     try {
       const { item, quantity } = req.body;
+      console.log(item, quantity);
       if (isNaN(quantity) || Number(quantity) < 0) {
         return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Invalid quantity provided!"));
       }

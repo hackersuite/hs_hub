@@ -21,13 +21,13 @@ var itemTemplate = '<div class="col-lg-3 col-md-6"><div class="card">'
 
 var reservedItemUI = '<div><b>You have reserved:</b>#reservedQuantity. Expires in #expiresIn minutes.'
                    + '<button type="button" class="btn btn-warning" data-dismiss="modal"'
-                   + 'onclick="openQR(#reservationToken)">QR</button>'
+                   + 'onclick="openQR(`#reservationToken`)">QR</button>'
                    + '<button type="button" class="btn btn-danger" data-dismiss="modal"'
-                   + 'onclick="cancelReservation(#reservationToken)">CANCEL</button>';
+                   + 'onclick="cancelReservation(`#reservationToken`)">CANCEL</button>';
 
-var takenItemUI = '<div><b>You have taken:</b>#reservedQuantity.'
+var takenItemUI = '<div><b>You have taken:</b>#reservedQuantity.</div>'
                 + '<button type="button" class="btn btn-warning" data-dismiss="modal"'
-                + 'onclick="openQR(#reservationToken)">QR</button>';
+                + 'onclick="openQR(`#reservationToken`)">QR</button>';
 
 var takeItemUI = '<div><span><b>Quantity to take:</b></span>'
                + '<input type="number" name="quantity" id="#itemId-reservation-quantity"'
@@ -106,7 +106,7 @@ function getItemControls(item) {
     return outOfStockUI;
   } else {
     return takeItemUI
-          .replace(/#itemId/g, item.itemId);
+          .replace(/#itemId/g, item.itemID);
   }
 }
 
