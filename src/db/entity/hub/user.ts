@@ -1,6 +1,8 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from "typeorm";
 import { AchievementProgress } from "./achievementProgress";
 import { ReservedHardwareItem } from "./reservedHardwareItem";
+import { AuthLevels } from "../../../util/user/authLevels";
+import { ApplicationUser } from "../applications";
 
 @Entity()
 export class User {
@@ -29,4 +31,14 @@ export class User {
   achievementsProgress: AchievementProgress;
   @OneToMany(() => ReservedHardwareItem, reservedHardwareItem => reservedHardwareItem.user)
   hardwareItems: ReservedHardwareItem[];
+
+  constructor(id: number, name: string, email: string, password: string, authLevel: AuthLevels, team: string, repo: string) {
+    this.id = id;
+    this.name = name;
+    this.email = email;
+    this.password = password;
+    this.authLevel = authLevel;
+    this.team = team;
+    this.repo = repo;
+  }
 }
