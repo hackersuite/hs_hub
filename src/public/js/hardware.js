@@ -12,27 +12,27 @@ function closeQR() {
 
 var itemsContainerId = "items-container";
 
-var itemTemplate = '<div class="col-xl-3 col-md-6"><div class="card">'
+var itemTemplate = '<div class="col-xl-3 col-lg-4 col-md-6"><div class="card">'
                  + '<div class="card-header #headerClass"><h4 class="card-title">#name</h4></div>'
                  + '<div class="card-body item-content"><div class="item-img-container">'
                  + '<img class="item-img" src="#imageURL" alt=""></div><div><b>In stock:</b>#stock</div>'
                  + '#itemControls'
                  + '</div></div></div>';
 
-var reservedItemUI = '<div><b>You have reserved:</b>#reservedQuantity. Expires in #expiresIn minutes.'
-                   + '<button type="button" class="btn btn-warning" data-dismiss="modal"'
+var reservedItemUI = '<div><b>You have reserved:</b>#reservedQuantity. Expires in #expiresIn minutes.</div>'
+                   + '<button type="button" class="btn btn-warning btn-compact" data-dismiss="modal"'
                    + 'onclick="openQR(`#reservationToken`)">QR</button>'
-                   + '<button type="button" class="btn btn-danger" data-dismiss="modal"'
+                   + '<button type="button" class="btn btn-danger btn-compact" data-dismiss="modal"'
                    + 'onclick="cancelReservation(`#reservationToken`)">CANCEL</button>';
 
 var takenItemUI = '<div><b>You have taken:</b>#reservedQuantity.</div>'
-                + '<button type="button" class="btn btn-warning" data-dismiss="modal"'
+                + '<button type="button" class="btn btn-warning btn-compact" data-dismiss="modal"'
                 + 'onclick="openQR(`#reservationToken`)">QR</button>';
 
 var takeItemUI = '<div><span><b>Quantity to take:</b></span>'
                + '<input type="number" name="quantity" id="#itemId-reservation-quantity"'
                + 'class="number-input" placeholder="quantity" value="1"></div>'
-               + '<button type="button" class="btn btn-success" data-dismiss="modal"'
+               + '<button type="button" class="btn btn-success btn-compact" data-dismiss="modal"'
                + 'onclick="reserve(#itemId)">TAKE</button>';
 
 var outOfStockUI = '<div><b>Sorry. This item is currently out of stock!</b></div>';

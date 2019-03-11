@@ -1,5 +1,5 @@
 .item-content {
-  height: 350px;
+  height: 365px;
 }
 
 .item-img {
@@ -102,4 +102,8 @@
   overflow: initial;
   text-overflow: initial;
   white-space: initial;
+}
+
+.btn-compact {
+  padding: 10px 15px;
 }
