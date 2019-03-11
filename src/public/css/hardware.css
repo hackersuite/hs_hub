@@ -1,5 +1,5 @@
 .item-content {
-  min-height: 377px;
+  height: 350px;
 }
 
 .item-img {
@@ -90,4 +90,16 @@
 .btn-radio.active, .btn-radio:hover, .btn-radio.active:hover, .btn-radio:focus, .btn-radio.active:focus {
   background-color: #66bb6a;
   color: #fff;
+}
+
+.card-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-title:hover {
+  overflow: initial;
+  text-overflow: initial;
+  white-space: initial;
 }

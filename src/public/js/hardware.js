@@ -12,7 +12,7 @@ function closeQR() {
 
 var itemsContainerId = "items-container";
 
-var itemTemplate = '<div class="col-lg-3 col-md-6"><div class="card">'
+var itemTemplate = '<div class="col-xl-3 col-md-6"><div class="card">'
                  + '<div class="card-header #headerClass"><h4 class="card-title">#name</h4></div>'
                  + '<div class="card-body item-content"><div class="item-img-container">'
                  + '<img class="item-img" src="#imageURL" alt=""></div><div><b>In stock:</b>#stock</div>'
