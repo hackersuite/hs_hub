@@ -10,4 +10,4 @@
 * 05/11/2018 - Implemented hardware library system and tests
 * 06/11/2018 - Implemented a cached event schedule
 * 06/11/2018 - Implement back-end achievements system
-* 11/03/2018 - Added a filter functionality and a search box to the user-facing hardware library page
+* 11/03/2019 - Added a filter functionality and a search box to the user-facing hardware library page
