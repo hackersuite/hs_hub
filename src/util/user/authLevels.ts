@@ -7,3 +7,9 @@ export enum AuthLevels {
   Volunteer,
   Organizer
 }
+
+export function getAuthLevel(isOrganizer: boolean, isVolunteer: boolean): number {
+  if (isOrganizer) return AuthLevels.Organizer;
+  else if (isVolunteer) return AuthLevels.Volunteer;
+  else return AuthLevels.Attendee;
+}

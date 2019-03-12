@@ -49,14 +49,8 @@ export const passportLocalStrategy = (): localstrategy.Strategy => {
 
         // Step 2:
         // If we have an application user, add it to the local db
-        const newHubUser: User = new User(
-          applicationUser.id,
-          applicationUser.name,
-          applicationUser.email,
-          applicationUser.password,
-          getAuthLevel(applicationUser.is_organizer, applicationUser.is_volunteer),
-          applicationUser.teamCode,
-          "");
+        const newHubUser: User = new User();
+        newHubUser.convertToUser(applicationUser);
 
         insertNewHubUserToDatabase(newHubUser);
         return done(undefined, newHubUser);
@@ -85,11 +79,5 @@ export const passportLocalStrategy = (): localstrategy.Strategy => {
 
       return applicationUser;
     }
-  }
-
-  function getAuthLevel(isOrganizer: boolean, isVolunteer: boolean): number {
-    if (isOrganizer) return AuthLevels.Organizer;
-    else if (isVolunteer) return AuthLevels.Volunteer;
-    else return AuthLevels.Attendee;
   }
 };

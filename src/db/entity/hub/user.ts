@@ -1,8 +1,8 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from "typeorm";
 import { AchievementProgress } from "./achievementProgress";
 import { ReservedHardwareItem } from "./reservedHardwareItem";
-import { AuthLevels } from "../../../util/user/authLevels";
-import { ApplicationUser } from "../applications";
+import { ApplicationUser } from "../applications/applicationUser";
+import { getAuthLevel } from "../../../util/user/authLevels";
 
 @Entity()
 export class User {
@@ -32,13 +32,13 @@ export class User {
   @OneToMany(() => ReservedHardwareItem, reservedHardwareItem => reservedHardwareItem.user)
   hardwareItems: ReservedHardwareItem[];
 
-  constructor(id: number, name: string, email: string, password: string, authLevel: AuthLevels, team: string, repo: string) {
-    this.id = id;
-    this.name = name;
-    this.email = email;
-    this.password = password;
-    this.authLevel = authLevel;
-    this.team = team;
-    this.repo = repo;
+  convertToUser(appUser: ApplicationUser): void {
+    this.id = appUser.id;
+    this.name = appUser.name;
+    this.email = appUser.email;
+    this.password = appUser.password;
+    this.authLevel = getAuthLevel(appUser.is_organizer, appUser.is_volunteer);
+    this.team = appUser.teamCode;
+    this.repo = "";
   }
 }
