@@ -31,14 +31,4 @@ export class User {
   achievementsProgress: AchievementProgress;
   @OneToMany(() => ReservedHardwareItem, reservedHardwareItem => reservedHardwareItem.user)
   hardwareItems: ReservedHardwareItem[];
-
-  convertToUser(appUser: ApplicationUser): void {
-    this.id = appUser.id;
-    this.name = appUser.name;
-    this.email = appUser.email;
-    this.password = appUser.password;
-    this.authLevel = getAuthLevel(appUser.is_organizer, appUser.is_volunteer);
-    this.team = appUser.teamCode;
-    this.repo = "";
-  }
 }

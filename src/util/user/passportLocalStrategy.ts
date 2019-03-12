@@ -2,7 +2,7 @@ import * as localstrategy from "passport-local";
 import { getUserByEmailFromHub, getUserByEmailFromApplications, validatePassword, insertNewHubUserToDatabase, getUserByIDFromHub, getTeamCodeByUserIDFromApplications } from "./userValidation";
 import { User } from "../../db/entity/hub";
 import { ApplicationUser } from "../../db/entity/applications";
-import { AuthLevels } from "./authLevels";
+import { getAuthLevel } from "./authLevels";
 import passport = require("passport");
 
 export const passportLocalStrategy = (): localstrategy.Strategy => {
@@ -50,7 +50,13 @@ export const passportLocalStrategy = (): localstrategy.Strategy => {
         // Step 2:
         // If we have an application user, add it to the local db
         const newHubUser: User = new User();
-        newHubUser.convertToUser(applicationUser);
+        newHubUser.id = applicationUser.id;
+        newHubUser.name = applicationUser.name;
+        newHubUser.email = applicationUser.email;
+        newHubUser.password = applicationUser.password;
+        newHubUser.authLevel = getAuthLevel(applicationUser.is_organizer, applicationUser.is_volunteer);
+        newHubUser.team = applicationUser.teamCode;
+        newHubUser.repo = "";
 
         insertNewHubUserToDatabase(newHubUser);
         return done(undefined, newHubUser);
