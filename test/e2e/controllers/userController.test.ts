@@ -33,6 +33,20 @@ testApplicationUser.is_active = true;
 testApplicationUser.is_director = false;
 testApplicationUser.email_verified = true;
 
+const testApplicationUser2: ApplicationUser = new ApplicationUser();
+testApplicationUser2.name = "Billy Tester";
+testApplicationUser2.email = "billyII@testing-userController.com";
+testApplicationUser2.password = "pbkdf2_sha256$30000$xmAiV8Wihzn5$BBVJrxmsVASkYuOI6XdIZoYLfy386hdMOF8S14WRTi8=";
+testApplicationUser2.last_login = "2018-10-09 18:50:24.000262+00";
+testApplicationUser2.created_time = "2018-09-24 18:30:00.16251+00";
+testApplicationUser2.is_organizer = false;
+testApplicationUser2.is_volunteer = false;
+testApplicationUser2.is_admin = false;
+testApplicationUser2.is_hardware_admin = false;
+testApplicationUser2.is_active = true;
+testApplicationUser2.is_director = false;
+testApplicationUser2.email_verified = true;
+
 /**
  * Preparing for the tests
  */
@@ -50,6 +64,14 @@ beforeAll((done: jest.DoneCallback): void => {
         .into(ApplicationUser)
         .values([testApplicationUser])
         .execute()).identifiers[0].id;
+
+      testApplicationUser2.id = (await getConnection("applications")
+        .createQueryBuilder()
+        .insert()
+        .into(ApplicationUser)
+        .values([testApplicationUser2])
+        .execute()).identifiers[0].id;
+
       done();
     }
   });
@@ -92,6 +114,41 @@ describe("User controller tests", (): void => {
     const newHubUser: User = await getUserByEmailFromHub(testApplicationUser.email);
     expect(newHubUser).not.toBe(undefined);
     testHubUser.id = newHubUser.id;
+  });
+
+  /**
+   * Test that when the user password is changed on applications, it gets changed on the hub
+   */
+  test("Should check password is updated on hub", async (): Promise<void> => {
+    await request(bApp)
+      .get("/user/logout")
+      .set("Cookie", sessionCookie)
+      .send();
+
+    // Update the password and save to the database
+    // New password is password12, the old password was password123
+    testApplicationUser2.password = "pbkdf2_sha256$30000$xmAiV8Wihzn5$aj1h839Z7MU7UFPcmS3xrjVXdR8wtrhgY3Qi7i19cNY=";
+    await getConnection("applications")
+      .manager
+      .save(testApplicationUser2);
+
+    const response = await request(bApp)
+    .post("/user/login")
+    .send({
+      email: testApplicationUser2.email,
+      password: "password12"
+    });
+    expect(response.status).toBe(HttpResponseCode.REDIRECT);
+    sessionCookie = response.header["set-cookie"].pop().split(";")[0];
+    expect(sessionCookie).not.toBeUndefined();
+    expect(sessionCookie).toMatch(/connect.sid=*/);
+
+    const newHubUser = await getUserByEmailFromHub(testApplicationUser2.email);
+    expect(newHubUser).not.toBeUndefined();
+    expect(newHubUser.password).toEqual(testApplicationUser2.password);
+
+    // Copy over the new password to the testHubUser
+    testHubUser.password = newHubUser.password;
   });
 
   /**
@@ -145,18 +202,16 @@ describe("User controller tests", (): void => {
  */
 afterAll(async (): Promise<void> => {
   await getConnection("hub")
-    .createQueryBuilder()
-    .delete()
-    .from(User)
-    .where("id = :id", { id: testHubUser.id })
-    .execute();
+    .manager
+    .delete(User, testHubUser.id);
 
   await getConnection("applications")
-    .createQueryBuilder()
-    .delete()
-    .from(ApplicationUser)
-    .where("id = :id", { id: testApplicationUser.id })
-    .execute();
+    .manager
+    .delete(ApplicationUser, testApplicationUser.id);
+
+  await getConnection("applications")
+    .manager
+    .delete(ApplicationUser, testApplicationUser2.id);
 
   await getConnection("hub").close();
   await getConnection("applications").close();
