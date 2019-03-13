@@ -152,7 +152,6 @@ export async function insertNewHubUserToDatabase(hubUser: User): Promise<void> {
   try {
     // Insert the user to the database
     await getConnection("hub").manager.save(hubUser);
-    console.log("Saved user to the db--------------");
   } catch (err) {
     throw new ApiError(HttpResponseCode.INTERNAL_ERROR, `Lost connection to database (applications)! ${err}`);
   }

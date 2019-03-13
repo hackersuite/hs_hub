@@ -47,7 +47,6 @@ export const passportLocalStrategy = (): localstrategy.Strategy => {
         if (!validatePassword(password, applicationUser.password))
           return done(undefined, false, { message: "Incorrect credentials provided." });
 
-        console.log("This step--------------");
         // Step 2:
         // If we have an application user, add it to the local db
         const newHubUser: User = new User();
@@ -59,7 +58,7 @@ export const passportLocalStrategy = (): localstrategy.Strategy => {
         newHubUser.team = applicationUser.teamCode;
         newHubUser.repo = "";
 
-        insertNewHubUserToDatabase(newHubUser);
+        await insertNewHubUserToDatabase(newHubUser);
         return done(undefined, newHubUser);
       }
       // Step 3:

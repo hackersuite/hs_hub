@@ -104,11 +104,6 @@ describe("User controller tests", (): void => {
       .set("Cookie", sessionCookie)
       .send();
 
-    let s: User = await getConnection("hub").manager.findOne(User, testApplicationUser.id);
-    let v: ApplicationUser = await getConnection("applications").manager.findOne(ApplicationUser, testApplicationUser.id);
-    console.log(s);
-    console.log(v);
-
     // Update the password and save to the database
     // New password is password12, the old password was password123
     testApplicationUser.password = "pbkdf2_sha256$30000$xmAiV8Wihzn5$aj1h839Z7MU7UFPcmS3xrjVXdR8wtrhgY3Qi7i19cNY=";
@@ -116,21 +111,12 @@ describe("User controller tests", (): void => {
       .manager
       .save(testApplicationUser);
 
-    s = await getConnection("hub").manager.findOne(User, testApplicationUser.id);
-    v = await getConnection("applications").manager.findOne(ApplicationUser, testApplicationUser.id);
-    console.log(s);
-    console.log(v);
-
     const response = await request(bApp)
     .post("/user/login")
     .send({
       email: testApplicationUser.email,
       password: "password12"
     });
-    s = await getUserByEmailFromHub(testApplicationUser.email);
-    v = await getConnection("applications").manager.findOne(ApplicationUser, testApplicationUser.id);
-    console.log(s);
-    console.log(v);
 
     expect(response.status).toBe(HttpResponseCode.REDIRECT);
     sessionCookie = response.header["set-cookie"].pop().split(";")[0];
@@ -138,7 +124,6 @@ describe("User controller tests", (): void => {
     expect(sessionCookie).toMatch(/connect.sid=*/);
 
     const newHubUser: User = await getUserByEmailFromHub(testApplicationUser.email);
-    console.log(newHubUser);
     expect(newHubUser).not.toBe(undefined);
     expect(newHubUser.password).toEqual(testApplicationUser.password);
   });
