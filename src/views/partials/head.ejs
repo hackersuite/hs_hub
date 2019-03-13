@@ -17,4 +17,13 @@
 
 <!-- One Signal -->
 <link rel="manifest" href="/manifest.json" />
-<script>var OneSignal=window.OneSignal||[];OneSignal.push(function(){OneSignal.init({appId:"e5e24f75-c2e8-4194-9606-6cf40c34f485",notifyButton: {enable: true,},});});</script>
+<script>
+  var OneSignal = window.OneSignal || [];
+  OneSignal.push(function () {
+    OneSignal.init({
+      appId: "e5e24f75-c2e8-4194-9606-6cf40c34f485",
+      autoResubscribe: true
+    });
+    OneSignal.showNativePrompt();
+  });
+</script>
