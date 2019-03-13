@@ -8,8 +8,8 @@ export enum AuthLevels {
   Organizer
 }
 
-export function getAuthLevel(isOrganizer: boolean, isVolunteer: boolean): number {
-  if (isOrganizer) return AuthLevels.Organizer;
+export function getAuthLevel(isOrganizer: boolean, isVolunteer: boolean, isDirector: boolean, isAdmin: boolean): number {
+  if (isOrganizer || isDirector || isAdmin) return AuthLevels.Organizer;
   else if (isVolunteer) return AuthLevels.Volunteer;
   else return AuthLevels.Attendee;
 }

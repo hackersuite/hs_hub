@@ -54,7 +54,7 @@ export const passportLocalStrategy = (): localstrategy.Strategy => {
         newHubUser.name = applicationUser.name;
         newHubUser.email = applicationUser.email;
         newHubUser.password = applicationUser.password;
-        newHubUser.authLevel = getAuthLevel(applicationUser.is_organizer, applicationUser.is_volunteer);
+        newHubUser.authLevel = getAuthLevel(applicationUser.is_organizer, applicationUser.is_volunteer, applicationUser.is_director, applicationUser.is_admin);
         newHubUser.team = applicationUser.teamCode;
         newHubUser.repo = "";
 
