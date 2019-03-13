@@ -99,10 +99,10 @@ describe("User controller tests", (): void => {
    * Test that when the user password is changed on applications, it gets changed on the hub
    */
   test("Should check password is updated on hub", async (): Promise<void> => {
-    // await request(bApp)
-    //   .get("/user/logout")
-    //   .set("Cookie", sessionCookie)
-    //   .send();
+    await request(bApp)
+      .get("/user/logout")
+      .set("Cookie", sessionCookie)
+      .send();
 
     // Update the password and save to the database
     // New password is password12, the old password was password123
@@ -122,7 +122,7 @@ describe("User controller tests", (): void => {
     expect(sessionCookie).not.toBeUndefined();
     expect(sessionCookie).toMatch(/connect.sid=*/);
 
-    const newHubUser = await getUserByEmailFromHub(testApplicationUser.email);
+    const newHubUser = await getConnection("hub").manager.findOne(User, testApplicationUser.id);
     expect(newHubUser).not.toBe(undefined);
     expect(newHubUser.password).toEqual(testApplicationUser.password);
   });
