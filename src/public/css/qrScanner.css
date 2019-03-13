@@ -14,13 +14,22 @@
   cursor: pointer;
   color: #fff;
   position: absolute;
-  top: 40px;
+  top: 50px;
   right: 40px;
   z-index: 10002;
 }
 
+#qr-scanner-switch {
+  cursor: pointer;
+  color: #fff;
+  position: absolute;
+  top: 50px;
+  right: 100px;
+  z-index: 10002;
+}
+
 #qr-scanner {
-  width: 100%;
+  width: 50%;
   max-width: 1000px;
   z-index: 10001;
   position: absolute;
