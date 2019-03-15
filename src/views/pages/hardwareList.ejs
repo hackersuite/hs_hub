@@ -4,7 +4,7 @@
 <head>
   <% include ../partials/head.ejs %>
   <title>GUH18 Hub - Dashboard</title>
-  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/hardwareList.css">
 </head>
 
 <body>
@@ -23,7 +23,7 @@
                 <div class="card-body">
                   <table class="table">
                     <thead class="text-success">
-                      <th>Actions</th>
+                      <th></th>
                       <th>Item</th>
                       <th>Total (Available) Stock</th>
                       <th>Taken (Reserved) Stock</th>
@@ -33,7 +33,14 @@
                     <tbody>
                       <% items.forEach(item => { %>
                         <tr>
-                          <td></td>
+                          <td>
+                            <button class="btn-just-icon" onclick='deleteItemConfirm(<%- JSON.stringify(item) %>)'>
+                              <i class="fas fa-trash-alt delete-btn"></i>
+                            </button>
+                            <a href="<%- item.id %>/edit">
+                              <i class="fas fa-pen edit-btn"></i>
+                            </a>
+                          </td>
                           <td>
                             <%- item.name %>
                           </td>
@@ -62,6 +69,7 @@
             </div>
           </div>
         </div>
+        <script src="/js/hardwareList.js"></script>
         <% include ../partials/footer.ejs %>
       </div>
     </div>
