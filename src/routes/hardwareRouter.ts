@@ -51,5 +51,10 @@ export const hardwareRouter = (): Router => {
    */
   router.get("/reservations", checkIsVolunteer, hardwareController.getAllReservations);
 
+  /**
+   * GET /hardware/list
+   */
+  router.get("/list", hardwareController.list);
+
   return router;
 };

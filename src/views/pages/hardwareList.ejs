@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <% include ../partials/head.ejs %>
+  <title>GUH18 Hub - Dashboard</title>
+  <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+
+<body>
+  <div class="wrapper">
+    <% include ../partials/navbar.ejs %>
+    <div class="main-panel">
+
+      <div class="content">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-12">
+              <div class="card">
+                <div class="card-header card-header-tabs card-header-success">
+                  <h4 class="card-title">Hardware overview</h4>
+                </div>
+                <div class="card-body">
+                  <table class="table">
+                    <thead class="text-success">
+                      <th>Actions</th>
+                      <th>Item</th>
+                      <th>Total (Available) Stock</th>
+                      <th>Taken (Reserved) Stock</th>
+                      <th>Taken By</th>
+                      <th>Reserved By</th>
+                    </thead>
+                    <tbody>
+                      <% items.forEach(item => { %>
+                        <tr>
+                          <td></td>
+                          <td>
+                            <%- item.name %>
+                          </td>
+                          <td>
+                            <%- item.totalStock %> (<%- item.totalStock - item.reservedStock - item.takenStock %>)
+                          </td>
+                          <td>
+                            <%- item.takenStock %> (<%- item.reservedStock %>)
+                          </td>
+                          <td>
+                            <% item.reservations.filter(reservation => reservation.isReserved === false).forEach(reservation => { %>
+                              <a href="/user/<%- reservation.user.id %>"><%- reservation.user.name %></a>,
+                            <% }) %>
+                          </td>
+                          <td>
+                            <% item.reservations.filter(reservation => reservation.isReserved === true).forEach(reservation => { %>
+                              <a href="/user/<%- reservation.user.id %>"><%- reservation.user.name %></a>,
+                            <% }) %>
+                          </td>
+                        </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <% include ../partials/footer.ejs %>
+      </div>
+    </div>
+</body>
+
+</html>

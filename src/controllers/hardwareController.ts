@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import { reserveItem, takeItem, getAllHardwareItems, addAllHardwareItems, getAllReservations, returnItem, getReservation, cancelReservation } from "../util/hardwareLibrary";
 import { ApiError } from "../util/errorHandling/apiError";
 import { HttpResponseCode } from "../util/errorHandling/httpResponseCode";
+import { HardwareItem, ReservedHardwareItem } from "../db/entity/hub";
+import { getConnection } from "typeorm";
 /**
  * A controller for handling hardware items
  */
@@ -150,6 +152,22 @@ export class HardwareController {
       }
       await cancelReservation(req.body.token, req.user.id);
       res.send({ message: "Success" });
+    } catch (err) {
+      return next(err);
+    }
+  }
+
+  public async list(req: Request, res: Response, next: Function): Promise<void> {
+    try {
+      // TODO: move to a more appropriate place
+      const items: HardwareItem[] = await getConnection("hub")
+        .getRepository(HardwareItem)
+        .createQueryBuilder("hardwareItem")
+        .leftJoinAndSelect("hardwareItem.reservations", "reservations")
+        .leftJoinAndSelect("reservations.user", "user")
+        .getMany();
+
+      res.render("pages/hardwareList", { items });
     } catch (err) {
       return next(err);
     }

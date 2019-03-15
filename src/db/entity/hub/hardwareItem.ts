@@ -25,5 +25,5 @@ export class HardwareItem {
   itemURL: string;
 
   @OneToMany(() => ReservedHardwareItem, reservedHardwareItem => reservedHardwareItem.hardwareItem)
-  reservedHardwareItem: ReservedHardwareItem[];
+  reservations: ReservedHardwareItem[];
 }
