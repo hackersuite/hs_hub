@@ -184,6 +184,9 @@ export class HardwareController {
         .getRepository(HardwareItem)
         .findOne(itemId);
 
+      if (!item) {
+        throw new ApiError(HttpResponseCode.BAD_REQUEST, "Could not find an item with the given id!");
+      }
       if (item.reservedStock != 0 || item.takenStock != 0) {
         throw new ApiError(HttpResponseCode.BAD_REQUEST, "Cannot delete an item that has reservations!");
       }
