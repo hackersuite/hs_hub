@@ -56,5 +56,10 @@ export const hardwareRouter = (): Router => {
    */
   router.get("/list", hardwareController.list);
 
+  /**
+   * DELETE /:id/delete
+   */
+  router.delete("/:id/delete", hardwareController.deleteItem);
+
   return router;
 };

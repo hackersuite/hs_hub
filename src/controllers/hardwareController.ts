@@ -172,4 +172,32 @@ export class HardwareController {
       return next(err);
     }
   }
+
+  public async deleteItem(req: Request, res: Response, next: Function): Promise<void> {
+    try {
+      if (!req.params.id) {
+        throw new ApiError(HttpResponseCode.BAD_REQUEST, "Please provide the ID of the item to delete!");
+      }
+      // TODO: move database accesses to a more appropriate place
+      const itemId = req.params.id;
+      const item: HardwareItem = await getConnection("hub")
+        .getRepository(HardwareItem)
+        .findOne(itemId);
+
+      if (item.reservedStock != 0 || item.takenStock != 0) {
+        throw new ApiError(HttpResponseCode.BAD_REQUEST, "Cannot delete an item that has reservations!");
+      }
+
+      await getConnection("hub")
+        .createQueryBuilder()
+        .delete()
+        .from(HardwareItem)
+        .where("id = :itemId", { itemId })
+        .execute();
+
+      res.send({"message": "Added all items"});
+    } catch (err) {
+      return next(new ApiError(err.statusCode || HttpResponseCode.INTERNAL_ERROR, err.message));
+    }
+  }
 }

@@ -11,8 +11,28 @@
   <div class="wrapper">
     <% include ../partials/navbar.ejs %>
     <div class="main-panel">
-
       <div class="content">
+        <!-- Confirmation Modal -->
+        <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="confirmModalLabel">Do you really want to delete this item?</h5>
+                </div>
+                <div class="modal-body">
+                  <div class="imgContainer">
+                    <img src="" alt="" id="confirmModalImg" class="modalImg">
+                  </div>
+                  <div id="confirmModalBody">
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button id="modal-confirm-button" type="button" class="btn btn-success" data-dismiss="modal">Confirm</button>
+                  <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                </div>
+              </div>
+            </div>
+          </div>
         <div class="container-fluid">
           <div class="row">
             <div class="col-12">
@@ -34,7 +54,7 @@
                       <% items.forEach(item => { %>
                         <tr>
                           <td>
-                            <button class="btn-just-icon" onclick='deleteItemConfirm(<%- JSON.stringify(item) %>)'>
+                            <button class="btn-just-icon" onclick='deleteItemConfirm(<%= item.id %>)'>
                               <i class="fas fa-trash-alt delete-btn"></i>
                             </button>
                             <a href="<%- item.id %>/edit">
@@ -42,7 +62,7 @@
                             </a>
                           </td>
                           <td>
-                            <%- item.name %>
+                            <%= item.name %>
                           </td>
                           <td>
                             <%- item.totalStock %> (<%- item.totalStock - item.reservedStock - item.takenStock %>)
@@ -70,6 +90,17 @@
           </div>
         </div>
         <script src="/js/hardwareList.js"></script>
+        <script>
+          <% items.forEach(item => { %>
+            items["<%= item.id %>"] = {
+              id: "<%= item.id %>",
+              name: "<%= item.name %>",
+              itemURL: "<%= item.itemURL %>",
+              totalStock: "<%= item.totalStock %>",
+            };
+          <% }) %>
+          console.log(items);
+        </script>
         <% include ../partials/footer.ejs %>
       </div>
     </div>
