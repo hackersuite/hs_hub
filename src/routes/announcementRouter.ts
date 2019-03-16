@@ -15,5 +15,12 @@ export const announcementRouter = (): Router => {
     checkIsOrganizer,
     announcementController.announce);
 
+  /**
+   * POST /announcement/push
+   */
+  router.post("/push",
+    checkIsOrganizer,
+    announcementController.pushNotification);
+
   return router;
 };
