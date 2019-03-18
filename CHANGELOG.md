@@ -11,3 +11,4 @@
 * 06/11/2018 - Implemented a cached event schedule
 * 06/11/2018 - Implement back-end achievements system
 * 11/03/2019 - Added a filter functionality and a search box to the user-facing hardware library page
+* 18/03/2019 - Added push notifications using OneSignal, push notification form on the admin page
