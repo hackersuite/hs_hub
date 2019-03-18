@@ -58,6 +58,16 @@
     </button>
     <div class="collapse navbar-collapse justify-content-end">
         <ul class="navbar-nav">
+          <%if (locals.userIsOrganiser && userIsOrganiser === true) { %>
+          <li class="nav-item">
+            <a class="nav-link" href="javascript:showPushNotificationDialog()">
+              <i class="fas fa-bullhorn fa-3x"></i>
+              <p class="d-lg-none d-md-block">
+                Push Notification
+              </p>
+            </a>
+          </li>
+          <% } %>
           <li class="nav-item">
             <a class="nav-link" href="javascript:startScanner()">
               <i class="fas fa-qrcode fa-3x"></i>

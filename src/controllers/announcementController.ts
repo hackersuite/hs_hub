@@ -31,7 +31,10 @@ export class AnnouncementController {
     try {
       const text: string = req.body.message;
       const result: Object = await sendOneSignalNotification(text);
-      res.send(result);
+      if (result.hasOwnProperty("errors") === false)
+        res.send(result);
+      else
+        res.status(HttpResponseCode.INTERNAL_ERROR).send(`Failed to send the push notification!. ${JSON.stringify(result)}`);
     } catch (error) {
       return next(error);
     }
