@@ -33,8 +33,14 @@ export const passportLocalStrategy = (): localstrategy.Strategy => {
       // Step 1:
       // Check if the hub has the user and attempt validation
       const user: User = await checkIfHubHasUser(email);
-      if (user && validatePassword(password, user.password))
+      if (user && validatePassword(password, user.password)) {
+        const permissionLevel: number = await getUserPermissionsFromApplications(email);
+        if (permissionLevel !== undefined) {
+          user.authLevel = permissionLevel;
+          insertNewHubUserToDatabase(user);
+        }
         return done(undefined, user);
+      }
 
       // Step 1a:
       // If the hub has the user, but validation failed, sync with the applications db
@@ -85,5 +91,13 @@ export const passportLocalStrategy = (): localstrategy.Strategy => {
 
       return applicationUser;
     }
+  }
+
+  async function getUserPermissionsFromApplications(email: string): Promise<number> {
+    // Get the application user from the applications platform
+    const applicationUser: ApplicationUser = await getUserByEmailFromApplications(email);
+    if (!applicationUser) return undefined;
+    // Find the auth level based on the user data
+    return getAuthLevel(applicationUser.is_organizer, applicationUser.is_volunteer, applicationUser.is_director, applicationUser.is_admin);
   }
 };
