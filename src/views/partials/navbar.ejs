@@ -58,7 +58,7 @@
     </button>
     <div class="collapse navbar-collapse justify-content-end">
         <ul class="navbar-nav">
-          <%if (locals.userIsOrganiser && userIsOrganiser === true) { %>
+          <%if (locals.userIsOrganiser) { %>
           <li class="nav-item">
             <a class="nav-link" href="javascript:showPushNotificationDialog()">
               <i class="fas fa-bullhorn fa-3x"></i>
