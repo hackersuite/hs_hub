@@ -27,7 +27,8 @@ export function sendOneSignalNotification(text: string): Promise<any> {
     const message: Object = {
       app_id: process.env.ONE_SIGNAL_API_KEY,
       contents: {"en": text},
-      included_segments: ["All"]
+      headings: {"en": "StudentHack Hub"},
+      included_segments: ["All"],
     };
 
     req.write(JSON.stringify(message));

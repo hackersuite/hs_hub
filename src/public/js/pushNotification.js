@@ -1,6 +1,6 @@
 function showPushNotificationDialog() {
-  $("#modal-confirm-button").off("click");
-  $("#modal-notification-button").click(sendNotification);
+  $("#modal-notification-button").off("click");
+  $("#modal-notification-button").on("click", sendNotification);
   $('#notificaitonModal').modal()
 }
 
