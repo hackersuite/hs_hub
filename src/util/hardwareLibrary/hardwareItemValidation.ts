@@ -212,6 +212,9 @@ export const itemToBeReturnedToLibrary = async (userID: number, hardwareItemID: 
   }
 };
 
+/**
+ * Fetches all hardware items with their reservations
+ */
 export const getAllHardwareItemsWithReservations = async (): Promise<HardwareItem[]> => {
   const items: HardwareItem[] = await getConnection("hub")
         .getRepository(HardwareItem)
@@ -306,6 +309,10 @@ export const addAllHardwareItems = async (items: HardwareObject[]): Promise<void
   }
 };
 
+/**
+ * Deletes an item if it has no reservations
+ * @param id The id of the item to delete
+ */
 export const deleteHardwareItem = async(id: number): Promise<void> => {
   const itemId = id;
   const item: HardwareItem = await getConnection("hub")
