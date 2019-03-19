@@ -5,6 +5,7 @@ import { Achievements } from "../util/achievements";
 import { EventCached } from "../util/cache/models/objects";
 import { Announcement } from "../db/entity/hub";
 import { getConnection } from "typeorm";
+import { AuthLevels } from "../util/user";
 
 /**
  * A controller for auth methods
@@ -48,7 +49,7 @@ export class HomeController {
   public async admin(req: Request, res: Response, next: NextFunction) {
     try {
       const reservations = await getAllReservations();
-      res.render("pages/admin", { reservations: reservations || [] });
+      res.render("pages/admin", { reservations: reservations || [], userIsOrganiser: (req.user.authLevel === AuthLevels.Organizer) });
     } catch (err) {
       return next(err);
     }

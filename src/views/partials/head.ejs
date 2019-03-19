@@ -8,6 +8,22 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
 <!-- CSS Files -->
 <link href="/css/material-dashboard.min.css?v=2.1.0" rel="stylesheet" />
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU"
+  crossorigin="anonymous">
+<!-- JS Files -->
 <script type="text/javascript" src="/js/instascan.min.js"></script>
 <script type="text/javascript" src="/js/core/webrtc-adapter.js"></script>
-<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+<script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
+
+<!-- One Signal -->
+<link rel="manifest" href="/manifest.json" />
+<script>
+  var OneSignal = window.OneSignal || [];
+  OneSignal.push(function () {
+    OneSignal.init({
+      appId: "e5e24f75-c2e8-4194-9606-6cf40c34f485",
+      autoResubscribe: true
+    });
+    OneSignal.showNativePrompt();
+  });
+</script>
