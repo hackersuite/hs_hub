@@ -54,12 +54,12 @@ export const hardwareRouter = (): Router => {
   /**
    * GET /hardware/list
    */
-  router.get("/list", hardwareController.list);
+  router.get("/list", checkIsOrganizer, hardwareController.list);
 
   /**
    * DELETE /:id/delete
    */
-  router.delete("/:id/delete", hardwareController.deleteItem);
+  router.delete("/:id/delete", checkIsOrganizer, hardwareController.deleteItem);
 
   return router;
 };
