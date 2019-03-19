@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { reserveItem, takeItem, getAllHardwareItems, addAllHardwareItems, getAllReservations, returnItem, getReservation, cancelReservation } from "../util/hardwareLibrary";
+import { reserveItem, takeItem, getAllHardwareItems, addAllHardwareItems, getAllReservations, returnItem, getReservation, cancelReservation, deleteHardwareItem, getAllHardwareItemsWithReservations } from "../util/hardwareLibrary";
 import { ApiError } from "../util/errorHandling/apiError";
 import { HttpResponseCode } from "../util/errorHandling/httpResponseCode";
 import { HardwareItem, ReservedHardwareItem } from "../db/entity/hub";
@@ -159,13 +159,7 @@ export class HardwareController {
 
   public async list(req: Request, res: Response, next: Function): Promise<void> {
     try {
-      // TODO: move to a more appropriate place
-      const items: HardwareItem[] = await getConnection("hub")
-        .getRepository(HardwareItem)
-        .createQueryBuilder("hardwareItem")
-        .leftJoinAndSelect("hardwareItem.reservations", "reservations")
-        .leftJoinAndSelect("reservations.user", "user")
-        .getMany();
+      const items: HardwareItem[] = await getAllHardwareItemsWithReservations();
 
       res.render("pages/hardwareList", { items });
     } catch (err) {
@@ -178,27 +172,10 @@ export class HardwareController {
       if (!req.params.id) {
         throw new ApiError(HttpResponseCode.BAD_REQUEST, "Please provide the ID of the item to delete!");
       }
-      // TODO: move database accesses to a more appropriate place
-      const itemId = req.params.id;
-      const item: HardwareItem = await getConnection("hub")
-        .getRepository(HardwareItem)
-        .findOne(itemId);
 
-      if (!item) {
-        throw new ApiError(HttpResponseCode.BAD_REQUEST, "Could not find an item with the given id!");
-      }
-      if (item.reservedStock != 0 || item.takenStock != 0) {
-        throw new ApiError(HttpResponseCode.BAD_REQUEST, "Cannot delete an item that has reservations!");
-      }
+      await deleteHardwareItem(req.params.id);
 
-      await getConnection("hub")
-        .createQueryBuilder()
-        .delete()
-        .from(HardwareItem)
-        .where("id = :itemId", { itemId })
-        .execute();
-
-      res.send({"message": "Added all items"});
+      res.send({ message: `Item ${req.params.id} deleted` });
     } catch (err) {
       return next(new ApiError(err.statusCode || HttpResponseCode.INTERNAL_ERROR, err.message));
     }
