@@ -10,25 +10,21 @@
     </a>
   </div>
   <div class="sidebar-wrapper">
-
-    <%if (locals.isOrganizer || locals.isVolunteer) { %>
     <ul class="nav">
-      <li class="nav-item">
-        <a class="nav-link" href="/hardware/management">
-          <p>Hardware library - management</p>
-        </a>
-      </li>
-      <%if (locals.isOrganizer) { %>
-      <li class="nav-item">
-        <a class="nav-link" href="/hardware/overview">
-          <p>Hardware library - overview</p>
-        </a>
-      </li>
-      <% } %>
-    </ul>
-    <% } %>
-
-    <ul class="nav">
+        <%if (locals.isOrganizer || locals.isVolunteer) { %>
+          <li class="nav-item">
+            <a class="nav-link" href="/hardware/management">
+              <p>Hardware library - management</p>
+            </a>
+          </li>
+          <%if (locals.isOrganizer) { %>
+          <li class="nav-item">
+            <a class="nav-link" href="/hardware/overview">
+              <p>Hardware library - overview</p>
+            </a>
+          </li>
+          <% } %>
+        <% } %>
       <li class="nav-item">
         <a class="nav-link" href="/">
           <i class="material-icons">dashboard</i>
