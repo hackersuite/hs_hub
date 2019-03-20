@@ -102,6 +102,29 @@
       </div>
   </div>
 </nav>
+<!-- Push notification Modal -->
+<div class="modal fade" id="notificaitonModal" tabindex="-1" role="dialog" aria-labelledby="notificationModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="notificationModalLabel">Push notification</h5>
+        </div>
+        <div class="modal-body">
+          <div id="notificationModalBody">
+            <div class="input-group-prepend">
+              <p>Enter your message here:</p>
+            </div>
+            <textarea id="notification-textarea" class="form-control" aria-label="Push notification message"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="modal-notification-button" type="button" class="btn btn-success" data-dismiss="modal">Confirm</button>
+          <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+    </div>
+</div>
+<script src="/js/pushNotification.js"></script>
 <script src="/js/qrInterface.js"></script>
 <% include ./qrScanner %>
 <!-- End Navbar -->
