@@ -48,8 +48,12 @@ export class AnnouncementController {
       await getConnection("hub")
         .getRepository(User)
         .save(req.user);
-
-      res.send("Saved the data");
+      const u: User = await getConnection("hub")
+        .getRepository(User)
+        .findOne({id: req.user.id});
+      console.log(`Saved the data ${req.user.email} and push_id: ${req.user.push_id}`);
+      console.log(`User: ${u.email} and ${u.push_id}`);
+      res.send(`Saved with player id: ${req.user.push_id}`);
     } catch (error) {
       return next(error);
     }
