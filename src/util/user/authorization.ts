@@ -35,6 +35,9 @@ export const checkIsVolunteer = (req: Request, res: Response, next: NextFunction
     // return next(new ApiError(HttpResponseCode.FORBIDDEN, "You are not logged in or you are not a volunteer!"));
   }
   res.locals.isVolunteer = true;
+  if ((req.user as User).authLevel >= AuthLevels.Organizer) {
+    res.locals.isOrganizer = true;
+  }
   return next();
 };
 
@@ -50,6 +53,7 @@ export const checkIsOrganizer = (req: Request, res: Response, next: NextFunction
     return res.redirect("/login");
     // return next(new ApiError(HttpResponseCode.FORBIDDEN, "You are not logged in or you are not not an organizer!"));
   }
+  res.locals.isVolunteer = true;
   res.locals.isOrganizer = true;
   return next();
 };
