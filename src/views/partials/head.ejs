@@ -30,9 +30,14 @@
 
   OneSignal.push(function () {
     OneSignal.init(options);
+  });
+
+  <% if (!locals.preventNotificationRequest) { %>
+  OneSignal.push(function() {
     OneSignal.showNativePrompt();
   });
-  
+  <% } %>
+
   OneSignal.push(function () {
     OneSignal.on('subscriptionChange', function(isSubscribed) {
       if (isSubscribed) {
