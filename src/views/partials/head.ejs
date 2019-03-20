@@ -19,12 +19,17 @@
 <link rel="manifest" href="/manifest.json" />
 <script>
   var OneSignal = window.OneSignal || [];
-  var appAPIKey = '<%= process.env.ONE_SIGNAL_API_KEY %>'
+  var safariAPIKey = '<%= process.env.ONE_SIGNAL_SAFARI_ID%>';
+  var appAPIKey = '<%= process.env.ONE_SIGNAL_API_KEY %>';
+
+  var options = {
+    appId: appAPIKey,
+    safari_web_id: safariAPIKey,
+    autoResubscribe: true
+  }
+
   OneSignal.push(function () {
-    OneSignal.init({
-      appId: appAPIKey,
-      autoResubscribe: true
-    });
+    OneSignal.init(options);
     OneSignal.showNativePrompt();
   });
 </script>
