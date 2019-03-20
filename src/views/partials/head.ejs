@@ -26,13 +26,14 @@
     appId: appAPIKey,
     safari_web_id: safariAPIKey,
     autoResubscribe: true
-  }
+  };
 
-  OneSignal.push([
-    function () {
-      OneSignal.init(options);
-      OneSignal.showNativePrompt();
-    },
+  OneSignal.push(function () {
+    OneSignal.init(options);
+    OneSignal.showNativePrompt();
+  });
+  
+  OneSignal.push(function () {
     OneSignal.on('subscriptionChange', function(isSubscribed) {
       if (isSubscribed) {
         console.log("Subscription change...");
@@ -45,5 +46,5 @@
         });
       }
     });
-  ]);
+  });
 </script>
