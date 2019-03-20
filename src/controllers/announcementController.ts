@@ -44,6 +44,7 @@ export class AnnouncementController {
   public async pushNotificationRegister(req: Request, res: Response, next: NextFunction) {
     try {
       const playerID: string = req.body.data;
+      console.log(`Player ID found is: ${playerID}`);
       req.user.push_id = playerID;
       await getConnection("hub")
         .getRepository(User)
