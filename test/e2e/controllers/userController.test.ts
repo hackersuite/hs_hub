@@ -50,6 +50,7 @@ beforeAll((done: jest.DoneCallback): void => {
         .into(ApplicationUser)
         .values([testApplicationUser])
         .execute()).identifiers[0].id;
+
       done();
     }
   });
@@ -92,6 +93,39 @@ describe("User controller tests", (): void => {
     const newHubUser: User = await getUserByEmailFromHub(testApplicationUser.email);
     expect(newHubUser).not.toBe(undefined);
     testHubUser.id = newHubUser.id;
+  });
+
+  /**
+   * Test that when the user password is changed on applications, it gets changed on the hub
+   */
+  test("Should check password is updated on hub", async (): Promise<void> => {
+    await request(bApp)
+      .get("/user/logout")
+      .set("Cookie", sessionCookie)
+      .send();
+
+    // Update the password and save to the database
+    // New password is password12, the old password was password123
+    testApplicationUser.password = "pbkdf2_sha256$30000$xmAiV8Wihzn5$aj1h839Z7MU7UFPcmS3xrjVXdR8wtrhgY3Qi7i19cNY=";
+    await getConnection("applications")
+      .manager
+      .save(testApplicationUser);
+
+    const response = await request(bApp)
+    .post("/user/login")
+    .send({
+      email: testApplicationUser.email,
+      password: "password12"
+    });
+
+    expect(response.status).toBe(HttpResponseCode.REDIRECT);
+    sessionCookie = response.header["set-cookie"].pop().split(";")[0];
+    expect(sessionCookie).not.toBeUndefined();
+    expect(sessionCookie).toMatch(/connect.sid=*/);
+
+    const newHubUser: User = await getUserByEmailFromHub(testApplicationUser.email);
+    expect(newHubUser).not.toBe(undefined);
+    expect(newHubUser.password).toEqual(testApplicationUser.password);
   });
 
   /**
@@ -149,6 +183,13 @@ afterAll(async (): Promise<void> => {
     .delete()
     .from(User)
     .where("id = :id", { id: testHubUser.id })
+    .execute();
+
+  await getConnection("hub")
+    .createQueryBuilder()
+    .delete()
+    .from(User)
+    .where("id = :id", { id: testApplicationUser.id })
     .execute();
 
   await getConnection("applications")
