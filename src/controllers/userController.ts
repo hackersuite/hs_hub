@@ -24,7 +24,8 @@ export class UserController {
           return next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
         }
         if (user.authLevel > AuthLevels.Attendee) {
-          res.redirect("/admin");
+          res.locals.isOrganizer = true;
+          res.redirect("/hardware/management");
         } else {
           res.redirect("/");
         }

@@ -7,16 +7,8 @@ export const homeRouter = (): Router => {
 
   const homeController = new HomeController();
 
-  router.get("/admin",
-    checkIsVolunteer,
-    homeController.admin);
-
   router.get("/login",
     homeController.login);
-
-  router.get("/hardware",
-    checkIsLoggedIn,
-    homeController.hardware);
 
   router.get("/achievements",
     checkIsLoggedIn,

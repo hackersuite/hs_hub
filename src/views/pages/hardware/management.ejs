@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-  <% include ../partials/head.ejs %>
+  <% include ../../partials/head.ejs %>
   <title>GUH18 Hub - Admin</title>
   <link rel="stylesheet" href="/css/admin.css">
   <script src="/js/hardwareAdmin.js"></script>
@@ -11,7 +11,7 @@
 
 <body>
   <div class="wrapper">
-    <%- include('../partials/navbar.ejs', {userIsOrganiser: locals.userIsOrganiser}) %>
+    <%- include('../../partials/navbar.ejs', {userIsOrganiser: locals.userIsOrganiser}) %>
 
     <div class="main-panel">
       <div class="content">
@@ -149,7 +149,7 @@
           </div>
         </div>
       </div>
-      <% include ../partials/footer.ejs %>
+      <% include ../../partials/footer.ejs %>
     </div>
   </div>
 </body>
