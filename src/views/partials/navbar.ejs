@@ -10,6 +10,24 @@
     </a>
   </div>
   <div class="sidebar-wrapper">
+
+    <%if (locals.isOrganizer || locals.isVolunteer) { %>
+    <ul class="nav">
+      <li class="nav-item">
+        <a class="nav-link" href="/hardware/management">
+          <p>Hardware library - management</p>
+        </a>
+      </li>
+      <%if (locals.isOrganizer) { %>
+      <li class="nav-item">
+        <a class="nav-link" href="/hardware/overview">
+          <p>Hardware library - overview</p>
+        </a>
+      </li>
+      <% } %>
+    </ul>
+    <% } %>
+
     <ul class="nav">
       <li class="nav-item">
         <a class="nav-link" href="/">
@@ -58,7 +76,7 @@
     </button>
     <div class="collapse navbar-collapse justify-content-end">
         <ul class="navbar-nav">
-          <%if (locals.userIsOrganiser) { %>
+          <%if (locals.isOrganizer) { %>
           <li class="nav-item">
             <a class="nav-link" href="javascript:showPushNotificationDialog()">
               <i class="fas fa-bullhorn fa-3x"></i>
