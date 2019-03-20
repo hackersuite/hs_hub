@@ -4,6 +4,7 @@ import { ApiError, HttpResponseCode } from "../util/errorHandling";
 import { Announcement } from "../db/entity/hub";
 import { getConnection } from "typeorm";
 import { sendOneSignalNotification } from "../util/announcement";
+import { User } from "../db/entity/hub/user";
 
 /**
  * A controller for the announcement methods
@@ -35,6 +36,20 @@ export class AnnouncementController {
         res.send(result);
       else
         res.status(HttpResponseCode.INTERNAL_ERROR).send(`Failed to send the push notification!. ${JSON.stringify(result)}`);
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  public async pushNotificationRegister(req: Request, res: Response, next: NextFunction) {
+    try {
+      const playerID: string = req.body.data;
+      req.user.push_id = playerID;
+      await getConnection("hub")
+        .getRepository(User)
+        .save(req.user);
+
+      res.send("Saved the data");
     } catch (error) {
       return next(error);
     }

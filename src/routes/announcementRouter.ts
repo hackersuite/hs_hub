@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { checkIsOrganizer } from "../util/user";
+import { checkIsOrganizer, checkIsLoggedIn } from "../util/user";
 import { AnnouncementController } from "../controllers";
 
 export const announcementRouter = (): Router => {
@@ -21,6 +21,13 @@ export const announcementRouter = (): Router => {
   router.post("/push",
     checkIsOrganizer,
     announcementController.pushNotification);
+
+  /**
+   * POST /announcement/push/register
+   */
+  router.post("/push/register",
+    checkIsLoggedIn,
+    announcementController.pushNotificationRegister);
 
   return router;
 };

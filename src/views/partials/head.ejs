@@ -28,8 +28,22 @@
     autoResubscribe: true
   }
 
-  OneSignal.push(function () {
-    OneSignal.init(options);
-    OneSignal.showNativePrompt();
-  });
+  OneSignal.push([
+    function () {
+      OneSignal.init(options);
+      OneSignal.showNativePrompt();
+    },
+    OneSignal.on('subscriptionChange', function(isSubscribed) {
+      if (isSubscribed) {
+        console.log("Subscription change...");
+        OneSignal.getUserId(function(userId) {
+          console.log("...For player id " + userId);
+          var request = new XMLHttpRequest();
+          request.open('POST', '/announcement/push/register', true);
+          request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+          request.send(userId);
+        });
+      }
+    });
+  ]);
 </script>

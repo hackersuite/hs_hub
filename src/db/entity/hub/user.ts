@@ -25,6 +25,9 @@ export class User {
   @Column()
   repo: string;
 
+  @Column("varchar", { length: 36})
+  push_id: string;
+
   @OneToMany(type => AchievementProgress, aProgress => aProgress.user)
   achievementsProgress: AchievementProgress;
   @OneToMany(() => ReservedHardwareItem, reservedHardwareItem => reservedHardwareItem.user)
