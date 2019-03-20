@@ -23,8 +23,11 @@ export class UserController {
         if (err) {
           return next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
         }
-        if (user.authLevel > AuthLevels.Attendee) {
+        if (user.authLevel >= AuthLevels.Volunteer)
+          res.locals.isVolunteer = true;
+        if (user.authLevel >= AuthLevels.Organizer)
           res.locals.isOrganizer = true;
+        if (user.authLevel > AuthLevels.Attendee) {
           res.redirect("/hardware/management");
         } else {
           res.redirect("/");
