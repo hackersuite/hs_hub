@@ -41,6 +41,7 @@
                   <h4 class="card-title">Hardware overview</h4>
                 </div>
                 <div class="card-body">
+                    <button type="button" class="btn btn-success" data-dismiss="modal" onclick="window.location.href = 'add'">Add item</button>
                   <table class="table">
                     <thead class="text-success">
                       <th></th>
@@ -99,7 +100,6 @@
               totalStock: "<%= item.totalStock %>",
             };
           <% }) %>
-          console.log(items);
         </script>
         <% include ../partials/footer.ejs %>
       </div>
