@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
 import { ReservedHardwareItem } from "./reservedHardwareItem";
-import { IsUrl, IsString, IsNumber, IsDefined } from "class-validator";
+import { IsUrl, IsString, IsNumber, IsDefined, Min } from "class-validator";
 
 @Entity()
 export class HardwareItem {
@@ -13,15 +13,14 @@ export class HardwareItem {
   name: string;
 
   @IsDefined({ message: "The total stock must be defined" })
+  @Min(1, { message: "Why have the item on the library if the stock is less than 1?" })
   @Column()
   @IsNumber()
   totalStock: number;
 
   @Column()
-  @IsNumber()
   reservedStock: number;
 
-  @IsNumber()
   @Column()
   takenStock: number;
 

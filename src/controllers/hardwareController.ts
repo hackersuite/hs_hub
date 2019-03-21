@@ -4,6 +4,8 @@ import { ApiError } from "../util/errorHandling/apiError";
 import { HttpResponseCode } from "../util/errorHandling/httpResponseCode";
 import { HardwareItem } from "../db/entity/hub";
 import { AuthLevels } from "../util/user";
+import { validate, ValidationError } from "class-validator";
+import { getConnection } from "typeorm";
 /**
  * A controller for handling hardware items
  */
@@ -24,6 +26,52 @@ export class HardwareController {
     try {
       const reservations = await getAllReservations();
       res.render("pages/hardware/management", { reservations: reservations || [], userIsOrganiser: (req.user.authLevel === AuthLevels.Organizer) });
+    } catch (err) {
+      return next(err);
+    }
+  }
+
+  /**
+   * Returns the page to add an item
+   */
+  public async addPage(req: Request, res: Response, next: NextFunction) {
+    try {
+      // TODO: the reservations are unnecessary
+      const items = await getAllHardwareItemsWithReservations();
+      res.render("pages/hardware/add", { item: items[0] });
+    } catch (err) {
+      return next(err);
+    }
+  }
+
+  /**
+   * Returns the page to add an item
+   */
+  public async addItem(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { totalStock, name, itemURL  } = req.body;
+
+      const newItem: HardwareItem = new HardwareItem();
+      newItem.name = name;
+      newItem.itemURL = itemURL;
+      newItem.totalStock = Number(totalStock);
+
+      const errors: ValidationError[] = await validate(newItem);
+
+      if (errors.length > 0) {
+        req.session.notification = {
+          message: `Could not create item: ${errors.join(",")}`,
+          type: "danger"
+        };
+        return res.redirect("hardware/overview");
+      }
+      await getConnection("hub").getRepository(HardwareItem).save(newItem);
+
+      req.session.notification = {
+        message: `Item ${newItem.name} created!`,
+        type: "success"
+      };
+      res.redirect("hardware/overview");
     } catch (err) {
       return next(err);
     }
@@ -180,8 +228,10 @@ export class HardwareController {
   public async overview(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const items: HardwareItem[] = await getAllHardwareItemsWithReservations();
+      const notification = req.session.notification;
+      req.session.notification = undefined;
 
-      res.render("pages/hardware/overview", { items });
+      res.render("pages/hardware/overview", { items, notification });
     } catch (err) {
       return next(err);
     }

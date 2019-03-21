@@ -15,11 +15,27 @@ export const hardwareRouter = (): Router => {
     hardwareController.library);
 
   /**
+   * POST /hardware
+   */
+  router.post("/",
+    // checkIsOrganizer,
+    hardwareController.addItem);
+
+
+
+  /**
    * GET /hardware/management
    */
   router.get("/management",
-    checkIsLoggedIn,
+    checkIsVolunteer,
     hardwareController.management);
+
+  /**
+   * GET /hardware/add
+   */
+  router.get("/add",
+    // checkIsOrganizer,
+    hardwareController.addPage);
 
 
   /**
@@ -69,7 +85,9 @@ export const hardwareRouter = (): Router => {
   /**
    * GET /hardware/overview
    */
-  router.get("/overview", checkIsOrganizer, hardwareController.overview);
+  router.get("/overview",
+    // checkIsOrganizer,
+    hardwareController.overview);
 
   /**
    * DELETE /hardware/:id/delete
