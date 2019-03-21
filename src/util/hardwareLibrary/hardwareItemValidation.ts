@@ -221,6 +221,7 @@ export const getAllHardwareItemsWithReservations = async (): Promise<HardwareIte
         .createQueryBuilder("hardwareItem")
         .leftJoinAndSelect("hardwareItem.reservations", "reservations")
         .leftJoinAndSelect("reservations.user", "user")
+        .orderBy("hardwareItem.name")
         .getMany();
 
   return items;
