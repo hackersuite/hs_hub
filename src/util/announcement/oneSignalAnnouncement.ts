@@ -1,4 +1,12 @@
-export function sendOneSignalNotification(text: string): Promise<any> {
+interface OneSignalData {
+  app_id: string;
+  contents: Object;
+  headings: Object;
+  included_segments?: string[];
+  include_player_ids?: Object;
+}
+
+export function sendOneSignalNotification(text: string, onlyTheseUsers?: Object): Promise<any> {
   return new Promise((resolve, reject) => {
     const headers: Object = {
       "Content-Type": "application/json; charset=utf-8",
@@ -24,12 +32,17 @@ export function sendOneSignalNotification(text: string): Promise<any> {
       reject(err);
     });
 
-    const message: Object = {
+    const message: OneSignalData = {
       app_id: process.env.ONE_SIGNAL_API_KEY,
       contents: {"en": text},
-      headings: {"en": process.env.ONE_SIGNAL_NOTIFICATION_HEADING},
-      included_segments: [process.env.ONE_SIGNAL_USER_SEGMENTS],
+      headings: {"en": process.env.ONE_SIGNAL_NOTIFICATION_HEADING}
     };
+
+    if (onlyTheseUsers === undefined) {
+      message.included_segments = [process.env.ONE_SIGNAL_USER_SEGMENTS];
+    } else {
+      message.include_player_ids = onlyTheseUsers;
+    }
 
     req.write(JSON.stringify(message));
     req.end();

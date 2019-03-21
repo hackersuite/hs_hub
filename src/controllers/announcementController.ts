@@ -28,10 +28,22 @@ export class AnnouncementController {
     }
   }
 
+  /**
+   * This function will either send a push notifation to all users subscribed to push notifications
+   * or to only those users whose ids are provided.
+   * 
+   * If you want to send to particular users, then include the ids in the post request with the following format:
+   * included_users = {"users": ["userId1", "userId2", ...]}
+   * @param req
+   * @param res
+   * @param next
+   */
   public async pushNotification(req: Request, res: Response, next: NextFunction) {
     try {
       const text: string = req.body.message;
-      const result: Object = await sendOneSignalNotification(text);
+      const included_users: Object = JSON.parse(req.body.included_users);
+
+      const result: Object = await sendOneSignalNotification(text, included_users["users"]);
       if (result.hasOwnProperty("errors") === false)
         res.send(result);
       else
@@ -44,17 +56,11 @@ export class AnnouncementController {
   public async pushNotificationRegister(req: Request, res: Response, next: NextFunction) {
     try {
       const playerID: string = req.body.data;
-      console.log(`Player ID found is: ${playerID}`);
       req.user.push_id = playerID;
       await getConnection("hub")
         .getRepository(User)
         .save(req.user);
-      const u: User = await getConnection("hub")
-        .getRepository(User)
-        .findOne({id: req.user.id});
-      console.log(`Saved the data ${req.user.email} and push_id: ${req.user.push_id}`);
-      console.log(`User: ${u.email} and ${u.push_id}`);
-      res.send(`Saved with player id: ${req.user.push_id}`);
+      res.status(200).send(`Updated with player ID: ${req.user.push_id}`);
     } catch (error) {
       return next(error);
     }
