@@ -1,6 +1,8 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from "typeorm";
 import { AchievementProgress } from "./achievementProgress";
 import { ReservedHardwareItem } from "./reservedHardwareItem";
+import { ApplicationUser } from "../applications/applicationUser";
+import { getAuthLevel } from "../../../util/user/authLevels";
 
 @Entity()
 export class User {
