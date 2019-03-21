@@ -24,8 +24,8 @@
     <script src="/js/animations.js"></script>
   </footer>
   <script>
-    const x = new Date().getFullYear();
-    let date = document.getElementById('date');
+    var x = new Date().getFullYear();
+    var date = document.getElementById('date');
     date.innerHTML = '&copy; ' + x + date.innerHTML;
 
     var notification = <%- JSON.stringify(locals.notification || null) %>;
