@@ -49,22 +49,20 @@
                             </div>
                             <div class="row">
                               <div class="col-12">
-                                <form id="update-form" method='PUT'
-                                      action="/hardware">
+                                <!-- <form id="update-form" method='PUT'
+                                      action="/hardware"> -->
                                       <span>
-                                        <input id="update-item-stock" name="totalStock" type="number" id="item-stock" placeholder="0" class="digit-input"
-                                               <%= locals.item != undefined ? `value=${locals.item.totalStock}` : "" %>>
+                                        <input id="update-item-stock" name="totalStock" type="number" placeholder="0" class="digit-input">
                                       </span>
                                       &nbsp; X &nbsp;
                                       <span>
-                                        <input id="update-item-name" name="name" type="text" id="item-name" placeholder="name"
-                                               <%= locals.item != undefined ? `value=${locals.item.name}` : "" %>>
+                                        <input id="update-item-name" name="name" type="text" placeholder="name">
                                       </span>
-                                      <input id="update-item-image" name="itemURL" type="text" class="form-control" id="item-url" placeholder="placekitten.com/300/200"
-                                           <%= locals.item != undefined ? `value=${locals.item.itemURL}` : "" %>
+                                      <input id="update-item-image" name="itemURL" type="text" class="form-control" placeholder="placekitten.com/300/200"
                                            oninput="previewImage('update-img-preview', this.value)">
-                                  <button type="submit" class="btn btn-warning">Update</button>
-                                </form>
+                                      <input id="update-item-id" name="id" type="text" hidden>
+                                  <button type="submit" class="btn btn-warning" onclick="editItemSubmit()">Update</button>
+                                <!-- </form> -->
                               </div>
                             </div>
                           </div>

@@ -88,6 +88,13 @@ export const hardwareRouter = (): Router => {
     hardwareController.overview);
 
   /**
+   * PUT /hardware/:id
+   */
+  router.put("/:id",
+    // checkIsOrganizer,
+    hardwareController.updateItem);
+
+  /**
    * DELETE /hardware/:id
    */
   router.delete("/:id", checkIsOrganizer, hardwareController.deleteItem);

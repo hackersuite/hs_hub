@@ -44,9 +44,6 @@ export class HardwareController {
     }
   }
 
-  /**
-   * Returns the page to add an item
-   */
   public async addItem(req: Request, res: Response, next: NextFunction) {
     try {
       const { totalStock, name, itemURL  } = req.body;
@@ -72,6 +69,53 @@ export class HardwareController {
         type: "success"
       };
       res.redirect("hardware/overview");
+    } catch (err) {
+      return next(err);
+    }
+  }
+
+  public async updateItem(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { totalStock, name, itemURL  } = req.body;
+      const id = req.params.id;
+
+      const itemToUpdate = await getConnection("hub")
+        .getRepository(HardwareItem)
+        .findOne(id);
+
+      if (itemToUpdate === undefined) {
+        req.session.notification = {
+          message: `Could not update item: item ${id} does not exist!`,
+          type: "danger"
+        };
+        res.send({ error: true, message: "Item does not exist" });
+      }
+
+      itemToUpdate.name = name;
+      itemToUpdate.totalStock = Number(totalStock);
+      itemToUpdate.itemURL = itemURL;
+
+      const errors: ValidationError[] = await validate(itemToUpdate);
+
+      if (errors.length > 0) {
+        req.session.notification = {
+          message: `Could not create item: ${errors.join(",")}`,
+          type: "danger"
+        };
+        return res.send({ error: true, message: "Validation errors" });
+      }
+      await getConnection("hub")
+        .createQueryBuilder()
+        .update(HardwareItem)
+        .set(itemToUpdate)
+        .where("id = :id", { id: itemToUpdate.id })
+        .execute();
+
+      req.session.notification = {
+        message: `Item ${itemToUpdate.name} updated!`,
+        type: "success"
+      };
+      res.send({ message: "Item updated" });
     } catch (err) {
       return next(err);
     }

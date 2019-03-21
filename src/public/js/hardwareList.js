@@ -45,9 +45,28 @@ function previewImage(elementId, url) {
 
 function editItem(item) {
   $("#update-panel").fadeIn("slow");
-  $("#update-form").attr("action", "/hardware/" + item.id);
+  $("#update-item-id").val(item.id);
   $("#update-item-stock").val(item.totalStock);
   $("#update-item-name").val(item.name);
   $("#update-item-image").val(item.itemURL);
   previewImage("update-img-preview", item.itemURL);
+}
+
+function editItemSubmit() {
+  var item = {
+    id: $("#update-item-id").val(),
+    totalStock: $("#update-item-stock").val(),
+    name: $("#update-item-name").val(),
+    itemURL: $("#update-item-image").val(),
+  }
+
+  $.ajax({
+    type: "PUT",
+    url: "/hardware/" + item.id,
+    data: item,
+    success: function () {
+      location.reload();
+    },
+    error: showError
+  });
 }
