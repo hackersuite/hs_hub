@@ -22,10 +22,10 @@ export class HardwareController {
   /**
    * Returns the hardware management page for volunteers
    */
-  public async management(req: Request, res: Response, next: NextFunction) {
+  public async loanControls(req: Request, res: Response, next: NextFunction) {
     try {
       const reservations = await getAllReservations();
-      res.render("pages/hardware/management", { reservations: reservations || [], userIsOrganiser: (req.user.authLevel === AuthLevels.Organizer) });
+      res.render("pages/hardware/loanControls", { reservations: reservations || [], userIsOrganiser: (req.user.authLevel === AuthLevels.Organizer) });
     } catch (err) {
       return next(err);
     }
@@ -280,13 +280,13 @@ export class HardwareController {
     }
   }
 
-  public async overview(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public async management(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const items: HardwareItem[] = await getAllHardwareItemsWithReservations();
       const notification = req.session.notification;
       req.session.notification = undefined;
 
-      res.render("pages/hardware/overview", { items, notification });
+      res.render("pages/hardware/management", { items, notification });
     } catch (err) {
       return next(err);
     }

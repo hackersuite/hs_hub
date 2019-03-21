@@ -28,7 +28,7 @@ export class UserController {
         if (user.authLevel >= AuthLevels.Organizer)
           res.locals.isOrganizer = true;
         if (user.authLevel > AuthLevels.Attendee) {
-          res.redirect("/hardware/management");
+          res.redirect("/hardware/loancontrols");
         } else {
           res.redirect("/");
         }

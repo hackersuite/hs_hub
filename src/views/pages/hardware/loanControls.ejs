@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <% include ../../partials/head.ejs %>
+  <title>GUH18 Hub - Admin</title>
+  <link rel="stylesheet" href="/css/hardwareLoanControls.css">
+  <script src="/js/hardwareLoanControls.js"></script>
+</head>
+
+<body>
+  <div class="wrapper">
+    <% include ../../partials/navbar.ejs %>
+
+    <div class="main-panel">
+      <div class="content">
+        <!-- Info Modal -->
+        <div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="infoModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="infoModalLabel"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="imgContainer">
+                  <img src="" alt="" id="infoModalImg" class="modalImg">
+                </div>
+                <div id="infoModalBody">
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Confirmation Modal -->
+        <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">Does this reservation look good?</h5>
+              </div>
+              <div class="modal-body">
+                <div class="imgContainer">
+                  <img src="" alt="" id="confirmModalImg" class="modalImg">
+                </div>
+                <div id="confirmModalBody">
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button id="modal-confirm-button" type="button" class="btn btn-success" data-dismiss="modal">Confirm</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Main page content -->
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-lg-6 col-md-12">
+              <div class="card">
+                <div class="card-header card-header-warning">
+                  <h4 class="card-title">Hardware library controls</h4>
+                </div>
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <video id="hardware-qr-scanner">
+                      </video>
+                      <button class="btn btn-warning" onclick="scanReservationToken(takeItem)">TAKE</button>
+                      <button class="btn btn-danger" onclick="scanReservationToken(returnItem)">RETURN</button>
+                      <button class="btn btn-primary" onclick="scanReservationToken(reservationInfo)">INFO</button>
+                      <button class="btn btn-info" onclick="changeScanner(true)">SWITCH</button>
+                    </div>
+                    <div class="col-md-6">
+                      <label for="token"><b>Manual controls as a backup</b></label>
+                      <input id="token" type="text" class="form-control" placeholder="enter the user's token here">
+                      <button class="btn btn-warning" onclick="takeItem($('#token').val())">TAKE</button>
+                      <button class="btn btn-danger" onclick="returnItem($('#token').val())">RETURN</button>
+                      <button class="btn btn-primary" onclick="reservationInfo($('#token').val())">INFO</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6 col-md-12">
+              <div class="card">
+                <div class="card-header card-header-primary">
+                  <h4 class="card-title">Hardware library loans</h4>
+                </div>
+                <div class="card-body table-responsive">
+                  <table class="table table-hover">
+                    <thead class="text-warning">
+                      <th>User</th>
+                      <th>Item</th>
+                      <th>Status</th>
+                      <th>Token</th>
+                    </thead>
+                    <tbody>
+                      <% reservations.forEach(reservation => { %>
+                      <tr>
+                        <td>
+                          <%- reservation.user.name %>
+                        </td>
+                        <td>
+                          <%- reservation.reservationQuantity %> x
+                          <%- reservation.hardwareItem.name %>
+                        </td>
+                        <td>
+                          <%- reservation.isReserved ? "Reserved" : "Taken" %>
+                        </td>
+                        <td>
+                          <%- reservation.reservationToken %>
+                        </td>
+                      </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <% include ../../partials/footer.ejs %>
+    </div>
+  </div>
+</body>
+
+</html>

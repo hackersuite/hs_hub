@@ -18,9 +18,14 @@ export const hardwareRouter = (): Router => {
   router.post("/", checkIsOrganizer, hardwareController.addItem);
 
   /**
+   * GET /hardware/loancontrols
+   */
+  router.get("/loancontrols", checkIsVolunteer, hardwareController.loanControls);
+
+  /**
    * GET /hardware/management
    */
-  router.get("/management", checkIsVolunteer, hardwareController.management);
+  router.get("/management", checkIsOrganizer, hardwareController.management);
 
   /**
    * GET /hardware/add
@@ -66,11 +71,6 @@ export const hardwareRouter = (): Router => {
    * GET /hardware/reservations
    */
   router.get("/reservations", checkIsVolunteer, hardwareController.getAllReservations);
-
-  /**
-   * GET /hardware/overview
-   */
-  router.get("/overview", checkIsOrganizer, hardwareController.overview);
 
   /**
    * PUT /hardware/:id

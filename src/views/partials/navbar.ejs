@@ -13,14 +13,14 @@
     <ul class="nav">
         <%if (locals.isOrganizer || locals.isVolunteer) { %>
           <li class="nav-item">
-            <a class="nav-link" href="/hardware/management">
-              <p>Hardware library - management</p>
+            <a class="nav-link" href="/hardware/loancontrols">
+              <p>Hardware library - loan controls</p>
             </a>
           </li>
           <%if (locals.isOrganizer) { %>
           <li class="nav-item">
-            <a class="nav-link" href="/hardware/overview">
-              <p>Hardware library - overview</p>
+            <a class="nav-link" href="/hardware/management">
+              <p>Hardware library - management</p>
             </a>
           </li>
           <% } %>
