@@ -33,5 +33,12 @@ function showError(error) {
     message: error.responseJSON.message
   }, {
       type: 'danger'
-    });
+  });
+}
+
+function previewImage(url) {
+  $("#img-preview").attr(
+    "src",
+     url 
+  );
 }
