@@ -21,8 +21,6 @@ export const hardwareRouter = (): Router => {
     // checkIsOrganizer,
     hardwareController.addItem);
 
-
-
   /**
    * GET /hardware/management
    */
@@ -90,9 +88,9 @@ export const hardwareRouter = (): Router => {
     hardwareController.overview);
 
   /**
-   * DELETE /hardware/:id/delete
+   * DELETE /hardware/:id
    */
-  router.delete("/:id/delete", checkIsOrganizer, hardwareController.deleteItem);
+  router.delete("/:id", checkIsOrganizer, hardwareController.deleteItem);
 
   return router;
 };

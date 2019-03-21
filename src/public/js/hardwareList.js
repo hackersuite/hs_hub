@@ -20,7 +20,7 @@ function showConfirmationModal(item, confirmCallback) {
 function deleteItem(item) {
   $.ajax({
     type: "DELETE",
-    url: "/hardware/" + item.id + "/delete",
+    url: "/hardware/" + item.id,
     success: function () {
       location.reload();
     },
