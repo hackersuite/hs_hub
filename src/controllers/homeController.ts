@@ -34,7 +34,7 @@ export class HomeController {
   }
 
   public login(req: Request, res: Response, next: NextFunction) {
-    res.render("pages/login");
+    res.render("pages/login", { preventNotificationRequest: true });
   }
 
   public contacts(req: Request, res: Response, next: NextFunction) {

@@ -22,13 +22,14 @@
     <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
     <script src="/js/material-dashboard.js?v=2.1.0"></script>
     <script src="/js/animations.js"></script>
+    <script src="/js/pushNotificationService.js"></script>
   </footer>
   <script>
     const x = new Date().getFullYear();
     let date = document.getElementById('date');
     date.innerHTML = '&copy; ' + x + date.innerHTML;
 
-    var notification = <%= JSON.stringify(locals.notification || null)%>;
+    var notification = <%- JSON.stringify(locals.notification || null) %>;
     if (notification) {
       $.notify({
         message: notification.message
