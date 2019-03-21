@@ -1,9 +1,20 @@
+import { getPushIDFromUserID } from "../user/userValidation";
+
 interface OneSignalData {
   app_id: string;
   contents: Object;
   headings: Object;
   included_segments?: string[];
   include_player_ids?: Object;
+}
+
+export async function sendPushNotificationByUserID(text: string, ...onlyTheseUsers: number[]): Promise<Object> {
+  const users: string[] = await getPushIDFromUserID(onlyTheseUsers);
+  const response: Object = await sendOneSignalNotification(text, { "users": users });
+  if (response.hasOwnProperty("errors") === false)
+    return response;
+  else
+    return `Failed to send the push notification!. ${JSON.stringify(response)}`;
 }
 
 export function sendOneSignalNotification(text: string, onlyTheseUsers?: Object): Promise<any> {
@@ -46,5 +57,7 @@ export function sendOneSignalNotification(text: string, onlyTheseUsers?: Object)
 
     req.write(JSON.stringify(message));
     req.end();
+
+    sendPushNotificationByUserID("", 692, 2);
   });
 }

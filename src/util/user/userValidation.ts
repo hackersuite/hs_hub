@@ -144,6 +144,19 @@ export async function getTeamCodeByUserIDFromApplications(userID: number): Promi
   }
 }
 
+export async function getPushIDFromUserID(userIDs: number[]): Promise<string[]> {
+  const allUsers: User[] = await getConnection("hub")
+    .getRepository(User)
+    .findByIds(userIDs);
+
+  const pushIds: string[] = [];
+  allUsers.forEach((user: User) => {
+    pushIds.push(user.push_id);
+  });
+
+  return pushIds;
+}
+
 /**
  * Inserts the new hub user into the database, then check the insert worked
  * @param hubUser the new user to insert into the hub database
