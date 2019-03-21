@@ -41,9 +41,11 @@ export class AnnouncementController {
   public async pushNotification(req: Request, res: Response, next: NextFunction) {
     try {
       const text: string = req.body.message;
-      const included_users: Object = JSON.parse(req.body.included_users);
+      let usersToSendNotification: string = req.body.included_users;
+      if (usersToSendNotification !== undefined)
+        usersToSendNotification = JSON.parse(usersToSendNotification);
 
-      const result: Object = await sendOneSignalNotification(text, included_users["users"]);
+      const result: Object = await sendOneSignalNotification(text, usersToSendNotification);
       if (result.hasOwnProperty("errors") === false)
         res.send(result);
       else

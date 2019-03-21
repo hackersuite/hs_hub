@@ -41,7 +41,7 @@ export function sendOneSignalNotification(text: string, onlyTheseUsers?: Object)
     if (onlyTheseUsers === undefined) {
       message.included_segments = [process.env.ONE_SIGNAL_USER_SEGMENTS];
     } else {
-      message.include_player_ids = onlyTheseUsers;
+      message.include_player_ids = onlyTheseUsers["users"];
     }
 
     req.write(JSON.stringify(message));
