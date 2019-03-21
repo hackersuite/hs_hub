@@ -2,7 +2,7 @@ import * as localstrategy from "passport-local";
 import { getUserByEmailFromHub, getUserByEmailFromApplications, validatePassword, insertNewHubUserToDatabase, getUserByIDFromHub, getTeamCodeByUserIDFromApplications } from "./userValidation";
 import { User } from "../../db/entity/hub";
 import { ApplicationUser } from "../../db/entity/applications";
-import { AuthLevels } from "./authLevels";
+import { getAuthLevel } from "./authLevels";
 import passport = require("passport");
 
 export const passportLocalStrategy = (): localstrategy.Strategy => {
@@ -31,36 +31,44 @@ export const passportLocalStrategy = (): localstrategy.Strategy => {
   }, async (email: string, password: string, done: Function): Promise<any> => {
     try {
       // Step 1:
-      // Check if the hub has the user
+      // Check if the hub has the user and attempt validation
       const user: User = await checkIfHubHasUser(email);
-      if (user && !validatePassword(password, user.password))
-        return done(undefined, false, { message: "Incorrect credentials provided." });
-      else if (user)
+      if (user && validatePassword(password, user.password)) {
+        const permissionLevel: number = await getUserPermissionsFromApplications(email);
+        if (permissionLevel !== undefined) {
+          user.authLevel = permissionLevel;
+          insertNewHubUserToDatabase(user);
+        }
         return done(undefined, user);
+      }
 
-      // Step 2:
-      // Otherwise, check the applications platform for the user
+      // Step 1a:
+      // If the hub has the user, but validation failed, sync with the applications db
+      // Also, works for when a user is not yet on the system
       const applicationUser: ApplicationUser = await checkIfApplicationsHasUser(email);
 
       if (applicationUser && applicationUser.email_verified) {
-        // Step 3:
-        // If the user is found and email is verified
-        if (!validatePassword(password, applicationUser.password)) done(undefined, false, { message: "Incorrect credentials provided." });
+        // Step 1b:
+        // If validation failed again, the password is incorrect
+        if (!validatePassword(password, applicationUser.password))
+          return done(undefined, false, { message: "Incorrect credentials provided." });
 
+        // Step 2:
+        // If we have an application user, add it to the local db
         const newHubUser: User = new User();
         newHubUser.id = applicationUser.id;
         newHubUser.name = applicationUser.name;
         newHubUser.email = applicationUser.email;
         newHubUser.password = applicationUser.password;
-        newHubUser.repo = "";
+        newHubUser.authLevel = getAuthLevel(applicationUser.is_organizer, applicationUser.is_volunteer, applicationUser.is_director, applicationUser.is_admin);
         newHubUser.team = applicationUser.teamCode;
-        newHubUser.authLevel = getAuthLevel(applicationUser.is_organizer, applicationUser.is_volunteer);
+        newHubUser.repo = "";
 
-        insertNewHubUserToDatabase(newHubUser);
+        await insertNewHubUserToDatabase(newHubUser);
         return done(undefined, newHubUser);
       }
-      // Step 4:
-      // If not found on either, refer to applications platform
+      // Step 3:
+      // If not found on either platform, then refer to applications to create an account
       return done(undefined, false, { message: "Incorrect credentials provided." });
     } catch (err) {
       return done(err);
@@ -85,9 +93,11 @@ export const passportLocalStrategy = (): localstrategy.Strategy => {
     }
   }
 
-  function getAuthLevel(isOrganizer: boolean, isVolunteer: boolean): number {
-    if (isOrganizer) return AuthLevels.Organizer;
-    else if (isVolunteer) return AuthLevels.Volunteer;
-    else return AuthLevels.Attendee;
+  async function getUserPermissionsFromApplications(email: string): Promise<number> {
+    // Get the application user from the applications platform
+    const applicationUser: ApplicationUser = await getUserByEmailFromApplications(email);
+    if (!applicationUser) return undefined;
+    // Find the auth level based on the user data
+    return getAuthLevel(applicationUser.is_organizer, applicationUser.is_volunteer, applicationUser.is_director, applicationUser.is_admin);
   }
 };
