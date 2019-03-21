@@ -57,7 +57,5 @@ export function sendOneSignalNotification(text: string, onlyTheseUsers?: Object)
 
     req.write(JSON.stringify(message));
     req.end();
-
-    sendPushNotificationByUserID("", 692, 2);
   });
 }
