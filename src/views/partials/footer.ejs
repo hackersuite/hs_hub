@@ -28,7 +28,7 @@
     let date = document.getElementById('date');
     date.innerHTML = '&copy; ' + x + date.innerHTML;
 
-    var notification = <%= JSON.stringify(locals.notification || null)%>;
+    var notification = <%- JSON.stringify(locals.notification || null) %>;
     if (notification) {
       $.notify({
         message: notification.message
