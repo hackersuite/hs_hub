@@ -36,37 +36,39 @@
           </div>
         <div class="container-fluid">
           <div class="row">
-            <div class="card col-md-4">
-                  <div class="card-header card-header-tabs card-header-success">
-                    <h4 class="card-title"><%= locals.type === "update" ? "Update" : "Add" %> item</h4>
-                  </div>
-                  <div class="card-body">
-                    <div class="row">
-                      <img id="img-preview">
-                      </img>
+            <div class="col-md-4">
+              <div class="card">
+                    <div class="card-header card-header-tabs card-header-success">
+                      <h4 class="card-title"><%= locals.type === "update" ? "Update" : "Add" %> item</h4>
                     </div>
-                    <div class="row">
-                      <div class="col-12">
-                        <form method="<%= locals.type === 'update' ? 'PUT' : 'POST' %>"
-                              action="<%= locals.type === 'update' ? locals.item.id : '/hardware' %>">
-                              <span>
-                                <input name="totalStock" type="number" id="item-stock" placeholder="0" class="digit-input"
-                                       <%= locals.item != undefined ? `value=${locals.item.totalStock}` : "" %>>
-                              </span>
-                              &nbsp; X &nbsp;
-                              <span>
-                                <input name="name" type="text" id="item-name" placeholder="name"
-                                       <%= locals.item != undefined ? `value=${locals.item.name}` : "" %>>
-                              </span>
-                              <input name="itemURL" type="text" class="form-control" id="item-url" placeholder="placekitten.com/300/200"
-                                   <%= locals.item != undefined ? `value=${locals.item.itemURL}` : "" %>
-                                   oninput="previewImage(this.value)">
-                          <button type="submit" class="btn btn-success">Submit</button>
-                        </form>
+                    <div class="card-body">
+                      <div class="row">
+                        <img id="img-preview">
+                        </img>
+                      </div>
+                      <div class="row">
+                        <div class="col-12">
+                          <form method="<%= locals.type === 'update' ? 'PUT' : 'POST' %>"
+                                action="<%= locals.type === 'update' ? locals.item.id : '/hardware' %>">
+                                <span>
+                                  <input name="totalStock" type="number" id="item-stock" placeholder="0" class="digit-input"
+                                         <%= locals.item != undefined ? `value=${locals.item.totalStock}` : "" %>>
+                                </span>
+                                &nbsp; X &nbsp;
+                                <span>
+                                  <input name="name" type="text" id="item-name" placeholder="name"
+                                         <%= locals.item != undefined ? `value=${locals.item.name}` : "" %>>
+                                </span>
+                                <input name="itemURL" type="text" class="form-control" id="item-url" placeholder="placekitten.com/300/200"
+                                     <%= locals.item != undefined ? `value=${locals.item.itemURL}` : "" %>
+                                     oninput="previewImage(this.value)">
+                            <button type="submit" class="btn btn-success">Submit</button>
+                          </form>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+            </div>
             <div class="col-md-8">
               <div class="card">
                 <div class="card-header card-header-tabs card-header-success">
