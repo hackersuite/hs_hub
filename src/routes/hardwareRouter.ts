@@ -18,7 +18,7 @@ export const hardwareRouter = (): Router => {
    * GET /hardware/management
    */
   router.get("/management",
-    checkIsLoggedIn,
+    checkIsVolunteer,
     hardwareController.management);
 
 
