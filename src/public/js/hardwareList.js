@@ -36,9 +36,18 @@ function showError(error) {
   });
 }
 
-function previewImage(url) {
-  $("#img-preview").attr(
+function previewImage(elementId, url) {
+  $("#" + elementId).attr(
     "src",
      url 
   );
+}
+
+function editItem(item) {
+  $("#update-panel").fadeIn("slow");
+  $("#update-form").attr("action", "/hardware/" + item.id);
+  $("#update-item-stock").val(item.totalStock);
+  $("#update-item-name").val(item.name);
+  $("#update-item-image").val(item.itemURL);
+  previewImage("update-img-preview", item.itemURL);
 }
