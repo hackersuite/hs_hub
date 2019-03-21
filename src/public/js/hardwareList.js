@@ -43,6 +43,25 @@ function previewImage(elementId, url) {
   );
 }
 
+function addItem() {
+  var item = {
+    id: $("#add-item-id").val(),
+    totalStock: $("#add-item-stock").val(),
+    name: $("#add-item-name").val(),
+    itemURL: $("#add-item-image").val(),
+  }
+
+  $.ajax({
+    type: "POST",
+    url: "/hardware",
+    data: item,
+    success: function () {
+      location.reload();
+    },
+    error: showError
+  });
+}
+
 function editItem(item) {
   $("#update-panel").fadeIn("slow");
   $("#update-item-id").val(item.id);

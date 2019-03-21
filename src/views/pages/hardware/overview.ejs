@@ -49,8 +49,6 @@
                             </div>
                             <div class="row">
                               <div class="col-12">
-                                <!-- <form id="update-form" method='PUT'
-                                      action="/hardware"> -->
                                       <span>
                                         <input id="update-item-stock" name="totalStock" type="number" placeholder="0" class="digit-input">
                                       </span>
@@ -58,11 +56,10 @@
                                       <span>
                                         <input id="update-item-name" name="name" type="text" placeholder="name">
                                       </span>
-                                      <input id="update-item-image" name="itemURL" type="text" class="form-control" placeholder="placekitten.com/300/200"
+                                      <input id="update-item-image" name="itemURL" type="text" class="form-control" placeholder="http://placekitten.com/300/200"
                                            oninput="previewImage('update-img-preview', this.value)">
                                       <input id="update-item-id" name="id" type="text" hidden>
                                   <button type="submit" class="btn btn-warning" onclick="editItemSubmit()">Update</button>
-                                <!-- </form> -->
                               </div>
                             </div>
                           </div>
@@ -80,21 +77,15 @@
                         </div>
                         <div class="row">
                           <div class="col-12">
-                            <form method="<%= locals.type === 'update' ? 'PUT' : 'POST' %>"
-                                  action="<%= locals.type === 'update' ? locals.item.id : '/hardware' %>">
                                   <span>
-                                    <input name="totalStock" type="number" id="item-stock" placeholder="0" class="digit-input"
-                                           <%= locals.item != undefined ? `value=${locals.item.totalStock}` : "" %>>
+                                    <input id="add-item-stock" name="totalStock" type="number" placeholder="0" class="digit-input">
                                   </span>
                                   &nbsp; X &nbsp;
                                   <span>
-                                    <input name="name" type="text" id="item-name" placeholder="name"
-                                           <%= locals.item != undefined ? `value=${locals.item.name}` : "" %>>
+                                    <input id="add-item-name" name="name" type="text" placeholder="name">
                                   </span>
-                                  <input name="itemURL" type="text" class="form-control" id="item-url" placeholder="placekitten.com/300/200"
-                                       <%= locals.item != undefined ? `value=${locals.item.itemURL}` : "" %>
-                                       oninput="previewImage('add-img-preview', this.value)">
-                              <button type="submit" class="btn btn-success">Add</button>
+                                  <input id="add-item-image" name="itemURL" type="text" class="form-control" placeholder="http://placekitten.com/300/200" oninput="previewImage('add-img-preview', this.value)">
+                              <button type="submit" class="btn btn-success" onclick="addItem()">Add</button>
                             </form>
                           </div>
                         </div>

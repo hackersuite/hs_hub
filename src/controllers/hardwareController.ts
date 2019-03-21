@@ -60,7 +60,11 @@ export class HardwareController {
           message: `Could not create item: ${errors.join(",")}`,
           type: "danger"
         };
-        return res.redirect("hardware/overview");
+        res.status(HttpResponseCode.BAD_REQUEST);
+        return res.send({
+          error: true,
+          message: `Could not create item: ${errors.join(",")}`,
+        });
       }
       await getConnection("hub").getRepository(HardwareItem).save(newItem);
 
@@ -68,7 +72,7 @@ export class HardwareController {
         message: `Item ${newItem.name} created!`,
         type: "success"
       };
-      res.redirect("hardware/overview");
+      res.send({ message: "Item created" });
     } catch (err) {
       return next(err);
     }
@@ -88,7 +92,10 @@ export class HardwareController {
           message: `Could not update item: item ${id} does not exist!`,
           type: "danger"
         };
-        res.send({ error: true, message: "Item does not exist" });
+        res.status(HttpResponseCode.BAD_REQUEST);
+        return res.send({
+          error: true,
+          message: `Could not update item: item ${id} does not exist!` });
       }
 
       itemToUpdate.name = name;
@@ -102,7 +109,11 @@ export class HardwareController {
           message: `Could not create item: ${errors.join(",")}`,
           type: "danger"
         };
-        return res.send({ error: true, message: "Validation errors" });
+        res.status(HttpResponseCode.BAD_REQUEST);
+        return res.send({
+          error: true,
+          message: `Could not create item: ${errors.join(",")}`
+        });
       }
       await getConnection("hub")
         .createQueryBuilder()

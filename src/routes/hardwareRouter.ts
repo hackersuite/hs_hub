@@ -10,31 +10,22 @@ export const hardwareRouter = (): Router => {
   /**
    * GET /hardware
    */
-  router.get("/",
-    checkIsLoggedIn,
-    hardwareController.library);
+  router.get("/", checkIsLoggedIn, hardwareController.library);
 
   /**
    * POST /hardware
    */
-  router.post("/",
-    // checkIsOrganizer,
-    hardwareController.addItem);
+  router.post("/", checkIsOrganizer, hardwareController.addItem);
 
   /**
    * GET /hardware/management
    */
-  router.get("/management",
-    checkIsVolunteer,
-    hardwareController.management);
+  router.get("/management", checkIsVolunteer, hardwareController.management);
 
   /**
    * GET /hardware/add
    */
-  router.get("/add",
-    // checkIsOrganizer,
-    hardwareController.addPage);
-
+  router.get("/add", checkIsOrganizer, hardwareController.addPage);
 
   /**
    * POST /hardware/reserve
@@ -49,16 +40,12 @@ export const hardwareRouter = (): Router => {
   /**
    * POST /hardware/take
    */
-  router.post("/take",
-    checkIsVolunteer,
-    hardwareController.take);
+  router.post("/take", checkIsVolunteer, hardwareController.take);
 
   /**
    * POST /hardware/return
    */
-  router.post("/return",
-    checkIsVolunteer,
-    hardwareController.return);
+  router.post("/return", checkIsVolunteer, hardwareController.return);
 
   /**
    * POST /hardware/addItems
@@ -83,16 +70,12 @@ export const hardwareRouter = (): Router => {
   /**
    * GET /hardware/overview
    */
-  router.get("/overview",
-    // checkIsOrganizer,
-    hardwareController.overview);
+  router.get("/overview", checkIsOrganizer, hardwareController.overview);
 
   /**
    * PUT /hardware/:id
    */
-  router.put("/:id",
-    // checkIsOrganizer,
-    hardwareController.updateItem);
+  router.put("/:id", checkIsOrganizer, hardwareController.updateItem);
 
   /**
    * DELETE /hardware/:id
