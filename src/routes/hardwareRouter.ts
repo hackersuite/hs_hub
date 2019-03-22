@@ -8,6 +8,21 @@ export const hardwareRouter = (): Router => {
   const hardwareController = new HardwareController();
 
   /**
+   * GET /hardware
+   */
+  router.get("/",
+    checkIsLoggedIn,
+    hardwareController.library);
+
+  /**
+   * GET /hardware/management
+   */
+  router.get("/management",
+    checkIsVolunteer,
+    hardwareController.management);
+
+
+  /**
    * POST /hardware/reserve
    */
   router.post("/reserve", checkIsLoggedIn, hardwareController.reserve);
@@ -50,6 +65,16 @@ export const hardwareRouter = (): Router => {
    * GET /hardware/reservations
    */
   router.get("/reservations", checkIsVolunteer, hardwareController.getAllReservations);
+
+  /**
+   * GET /hardware/overview
+   */
+  router.get("/overview", checkIsOrganizer, hardwareController.overview);
+
+  /**
+   * DELETE /hardware/:id/delete
+   */
+  router.delete("/:id/delete", checkIsOrganizer, hardwareController.deleteItem);
 
   return router;
 };

@@ -11,7 +11,12 @@ import { User } from "../../db/entity/hub";
 export const checkIsLoggedIn = (req: Request, res: Response, next: NextFunction): void => {
   if (!req.user) {
     return res.redirect("/login");
-    // return next(new ApiError(HttpResponseCode.FORBIDDEN, "You are not logged in!"));
+  }
+  if ((req.user as User).authLevel >= AuthLevels.Volunteer) {
+    res.locals.isVolunteer = true;
+  }
+  if ((req.user as User).authLevel >= AuthLevels.Organizer) {
+    res.locals.isOrganizer = true;
   }
   return next();
 };
@@ -26,7 +31,10 @@ export const checkIsLoggedIn = (req: Request, res: Response, next: NextFunction)
 export const checkIsVolunteer = (req: Request, res: Response, next: NextFunction): void => {
   if (!req.user || (req.user as User).authLevel < AuthLevels.Volunteer) {
     return res.redirect("/login");
-    // return next(new ApiError(HttpResponseCode.FORBIDDEN, "You are not logged in or you are not a volunteer!"));
+  }
+  res.locals.isVolunteer = true;
+  if ((req.user as User).authLevel >= AuthLevels.Organizer) {
+    res.locals.isOrganizer = true;
   }
   return next();
 };
@@ -41,7 +49,8 @@ export const checkIsVolunteer = (req: Request, res: Response, next: NextFunction
 export const checkIsOrganizer = (req: Request, res: Response, next: NextFunction): void => {
   if (!req.user || (req.user as User).authLevel < AuthLevels.Organizer) {
     return res.redirect("/login");
-    // return next(new ApiError(HttpResponseCode.FORBIDDEN, "You are not logged in or you are not not an organizer!"));
   }
+  res.locals.isVolunteer = true;
+  res.locals.isOrganizer = true;
   return next();
 };

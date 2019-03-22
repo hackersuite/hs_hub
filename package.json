@@ -13,7 +13,7 @@
     "test:watch": "npx jest --watch",
     "test:coverage": "npx jest --coverage",
     "start": "ts-node src/server.ts",
-    "start:watch": "./node_modules/nodemon/bin/nodemon.js"
+    "start:watch": "node ./node_modules/nodemon/bin/nodemon.js"
   },
   "repository": {
     "type": "GitHub",

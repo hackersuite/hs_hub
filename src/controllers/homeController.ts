@@ -22,11 +22,6 @@ export class HomeController {
     res.render("pages/dashboard", { events, announcements });
   }
 
-  public async hardware(req: Request, res: Response, next: NextFunction) {
-    const items = await getAllHardwareItems(req.user.id);
-    res.render("pages/hardware", { items });
-  }
-
   public async challenges(req: Request, res: Response, next: NextFunction) {
     const challenges = await Cache.challenges.getElements();
     res.render("pages/challenges", { challenges });
@@ -44,14 +39,5 @@ export class HomeController {
 
   public contacts(req: Request, res: Response, next: NextFunction) {
     res.render("pages/contacts");
-  }
-
-  public async admin(req: Request, res: Response, next: NextFunction) {
-    try {
-      const reservations = await getAllReservations();
-      res.render("pages/admin", { reservations: reservations || [], userIsOrganiser: (req.user.authLevel === AuthLevels.Organizer) });
-    } catch (err) {
-      return next(err);
-    }
   }
 }

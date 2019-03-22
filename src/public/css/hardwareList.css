@@ -1,0 +1,33 @@
+.delete-btn {
+  color: #ef5350;
+}
+
+.edit-btn {
+  color: #ffa726;
+}
+
+button {
+  cursor: pointer;
+}
+
+.btn-just-icon {
+  background: none;
+  border: none;
+}
+
+.modalImg {
+  display: block;
+  max-width: 100%;
+  max-height: 200px;
+  width: auto;
+  height: auto;
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: auto;
+}
+
+.imgContainer {
+  height: 200px;
+  margin-bottom: 20px;
+}

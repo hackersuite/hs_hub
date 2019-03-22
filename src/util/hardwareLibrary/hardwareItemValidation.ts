@@ -213,6 +213,21 @@ export const itemToBeReturnedToLibrary = async (userID: number, hardwareItemID: 
 };
 
 /**
+ * Fetches all hardware items with their reservations
+ */
+export const getAllHardwareItemsWithReservations = async (): Promise<HardwareItem[]> => {
+  const items: HardwareItem[] = await getConnection("hub")
+        .getRepository(HardwareItem)
+        .createQueryBuilder("hardwareItem")
+        .leftJoinAndSelect("hardwareItem.reservations", "reservations")
+        .leftJoinAndSelect("reservations.user", "user")
+        .orderBy("hardwareItem.name")
+        .getMany();
+
+  return items;
+}
+
+/**
  * Returns all the hardware items from the database in a formatted array
  */
 export const getAllHardwareItems = async (userId?: number): Promise<Object[]> => {
@@ -294,6 +309,31 @@ export const addAllHardwareItems = async (items: HardwareObject[]): Promise<void
     throw new Error(`Lost connection to database (hub)! ${err}`);
   }
 };
+
+/**
+ * Deletes an item if it has no reservations
+ * @param id The id of the item to delete
+ */
+export const deleteHardwareItem = async(id: number): Promise<void> => {
+  const itemId = id;
+  const item: HardwareItem = await getConnection("hub")
+    .getRepository(HardwareItem)
+    .findOne(itemId);
+
+  if (!item) {
+    throw new ApiError(HttpResponseCode.BAD_REQUEST, "Could not find an item with the given id!");
+  }
+  if (item.reservedStock != 0 || item.takenStock != 0) {
+    throw new ApiError(HttpResponseCode.BAD_REQUEST, "Cannot delete an item that has reservations!");
+  }
+
+  await getConnection("hub")
+    .createQueryBuilder()
+    .delete()
+    .from(HardwareItem)
+    .where("id = :itemId", { itemId })
+    .execute();
+}
 
 export const getAllReservations = async (): Promise<ReservedHardwareItem[]> => {
   try {
