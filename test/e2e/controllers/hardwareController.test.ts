@@ -19,7 +19,6 @@ testAttendeeUser.repo = "tests2.git";
 
 const piHardwareItem: HardwareItem = new HardwareItem();
 piHardwareItem.name = "Pi";
-piHardwareItem.description = "The Raspberry Pi is a series of small single-board computers developed in the United Kingdom.";
 piHardwareItem.totalStock = 4;
 piHardwareItem.reservedStock = 0;
 piHardwareItem.takenStock = 0;
@@ -27,7 +26,6 @@ piHardwareItem.itemURL = "";
 
 const viveHardwareItem: HardwareItem = new HardwareItem();
 viveHardwareItem.name = "Vive";
-viveHardwareItem.description = "The HTC Vive is a virtual reality headset developed by HTC and Valve Corporation.";
 viveHardwareItem.totalStock = 2;
 viveHardwareItem.reservedStock = 0;
 viveHardwareItem.takenStock = 0;
