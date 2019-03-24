@@ -18,6 +18,16 @@ export const teamRouter = (): Router => {
   router.post("/create", checkIsLoggedIn, teamController.create);
 
   /**
+   * POST /team/leave
+   */
+  router.post("/leave", checkIsLoggedIn, teamController.leave);
+
+  /**
+   * POST /team/join
+   */
+  router.post("/join", checkIsLoggedIn, teamController.join);
+
+  /**
    * GET /team/getAllTeams
    */
   router.get("/getAllTeams", checkIsVolunteer, teamController.getAllTeams);
@@ -26,6 +36,11 @@ export const teamRouter = (): Router => {
    * GET /team/getTeam
    */
   router.get("/getTeam", checkIsLoggedIn, teamController.getTeam);
+
+  /**
+   * POST /team/updateRepository
+   */
+  router.post("/updateRepository", checkIsLoggedIn, teamController.updateRepo);
 
   return router;
 };

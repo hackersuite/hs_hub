@@ -5,3 +5,4 @@ export * from "./reservedHardwareItem";
 export * from "./challenge";
 export * from "./event";
 export * from "./announcement";
+export * from "./team";

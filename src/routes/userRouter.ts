@@ -17,6 +17,11 @@ export const userRouter = (): Router => {
   router.post("/login", userController.login);
 
   /**
+   * GET /user/profile
+   */
+  router.get("/profile", checkIsLoggedIn, userController.profile);
+
+  /**
    * GET /user/checkVolunteer
    * Used only to test out checkIsVolunteer, to be removed in next pull request
    */

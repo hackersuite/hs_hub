@@ -4,6 +4,7 @@ import { User } from "../../db/entity/hub";
 import { ApplicationUser } from "../../db/entity/applications";
 import { getAuthLevel } from "./authLevels";
 import passport = require("passport");
+import { createOrAddTeam } from "../team/teamValidation";
 
 export const passportLocalStrategy = (): localstrategy.Strategy => {
   // Passport serialization
@@ -62,7 +63,8 @@ export const passportLocalStrategy = (): localstrategy.Strategy => {
         newHubUser.password = applicationUser.password;
         newHubUser.authLevel = getAuthLevel(applicationUser.is_organizer, applicationUser.is_volunteer, applicationUser.is_director, applicationUser.is_admin);
         newHubUser.team = applicationUser.teamCode;
-        newHubUser.repo = "";
+
+        await createOrAddTeam(applicationUser.id, applicationUser.teamCode);
 
         await insertNewHubUserToDatabase(newHubUser);
         return done(undefined, newHubUser);
