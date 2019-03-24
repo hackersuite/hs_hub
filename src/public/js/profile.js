@@ -1,22 +1,20 @@
 function updateRepository(repoURL) {
+  let regex = new RegExp("((http(s)?))(:(//)?)([\w\.@\:/\-~]+)(\.git)");
+  if (!regex.test(repoURL)) {
+    showError("Enter a valid URL");
+    return;
+  }
+
   $.post({
     url: "/team/updateRepository",
     data: {
       repo: repoURL
     },
     success: function(response) {
-      $.notify({
-        message: response
-      }, {
-        type: 'success'
-      });
+      showSuccess(response);
     },  
     error: function(error) {
-      $.notify({
-        message: error.responseJSON.message
-      }, {
-        type: 'danger'
-      });
+      showError(error.responseJSON.message);
       return;
     }
   });
@@ -29,11 +27,7 @@ function createTeam() {
       location.reload();
     },
     error: function(error) {
-      $.notify({
-        message: error.responseJSON.message
-      }, {
-        type: 'danger'
-      });
+      showError(error.responseJSON.message);
       return;
     }
   });
@@ -49,11 +43,7 @@ function joinTeam(teamCode) {
       location.reload();
     },  
     error: function(error) {
-      $.notify({
-        message: error.responseJSON.message
-      }, {
-        type: 'danger'
-      });
+      showError(error.responseJSON.message);
       return;
     }
   });
@@ -66,11 +56,7 @@ function leaveTeam() {
       location.reload();
     },
     error: function(error) {
-      $.notify({
-        message: error.responseJSON.message
-      }, {
-        type: 'danger'
-      });
+      showError(error.responseJSON.message);
       return;
     }
   });
