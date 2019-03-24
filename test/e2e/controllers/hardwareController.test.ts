@@ -14,8 +14,6 @@ testAttendeeUser.name = "Billy Tester II";
 testAttendeeUser.email = "billyII@testing.com";
 testAttendeeUser.password = "pbkdf2_sha256$30000$xmAiV8Wihzn5$BBVJrxmsVASkYuOI6XdIZoYLfy386hdMOF8S14WRTi8=";
 testAttendeeUser.authLevel = 0;
-testAttendeeUser.team = "TheTesters";
-testAttendeeUser.repo = "tests2.git";
 
 const piHardwareItem: HardwareItem = new HardwareItem();
 piHardwareItem.name = "Pi";

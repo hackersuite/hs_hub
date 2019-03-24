@@ -3,6 +3,7 @@ import { User, Team } from "../../db/entity/hub";
 
 export const createOrAddTeam = async (userID: number, teamCode: string): Promise<void> => {
   // Try to create a new team, if it exists, then add the user instead
+  if (teamCode === undefined) return;
   if (!(await createTeam(teamCode))) {
     await joinTeam(userID, teamCode);
   }

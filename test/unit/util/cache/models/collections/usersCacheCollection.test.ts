@@ -12,7 +12,6 @@ testUserInDatabase.email = "billy@testing.com";
 testUserInDatabase.password = "pbkdf2_sha256$30000$xmAiV8Wihzn5$BBVJrxmsVASkYuOI6XdIZoYLfy386hdMOF8S14WRTi8=";
 testUserInDatabase.authLevel = 3;
 testUserInDatabase.team = "The Testers";
-testUserInDatabase.repo = "tests.git";
 
 /**
  * Preparing for the tests

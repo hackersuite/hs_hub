@@ -15,8 +15,6 @@ const testHubUser: User = new User();
 testHubUser.name = "Billy Tester II";
 testHubUser.email = "billyII@testing-userController.com";
 testHubUser.authLevel = 1;
-testHubUser.team = "The Testers II";
-testHubUser.repo = "tests2.git";
 
 const testApplicationUser: ApplicationUser = new ApplicationUser();
 
