@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <% include ../partials/head.ejs %>
+  <title>GUH18 Hub - Dashboard</title>
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <script src="/js/profile.js"></script>
+</head>
+
+<body>
+  <div class="wrapper">
+    <% include ../partials/navbar.ejs %>
+    <div class="main-panel">
+      <div class="content">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-md-6 col-lg-6">
+              <div class="card">
+                <div class="card-header card-header-tabs card-header-primary">
+                  <h4 class="card-title">Personal Information</h4>
+                </div>
+                <div class="card-body text-center">
+                  <h2><%= user.name %></h2>
+                  <h3 id="emailText"><%= user.email %></h3>
+                </div>
+                <% if (user.team) { %>
+                <div class="card-body">
+                  <div class="form-group">
+                    <label for="gitRepo">Team Git Repository</label>
+                    <input type="url" class="form-control" id="gitRepo" placeholder="https://github.com/hackathon/project.git" value="<%= teamRepo %>">
+                    <button class="btn btn-success" onclick="updateRepository($('#gitRepo').val())">Save</button>
+                  </div>
+                </div>
+                <% } %>
+              </div>
+            </div>
+            
+            <% if (user.team) {%>
+            <div class="col-md-6 col-lg-6">
+              <div class="card">
+                <div class="card-header card-header-tabs card-header-primary">
+                  <h4 class="card-title">Team Information</h4>
+                </div>
+                <div class="card-body">
+                  <h2 class="text-center">Team code: <%= user.team %></h2>
+                  <div class="form-group">
+                    <div id="teamMemberList">
+                      <h3>Team members</h3>
+                      <% team.forEach(teamMember => { %>
+                        <p><%= teamMember.name %></p>
+                      <% }) %>
+                    </div>
+                    <button class="btn btn-danger" onclick="leaveTeam()">Leave Team</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <% } else { %>
+            <div class="col-md-6 col-lg-6">
+              <div class="card">
+                <div class="card-header card-header-tabs card-header-primary">
+                  <h4 class="card-title">Team Information</h4>
+                </div>
+                <div class="card-body text-center">
+                  <h2>You don't have a team yet...</h2>
+                </div>
+                <div class="card-body">
+                  <div class="form-group">
+                    <button class="btn btn-warning" onclick="createTeam()">Create a team</button>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="form-group">
+                    <label for="teamCodeInput">Team code</label>
+                    <input type="text" class="form-control" id="teamCodeInput" placeholder="aWeRsOmEtEaM">
+                    <button class="btn btn-success" onclick="joinTeam($('#teamCodeInput').val())">Join team</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <% } %>
+
+          </div>
+        </div>
+      </div>
+      <% include ../partials/footer.ejs %>
+    </div>
+  </div>
+</body>
+</html>
