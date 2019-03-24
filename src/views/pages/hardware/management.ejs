@@ -149,6 +149,7 @@
         </div>
         <script src="/js/hardwareManagement.js"></script>
         <script>
+          // Loading up the items to be used by the confirmation modal
           <% items.forEach(item => { %>
             items["<%= item.id %>"] = <%- JSON.stringify(item) %>;
           <% }) %>
