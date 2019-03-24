@@ -150,12 +150,7 @@
         <script src="/js/hardwareManagement.js"></script>
         <script>
           <% items.forEach(item => { %>
-            items["<%= item.id %>"] = {
-              id: "<%= item.id %>",
-              name: "<%= item.name %>",
-              itemURL: "<%= item.itemURL %>",
-              totalStock: "<%= item.totalStock %>",
-            };
+            items["<%= item.id %>"] = <%- JSON.stringify(item) %>;
           <% }) %>
         </script>
         <% include ../../partials/footer.ejs %>
