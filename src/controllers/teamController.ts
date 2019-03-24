@@ -43,7 +43,7 @@ export class TeamController {
    * Leaves the users current team
    */
   public async leave(req: Request, res: Response, next: Function): Promise<void> {
-    if (await leaveTeam(req.user.id)) {
+    if (await leaveTeam(req.user.id, req.user.team)) {
       res.send("Left the team successfully.");
       return;
     }

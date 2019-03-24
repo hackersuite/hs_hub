@@ -22,14 +22,21 @@ export const createTeam = async (teamCode: string): Promise<boolean> => {
   return false;
 };
 
-export const leaveTeam = async (userID: number): Promise<boolean> => {
+export const leaveTeam = async (userID: number, currentTeam: string): Promise<boolean> => {
   try {
-    await getConnection("hub")
-      .createQueryBuilder()
-      .update(User)
-      .set({ team: undefined })
-      .where("id = :id", { id: userID })
-      .execute();
+    await getConnection("hub").transaction(async transaction => {
+      await transaction.createQueryBuilder()
+        .update(User)
+        .set({ team: undefined })
+        .where("id = :id", { id: userID })
+        .execute();
+      const teamUsers: User[] = await transaction.getRepository(User)
+        .find({team: currentTeam});
+      if (teamUsers.length == 0) {
+        await transaction.getRepository(Team)
+          .delete(currentTeam);
+      }
+    });
     return true;
   } catch (err) {
     console.log(err);
