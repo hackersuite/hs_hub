@@ -22,10 +22,6 @@ export class UserCached extends CacheObject {
    * The user's team
    */
   public team: string;
-  /**
-   * The repository where the user hosts their hack
-   */
-  public repo: string;
 
   /**
    * The amount of time the user object stays synced (miliseconds)
@@ -40,7 +36,6 @@ export class UserCached extends CacheObject {
    * @param email The  user's email
    * @param authLevel The user's authorization level
    * @param team The user's team
-   * @param repo The repository where the user's hack is hosted
    */
   constructor(user: User) {
     super(String(user.id));
@@ -48,7 +43,6 @@ export class UserCached extends CacheObject {
     this.email = user.email;
     this.authLevel = user.authLevel;
     this.team = user.team;
-    this.repo = user.repo;
   }
 
   /**
@@ -60,8 +54,7 @@ export class UserCached extends CacheObject {
       this.name === otherUser.name &&
       this.email === otherUser.email &&
       this.authLevel === otherUser.authLevel &&
-      this.team === otherUser.team &&
-      this.repo === otherUser.repo;
+      this.team === otherUser.team;
   }
 
   /**
@@ -79,7 +72,6 @@ export class UserCached extends CacheObject {
     this.email = user.email;
     this.authLevel = user.authLevel;
     this.team = user.team;
-    this.repo = user.repo;
     this.syncedAt = Date.now();
   }
 }

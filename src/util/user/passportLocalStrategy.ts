@@ -4,6 +4,7 @@ import { User } from "../../db/entity/hub";
 import { ApplicationUser } from "../../db/entity/applications";
 import { getAuthLevel } from "./authLevels";
 import passport = require("passport");
+import { createOrAddTeam } from "../team/teamValidation";
 
 export const passportLocalStrategy = (): localstrategy.Strategy => {
   // Passport serialization
@@ -61,8 +62,11 @@ export const passportLocalStrategy = (): localstrategy.Strategy => {
         newHubUser.email = applicationUser.email;
         newHubUser.password = applicationUser.password;
         newHubUser.authLevel = getAuthLevel(applicationUser.is_organizer, applicationUser.is_volunteer, applicationUser.is_director, applicationUser.is_admin);
-        newHubUser.team = applicationUser.teamCode;
-        newHubUser.repo = "";
+
+        if (applicationUser.teamCode) {
+          newHubUser.team = applicationUser.teamCode;
+          await createOrAddTeam(applicationUser.id, applicationUser.teamCode);
+        }
 
         await insertNewHubUserToDatabase(newHubUser);
         return done(undefined, newHubUser);
@@ -87,7 +91,8 @@ export const passportLocalStrategy = (): localstrategy.Strategy => {
     if (applicationUser) {
       // Try to get the team code for the user, if they are in a team
       const userTeamCode: string = await getTeamCodeByUserIDFromApplications(applicationUser.id);
-      applicationUser.teamCode = userTeamCode;
+      if (userTeamCode)
+        applicationUser.teamCode = userTeamCode;
 
       return applicationUser;
     }

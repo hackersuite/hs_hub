@@ -32,6 +32,5 @@ export const errorHandler = (err: ApiError|Error, req: Request, res: Response, n
  */
 export const error404Handler = (req: Request, res: Response) => {
   const apiError: ApiError = new ApiError(HttpResponseCode.NOT_FOUND);
-  console.log(apiError);
   res.render("pages/404", { error: apiError });
 };
