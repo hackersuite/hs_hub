@@ -1,6 +1,6 @@
-import { Achievement, AchievementsProvider, AchievementOptions } from "./";
+import { Achievement, AchievementsRepository, AchievementOptions } from ".";
 
-export class LocalAchievementsStore implements AchievementsProvider {
+export class LocalAchievementsRepository implements AchievementsRepository {
   /**
    * The loaded achievements
    */

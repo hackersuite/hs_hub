@@ -1,9 +1,9 @@
-import { Achievement } from "./";
+import { Achievement } from ".";
 
 /**
  * An interface for an Achievement store
  */
-export interface AchievementsProvider {
+export interface AchievementsRepository {
 
   /**
    * Returns all achievements
