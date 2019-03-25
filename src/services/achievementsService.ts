@@ -1,6 +1,5 @@
 import { Connection } from "typeorm";
-import { AchievementsProvider } from "../util/achievements";
-import { Achievement } from "../util/achievements/";
+import { Achievement, AchievementsProvider } from "../util/achievements";
 
 export class AchievementsService {
   private dbConnection: Connection;
