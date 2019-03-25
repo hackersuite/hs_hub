@@ -42,6 +42,9 @@ export class LocalAchievementsStore implements AchievementsProvider {
     },
   ];
 
+  /**
+   * The loaded achievements
+   */
   private achievements: Achievement[];
 
   /**
