@@ -38,11 +38,6 @@
                 </div>
                 <% } %>
                 <div class="card-body">
-                  <% if (!user.team && !restrict) { %>
-                  <p>First, create a team and then the input below will become editable.</p>
-                  <% } %>
-                </div>
-                <div class="card-body">
                   <div class="form-group">
                     <% if (restrict && user.team) { %>
                     <label for="tableNumber">Team Table Number</label>
@@ -50,6 +45,7 @@
                     <% } else if (!restrict && !user.team) { %>
                     <label for="tableNumber">Team Table Number</label>
                     <input type="number" class="form-control" id="tableNumber" placeholder="42" disabled>
+                    <small class="form-text text-muted text-danger">First, create a team and then the input above will become editable.</small>
                     <% } else if (!restrict && user.team) { %>
                     <label for="tableNumber">Team Table Number</label>
                     <input type="number" class="form-control" id="tableNumber" placeholder="42" value="<%= teamEntity.tableNumber %>" min="0">
