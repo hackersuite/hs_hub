@@ -257,7 +257,6 @@ export const getAllHardwareItems = async (userId?: number): Promise<Object[]> =>
     formattedData.push({
       "itemID": item.id,
       "itemName": item.name,
-      "itemDescription": item.description,
       "itemURL": item.itemURL,
       "itemStock": item.totalStock,
       "itemsLeft": remainingItemCount,
@@ -275,7 +274,6 @@ export const getAllHardwareItems = async (userId?: number): Promise<Object[]> =>
 interface HardwareObject {
   itemName?: string;
   itemURL?: string;
-  itemDescription?: string;
   itemStock?: number;
 }
 /**
@@ -289,7 +287,6 @@ export const addAllHardwareItems = async (items: HardwareObject[]): Promise<void
   items.forEach((item: HardwareObject) => {
     const newHardwareItem = new HardwareItem();
     newHardwareItem.name = item.itemName;
-    newHardwareItem.description = item.itemDescription;
     newHardwareItem.itemURL = item.itemURL;
     newHardwareItem.totalStock = item.itemStock;
     newHardwareItem.reservedStock = 0;
