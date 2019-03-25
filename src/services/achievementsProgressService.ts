@@ -1,7 +1,8 @@
 import { Connection } from "typeorm";
 import { Achievement, AchievementsProvider } from "../util/achievements";
+import { AchievementProgress } from "../db/entity/hub";
 
-export class AchievementsService {
+export class AchievementsProgressService {
   private dbConnection: Connection;
   private achievementsProvider: AchievementsProvider;
 
@@ -14,13 +15,13 @@ export class AchievementsService {
    * Returns all achievements
    */
   public async getAchievements(): Promise<Achievement[]> {
-    throw new Error("Not implemented");
+    return this.achievementsProvider.getAchievements();
   }
 
   /**
    * Returns all achievements with the given user's progress for each achievement
    */
-  public async getAchievementsWithUserProgress(userId: number): Promise<Achievement[]> {
+  public async getAchievementsProgressForUser(userId: number): Promise<AchievementProgress[]> {
     throw new Error("Not implemented");
   }
 
