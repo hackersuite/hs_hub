@@ -22,9 +22,9 @@ export const userRouter = (): Router => {
   router.get("/profile", checkIsLoggedIn, userController.profile);
 
   /**
-   * GET /user/:id
+   * GET /user/[any valid number]
    */
-  router.get("/:id", checkIsOrganizer, userController.profile);
+  router.get(/[0-9]+/, checkIsOrganizer, userController.profile);
 
   /**
    * GET /user/checkVolunteer

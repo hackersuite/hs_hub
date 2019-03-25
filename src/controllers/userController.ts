@@ -4,7 +4,7 @@ import { ApiError } from "../util/errorHandling";
 import { HttpResponseCode } from "../util/errorHandling";
 import { AuthLevels } from "../util/user";
 import { NextFunction } from "connect";
-import { getUsersTeamMembers, getUsersTeam } from "../util/team/teamValidation";
+import { getUsersTeamMembers, getUsersTeam, checkTeamExists } from "../util/team/teamValidation";
 import { User } from "../db/entity/hub/user";
 import { getConnection } from "typeorm";
 import { Team } from "../db/entity/hub/team";
@@ -50,15 +50,15 @@ export class UserController {
     // When true, the buttons to modify the users profile are hidden
     let isRestrictedView: boolean = false;
 
-    if (req.params.id) {
+    const reqParam: number = Number(req.url.slice(1));
+    const isReqParamValid: boolean = !isNaN(reqParam);
+    if (isReqParamValid) {
       profile = await getConnection("hub")
         .getRepository(User)
-        .findOne(req.params.id);
+        .findOne(reqParam);
       isRestrictedView = true;
-      if (!profile) {
-
-        next();
-      }
+      if (!profile)
+        return next();
     }
 
     let userTeam: User[] = undefined;
