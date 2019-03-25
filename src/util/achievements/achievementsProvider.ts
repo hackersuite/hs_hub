@@ -8,7 +8,7 @@ export interface AchievementsProvider {
   /**
    * Returns all achievements
    */
-  getAchievements(): Promise<Achievement[]>;s
+  getAchievements(): Promise<Achievement[]>;
 
   /**
    * Returns an achievement with the given id
