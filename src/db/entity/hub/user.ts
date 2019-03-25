@@ -1,8 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from "typeorm";
 import { AchievementProgress } from "./achievementProgress";
 import { ReservedHardwareItem } from "./reservedHardwareItem";
-import { ApplicationUser } from "../applications/applicationUser";
-import { getAuthLevel } from "../../../util/user/authLevels";
 
 @Entity()
 export class User {
@@ -27,8 +25,12 @@ export class User {
   @Column()
   repo: string;
 
-  @OneToMany(type => AchievementProgress, aProgress => aProgress.user)
+  @OneToMany(type => AchievementProgress, aProgress => aProgress.getUser())
   achievementsProgress: AchievementProgress;
   @OneToMany(() => ReservedHardwareItem, reservedHardwareItem => reservedHardwareItem.user)
   hardwareItems: ReservedHardwareItem[];
+
+  public getId() {
+    return this.id;
+  }
 }

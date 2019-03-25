@@ -33,11 +33,15 @@ export class AchievementProgress {
    * All completed steps stored in a string
    */
   @Column({
-    type: "varchar",
-    length: "127",
+    type: "simple-array",
     nullable: false
   })
-  private completedSteps: string;
+  private completedSteps: string[];
+
+  /**
+   * The separator to be used to separate completed steps
+   */
+  private stepsSeparator: string = ",";
 
   /**
    * Wether or not the user has claimed their prize for the achievement
@@ -58,11 +62,11 @@ export class AchievementProgress {
    * @param stepsCompleted (optional) The steps the user has completed
    * @param prizeClaimed (optional) Wether or not the user has claimed their prize for the achievement
    */
-  constructor(achievement: Achievement, user: User, progress?: number, stepsCompleted?: string, prizeClaimed?: boolean) {
+  constructor(achievement: Achievement, user: User, progress?: number, stepsCompleted?: string[], prizeClaimed?: boolean) {
     this.achievementId = achievement.getId();
     this.user = user;
     this.progress = progress || 0;
-    this.completedSteps = stepsCompleted || "";
+    this.completedSteps = stepsCompleted || [];
     this.prizeClaimed = prizeClaimed;
     this.achievement = achievement;
   }
@@ -96,6 +100,13 @@ export class AchievementProgress {
   }
 
   /**
+   * Returns the steps the user has completed
+   */
+  public addCompletedStep(step: number) {
+    this.completedSteps.push(step.toString());
+  }
+
+  /**
    * Returns wether or not the user has claimed their prize for the achievement
    */
   public getPrizeClaimed() {
@@ -107,5 +118,33 @@ export class AchievementProgress {
    */
   public getAchievement() {
     return this.achievement;
+  }
+
+  /**
+   * Sets the achievement
+   */
+  public setAchievement(achievement: Achievement) {
+    this.achievement = achievement;
+  }
+
+  /**
+   * Check if the given step is already completed
+   * @param step The step
+   */
+  public stepIsCompleted(step: number): boolean {
+    const targetStepString: string = step.toString();
+    if (this.completedSteps.find((step: string) => step == targetStepString))
+      return false;
+    return true;
+  }
+
+  /**
+   * Check if the given step is the next consecutive
+   * step to be completed for this achievement
+   * @param step The step
+   */
+  public stepIsTheNextConsecutiveStep(step: number): boolean {
+    const lastCompletedStep: number = Number(this.completedSteps[this.completedSteps.length - 1]);
+    return lastCompletedStep + 1 === step;
   }
 }

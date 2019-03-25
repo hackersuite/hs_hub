@@ -15,10 +15,15 @@ export class AchievementsService {
   }
 
   /**
-   * Returns an achievement with the given id. Returns undefined if not found
+   * Returns an achievement with the given id.
+   * Throws error if no achievement with given id can be found
    * @param id The id of the achievement to search for
    */
   public async getAchievementWithId(id: number): Promise<Achievement> {
-    return this.achievementsRepository.getAchievementWithId(id);
+    const achievement: Achievement = await this.achievementsRepository.getAchievementWithId(id);
+    if (!achievement) {
+      throw new Error("Could not find an achievement with given id!");
+    }
+    return achievement;
   }
 }

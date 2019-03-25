@@ -107,4 +107,14 @@ export class Achievement {
   public getMustCompleteStepsInOrder() {
     return this.mustCompleteStepsInOrder;
   }
+
+  /**
+   * Checks if given progress is valid for the achievement
+   * @param progress The user's progress
+   */
+  public progressIsValid(progress: number): boolean {
+    if (progress < 0 || progress > this.maxProgress)
+      return false;
+    return true;
+  }
 }
