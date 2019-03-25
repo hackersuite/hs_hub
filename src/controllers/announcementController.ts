@@ -4,6 +4,7 @@ import { ApiError, HttpResponseCode } from "../util/errorHandling";
 import { Announcement } from "../db/entity/hub";
 import { getConnection } from "typeorm";
 import { sendOneSignalNotification } from "../util/announcement";
+import { User } from "../db/entity/hub/user";
 
 /**
  * A controller for the announcement methods
@@ -27,14 +28,41 @@ export class AnnouncementController {
     }
   }
 
+  /**
+   * This function will either send a push notifation to all users subscribed to push notifications
+   * or to only those users whose ids are provided.
+   * 
+   * If you want to send to particular users, then include the ids in the post request with the following format:
+   * included_users = {"users": ["userId1", "userId2", ...]}
+   * @param req
+   * @param res
+   * @param next
+   */
   public async pushNotification(req: Request, res: Response, next: NextFunction) {
     try {
       const text: string = req.body.message;
-      const result: Object = await sendOneSignalNotification(text);
+      let usersToSendNotification: string = req.body.included_users;
+      if (usersToSendNotification !== undefined)
+        usersToSendNotification = JSON.parse(usersToSendNotification);
+
+      const result: Object = await sendOneSignalNotification(text, usersToSendNotification);
       if (result.hasOwnProperty("errors") === false)
         res.send(result);
       else
         res.status(HttpResponseCode.INTERNAL_ERROR).send(`Failed to send the push notification!. ${JSON.stringify(result)}`);
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  public async pushNotificationRegister(req: Request, res: Response, next: NextFunction) {
+    try {
+      const playerID: string = req.body.data;
+      req.user.push_id = playerID;
+      await getConnection("hub")
+        .getRepository(User)
+        .save(req.user);
+      res.status(200).send(`Updated with player ID: ${req.user.push_id}`);
     } catch (error) {
       return next(error);
     }

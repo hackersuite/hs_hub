@@ -19,11 +19,22 @@
 <link rel="manifest" href="/manifest.json" />
 <script>
   var OneSignal = window.OneSignal || [];
+  var safariAPIKey = '<%= process.env.ONE_SIGNAL_SAFARI_ID%>';
+  var appAPIKey = '<%= process.env.ONE_SIGNAL_API_KEY %>';
+
+  var options = {
+    appId: appAPIKey,
+    safari_web_id: safariAPIKey,
+    autoResubscribe: true
+  };
+
   OneSignal.push(function () {
-    OneSignal.init({
-      appId: "e5e24f75-c2e8-4194-9606-6cf40c34f485",
-      autoResubscribe: true
-    });
+    OneSignal.init(options);
+  });
+
+  <% if (!locals.preventNotificationRequest) { %>
+  OneSignal.push(function() {
     OneSignal.showNativePrompt();
   });
+  <% } %>
 </script>
