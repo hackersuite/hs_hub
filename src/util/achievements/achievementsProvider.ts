@@ -1,6 +1,6 @@
-import { Achievement } from "./abstract-classes";
+import { Achievement } from "./";
 
 export interface AchievementsProvider {
-  getAchievements(): Achievement[];
-  getAchievementWithId(id: string): Achievement;
+  getAchievements(): Promise<Achievement[]>;
+  getAchievementWithId(id: number): Promise<Achievement>;
 }
