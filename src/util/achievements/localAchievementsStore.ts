@@ -1,6 +1,4 @@
-import { AchievementsProvider } from "./achievementsProvider";
-import { Achievement } from "./";
-import { AchievementOptions } from "./achievementOptions";
+import { Achievement, AchievementsProvider, AchievementOptions } from "./";
 
 export class LocalAchievementsStore implements AchievementsProvider {
   /**
