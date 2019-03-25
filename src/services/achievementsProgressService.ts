@@ -1,23 +1,17 @@
 import { Connection } from "typeorm";
-import { Achievement, AchievementsProvider } from "../util/achievements";
+import { Achievement } from "../util/achievements";
 import { AchievementProgress } from "../db/entity/hub";
+import { AchievementsService } from "./";
 
 export class AchievementsProgressService {
   private dbConnection: Connection;
-  private achievementsProvider: AchievementsProvider;
+  private achievementsService: AchievementsService;
 
-  constructor(dbConnection: Connection, achievementsProvider: AchievementsProvider) {
+  constructor(dbConnection: Connection, achievementsService: AchievementsService) {
     this.dbConnection = dbConnection;
-    this.achievementsProvider = achievementsProvider;
+    this.achievementsService = achievementsService;
   }
-
-  /**
-   * Returns all achievements
-   */
-  public async getAchievements(): Promise<Achievement[]> {
-    return this.achievementsProvider.getAchievements();
-  }
-
+  
   /**
    * Returns all achievements with the given user's progress for each achievement
    */
