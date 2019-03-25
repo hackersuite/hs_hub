@@ -3,6 +3,9 @@ import { Achievement } from "./";
 import { AchievementOptions } from "./achievementOptions";
 
 export class LocalAchievementsStore implements AchievementsProvider {
+  /**
+   * The settings of the Achievements to load to the store
+   */
   private achievementsToLoad: AchievementOptions[] = [
     {
       title: "Sample",
@@ -41,19 +44,38 @@ export class LocalAchievementsStore implements AchievementsProvider {
 
   private achievements: Achievement[];
 
+  /**
+   * Creates a local Achievement store that stores hard-coded achievements in memory
+   */
   constructor() {
+    this.loadAchievements(this.achievementsToLoad);
+  }
+
+  /**
+   * Loads up all achievements in achievementsToLoad
+   */
+  private loadAchievements(achievementsToLoad: AchievementOptions[]) {
+    this.achievements = [];
+
     let id = 0;
-    this.achievementsToLoad.forEach((options: AchievementOptions) => {
+    achievementsToLoad.forEach((options: AchievementOptions) => {
       this.achievements.push(new Achievement(id, options));
       id++;
     });
   }
 
+  /**
+   * Returns all achievements
+   */
   public async getAchievements(): Promise<Achievement[]> {
-    throw new Error("Method not implemented.");
+    return this.achievements;
   }
 
+  /**
+   * Returns an achievement with the given id. Returns undefined if not found
+   * @param id The id of the achievement to search for
+   */
   public async getAchievementWithId(id: number): Promise<Achievement> {
-    throw new Error("Method not implemented.");
+    return this.achievements.find((achievement: Achievement) => achievement.getId() === id);
   }
 }
