@@ -32,6 +32,7 @@
     "@types/pbkdf2": "^3.0.0",
     "@types/request": "^2.48.1",
     "body-parser": "^1.18.3",
+    "class-validator": "^0.9.1",
     "cookie-parser": "^1.4.3",
     "dotenv": "^6.0.0",
     "ejs": "^2.6.1",
