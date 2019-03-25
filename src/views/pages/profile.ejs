@@ -36,19 +36,28 @@
                     <% } %>
                   </div>
                 </div>
-
+                <% } %>
+                <div class="card-body">
+                  <% if (!user.team && !restrict) { %>
+                  <p>First, create a team and then the input below will become editable.</p>
+                  <% } %>
+                </div>
                 <div class="card-body">
                   <div class="form-group">
+                    <% if (restrict && user.team) { %>
                     <label for="tableNumber">Team Table Number</label>
-                    <% if (restrict) { %>
                     <input type="number" class="form-control" id="tableNumber" placeholder="42" value="<%= teamEntity.tableNumber %>" disabled>
-                    <% } else { %>
+                    <% } else if (!restrict && !user.team) { %>
+                    <label for="tableNumber">Team Table Number</label>
+                    <input type="number" class="form-control" id="tableNumber" placeholder="42" disabled>
+                    <% } else if (!restrict && user.team) { %>
+                    <label for="tableNumber">Team Table Number</label>
                     <input type="number" class="form-control" id="tableNumber" placeholder="42" value="<%= teamEntity.tableNumber %>" min="0">
                     <button class="btn btn-success" onclick="updateTableNumber($('#tableNumber').val())">Save</button>
                     <% } %>
                   </div>
                 </div>
-                <% } %>
+
               </div>
             </div>
             
@@ -81,7 +90,7 @@
                   <h4 class="card-title">Team Information</h4>
                 </div>
                 <div class="card-body text-center">
-                  <h2>You don't have a team yet...</h2>
+                  <h2>Create or join a team!</h2>
                 </div>
                 <% if (!restrict) { %>
                 <div class="card-body">
