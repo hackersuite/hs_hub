@@ -28,8 +28,24 @@
                 <div class="card-body">
                   <div class="form-group">
                     <label for="gitRepo">Team Git Repository</label>
-                    <input type="url" class="form-control" id="gitRepo" placeholder="https://github.com/hackathon/project.git" value="<%= teamRepo %>">
+                    <% if (restrict) { %>
+                    <input type="url" class="form-control" id="gitRepo" placeholder="https://github.com/hackathon/project.git" value="<%= teamEntity.repo %>" disabled>
+                    <% } else { %>
+                    <input type="url" class="form-control" id="gitRepo" placeholder="https://github.com/hackathon/project.git" value="<%= teamEntity.repo %>">
                     <button class="btn btn-success" onclick="updateRepository($('#gitRepo').val())">Save</button>
+                    <% } %>
+                  </div>
+                </div>
+
+                <div class="card-body">
+                  <div class="form-group">
+                    <label for="tableNumber">Team Table Number</label>
+                    <% if (restrict) { %>
+                    <input type="number" class="form-control" id="tableNumber" placeholder="42" value="<%= teamEntity.tableNumber %>" disabled>
+                    <% } else { %>
+                    <input type="number" class="form-control" id="tableNumber" placeholder="42" value="<%= teamEntity.tableNumber %>" min="0">
+                    <button class="btn btn-success" onclick="updateTableNumber($('#tableNumber').val())">Save</button>
+                    <% } %>
                   </div>
                 </div>
                 <% } %>
@@ -51,7 +67,9 @@
                         <p><%= teamMember.name %></p>
                       <% }) %>
                     </div>
+                    <% if (!restrict) { %>
                     <button class="btn btn-danger" onclick="leaveTeam()">Leave Team</button>
+                    <% } %>
                   </div>
                 </div>
               </div>
@@ -65,6 +83,7 @@
                 <div class="card-body text-center">
                   <h2>You don't have a team yet...</h2>
                 </div>
+                <% if (!restrict) { %>
                 <div class="card-body">
                   <div class="form-group">
                     <button class="btn btn-warning" onclick="createTeam()">Create a team</button>
@@ -77,6 +96,7 @@
                     <button class="btn btn-success" onclick="joinTeam($('#teamCodeInput').val())">Join team</button>
                   </div>
                 </div>
+                <% } %>
               </div>
             </div>
             <% } %>

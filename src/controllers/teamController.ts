@@ -5,7 +5,7 @@ import { updateUserWithTeamCode, getAllUsersInTeams, getUsersTeamMembers, create
 import { ApiError, HttpResponseCode } from "../util/errorHandling";
 import { User } from "../db/entity/hub";
 import { NextFunction } from "connect";
-import { updateTeamRepository } from "../util/team/teamValidation";
+import { updateTeamRepository, updateTeamTableNumber } from "../util/team/teamValidation";
 
 /**
  * A controller for team methods
@@ -113,5 +113,14 @@ export class TeamController {
       res.send("Updated the teams git repository!");
     else
       return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Failed to update the team repository."));
+  }
+
+  public async updateTable(req: Request, res: Response, next: NextFunction): Promise<void> {
+    if (!req.user.team) return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Team not found"));
+
+    if (await updateTeamTableNumber(req.user.team, req.body.tableNumber))
+      res.send("Updated the teams table number!");
+    else
+      return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Failed to update the team table number."));
   }
 }

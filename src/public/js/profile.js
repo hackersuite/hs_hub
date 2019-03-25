@@ -20,6 +20,27 @@ function updateRepository(repoURL) {
   });
 }
 
+function updateTableNumber(newTableNumber) {
+  if (Number(newTableNumber) < 0 || !Number.isSafeInteger(Number(newTableNumber))) {
+    showError("Enter a valid table number");
+    return;
+  }
+
+  $.post({
+    url: "/team/updateTableNumber",
+    data: {
+      tableNumber: newTableNumber
+    },
+    success: function(response) {
+      showSuccess(response);
+    },  
+    error: function(error) {
+      showError(error.responseJSON.message);
+      return;
+    }
+  });
+}
+
 function createTeam() {
   $.post({
     url: "/team/create",

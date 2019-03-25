@@ -42,5 +42,10 @@ export const teamRouter = (): Router => {
    */
   router.post("/updateRepository", checkIsLoggedIn, teamController.updateRepo);
 
+  /**
+   * POST /team/updateTableNumber
+   */
+  router.post("/updateTableNumber", checkIsLoggedIn, teamController.updateTable);
+
   return router;
 };

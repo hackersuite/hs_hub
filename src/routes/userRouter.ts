@@ -22,6 +22,11 @@ export const userRouter = (): Router => {
   router.get("/profile", checkIsLoggedIn, userController.profile);
 
   /**
+   * GET /user/:id
+   */
+  router.get("/:id", checkIsOrganizer, userController.profile);
+
+  /**
    * GET /user/checkVolunteer
    * Used only to test out checkIsVolunteer, to be removed in next pull request
    */

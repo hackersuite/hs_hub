@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryColumn, AfterInsert, AfterUpdate } from "typeorm";
+import { Entity, Column, PrimaryColumn } from "typeorm";
 
 @Entity()
 export class Team {
@@ -7,4 +7,7 @@ export class Team {
 
   @Column({ nullable: true })
   repo: string;
+
+  @Column({ nullable: true })
+  tableNumber: number;
 }

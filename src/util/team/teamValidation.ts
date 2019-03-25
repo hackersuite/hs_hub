@@ -89,6 +89,20 @@ export const updateTeamRepository = async (teamCode: string, newTeamRepo: string
   }
 };
 
+export const updateTeamTableNumber = async (teamCode: string, newTeamTable: number): Promise<boolean> => {
+  if (!(await checkTeamExists(teamCode)))
+    return false;
+
+  try {
+    await getConnection("hub")
+      .getRepository(Team)
+      .save({teamCode: teamCode, tableNumber: newTeamTable});
+    return true;
+  } catch (err) {
+    throw new Error(`Lost connection to database (hub)! ${err}`);
+  }
+};
+
 export const checkTeamExists = async (userTeamCode: string): Promise<boolean> => {
   try {
     const teamCodeValid: boolean = await getConnection("hub")
@@ -129,12 +143,12 @@ export const getUsersTeamMembers = async (teamCode: string): Promise<User[]> => 
   }
 };
 
-export const getUsersTeamRepo = async (teamCode: string): Promise<string> => {
+export const getUsersTeam = async (teamCode: string): Promise<Team> => {
   try {
     const usersTeam: Team = await getConnection("hub")
       .getRepository(Team)
       .findOne({ teamCode: teamCode });
-    return (usersTeam ? usersTeam.repo : undefined);
+    return usersTeam;
   } catch (err) {
     throw new Error(`Lost connection to database (hub)! ${err}`);
   }

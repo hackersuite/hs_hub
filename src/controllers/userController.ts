@@ -4,8 +4,10 @@ import { ApiError } from "../util/errorHandling";
 import { HttpResponseCode } from "../util/errorHandling";
 import { AuthLevels } from "../util/user";
 import { NextFunction } from "connect";
-import { getUsersTeamMembers, getUsersTeamRepo } from "../util/team/teamValidation";
+import { getUsersTeamMembers, getUsersTeam } from "../util/team/teamValidation";
 import { User } from "../db/entity/hub/user";
+import { getConnection } from "typeorm";
+import { Team } from "../db/entity/hub/team";
 
 /**
  * A controller for auth methods
@@ -42,23 +44,39 @@ export class UserController {
   /**
    * Gets the profile page for the currently logged in user
    */
-  public async profile(req: Request, res: Response) {
-    let userTeam: User[] = undefined;
-    let userTeamRepo: string = undefined;
+  public async profile(req: Request, res: Response, next: NextFunction) {
+    let profile: User = req.user;
+    // Use this variable to hide some details in the page
+    // When true, the buttons to modify the users profile are hidden
+    let isRestrictedView: boolean = false;
 
-    if (req.user.team) {
-      userTeam = await getUsersTeamMembers(req.user.team);
-      userTeamRepo = await getUsersTeamRepo(req.user.team);
+    if (req.params.id) {
+      profile = await getConnection("hub")
+        .getRepository(User)
+        .findOne(req.params.id);
+      isRestrictedView = true;
+      if (!profile) {
+
+        next();
+      }
     }
 
-    const team: Array<Object> = [];
+    let userTeam: User[] = undefined;
+    let teamEntity: Team = undefined;
+
+    if (profile.team) {
+      userTeam = await getUsersTeamMembers(profile.team);
+      teamEntity = await getUsersTeam(profile.team);
+    }
+
+    const teamMembers: Array<Object> = [];
     if (userTeam) {
       userTeam.forEach((user: User) => {
-        team.push({ "name": user.name });
+        teamMembers.push({ "name": user.name });
       });
     }
 
-    res.render("pages/profile", { user: req.user, team: team, teamRepo: userTeamRepo });
+    res.render("pages/profile", { user: profile, team: teamMembers, teamEntity: teamEntity, restrict: isRestrictedView });
   }
 
   /**
