@@ -1,4 +1,5 @@
 import { AchievementOptions } from "./";
+import { pbkdf2Sync } from "pbkdf2";
 
 /**
  * Class for an achievement
@@ -109,6 +110,14 @@ export class Achievement {
   }
 
   /**
+   * Checks wheter given step is possible for the achievement 
+   * @param step The step
+   */
+  public stepIsPossible(step: number): boolean {
+    return this.progressIsValid(step);
+  }
+
+  /**
    * Checks if given progress is valid for the achievement
    * @param progress The user's progress
    */
@@ -116,5 +125,23 @@ export class Achievement {
     if (progress < 0 || progress > this.maxProgress)
       return false;
     return true;
+  }
+
+  /**
+   * Checks if given token is valid for given step
+   * @param token The token
+   * @param step The step
+   */
+  public tokenIsValidForStep(token: string, step: number): boolean {
+    if (!this.requiresToken)
+      return true;
+
+    const expectedToken: string = pbkdf2Sync(
+      `${this.id}->${this.maxProgress > 0 ? step.toString() : ""}`,
+      process.env.ACHIEVEMENT_TOKEN_SALT,
+      1,
+      10
+    ).toString("base64");
+    return token === expectedToken;
   }
 }

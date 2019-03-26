@@ -25,12 +25,16 @@ export class User {
   @Column()
   repo: string;
 
-  @OneToMany(type => AchievementProgress, aProgress => aProgress.getUser())
+  @OneToMany(type => AchievementProgress, aProgress => aProgress.user)
   achievementsProgress: AchievementProgress;
   @OneToMany(() => ReservedHardwareItem, reservedHardwareItem => reservedHardwareItem.user)
   hardwareItems: ReservedHardwareItem[];
 
   public getId() {
     return this.id;
+  }
+
+  public getName() {
+    return this.name;
   }
 }

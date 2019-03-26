@@ -27,18 +27,20 @@ export function buildApp(callback: (app: Express, err?: Error) => void): void {
 
   passportSetup(app);
 
-  // Routes set up
-  app.use("/", mainRouter());
-
-  // Setting up error handlers
-  app.use(error404Handler);
-  app.use(errorHandler);
 
   // Connecting to database
   createConnections(createDatabaseOptions()).then((connections: Connection[]) => {
     connections.forEach(element => {
       console.log("  Connection to database (" + element.name + ") established.");
     });
+
+    // Routes set up
+    app.use("/", mainRouter());
+
+    // Setting up error handlers
+    app.use(error404Handler);
+    app.use(errorHandler);
+
     return callback(app);
   }).catch((err: any) => {
     console.error("  Could not connect to database");

@@ -1,10 +1,10 @@
 import { Router } from "express";
 import { AchievementsController } from "../controllers/";
-import { checkIsLoggedIn, checkIsOrganizer } from "../util/user";
+import { checkIsLoggedIn, checkIsOrganizer, checkIsVolunteer } from "../util/user";
 import { AchievementsService, AchievementsProgressService } from "../services";
 import { LocalAchievementsRepository } from "../util/achievements/localAchievementsRepository";
 import { localAchievements } from "../util/achievements/localAchievements";
-import { getRepository } from "typeorm";
+import { getConnection } from "typeorm";
 import { AchievementProgress } from "../db/entity/hub";
 
 export const achievementsRouter = (): Router => {
@@ -12,7 +12,7 @@ export const achievementsRouter = (): Router => {
     new AchievementsService(new LocalAchievementsRepository(localAchievements));
 
   const achievementsProgressService: AchievementsProgressService =
-    new AchievementsProgressService(getRepository(AchievementProgress), achievementsService);
+    new AchievementsProgressService(getConnection("hub").getRepository(AchievementProgress), achievementsService);
 
   const router = Router();
   const achievementsController = new AchievementsController(achievementsService, achievementsProgressService);
@@ -29,23 +29,37 @@ export const achievementsRouter = (): Router => {
    */
   router.get("/progress", checkIsLoggedIn, achievementsController.getProgressForAllAchievements);
 
-  // /**
-  //  * GET /achievements/:achievementId/progress
-  //  * Returns the user's progress on a specific achievement
-  //  */
-  // router.get("/:achievementId/progress", checkIsLoggedIn, achievementsController.getProgressForAchievement);
+  /**
+   * GET /achievements/:id/progress
+   * Returns the user's progress on a specific achievement
+   */
+  router.get("/:id/progress", checkIsLoggedIn, achievementsController.getProgressForAchievement);
+
+  /**
+   * GET /achievements/:id/progress
+   * Returns the user's progress on a specific achievement
+   */
+  router.get("/test", achievementsController.test);
+
+  /**
+   * PUT /achievements/:id/complete
+   * Sets the user's progress on the achievement to completed
+   */
+  router.put("/:id/complete",
+    // checkIsVolunteer,
+    achievementsController.completeAchievementForUser);
+
+  /**
+   * GET /achievements/:id/step/:step?token=:token
+   * Increments the user's progress on a specific achievement
+   */
+  router.get("/:id/step/:step", checkIsLoggedIn, achievementsController.completeAchievementStep);
 
   // /**
-  //  * POST /achievements/:achievementId/incrementProgress
-  //  * Increments the user's progress on a specific achievement
-  //  */
-  // router.post("/:achievementId/incrementProgress", checkIsLoggedIn, achievementsController.incrementProgressForAchievement);
-
-  // /**
-  //  * POST /achievements/:achievementId/setProgress
+  //  * POST /achievements/:id/setProgress
   //  * Sets a users progress to a given value
   //  */
-  // router.post("/:achievementId/setProgress", checkIsOrganizer, achievementsController.setUserProgressForAchievement);
+  // router.post("/:id/setProgress", checkIsOrganizer, achievementsController.setUserProgressForAchievement);
 
   return router;
 };

@@ -17,6 +17,7 @@ export class AchievementProgress {
    * The user
    */
   @ManyToOne(type => User, user => user.achievementsProgress, {
+    eager: true,
     primary: true
   })
   user: User;
@@ -30,13 +31,13 @@ export class AchievementProgress {
   progress: number;
 
   /**
-   * All completed steps stored in a string
+   * All completed steps stored in a JSON array as a string
    */
   @Column({
-    type: "simple-array",
-    nullable: false
+    nullable: false,
+    type: "simple-json"
   })
-  completedSteps: string[];
+  completedSteps: number[];
 
   /**
    * Wether or not the user has claimed their prize for the achievement
@@ -57,7 +58,7 @@ export class AchievementProgress {
    * @param stepsCompleted (optional) The steps the user has completed
    * @param prizeClaimed (optional) Wether or not the user has claimed their prize for the achievement
    */
-  constructor(achievement: Achievement, user: User, progress?: number, stepsCompleted?: string[], prizeClaimed?: boolean) {
+  constructor(achievement: Achievement, user: User, progress?: number, stepsCompleted?: number[], prizeClaimed?: boolean) {
     this.achievementId = achievement ? achievement.getId() : undefined;
     this.user = user;
     this.progress = progress || 0;
@@ -95,6 +96,14 @@ export class AchievementProgress {
   }
 
   /**
+   * Sets the user
+   */
+  public setUser(user: User) {
+    this.user = user;
+  }
+
+
+  /**
    * Returns the steps the user has completed
    */
   public getCompletedSteps() {
@@ -106,7 +115,7 @@ export class AchievementProgress {
    * increments the progress
    */
   public addCompletedStep(step: number) {
-    this.completedSteps.push(step.toString());
+    this.completedSteps.push(step);
     this.progress++;
   }
 
@@ -143,10 +152,9 @@ export class AchievementProgress {
    * @param step The step
    */
   public stepIsCompleted(step: number): boolean {
-    const targetStepString: string = step.toString();
-    if (this.completedSteps.find((step: string) => step == targetStepString))
-      return false;
-    return true;
+    if (this.completedSteps.find((s: number) => s == step))
+      return true;
+    return false;
   }
 
   /**
@@ -155,7 +163,14 @@ export class AchievementProgress {
    * @param step The step
    */
   public stepIsTheNextConsecutiveStep(step: number): boolean {
-    const lastCompletedStep: number = Number(this.completedSteps[this.completedSteps.length - 1]);
+    const lastCompletedStep: number = Number(this.completedSteps[this.completedSteps.length - 1]) || 0;
     return lastCompletedStep + 1 === step;
+  }
+
+  /**
+   * Checks wether the achievement is completed
+   */
+  public achievementIsCompleted(): boolean {
+    return this.progress >= this.achievement.getMaxProgress();
   }
 }
