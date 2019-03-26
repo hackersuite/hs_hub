@@ -19,14 +19,14 @@ export class AchievementsProgressService {
    */
   public async getAchievementProgressForUser(achievement: Achievement, user: User): Promise<AchievementProgress> {
     let achievementProgress: AchievementProgress = await this.achievementsProgressRepository
-      .createQueryBuilder("achievementProgress")
-      .where("achievementProgress.achievementId = :achievementId", { achievementId: achievement.getId() })
-      .andWhere("achievementProgress.userId = :userId", { userId: user.getId() })
-      .getOne();
+      .findOne({ where: {
+          achievementId: achievement.getId(),
+          user: user
+        }});
 
     if (!achievementProgress) {
       // Returning an empty AchievementProgress object if it wasn't found in the DB
-      achievementProgress = new AchievementProgress(achievement, undefined);
+      achievementProgress = new AchievementProgress(achievement, user);
     }
 
     // Need to set achievement manually as Achievement doesn't
@@ -36,16 +36,15 @@ export class AchievementsProgressService {
     return achievementProgress;
   }
 
-
   /**
    * Returns the given user's progress for each achievement
    * @param user The user
    */
   public async getAchievementsProgressForUser(user: User): Promise<AchievementProgress[]> {
     const achievementsProgress: AchievementProgress[] = await this.achievementsProgressRepository
-      .createQueryBuilder("achievementProgress")
-      .where("achievementProgress.userId = :userId", { userId: user.getId() })
-      .getMany();
+      .find({ where: {
+        user
+        }});
 
     const achievements: Achievement[] = await this.achievementsService.getAchievements();
 
@@ -56,8 +55,29 @@ export class AchievementsProgressService {
         progressForCurrentAchievement.setAchievement(achievement);
       } else {
         // Adding empty AchievementProgress to array if it wasn't found in the DB
-        achievementsProgress.push(new AchievementProgress(achievement, undefined));
+        achievementsProgress.push(new AchievementProgress(achievement, user));
       }
+    });
+
+    return achievementsProgress;
+  }
+
+  public async getAchievementsProgressThatCanClaimPrize(): Promise<AchievementProgress[]> {
+    let achievementsProgress: AchievementProgress[] = await this.achievementsProgressRepository
+      .find({ where: {
+        prizeClaimed: false
+      }});
+
+    const achievements: Achievement[] = await this.achievementsService.getAchievements();
+
+    // Storing the achievements in a hash table (key - id of the achievement)
+    // as using an array in this method would be very inefficient
+    const achievementsMap: Map<number, Achievement> = new Map<number, Achievement>();
+    achievements.forEach((achievement: Achievement) => achievementsMap.set(achievement.getId(), achievement));
+
+    achievementsProgress = achievementsProgress.filter((achievementProgress: AchievementProgress) => {
+      achievementProgress.setAchievement(achievementsMap.get(achievementProgress.getAchievementId()));
+      return achievementProgress.achievementIsCompleted();
     });
 
     return achievementsProgress;
@@ -133,6 +153,8 @@ export class AchievementsProgressService {
     } else if (achievement.getMustCompleteStepsInOrder() && !achievementProgress.stepIsTheNextConsecutiveStep(step)) {
       throw new Error("The steps of this achievement must be completed in order!");
     }
+
+    console.log(achievementProgress);
 
     achievementProgress.addCompletedStep(step);
 
