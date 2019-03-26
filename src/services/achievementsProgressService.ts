@@ -25,12 +25,8 @@ export class AchievementsProgressService {
       .getOne();
 
     if (!achievementProgress) {
-      achievementProgress = new AchievementProgress(achievement, user);
-      await this.achievementsProgressRepository
-        .createQueryBuilder()
-        .insert()
-        .values(achievementProgress)
-        .execute();
+      // Returning an empty AchievementProgress object if it wasn't found in the DB
+      achievementProgress = new AchievementProgress(achievement, undefined);
     }
 
     // Need to set achievement manually as Achievement doesn't
@@ -53,13 +49,17 @@ export class AchievementsProgressService {
 
     const achievements: Achievement[] = await this.achievementsService.getAchievements();
 
-    achievementsProgress.forEach((achievementProgress: AchievementProgress) => {
-      const currentAchievement: Achievement = achievements
-        .find((achievement: Achievement) =>
-          achievement.getId() == achievementProgress.getAchievementId());
-
-      achievementProgress.setAchievement(currentAchievement);
+    achievements.forEach((achievement: Achievement) => {
+      const progressForCurrentAchievement = achievementsProgress
+        .find((progress: AchievementProgress) => progress.getAchievementId() == achievement.getId());
+      if (progressForCurrentAchievement) {
+        progressForCurrentAchievement.setAchievement(achievement);
+      } else {
+        // Adding empty AchievementProgress to array if it wasn't found in the DB
+        achievementsProgress.push(new AchievementProgress(achievement, undefined));
+      }
     });
+
     return achievementsProgress;
   }
 
@@ -70,18 +70,16 @@ export class AchievementsProgressService {
    * @param achievement The achievement
    * @param user The user
    */
-  public async setAchievementProgressForUser(progress: number, achievement: Achievement, user: User): Promise<void> {
+  public async setAchievementProgressForUser(progress: number, achievement: Achievement, user: User): Promise<AchievementProgress> {
     if (!achievement.progressIsValid(progress)) {
       throw new Error("Invalid progress provided!");
     }
 
-    await this.achievementsProgressRepository
-      .createQueryBuilder("achievementProgress")
-      .update()
-      .set({ progress })
-      .where("achievementProgress.achievementId = :achievementId", { achievementId: achievement.getId() })
-      .andWhere("achievementProgress.userId = :userId", { userId: user.getId() })
-      .execute();
+    const achievementProgress: AchievementProgress = await this.getAchievementProgressForUser(achievement, user);
+
+    await this.achievementsProgressRepository.save(achievementProgress);
+
+    return achievementProgress;
   }
 
   /**
@@ -89,14 +87,14 @@ export class AchievementsProgressService {
    * @param achievement The achievement
    * @param user The user
    */
-  public async setAchievementCompleteForUser(achievement: Achievement, user: User): Promise<void> {
-    await this.achievementsProgressRepository
-      .createQueryBuilder("achievementProgress")
-      .update()
-      .set({ progress: achievement.getMaxProgress() })
-      .where("achievementProgress.achievementId = :achievementId", { achievementId: achievement.getId() })
-      .andWhere("achievementProgress.userId = :userId", { userId: user.getId() })
-      .execute();
+  public async setAchievementCompleteForUser(achievement: Achievement, user: User): Promise<AchievementProgress> {
+    const achievementProgress: AchievementProgress = new AchievementProgress(achievement, user, achievement.getMaxProgress());
+
+    achievementProgress.setProgress(achievement.getMaxProgress());
+
+    await this.achievementsProgressRepository.save(achievementProgress);
+
+    return achievementProgress;
   }
 
   /**
@@ -104,24 +102,30 @@ export class AchievementsProgressService {
    * @param achievement The achievement
    * @param user The user
    */
-  public async giveAchievementPrizeToUser(achievement: Achievement, user: User): Promise<void> {
-    const test = await this.achievementsProgressRepository
-      .createQueryBuilder("achievementProgress")
-      .update()
-      .set({ prizeClaimed: true })
-      .where("achievementProgress.achievementId = :achievementId", { achievementId: achievement.getId() })
-      .andWhere("achievementProgress.userId = :userId", { userId: user.getId() })
-      .execute();
+  public async giveAchievementPrizeToUser(achievement: Achievement, user: User): Promise<AchievementProgress> {
+    const achievementProgress: AchievementProgress = await this.getAchievementProgressForUser(achievement, user);
+
+    achievementProgress.setPrizeClaimed(true);
+
+    await this.achievementsProgressRepository.save(achievementProgress);
+
+    return achievementProgress;
   }
 
   /**
    * Sets a step of an achievement as comlpete for the given user
-   * Throws error if the given step is invalid
+   * Throws error if the given step or token is invalid
    * @param step The step
    * @param achievement The achievement
    * @param user The user
    */
-  public async completeAchievementStepForUser(step: number, achievement: Achievement, user: User): Promise<AchievementProgress> {
+  public async completeAchievementStepForUser(step: number, token: string, achievement: Achievement, user: User): Promise<AchievementProgress> {
+    if (!achievement.tokenIsValidForStep(token, step)) {
+      throw new Error("Invalid token provided!")
+    } else if (!achievement.stepIsPossible(step)) {
+      throw new Error("The given step is impossible for this achievement!");
+    }
+
     const achievementProgress: AchievementProgress = await this.getAchievementProgressForUser(achievement, user);
 
     if (achievementProgress.stepIsCompleted(step)) {
@@ -132,13 +136,7 @@ export class AchievementsProgressService {
 
     achievementProgress.addCompletedStep(step);
 
-    await this.achievementsProgressRepository
-      .createQueryBuilder("achievementProgress")
-      .update()
-      .set({ completedSteps: achievementProgress.getCompletedSteps() })
-      .where("achievementProgress.achievementId = :achievementId", { achievementId: achievement.getId() })
-      .andWhere("achievementProgress.userId = :userId", { id: user.getId() })
-      .execute();
+    await this.achievementsProgressRepository.save(achievementProgress);
 
     return achievementProgress;
   }
