@@ -15,8 +15,6 @@ testHubUser.name = "Billy Tester II";
 testHubUser.email = "billyII@testing-authorization.com";
 testHubUser.authLevel = AuthLevels.Organizer;
 testHubUser.password = "pbkdf2_sha256$30000$xmAiV8Wihzn5$BBVJrxmsVASkYuOI6XdIZoYLfy386hdMOF8S14WRTi8=";
-testHubUser.team = "TheTestersII";
-testHubUser.repo = "tests2.git";
 
 /**
  * Preparing for the tests

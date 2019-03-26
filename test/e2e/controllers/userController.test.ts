@@ -2,7 +2,7 @@ import { Express } from "express";
 import { buildApp } from "../../../src/app";
 import { User } from "../../../src/db/entity/hub";
 import { ApplicationUser } from "../../../src/db/entity/applications";
-import { getConnection, createConnection } from "typeorm";
+import { getConnection } from "typeorm";
 import { getUserByEmailFromHub } from "../../../src/util/user/userValidation";
 import * as request from "supertest";
 import { HttpResponseCode } from "../../../src/util/errorHandling";
@@ -15,8 +15,6 @@ const testHubUser: User = new User();
 testHubUser.name = "Billy Tester II";
 testHubUser.email = "billyII@testing-userController.com";
 testHubUser.authLevel = 1;
-testHubUser.team = "The Testers II";
-testHubUser.repo = "tests2.git";
 
 const testApplicationUser: ApplicationUser = new ApplicationUser();
 

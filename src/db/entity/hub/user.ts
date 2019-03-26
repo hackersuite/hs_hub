@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, AfterUpdate } from "typeorm";
 import { AchievementProgress } from "./achievementProgress";
 import { ReservedHardwareItem } from "./reservedHardwareItem";
 
@@ -19,11 +19,11 @@ export class User {
   @Column()
   authLevel: number;
 
-  @Column("varchar", { length: 13 })
+  @Column("varchar", { length: 13, nullable: true })
   team: string;
 
-  @Column()
-  repo: string;
+  @Column("varchar", { length: 36, nullable: true })
+  push_id: string;
 
   @OneToMany(type => AchievementProgress, aProgress => aProgress.user)
   achievementsProgress: AchievementProgress;
