@@ -23,6 +23,13 @@ export const achievementsRouter = (): Router => {
    */
   router.get("/", checkIsLoggedIn, achievementsController.getAchievementsPage);
 
+
+  /**
+   * GET /achievements/volunteercontrols
+   * Returns all implemented achievements
+   */
+  router.get("/volunteercontrols", checkIsVolunteer, achievementsController.getVolunteersPage);
+
   /**
    * GET /achievements/progress
    * Returns the user's progress on all achievements
@@ -49,11 +56,13 @@ export const achievementsRouter = (): Router => {
    */
   router.get("/:id/step/:step", checkIsLoggedIn, achievementsController.completeAchievementStep);
 
-  // /**
-  //  * POST /achievements/:id/setProgress
-  //  * Sets a users progress to a given value
-  //  */
-  // router.post("/:id/setProgress", checkIsOrganizer, achievementsController.setUserProgressForAchievement);
+  /**
+   * PUT /achievements/:id/complete
+   * Sets the user's prizeClaimed on the achievement to true
+   */
+  router.put("/:id/giveprize",
+    // checkIsVolunteer,
+    achievementsController.givePrizeToUser);
 
   return router;
 };

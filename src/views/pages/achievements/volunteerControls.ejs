@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <% include ../../partials/head.ejs %>
+  <title>GUH18 Hub - Achievements</title>
+  <script src="/js/achievementsVolunteerControls.js"></script>
+</head>
+
+<body>
+  <div class="wrapper">
+    <% include ../../partials/navbar.ejs %>
+    <div class="main-panel">
+      <div class="content">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-sm-3">
+              <div class="col-12">
+                <div class="card h-75">
+                  <div class="card-header card-header-warning">
+                    <h4 class="card-title text-center">
+                      Give prize
+                    </h4>
+                  </div>
+                  <div class="item-content">
+                    <input id="give-achievement-id" type="number" placeholder="achievementId">
+                    <input id="give-user-id" type="number" placeholder="userId">
+                    <button class="btn btn-warning"  onclick="givePrize()">gib</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="col-12">
+                <div class="card h-75">
+                  <div class="card-header card-header-success">
+                    <h4 class="card-title text-center">
+                      Award achievement
+                    </h4>
+                  </div>
+                  <div class="item-content">
+                    <input id="award-achievement-id" type="number" placeholder="achievementId">
+                    <input id="award-user-id" type="number" placeholder="userId">
+                    <button class="btn btn-success" onclick="awardAchievement()">Award</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <% include ../../partials/footer.ejs %>
+    </div>
+  </div>
+</body>
+</html>

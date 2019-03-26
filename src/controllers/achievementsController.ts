@@ -32,7 +32,15 @@ export class AchievementsController {
       const notification = req.session.notification;
       req.session.notification = undefined;
 
-      res.render("pages/achievements", { achievements, progress: progressMap, notification });
+      res.render("pages/achievements/index", { achievements, progress: progressMap, notification });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async getVolunteersPage(req: Request, res: Response, next: NextFunction) {
+    try {
+      res.render("pages/achievements/volunteerControls");
     } catch (err) {
       next(err);
     }
@@ -129,8 +137,8 @@ export class AchievementsController {
 
   public async givePrizeToUser(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { achievementId } = req.params;
-      const achievement: Achievement = await achievementsService.getAchievementWithId(achievementId);
+      const achievementId: number = req.params.id;
+      const achievement: Achievement = await achievementsService.getAchievementWithId(Number(achievementId));
 
       const { userId } = req.body;
       const user: User = await getUserByIDFromHub(userId);
