@@ -4,6 +4,7 @@ import { Achievement } from "../util/achievements";
 import { AchievementProgress, User } from "../db/entity/hub";
 import { getUserByIDFromHub } from "../util/user/";
 import { ApiError, HttpResponseCode } from "../util/errorHandling";
+import { sendPushNotificationByUserID } from "../util/announcement";
 
 // TODO: find a better solution because this is just horrific 
 let achievementsService: AchievementsService;
@@ -79,6 +80,9 @@ export class AchievementsController {
         throw new ApiError(HttpResponseCode.BAD_REQUEST, `Could not find user with id ${userId}!`);
 
       await achievementsProgressService.setAchievementCompleteForUser(achievement, user);
+
+      sendPushNotificationByUserID(`Congratulations you have completed the achievement ${achievement.getTitle()}!
+       You can now claim your prize at the hardware library.`);
 
       res.send({ message: `Achievement ${achievement.getTitle()} has been awarded to user ${user.getName()}!`});
     } catch (err) {

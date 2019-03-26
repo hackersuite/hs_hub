@@ -8,6 +8,8 @@ interface OneSignalData {
   include_player_ids?: Object;
 }
 
+// TODO: would probably be more efficient if we just passed in User objects rather than their ids
+// since you have to fetch the User object to find its id anyway
 export async function sendPushNotificationByUserID(text: string, ...onlyTheseUsers: number[]): Promise<Object> {
   const users: string[] = await getPushIDFromUserID(onlyTheseUsers);
   const response: Object = await sendOneSignalNotification(text, { "users": users });
