@@ -81,6 +81,13 @@ export class AchievementProgress {
   }
 
   /**
+   * Sets the progress made by the user
+   */
+  public setProgress(progress: number) {
+    this.progress = progress;
+  }
+
+  /**
    * Returns the user
    */
   public getUser() {
@@ -95,10 +102,12 @@ export class AchievementProgress {
   }
 
   /**
-   * Returns the steps the user has completed
+   * Adds a step to the completed steps and
+   * increments the progress
    */
   public addCompletedStep(step: number) {
     this.completedSteps.push(step.toString());
+    this.progress++;
   }
 
   /**
@@ -106,6 +115,13 @@ export class AchievementProgress {
    */
   public getPrizeClaimed() {
     return this.prizeClaimed;
+  }
+
+  /**
+   * Sets the value of prizeClaimed
+   */
+  public setPrizeClaimed(value: boolean) {
+    this.prizeClaimed = value;
   }
 
   /**
