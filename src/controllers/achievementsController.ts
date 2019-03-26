@@ -27,9 +27,12 @@ export class AchievementsController {
       const progressMap: Map<number, AchievementProgress> = new Map<number, AchievementProgress>();
       achievementsProgress.forEach((achievementProgress: AchievementProgress) => {
         progressMap.set(achievementProgress.getAchievementId(), achievementProgress);
-      })
+      });
 
-      res.render("pages/achievements", { achievements, progress: progressMap });
+      const notification = req.session.notification;
+      req.session.notification = undefined;
+
+      res.render("pages/achievements", { achievements, progress: progressMap, notification });
     } catch (err) {
       next(err);
     }
@@ -101,42 +104,42 @@ export class AchievementsController {
 
       const achievementProgress: AchievementProgress = await achievementsProgressService.completeAchievementStepForUser(Number(step), token, achievement, req.user);
 
+      let message: string;
       if (achievementProgress.achievementIsCompleted()) {
-        res.send({ message: `Congratulations! You have completed the achievement ${achievement.getTitle()}! You can now claim your prize at the hardware library.`});
+        message = `Congratulations! You have completed the achievement ${achievement.getTitle()}! You can now claim your prize at the hardware library.`;
       } else {
-        res.send({ message: `Progress for achievement "${achievement.getTitle()}" updated. Your new progress is: ${achievementProgress.getProgress()}/${achievement.getMaxProgress()}!`});
+        message = `Progress for achievement "${achievement.getTitle()}" updated. Your new progress is: ${achievementProgress.getProgress()}/${achievement.getMaxProgress()}!`;
       }
+
+      req.session.notification = {
+        type: "success",
+        message
+      };
+
+      res.redirect("/achievements")
+    } catch (err) {
+      req.session.notification = {
+        type: "danger",
+        message: err.message
+      };
+
+      res.redirect("/achievements")
+    }
+  }
+
+  public async givePrizeToUser(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { achievementId } = req.params;
+      const achievement: Achievement = await achievementsService.getAchievementWithId(achievementId);
+
+      const { userId } = req.body;
+      const user: User = await getUserByIDFromHub(userId);
+
+      await achievementsProgressService.giveAchievementPrizeToUser(achievement, user);
+
+      res.send({ message: `Prize for achievement ${achievement.getTitle()} awarded to user ${user.getName()}`});
     } catch (err) {
       next(err);
     }
   }
-
-  public async test(req: Request, res: Response, next: NextFunction): Promise<void> {
-    res.send(await achievementsProgressService.getAchievementsProgressThatCanClaimPrize());
-  }
-
-
-  // public async setUserProgressForAchievement(req: Request, res: Response, next: NextFunction): Promise<void> {
-  //   try {
-  //     const { userId, progress, steps } = req.body;
-  //     const achievementId = req.params.achievementId;
-  //     if (!userId || !achievementId || !progress) {
-  //       throw new ApiError(HttpResponseCode.BAD_REQUEST, "Not all parameters provided! Expected: achievementId, userId, progress");
-  //     }
-  //     const user: User = await getConnection("hub")
-  //       .getRepository(User)
-  //       .createQueryBuilder("user")
-  //       .where("user.id = :userId", { userId })
-  //       .getOne();
-  //     if (!user) {
-  //       throw new ApiError(HttpResponseCode.BAD_REQUEST, "User with given id not found!");
-  //     }
-  //     const userProgressInCache = await Cache.achievementsProgess.getElementForUser(user, achievementId);
-  //     const stepsCompleted = userProgressInCache ? userProgressInCache.stepsCompleted : "" + steps || "";
-  //     const userProgress = await Achievements.getAchievementWithId(achievementId).updateUsersProgress(user, progress, stepsCompleted);
-  //     res.send(userProgress);
-  //   } catch (err) {
-  //     next(err);
-  //   }
-  // }
 }

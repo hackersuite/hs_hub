@@ -36,12 +36,6 @@ export const achievementsRouter = (): Router => {
   router.get("/:id/progress", checkIsLoggedIn, achievementsController.getProgressForAchievement);
 
   /**
-   * GET /achievements/:id/progress
-   * Returns the user's progress on a specific achievement
-   */
-  router.get("/test", achievementsController.test);
-
-  /**
    * PUT /achievements/:id/complete
    * Sets the user's progress on the achievement to completed
    */
