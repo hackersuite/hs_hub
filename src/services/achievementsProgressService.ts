@@ -154,8 +154,6 @@ export class AchievementsProgressService {
       throw new Error("The steps of this achievement must be completed in order!");
     }
 
-    console.log(achievementProgress);
-
     achievementProgress.addCompletedStep(step);
 
     await this.achievementsProgressRepository.save(achievementProgress);
