@@ -82,7 +82,7 @@ export class AchievementsController {
       await achievementsProgressService.setAchievementCompleteForUser(achievement, user);
 
       sendPushNotificationByUserID(`Congratulations you have completed the achievement ${achievement.getTitle()}!
-       You can now claim your prize at the hardware library.`);
+       You can now claim your prize at the hardware library.`, userId);
 
       res.send({ message: `Achievement ${achievement.getTitle()} has been awarded to user ${user.getName()}!`});
     } catch (err) {
