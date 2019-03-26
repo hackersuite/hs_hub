@@ -18,11 +18,20 @@ export class AchievementsProgressService {
    * @param user The user
    */
   public async getAchievementProgressForUser(achievement: Achievement, user: User): Promise<AchievementProgress> {
-    const achievementProgress: AchievementProgress = await this.achievementsProgressRepository
+    let achievementProgress: AchievementProgress = await this.achievementsProgressRepository
       .createQueryBuilder("achievementProgress")
-      .where("achievementProgress.achievementId = :id", { id: achievement.getId() })
-      .where("achievementProgress.userId = :id", { id: user.getId() })
+      .where("achievementProgress.achievementId = :achievementId", { achievementId: achievement.getId() })
+      .andWhere("achievementProgress.userId = :userId", { userId: user.getId() })
       .getOne();
+
+    if (!achievementProgress) {
+      achievementProgress = new AchievementProgress(achievement, user);
+      await this.achievementsProgressRepository
+        .createQueryBuilder()
+        .insert()
+        .values(achievementProgress)
+        .execute();
+    }
 
     // Need to set achievement manually as Achievement doesn't
     // have an actual relation with AchievementProgress in the database
@@ -70,8 +79,8 @@ export class AchievementsProgressService {
       .createQueryBuilder("achievementProgress")
       .update()
       .set({ progress })
-      .where("achievementProgress.achievementId = :id", { id: achievement.getId() })
-      .andWhere("achievementProgress.userId = :id", { id: user.getId() })
+      .where("achievementProgress.achievementId = :achievementId", { achievementId: achievement.getId() })
+      .andWhere("achievementProgress.userId = :userId", { userId: user.getId() })
       .execute();
   }
 
@@ -85,8 +94,8 @@ export class AchievementsProgressService {
       .createQueryBuilder("achievementProgress")
       .update()
       .set({ progress: achievement.getMaxProgress() })
-      .where("achievementProgress.achievementId = :id", { id: achievement.getId() })
-      .andWhere("achievementProgress.userId = :id", { id: user.getId() })
+      .where("achievementProgress.achievementId = :achievementId", { achievementId: achievement.getId() })
+      .andWhere("achievementProgress.userId = :userId", { userId: user.getId() })
       .execute();
   }
 
@@ -100,8 +109,8 @@ export class AchievementsProgressService {
       .createQueryBuilder("achievementProgress")
       .update()
       .set({ prizeClaimed: true })
-      .where("achievementProgress.achievementId = :id", { id: achievement.getId() })
-      .andWhere("achievementProgress.userId = :id", { id: user.getId() })
+      .where("achievementProgress.achievementId = :achievementId", { achievementId: achievement.getId() })
+      .andWhere("achievementProgress.userId = :userId", { userId: user.getId() })
       .execute();
   }
 
@@ -116,7 +125,7 @@ export class AchievementsProgressService {
     const achievementProgress: AchievementProgress = await this.getAchievementProgressForUser(achievement, user);
 
     if (achievementProgress.stepIsCompleted(step)) {
-      throw new Error("The given step is already comlpeted!");
+      throw new Error("The given step is already completed!");
     } else if (achievement.getMustCompleteStepsInOrder() && !achievementProgress.stepIsTheNextConsecutiveStep(step)) {
       throw new Error("The steps of this achievement must be completed in order!");
     }
@@ -127,8 +136,8 @@ export class AchievementsProgressService {
       .createQueryBuilder("achievementProgress")
       .update()
       .set({ completedSteps: achievementProgress.getCompletedSteps() })
-      .where("achievementProgress.achievementId = :id", { id: achievement.getId() })
-      .andWhere("achievementProgress.userId = :id", { id: user.getId() })
+      .where("achievementProgress.achievementId = :achievementId", { achievementId: achievement.getId() })
+      .andWhere("achievementProgress.userId = :userId", { id: user.getId() })
       .execute();
 
     return achievementProgress;
