@@ -18,6 +18,23 @@ export class AchievementsController {
     achievementsProgressService = _achievementsProgressService;
   }
 
+  public async getAchievementsPage(req: Request, res: Response, next: NextFunction) {
+    try {
+      const achievements: Achievement[] = await achievementsService.getAchievements();
+      const achievementsProgress: AchievementProgress[] = await achievementsProgressService.getAchievementsProgressForUser(req.user);
+
+      const progressMap: Map<number, AchievementProgress> = new Map<number, AchievementProgress>();
+      achievementsProgress.forEach((achievementProgress: AchievementProgress) => {
+        progressMap.set(achievementProgress.getAchievementId(), achievementProgress);
+      })
+
+      res.render("pages/achievements", { achievements, progress: progressMap });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+
   public async getAllAchievements(req: Request, res: Response, next: NextFunction) {
     try {
       const achievements: Achievement[] = await achievementsService.getAchievements();

@@ -21,7 +21,7 @@ export const achievementsRouter = (): Router => {
    * GET /achievements
    * Returns all implemented achievements
    */
-  router.get("/", achievementsController.getAllAchievements);
+  router.get("/", checkIsLoggedIn, achievementsController.getAchievementsPage);
 
   /**
    * GET /achievements/progress
