@@ -140,7 +140,9 @@ export class AchievementsProgressService {
    * @param user The user
    */
   public async completeAchievementStepForUser(step: number, token: string, achievement: Achievement, user: User): Promise<AchievementProgress> {
-    if (!achievement.tokenIsValidForStep(token, step)) {
+    if (achievement.getIsManual()) {
+      throw new Error("This achievement can only be manually awarded by an organiser!");
+    } else if (!achievement.tokenIsValidForStep(token, step)) {
       throw new Error("Invalid token provided!")
     } else if (!achievement.stepIsPossible(step)) {
       throw new Error("The given step is impossible for this achievement!");
