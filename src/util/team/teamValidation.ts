@@ -54,7 +54,7 @@ export const joinTeam = async (userID: number, teamCode: string): Promise<boolea
 
     return true;
   }
-  console.log("failed");
+
   return false;
 };
 
