@@ -11,7 +11,7 @@ export class AchievementProgress {
    * The id of the achievement
    */
   @PrimaryColumn()
-  private achievementId: number;
+  achievementId: number;
 
   /**
    * The user
@@ -19,7 +19,7 @@ export class AchievementProgress {
   @ManyToOne(type => User, user => user.achievementsProgress, {
     primary: true
   })
-  private user: User;
+  user: User;
 
   /**
    * The progress that has been made
@@ -27,7 +27,7 @@ export class AchievementProgress {
   @Column({
     nullable: false
   })
-  private progress: number;
+  progress: number;
 
   /**
    * All completed steps stored in a string
@@ -36,23 +36,18 @@ export class AchievementProgress {
     type: "simple-array",
     nullable: false
   })
-  private completedSteps: string[];
-
-  /**
-   * The separator to be used to separate completed steps
-   */
-  private stepsSeparator: string = ",";
+  completedSteps: string[];
 
   /**
    * Wether or not the user has claimed their prize for the achievement
    */
   @Column()
-  private prizeClaimed: boolean;
+  prizeClaimed: boolean;
 
   /**
    * The achievement (not stored on the database)
    */
-  private achievement: Achievement;
+  achievement: Achievement;
 
   /**
    * 
@@ -63,7 +58,7 @@ export class AchievementProgress {
    * @param prizeClaimed (optional) Wether or not the user has claimed their prize for the achievement
    */
   constructor(achievement: Achievement, user: User, progress?: number, stepsCompleted?: string[], prizeClaimed?: boolean) {
-    this.achievementId = achievement.getId();
+    this.achievementId = achievement ? achievement.getId() : undefined;
     this.user = user;
     this.progress = progress || 0;
     this.completedSteps = stepsCompleted || [];
