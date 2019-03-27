@@ -131,14 +131,13 @@ export async function getUserByEmailFromApplications(submittedEmail: string): Pr
 
 export async function getTeamCodeByUserIDFromApplications(userID: number): Promise<string> {
   try {
-    const team: any = await getConnection("applications")
+    const team: ApplicationTeam = await getConnection("applications")
       .getRepository(ApplicationTeam)
       .createQueryBuilder("teams_team")
-      .select("teams_team.team_code")
       .where("user_id = :id", { id: userID })
       .getOne();
 
-    return team ? team.team_code : "";
+    return team ? team.team_code : undefined;
   } catch (err) {
     throw new ApiError(HttpResponseCode.INTERNAL_ERROR, `Lost connection to database (applications)! ${err}`);
   }
@@ -163,6 +162,7 @@ export async function getPushIDFromUserID(userIDs: number[]): Promise<string[]> 
  */
 export async function insertNewHubUserToDatabase(hubUser: User): Promise<void> {
   try {
+    console.log(hubUser);
     // Insert the user to the database
     await getConnection("hub").manager.save(hubUser);
   } catch (err) {
