@@ -162,7 +162,6 @@ export async function getPushIDFromUserID(userIDs: number[]): Promise<string[]> 
  */
 export async function insertNewHubUserToDatabase(hubUser: User): Promise<void> {
   try {
-    console.log(hubUser);
     // Insert the user to the database
     await getConnection("hub").manager.save(hubUser);
   } catch (err) {
