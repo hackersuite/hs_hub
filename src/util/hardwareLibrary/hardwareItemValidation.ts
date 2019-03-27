@@ -244,20 +244,25 @@ export const getAllHardwareItems = async (userId?: number): Promise<Object[]> =>
   const allUserReservations: ReservedHardwareItem[] = await getConnection("hub")
     .getRepository(ReservedHardwareItem)
     .createQueryBuilder("reservation")
+    .addSelect("user.id")
+    .leftJoin("reservation.user", "user")
     .leftJoinAndSelect("reservation.hardwareItem", "hardwareItem")
     .getMany();
 
   const formattedData = [];
   for (const item of hardwareItems) {
     let remainingItemCount: number = item.totalStock - (item.reservedStock + item.takenStock);
-    let reservationForItem: ReservedHardwareItem = allUserReservations.find((reservation) =>
-      reservation.hardwareItem.name === item.name);
 
+    let reservationForItem: ReservedHardwareItem = allUserReservations.find((reservation) => reservation.hardwareItem.name === item.name);
     if (reservationForItem && reservationForItem.isReserved && !isReservationValid(reservationForItem.reservationExpiry)) {
       remainingItemCount += reservationForItem.reservationQuantity;
       await deleteReservation(reservationForItem.reservationToken);
       reservationForItem = undefined;
     }
+
+    const isUsersReservation: boolean = (reservationForItem !== undefined && userId && reservationForItem.user.id === userId)
+      ? true : false;
+
     formattedData.push({
       "itemID": item.id,
       "itemName": item.name,
@@ -265,11 +270,11 @@ export const getAllHardwareItems = async (userId?: number): Promise<Object[]> =>
       "itemStock": item.totalStock,
       "itemsLeft": remainingItemCount,
       "itemHasStock": remainingItemCount > 0 ? "true" : "false",
-      "reserved": reservationForItem ? reservationForItem.isReserved : false,
-      "taken": reservationForItem ? !reservationForItem.isReserved : false,
-      "reservationQuantity": reservationForItem ? reservationForItem.reservationQuantity : 0,
-      "reservationToken": reservationForItem ? reservationForItem.reservationToken : "",
-      "expiresIn": reservationForItem ? Math.floor((reservationForItem.reservationExpiry.getTime() - Date.now()) / 60000) : 0
+      "reserved": isUsersReservation ? reservationForItem.isReserved : false,
+      "taken": isUsersReservation ? !reservationForItem.isReserved : false,
+      "reservationQuantity": isUsersReservation ? reservationForItem.reservationQuantity : 0,
+      "reservationToken": isUsersReservation ? reservationForItem.reservationToken : "",
+      "expiresIn": isUsersReservation ? Math.floor((reservationForItem.reservationExpiry.getTime() - Date.now()) / 60000) : 0
     });
   }
   return formattedData;
