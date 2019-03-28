@@ -153,3 +153,8 @@ export const getUsersTeam = async (teamCode: string): Promise<Team> => {
     throw new Error(`Lost connection to database (hub)! ${err}`);
   }
 };
+
+export const checkTeamTableIsSet = async (teamCode: string): Promise<boolean> => {
+  const team: Team = await getUsersTeam(teamCode);
+  return (team && team.tableNumber ? true : false);
+};

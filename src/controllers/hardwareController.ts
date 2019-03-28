@@ -6,6 +6,7 @@ import { HardwareItem } from "../db/entity/hub";
 import { AuthLevels } from "../util/user";
 import { validate, ValidationError } from "class-validator";
 import { getConnection } from "typeorm";
+import { checkTeamTableIsSet } from "../util/team/teamValidation";
 /**
  * A controller for handling hardware items
  */
@@ -142,6 +143,9 @@ export class HardwareController {
     // then the item can be reserved (reserve the item and return success (+ create qr))
     // otherwise, return that the item can't be reserved
     try {
+      // First check that the team table number is set
+      if (!(await checkTeamTableIsSet(req.user.team))) return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Set your team table number first!"));
+
       const { item, quantity } = req.body;
       if (isNaN(quantity) || Number(quantity) < 0) {
         return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Invalid quantity provided!"));
