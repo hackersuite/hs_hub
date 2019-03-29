@@ -113,8 +113,7 @@ export class AchievementsController {
 
       await achievementsProgressService.setAchievementCompleteForUser(achievement, user);
 
-      sendPushNotificationByUserID(`Congratulations you have completed the achievement ${achievement.getTitle()}!
-       You can now claim your prize at the hardware library.`, userId);
+      sendPushNotificationByUserID(`Congratulations you have completed the achievement ${achievement.getTitle()}!`, userId);
 
       req.session.notification = {
         type: "success",
@@ -140,7 +139,7 @@ export class AchievementsController {
 
       let message: string;
       if (achievementProgress.achievementIsCompleted()) {
-        message = `Congratulations! You have completed the achievement ${achievement.getTitle()}! You can now claim your prize at the hardware library.`;
+        message = `Congratulations! You have completed the achievement ${achievement.getTitle()}! Check out the schedule to find out when you'll be able to claim your prize.`;
       } else {
         message = `Progress for achievement "${achievement.getTitle()}" updated. Your new progress is: ${achievementProgress.getProgress()}/${achievement.getMaxProgress()}!`;
       }
