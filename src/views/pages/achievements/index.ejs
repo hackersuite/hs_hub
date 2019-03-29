@@ -16,7 +16,7 @@
         <div class="container-fluid">
           <div class="row">
             <% achievements.forEach(achievement => { %>
-            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 achievement-card">
+            <div class="col-xl-4 col-lg-6 col-md-12 achievement-card">
               <div class="card h-85">
                 <% const prizeClaimed = progress.get(achievement.getId()).getPrizeClaimed(); %>
                 <% const complete = progress.get(achievement.getId()).getProgress() == achievement.getMaxProgress(); %>
