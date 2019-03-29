@@ -177,7 +177,12 @@ export class AchievementsController {
 
       res.send({ message: `Prize for achievement ${achievement.getTitle()} awarded to user ${user.getName()}`});
     } catch (err) {
-      next(err);
+      req.session.notification = {
+        type: "danger",
+        message: err.message
+      };
+
+      res.redirect("/achievements")
     }
   }
 

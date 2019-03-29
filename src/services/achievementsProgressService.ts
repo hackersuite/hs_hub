@@ -125,6 +125,10 @@ export class AchievementsProgressService {
   public async giveAchievementPrizeToUser(achievement: Achievement, user: User): Promise<AchievementProgress> {
     const achievementProgress: AchievementProgress = await this.getAchievementProgressForUser(achievement, user);
 
+    if (achievementProgress.getProgress() < achievement.getMaxProgress()) {
+      throw new Error("The user hasn't completed this achievement yet!");
+    }
+
     achievementProgress.setPrizeClaimed(true);
 
     await this.achievementsProgressRepository.save(achievementProgress);
