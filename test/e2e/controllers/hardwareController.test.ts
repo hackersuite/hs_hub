@@ -158,7 +158,7 @@ describe("Hardware controller tests", (): void => {
     });
 
     expect(response.status).toBe(HttpResponseCode.BAD_REQUEST);
-    expect(response.body.message).toBe("Set your team table number first!");
+    expect(response.body.message).toBe("You need to create a team and set your table number in the profile page first.");
 
     testAttendeeUser.team = testHubTeamCode;
     await getConnection("hub")

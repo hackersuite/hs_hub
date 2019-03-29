@@ -145,7 +145,7 @@ export class HardwareController {
     try {
       // First check that the team table number is set
       if (!(await checkTeamTableIsSet(req.user.id)))
-        return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Set your team table number first!"));
+        return next(new ApiError(HttpResponseCode.BAD_REQUEST, "You need to create a team and set your table number in the profile page first."));
 
       const { item, quantity } = req.body;
       if (isNaN(quantity) || Number(quantity) < 0) {
