@@ -23,7 +23,7 @@ export const localAchievements: AchievementOptions[] = [
     description: "Project with the most cartoon puns",
     prizeURL: "http://placekitten.com/200/300",
     maxProgress: 1,
-    requiresToken: true
+    isManual: true
   },
   {
     title: "Snorlax",
