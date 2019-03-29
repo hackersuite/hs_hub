@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <% include ../../partials/head.ejs %>
+  <title>GUH18 Hub - Achievements</title>
+  <link rel="stylesheet" href="/css/hardware.css">
+  <link rel="stylesheet" href="/css/achievements.css">
+</head>
+
+<body>
+  <div class="wrapper">
+    <% include ../../partials/navbar.ejs %>
+    <div class="main-panel">
+      <div class="content">
+        <div class="container-fluid">
+          <div class="row">
+            <% achievements.forEach(achievement => { %>
+            <div class="col-xl-4 col-lg-6 col-md-12 achievement-card">
+              <div class="card h-85">
+                <% const prizeClaimed = progress.get(achievement.getId()).getPrizeClaimed(); %>
+                <% const complete = progress.get(achievement.getId()).getProgress() == achievement.getMaxProgress(); %>
+                <%
+                  let header;
+                  if (prizeClaimed)
+                    header = "card-header-danger";
+                  else if (complete) 
+                    header = "card-header-warning";
+                  else 
+                    header = "card-header-success";
+                %>
+                <div class="card-header <%= header %>">
+                  <h4 class="card-title text-center">
+                    <%= achievement.getTitle() %>
+                  </h4>
+                </div>
+                <div class="item-content">
+                  <div class="row justify-content-center achievement-description">
+                    <%= achievement.getDescription() %>
+                  </div>
+                  <div class="row justify-content-center"><b>The Prize:</b></div>
+                  <div class="row justify-content-center">
+                    <img class="achievement-image" src="<%= achievement.getPrizeURL() %>">
+                  </div>
+                  <div class="row justify-content-center"><b>Your Progress:</b></div>
+                  <div class="row justify-content-center">
+                    <% if (prizeClaimed) { %>
+                      <div class="achievement-description">
+                        <b>Congratulations you have completed this achievement and claimed the prize!</b>
+                      </div>
+                    <% } else if (complete) { %>
+                      <div class="achievement-description">
+                          <b>Congratulations you have completed this achievement!</b>
+                          <br>
+                          Check out the schedule for information about when you can claim your prize!
+                      </div>
+                    <% } else { %>
+                      <% const progressPercent = Math.round(progress.get(achievement.getId()).getProgress() * 100 / achievement.getMaxProgress()) %>
+                      <div class="progress">
+                        <div class="achievement-progress">
+                          <p>
+                            <%= `${progress.get(achievement.getId()).getProgress()}/${achievement.getMaxProgress()}` %>
+                          </p>
+                        </div>
+                        <div style="width: <%= progressPercent %>%;" class="progress-bar progress-bar-warning" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+                        </div>
+                      </div>
+                    <% } %>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <% }); %>
+          </div>
+        </div>
+      </div>
+      <% include ../../partials/footer.ejs %>
+    </div>
+  </div>
+</body>
+</html>

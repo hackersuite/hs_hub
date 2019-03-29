@@ -29,4 +29,12 @@ export class User {
   achievementsProgress: AchievementProgress;
   @OneToMany(() => ReservedHardwareItem, reservedHardwareItem => reservedHardwareItem.user)
   hardwareItems: ReservedHardwareItem[];
+
+  public getId() {
+    return this.id;
+  }
+
+  public getName() {
+    return this.name;
+  }
 }

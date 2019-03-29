@@ -25,6 +25,8 @@ export class UserController {
         return res.render("pages/login", { error: info.message });
       }
       req.logIn(user, (err: any) => {
+        let redirectRoute: string;
+
         if (err) {
           return next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
         }
@@ -33,10 +35,13 @@ export class UserController {
         if (user.authLevel >= AuthLevels.Organizer)
           res.locals.isOrganizer = true;
         if (user.authLevel > AuthLevels.Attendee) {
-          res.redirect("/hardware/loancontrols");
+          redirectRoute = "/hardware/loancontrols";
         } else {
-          res.redirect("/");
+          redirectRoute = "/";
         }
+        redirectRoute = req.session.redirectTo || redirectRoute;
+        delete req.session.redirectTo;
+        res.redirect(redirectRoute);
       });
     })(req, res);
   }

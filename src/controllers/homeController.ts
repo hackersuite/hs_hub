@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { getAllReservations, getAllHardwareItems } from "../util/hardwareLibrary";
 import { Cache } from "../util/cache";
-import { Achievements } from "../util/achievements";
+// import { Achievements } from "../util/achievements";
 import { EventCached } from "../util/cache/models/objects";
 import { Announcement } from "../db/entity/hub";
 import { getConnection } from "typeorm";
@@ -27,11 +27,11 @@ export class HomeController {
     res.render("pages/challenges", { challenges });
   }
 
-  public async achievements(req: Request, res: Response, next: NextFunction) {
-    const allAchievements = Achievements.getAchievements();
-    const progress: Map<string, number> = await Achievements.getUserProgressForAllAchievements(req.user);
-    res.render("pages/achievements", { allAchievements: allAchievements, progress: progress });
-  }
+  // public async achievements(req: Request, res: Response, next: NextFunction) {
+  //   const allAchievements = Achievements.getAchievements();
+  //   const progress: Map<string, number> = await Achievements.getUserProgressForAllAchievements(req.user);
+  //   res.render("pages/achievements", { allAchievements: allAchievements, progress: progress });
+  // }
 
   public login(req: Request, res: Response, next: NextFunction) {
     res.render("pages/login", { preventNotificationRequest: true });
