@@ -152,7 +152,6 @@ export class Achievement {
       return true;
 
     const expectedToken: string = this.generateToken(step);
-    console.log(token, expectedToken);
     return token === expectedToken;
   }
 }
