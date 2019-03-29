@@ -144,7 +144,8 @@ export class HardwareController {
     // otherwise, return that the item can't be reserved
     try {
       // First check that the team table number is set
-      if (!(await checkTeamTableIsSet(req.user.team))) return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Set your team table number first!"));
+      if (!(await checkTeamTableIsSet(req.user.id)))
+        return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Set your team table number first!"));
 
       const { item, quantity } = req.body;
       if (isNaN(quantity) || Number(quantity) < 0) {
