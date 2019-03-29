@@ -148,7 +148,7 @@ export class HardwareController {
         return next(new ApiError(HttpResponseCode.BAD_REQUEST, "You need to create a team and set your table number in the profile page first."));
 
       const { item, quantity } = req.body;
-      if (isNaN(quantity) || Number(quantity) < 0) {
+      if (isNaN(quantity) || Number(quantity) < 1) {
         return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Invalid quantity provided!"));
       }
       const token: string = await reserveItem(req.user, item, quantity);
