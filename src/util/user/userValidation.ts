@@ -150,7 +150,9 @@ export async function getPushIDFromUserID(userIDs: number[]): Promise<string[]> 
 
   const pushIds: string[] = [];
   allUsers.forEach((user: User) => {
-    pushIds.push(user.push_id);
+    user.push_id.forEach((player_id: string) => {
+      pushIds.push(player_id);
+    });
   });
 
   return pushIds;

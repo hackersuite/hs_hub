@@ -58,11 +58,11 @@ export class AnnouncementController {
   public async pushNotificationRegister(req: Request, res: Response, next: NextFunction) {
     try {
       const playerID: string = req.body.data;
-      req.user.push_id = playerID;
+      req.user.push_id.push(playerID);
       await getConnection("hub")
         .getRepository(User)
         .save(req.user);
-      res.status(200).send(`Updated with player ID: ${req.user.push_id}`);
+      res.status(200).send(`Updated with player ID: ${playerID}`);
     } catch (error) {
       return next(error);
     }
