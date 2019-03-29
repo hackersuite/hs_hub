@@ -131,7 +131,7 @@ export class AchievementsController {
       const achievement: Achievement = await achievementsService.getAchievementWithId(Number(req.params.id));
 
       const { step } = req.params;
-      const { token } = req.query;
+      const token = decodeURIComponent(req.query.token);
       if (step === undefined)
         throw new ApiError(HttpResponseCode.BAD_REQUEST, `Please provide a step to complete!`);
 
