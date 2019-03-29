@@ -63,12 +63,13 @@ export const passportLocalStrategy = (): localstrategy.Strategy => {
         newHubUser.password = applicationUser.password;
         newHubUser.authLevel = getAuthLevel(applicationUser.is_organizer, applicationUser.is_volunteer, applicationUser.is_director, applicationUser.is_admin);
 
+        await insertNewHubUserToDatabase(newHubUser);
+
+        // After we have added the user to the database, then add them to the team
         if (applicationUser.teamCode) {
           newHubUser.team = applicationUser.teamCode;
           await createOrAddTeam(applicationUser.id, applicationUser.teamCode);
         }
-
-        await insertNewHubUserToDatabase(newHubUser);
         return done(undefined, newHubUser);
       }
       // Step 3:
