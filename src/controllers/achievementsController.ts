@@ -42,11 +42,26 @@ export class AchievementsController {
 
   public async getVolunteersPage(req: Request, res: Response, next: NextFunction) {
     try {
-      const users: User[] = await getAllUsers();
-      const achievements: Achievement[] = await achievementsService.getAchievements();
-      const prizesToClaim: AchievementProgress[] = await achievementsProgressService.getAchievementsProgressThatCanClaimPrize();
+      let users: User[] = await getAllUsers();
+      users = users.sort((a: User, b: User) => a.getName().localeCompare(b.getName()));
 
-      res.render("pages/achievements/volunteerControls", { users, achievements, prizesToClaim });
+      let achievements: Achievement[] = await achievementsService.getAchievements();
+      achievements = achievements.sort((a: Achievement, b: Achievement) => a.getTitle().localeCompare(b.getTitle()));
+
+      let prizesToClaim: AchievementProgress[] = await achievementsProgressService.getAchievementsProgressThatCanClaimPrize();
+      prizesToClaim = prizesToClaim.sort((a: AchievementProgress, b: AchievementProgress) => {
+        const achievementsComparison: number = a.getAchievement().getTitle().localeCompare(b.getAchievement().getTitle());
+        if (achievementsComparison === 0) {
+          return a.getUser().getName().localeCompare(b.getUser().getName());
+        } else {
+          return achievementsComparison;
+        }
+      });
+
+      const notification = req.session.notification;
+      req.session.notification = undefined;
+
+      res.render("pages/achievements/volunteerControls", { users, achievements, prizesToClaim, notification });
     } catch (err) {
       next(err);
     }
@@ -101,6 +116,11 @@ export class AchievementsController {
       sendPushNotificationByUserID(`Congratulations you have completed the achievement ${achievement.getTitle()}!
        You can now claim your prize at the hardware library.`, userId);
 
+      req.session.notification = {
+        type: "success",
+        message: `Achievement ${achievement.getTitle()} has been awarded to user ${user.getName()}!`
+      };
+
       res.send({ message: `Achievement ${achievement.getTitle()} has been awarded to user ${user.getName()}!`});
     } catch (err) {
       next(err);
@@ -150,6 +170,11 @@ export class AchievementsController {
       const user: User = await getUserByIDFromHub(userId);
 
       await achievementsProgressService.giveAchievementPrizeToUser(achievement, user);
+
+      req.session.notification = {
+        type: "success",
+        message: `Prize for achievement ${achievement.getTitle()} awarded to user ${user.getName()}`
+      };
 
       res.send({ message: `Prize for achievement ${achievement.getTitle()} awarded to user ${user.getName()}`});
     } catch (err) {

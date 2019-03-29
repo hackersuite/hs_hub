@@ -24,7 +24,7 @@ export const userRouter = (): Router => {
   /**
    * GET /user/[any valid number]
    */
-  router.get(/[0-9]+/, checkIsOrganizer, userController.profile);
+  router.get(/[0-9]+/, checkIsVolunteer, userController.profile);
 
   /**
    * GET /user/checkVolunteer

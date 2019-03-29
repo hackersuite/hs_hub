@@ -12,39 +12,101 @@
     <% include ../../partials/navbar.ejs %>
     <div class="main-panel">
       <div class="content">
+        <!-- Confirmation Modal -->
+        <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="confirmModalLabel">Do you want to award this prize?</h5>
+                </div>
+                <div class="modal-body">
+                  <div class="img-container">
+                    <img src="" alt="" id="confirmModalImg" class="modal-img">
+                  </div>
+                  <div id="confirmModalBody">
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button id="modal-confirm-button" type="button" class="btn btn-success" data-dismiss="modal">Confirm</button>
+                  <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                </div>
+              </div>
+            </div>
+          </div>
         <div class="container-fluid">
           <div class="row">
-            <div class="col-sm-3">
-              <div class="col-12">
-                <div class="card h-75">
+            <div class="col-lg-6">
+                <div class="card">
                   <div class="card-header card-header-warning">
                     <h4 class="card-title text-center">
                       Give prize
                     </h4>
                   </div>
                   <div class="item-content">
-                    <input id="give-achievement-id" type="number" placeholder="achievementId">
-                    <input id="give-user-id" type="number" placeholder="userId">
-                    <button class="btn btn-warning"  onclick="givePrize()">gib</button>
+                    <table class="table">
+                        <thead class="text-warning">
+                          <th>Achievement</th>
+                          <th>User</th>
+                          <th></th>
+                        </thead>
+                        <tbody>
+                          <% prizesToClaim.forEach(claim => { %>
+                          <tr>
+                            <td>
+                              <%= claim.getAchievement().getTitle() %>
+                            </td>
+                            <td>
+                              <a href="/user/<%= claim.getUser().getId() %>"><%= claim.getUser().getName() %></a>
+                            </td>
+                            <td>
+                              <button class="btn btn-warning"
+                                      onclick="showConfirmationModal(<%= claim.getAchievement().getId() %>, 
+                                                                     <%= claim.getUser().getId() %>,
+                                                                     '<%= claim.getAchievement().getPrizeURL() %>',
+                                                                     '<%= claim.getAchievement().getTitle() %>',
+                                                                     '<%= claim.getUser().getName() %>')">
+                                      gib
+                              </button>
+                            </td>
+                          </tr>
+                          <% }) %>
+                        </tbody>
+                      </table>
                   </div>
                 </div>
-              </div>
             </div>
-            <div class="col-sm-3">
-              <div class="col-12">
-                <div class="card h-75">
+            <div class="col-lg-6">
+                <div class="card">
                   <div class="card-header card-header-success">
                     <h4 class="card-title text-center">
                       Award achievement
                     </h4>
                   </div>
                   <div class="item-content">
-                    <input id="award-achievement-id" type="number" placeholder="achievementId">
-                    <input id="award-user-id" type="number" placeholder="userId">
-                    <button class="btn btn-success" onclick="awardAchievement()">Award</button>
+                    <br>
+                    <div class="row justify-content-center">
+                      <div class="col-10">
+                        <div class="form-group">
+                            <label for="select-achievement">Achievement:</label>
+                            <select class="form-control" id="select-achievement">
+                              <% achievements.forEach(achievement => { %>
+                                <option data-id="<%= achievement.getId() %>"><%= achievement.getTitle() %></option>
+                              <% }) %>
+                            </select>
+                          </div>
+                        <div class="form-group">
+                            <label for="select-user">User:</label>
+                            <select class="form-control" id="select-user">
+                              <% users.forEach(user => { %>
+                                <option data-id="<%= user.getId() %>"><%= user.getName() %></option>
+                              <% }) %>
+                            </select>
+                          </div>
+                          <button class="btn btn-success" onclick="awardAchievement()">Award</button>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
             </div>
           </div>
         </div>
