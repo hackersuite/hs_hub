@@ -21,7 +21,9 @@ export class AchievementsController {
 
   public async getAchievementsPage(req: Request, res: Response, next: NextFunction) {
     try {
-      const achievements: Achievement[] = await achievementsService.getAchievements();
+      let achievements: Achievement[] = await achievementsService.getAchievements();
+      achievements = achievements.sort((a: Achievement, b: Achievement) => a.getTitle().localeCompare(b.getTitle()));
+
       const achievementsProgress: AchievementProgress[] = await achievementsProgressService.getAchievementsProgressForUser(req.user);
 
       const progressMap: Map<number, AchievementProgress> = new Map<number, AchievementProgress>();
