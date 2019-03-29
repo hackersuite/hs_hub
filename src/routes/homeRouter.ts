@@ -10,10 +10,6 @@ export const homeRouter = (): Router => {
   router.get("/login",
     homeController.login);
 
-  // router.get("/achievements",
-  //   checkIsLoggedIn,
-  //   homeController.achievements);
-
   router.get("/contacts",
     checkIsLoggedIn,
     homeController.contacts);

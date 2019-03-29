@@ -2,11 +2,11 @@ import { Request, Response, NextFunction } from "express";
 import { AchievementsService, AchievementsProgressService } from "../services";
 import { Achievement } from "../util/achievements";
 import { AchievementProgress, User } from "../db/entity/hub";
-import { getUserByIDFromHub } from "../util/user/";
+import { getUserByIDFromHub, getAllUsers } from "../util/user/";
 import { ApiError, HttpResponseCode } from "../util/errorHandling";
 import { sendPushNotificationByUserID } from "../util/announcement";
 
-// TODO: find a better solution because this is just horrific 
+// TODO: move into the controller when JS functions are replaced with arrow functions
 let achievementsService: AchievementsService;
 let achievementsProgressService: AchievementsProgressService;
 
@@ -40,7 +40,11 @@ export class AchievementsController {
 
   public async getVolunteersPage(req: Request, res: Response, next: NextFunction) {
     try {
-      res.render("pages/achievements/volunteerControls");
+      const users: User[] = await getAllUsers();
+      const achievements: Achievement[] = await achievementsService.getAchievements();
+      const prizesToClaim: AchievementProgress[] = await achievementsProgressService.getAchievementsProgressThatCanClaimPrize();
+
+      res.render("pages/achievements/volunteerControls", { users, achievements, prizesToClaim });
     } catch (err) {
       next(err);
     }

@@ -34,6 +34,12 @@ export function validatePassword(submittedPassword: string, passwordFromDatabase
   return passwordHash === hashFromDatabase;
 }
 
+export const getAllUsers = async (): Promise<User[]> => {
+  return getConnection("hub")
+    .getRepository(User)
+    .find();
+}
+
 /**
  * This function takes validates a user based on the provided email and password.
  * Gets the hashed password and validates the password using pbkdf2

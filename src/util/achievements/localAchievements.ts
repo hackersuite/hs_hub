@@ -6,7 +6,7 @@ import { AchievementOptions } from "./";
 export const localAchievements: AchievementOptions[] = [
   {
     title: "Sample",
-    description: "some cool description",
+    description: "spent the most time in the Zen room - whoever is monitoring the zen room",
     prizeURL: "http://placekitten.com/200/300",
     maxProgress: 1
   },

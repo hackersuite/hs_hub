@@ -1,0 +1,67 @@
+.align-items-center {
+  -ms-flex-align: center!important;
+  align-items: center!important;
+}
+
+.d-flex {
+  display: -ms-flexbox!important;
+  display: flex!important;
+}
+
+.prize-img {
+  width: 100%;
+  height: 100%;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.achievement-description {
+  margin: 2em 0;
+  text-align: center;
+  padding: 0 2em;
+}
+
+.achievement-image {
+  max-height: 200px;
+  height: auto;
+  width: auto;
+  margin: 0 0 2em 0;
+}
+
+.achievement-card {
+  height: 600px;
+}
+
+.h-85 {
+  height: 85% !important;
+}
+
+.progress {
+  height: 20px;
+  background-color: #ebeef1;
+  background-image: none;
+  box-shadow: none;
+  width: 60%;
+  position: relative;
+}
+
+.achievement-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  text-align: center;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 100%;
+  font-size: 12px;
+  line-height: 20px;
+  color: #fff;
+  -webkit-box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+  box-shadow: none;
+  border-radius: 3px;
+  background-color: #66bb6a;
+}
