@@ -128,14 +128,12 @@ export class Achievement {
   }
 
   public generateToken(step?: number): string {
-    let token: string = pbkdf2Sync(
+    const token: string = pbkdf2Sync(
       `${this.id}->${this.maxProgress > 0 ? step.toString() : ""}`,
       process.env.ACHIEVEMENT_TOKEN_SALT,
       1,
       10
     ).toString("base64");
-
-    token = encodeURIComponent(token);
 
     return token;
   }
