@@ -1,6 +1,6 @@
 import * as crypto from "crypto";
 import { ReservedHardwareItem } from "../../db/entity/hub";
-import { getConnection } from "typeorm";
+import { getConnection, EntityManager, Repository } from "typeorm";
 
 /**
  * Generates a random token for the hardware item reservation
@@ -13,10 +13,10 @@ export const createToken = (): string => {
  * Gets the user and hardware item that the reservation token is linked to
  * @param resToken Unique reservation token for the user reserved hardware item
  */
-export const parseToken = async (resToken: string): Promise<ReservedHardwareItem> => {
+export const parseToken = async (resToken: string, transaction?: EntityManager): Promise<ReservedHardwareItem> => {
   let reservation: ReservedHardwareItem = undefined;
   try {
-    reservation = await getConnection("hub")
+    reservation = await (transaction ? transaction : getConnection("hub"))
     .getRepository(ReservedHardwareItem)
     .createQueryBuilder("reservation")
     .innerJoin("reservation.user", "user")
