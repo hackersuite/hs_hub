@@ -66,5 +66,13 @@ export const achievementsRouter = (): Router => {
     // checkIsVolunteer,
     achievementsController.givePrizeToUser);
 
+  /**
+   * PUT /achievements/:id/complete
+   * Sets the user's prizeClaimed on the achievement to true
+   */
+  router.get("/token/:id/:step",
+    // checkIsOrganizer,
+    achievementsController.getAchievementToken);
+
   return router;
 };

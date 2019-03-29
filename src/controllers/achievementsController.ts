@@ -156,4 +156,16 @@ export class AchievementsController {
       next(err);
     }
   }
+
+  public async getAchievementToken(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const achievementId: number = req.params.id;
+      const step: number = req.params.step;
+      const achievement: Achievement = await achievementsService.getAchievementWithId(Number(achievementId));
+
+      res.send({ message: achievement.generateToken(step) });
+    } catch (err) {
+      next(err);
+    }
+  }
 }
