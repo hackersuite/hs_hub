@@ -22,8 +22,8 @@ export class User {
   @Column("varchar", { length: 13, nullable: true })
   team: string;
 
-  @Column("varchar", { length: 36, nullable: true })
-  push_id: string;
+  @Column("simple-array", { nullable: true })
+  push_id: string[];
 
   @OneToMany(type => AchievementProgress, aProgress => aProgress.user)
   achievementsProgress: AchievementProgress;
