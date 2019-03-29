@@ -133,7 +133,11 @@ export class Achievement {
       process.env.ACHIEVEMENT_TOKEN_SALT,
       1,
       10
-    ).toString("base64");
+    ).toString("base64")
+      // TODO: remove this hack
+      // + is a special symbol for query paramaters and
+      // the token wouldn't work with a QR code
+      .replace(/+/g, "f");
 
     return token;
   }
