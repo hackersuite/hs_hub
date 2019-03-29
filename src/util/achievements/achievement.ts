@@ -137,7 +137,7 @@ export class Achievement {
       // TODO: remove this hack
       // + is a special symbol for query paramaters and
       // the token wouldn't work with a QR code
-      .replace(/+/g, "f");
+      .replace(/\+/g, "f");
 
     return token;
   }
