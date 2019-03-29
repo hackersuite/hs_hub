@@ -1,5 +1,6 @@
 import { getConnection } from "typeorm";
 import { User, Team } from "../../db/entity/hub";
+import { getUserByIDFromHub } from "../user/userValidation";
 
 export const createOrAddTeam = async (userID: number, teamCode: string): Promise<void> => {
   // Try to create a new team, if it exists, then add the user instead
@@ -152,4 +153,13 @@ export const getUsersTeam = async (teamCode: string): Promise<Team> => {
   } catch (err) {
     throw new Error(`Lost connection to database (hub)! ${err}`);
   }
+};
+
+export const checkTeamTableIsSet = async (userID: number): Promise<boolean> => {
+  const user: User = await getUserByIDFromHub(userID);
+  if (user && user.team) {
+    const team: Team = await getUsersTeam(user.team);
+    return (team && team.tableNumber ? true : false);
+  }
+  return false;
 };
