@@ -1,6 +1,6 @@
 import { Express } from "express";
 import { buildApp } from "../../../src/app";
-import { User, HardwareItem, ReservedHardwareItem } from "../../../src/db/entity/hub";
+import { User, HardwareItem, ReservedHardwareItem, Team } from "../../../src/db/entity/hub";
 import { getConnection } from "typeorm";
 import * as request from "supertest";
 import { HttpResponseCode } from "../../../src/util/errorHandling/httpResponseCode";
@@ -9,11 +9,14 @@ let bApp: Express;
 let sessionCookie: string;
 let userReservationToken: string;
 
+const testHubTeamCode: string = "qwerty";
+
 const testAttendeeUser: User = new User();
 testAttendeeUser.name = "Billy Tester II";
 testAttendeeUser.email = "billyII@testing.com";
 testAttendeeUser.password = "pbkdf2_sha256$30000$xmAiV8Wihzn5$BBVJrxmsVASkYuOI6XdIZoYLfy386hdMOF8S14WRTi8=";
 testAttendeeUser.authLevel = 0;
+testAttendeeUser.team = testHubTeamCode;
 
 const piHardwareItem: HardwareItem = new HardwareItem();
 piHardwareItem.name = "Pi";
@@ -28,6 +31,10 @@ viveHardwareItem.totalStock = 2;
 viveHardwareItem.reservedStock = 0;
 viveHardwareItem.takenStock = 0;
 viveHardwareItem.itemURL = "";
+
+const testHubTeam: Team = new Team();
+testHubTeam.teamCode = testHubTeamCode;
+testHubTeam.tableNumber = 42;
 
 /**
  * Preparing for the tests
@@ -61,6 +68,13 @@ beforeAll((done: jest.DoneCallback): void => {
         .into(HardwareItem)
         .values(viveHardwareItem)
         .execute()).identifiers[0].id;
+
+      await getConnection("hub")
+        .createQueryBuilder()
+        .insert()
+        .into(Team)
+        .values(testHubTeam)
+        .execute();
 
       // Login to the app as the attendee
       const response = await request(bApp)
@@ -126,6 +140,33 @@ describe("Hardware controller tests", (): void => {
   });
 
   /**
+   * Test if a user can reserve if not in a team
+   */
+  test("Should check that reservation is rejected when user not in a team", async (): Promise<void> => {
+    // Remove the team from the user
+    testAttendeeUser.team = "";
+    await getConnection("hub")
+      .getRepository(User)
+      .save(testAttendeeUser);
+
+    const response = await request(bApp)
+    .post("/hardware/reserve")
+    .set("Cookie", sessionCookie)
+    .send({
+      item: viveHardwareItem.id,
+      quantity: 1
+    });
+
+    expect(response.status).toBe(HttpResponseCode.BAD_REQUEST);
+    expect(response.body.message).toBe("You need to create a team and set your table number in the profile page first.");
+
+    testAttendeeUser.team = testHubTeamCode;
+    await getConnection("hub")
+      .getRepository(User)
+      .save(testAttendeeUser);
+  });
+
+  /**
    * Test that item can be taken and database is updated
    */
   test("Should check that item can be taken and database is updated", async (): Promise<void> => {
@@ -186,6 +227,13 @@ afterAll(async (): Promise<void> => {
     .from(HardwareItem)
     .where("id = :id1", { id1: piHardwareItem.id })
     .orWhere("id = :id2", { id2: viveHardwareItem.id })
+    .execute();
+
+  await getConnection("hub")
+    .createQueryBuilder()
+    .delete()
+    .from(Team)
+    .where("teamCode = :teamcode", { teamcode: testHubTeam.teamCode })
     .execute();
 
   await getConnection("hub").close();
