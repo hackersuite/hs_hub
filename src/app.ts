@@ -63,6 +63,9 @@ const expressSetup = (): Express => {
   // Express configuration
   app.set("port", process.env.PORT || 3000);
   app.set("env", process.env.ENVIRONMENT || "production");
+  if (process.env.ENVIROMENT === "production") {
+    app.set("trust proxy", 1);
+  }
 
   return app;
 };
@@ -109,9 +112,7 @@ const devMiddlewareSetup = (app: Express): void => {
 const passportSetup = (app: Express): void => {
   app.use(passport.initialize());
   app.use(passport.session());
-  if (process.env.ENVIROMENT === "production") {
-    app.set("trust proxy", 1);
-  }
+
   // Passport configuration
   passport.use(passportLocalStrategy());
 };
