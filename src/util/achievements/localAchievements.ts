@@ -26,18 +26,18 @@ export const localAchievements: AchievementOptions[] = [
     isManual: true
   },
   {
-    title: "Elmer Fudd",
-    description: "Completed the treasure hunt",
-    prizeURL: "/img/achievements/perry.png",
-    maxProgress: 10,
-    requiresToken: true
-  },
-  {
     title: "Courage the cowardly dog",
     description: "Demoed a hack",
     prizeURL: "/img/achievements/any.png",
     maxProgress: 1,
     isManual: true
+  },
+  {
+    title: "Elmer Fudd",
+    description: "Completed the treasure hunt",
+    prizeURL: "/img/achievements/perry.png",
+    maxProgress: 10,
+    requiresToken: true
   },
   {
     title: "The Flintstones",
@@ -84,7 +84,7 @@ export const localAchievements: AchievementOptions[] = [
   {
     title: "Scooby doo",
     description: "Took part in midnight mafia and won",
-    prizeURL: "/img/achievements/stitchBlue.png",
+    prizeURL: "/img/achievements/stitchblue.png",
     maxProgress: 1,
     isManual: true
   }
