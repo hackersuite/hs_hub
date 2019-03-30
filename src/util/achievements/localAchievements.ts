@@ -8,7 +8,7 @@ export const localAchievements: AchievementOptions[] = [
     title: "George the curious",
     description: "Went to all the workshops",
     prizeURL: "/img/achievements/push.png",
-    maxProgress: 3,
+    maxProgress: 2,
     requiresToken: true
   },
   {
