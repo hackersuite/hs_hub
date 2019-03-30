@@ -109,6 +109,9 @@ const devMiddlewareSetup = (app: Express): void => {
 const passportSetup = (app: Express): void => {
   app.use(passport.initialize());
   app.use(passport.session());
+  if (process.env.ENVIROMENT === "production") {
+    app.set("trust proxy", 1);
+  }
   // Passport configuration
   passport.use(passportLocalStrategy());
 };
