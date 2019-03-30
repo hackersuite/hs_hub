@@ -165,7 +165,7 @@ export const itemToBeTakenFromLibrary = async (userID: number, hardwareItemID: n
       await transaction
         .createQueryBuilder()
         .update(ReservedHardwareItem)
-        .set({ isReserved: 0 })
+        .set({ isReserved: false })
         .where("userId = :uid", { uid: userID })
         .andWhere("hardwareItemId = :hid", { hid: hardwareItemID })
         .execute();
