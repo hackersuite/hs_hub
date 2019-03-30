@@ -63,7 +63,7 @@ export class AchievementProgress {
     this.user = user;
     this.progress = progress || 0;
     this.completedSteps = stepsCompleted || [];
-    this.prizeClaimed = prizeClaimed;
+    this.prizeClaimed = prizeClaimed || false;
     this.achievement = achievement;
   }
 
