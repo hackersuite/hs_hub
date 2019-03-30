@@ -1,0 +1,29 @@
+#consentBanner {
+  display: flex;
+  justify-content: center;
+  position: fixed;
+  z-index: 5000;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 20px;
+  background-color: #dedede;
+}
+
+#consentBanner>* {
+  color: #2f2f2f;
+}
+
+#consentBannerContent {
+  max-width: 1000px;
+  font-size: 15px;
+}
+
+#consentBannerContent>p {
+  margin: 0px
+}
+
+#consentAcknowledgementBtn {
+  cursor: pointer;
+  margin: auto 50px;
+}
