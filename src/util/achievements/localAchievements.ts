@@ -82,6 +82,13 @@ export const localAchievements: AchievementOptions[] = [
     isManual: true
   },
   {
+    title: "The greatest waaaaaa",
+    description: "The winner of the ultimate smash tourney",
+    prizeURL: "/img/achievements/wa.png",
+    maxProgress: 1,
+    isManual: true
+  },
+  {
     title: "Scooby doo",
     description: "Took part in midnight mafia and won",
     prizeURL: "/img/achievements/stitchblue.png",
