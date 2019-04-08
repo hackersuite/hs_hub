@@ -22,20 +22,43 @@ export class Cache {
     if (!selectedCollection)
       return undefined;
 
-    return selectedCollection.get(id);
+    const selectedElement: Cacheable = selectedCollection.get(id);
+    if (this.objectIsExpired(selectedElement)) {
+      selectedCollection.delete(id);
+      return undefined;
+    } else {
+      return selectedElement;
+    }
   }
 
   /**
    * Fetches all objects in the cache of the given class
+   * Returns empty array if no objects could be found
    * @param className The class of the objects to fetch
    */
   public getAll(className: string): Cacheable[] {
     const selectedCollection: Map<number, Cacheable> = this.items.get(className);
 
     if (!selectedCollection)
-      return undefined;
+      return [];
 
-    return Array.from(selectedCollection.values());
+    const resultArray: Cacheable[] = [];
+    const collectionIterator: IterableIterator<Cacheable> = selectedCollection.values();
+    let iteratorResult: IteratorResult<Cacheable> = collectionIterator.next();
+
+    // Converting an iterator to an array and removing expired objects
+    while(!iteratorResult.done) {
+      const currentElement: Cacheable = iteratorResult.value;
+      if (this.objectIsExpired(currentElement)) {
+        selectedCollection.delete(currentElement.id);
+      } else {
+        resultArray.push(currentElement);
+      }
+
+      iteratorResult = collectionIterator.next();
+    }
+
+    return resultArray;
   }
 
   /**
@@ -51,6 +74,7 @@ export class Cache {
       selectedCollection = this.items.get(className);
     }
 
+    obj.syncedAt = Date.now();
     selectedCollection.set(obj.id, obj);
   }
 
@@ -68,7 +92,16 @@ export class Cache {
     }
 
     objects.forEach((obj: Cacheable) => {
+      obj.syncedAt = Date.now();
       selectedCollection.set(obj.id, obj);
     });
+  }
+
+  /**
+   * Checks wether the given Cacheable object is expired
+   * @param obj The object
+   */
+  private objectIsExpired(obj: Cacheable): boolean {
+    return obj.syncedAt + obj.expiresIn < Date.now();
   }
 }
