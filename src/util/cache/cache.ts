@@ -16,7 +16,7 @@ export class Cache {
    * @param className The name of the class of the stored object
    * @param id The id of the object
    */
-  public get(className: string, id: number) {
+  public get(className: string, id: number): Cacheable {
     const selectedCollection: Map<number, Cacheable> = this.items.get(className);
 
     if (!selectedCollection)
@@ -26,11 +26,24 @@ export class Cache {
   }
 
   /**
+   * Fetches all objects in the cache of the given class
+   * @param className The class of the objects to fetch
+   */
+  public getAll(className: string): Cacheable[] {
+    const selectedCollection: Map<number, Cacheable> = this.items.get(className);
+
+    if (!selectedCollection)
+      return undefined;
+
+    return Array.from(selectedCollection.values());
+  }
+
+  /**
    * Stores an object in the cache
    * @param className The name of the class of the object to be stored
    * @param obj The object to be stored
    */
-  public set(className: string, obj: Cacheable) {
+  public set(className: string, obj: Cacheable): void {
     let selectedCollection: Map<number, Cacheable> = this.items.get(className);
 
     if (!selectedCollection) {
@@ -39,5 +52,23 @@ export class Cache {
     }
 
     selectedCollection.set(obj.id, obj);
+  }
+
+  /**
+   * Stores an array of objects in the cache
+   * @param className The name of the class of the objects to be stored
+   * @param objects The objects to be stored
+   */
+  public setAll(className: string, objects: Cacheable[]): void {
+    let selectedCollection: Map<number, Cacheable> = this.items.get(className);
+
+    if (!selectedCollection) {
+      this.items.set(className, new Map<number, Cacheable>());
+      selectedCollection = this.items.get(className);
+    }
+
+    objects.forEach((obj: Cacheable) => {
+      selectedCollection.set(obj.id, obj);
+    });
   }
 }
