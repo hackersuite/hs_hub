@@ -20,7 +20,7 @@ export class UsersService {
    * @param submittedPassword password provided by the user
    * @param passwordFromDatabase password we have got from the database
    */
-  public validatePassword(submittedPassword: string, passwordFromDatabase: string): boolean {
+  validatePassword = (submittedPassword: string, passwordFromDatabase: string): boolean => {
     // The password from the database comes with some extra information that we need for validation
     // first we extract the required, the password has a format like:
     // <algorithm>$<iterations>$<salt>$<hash>
@@ -48,7 +48,7 @@ export class UsersService {
    * Gets all the users from the database, returns all data expect the users password
    * which is defined as a hidden column in the entity
    */
-  async getAllUsers(): Promise<User[]> {
+  getAllUsers = async (): Promise<User[]> => {
     return this.userRepository.find();
   }
 
@@ -59,12 +59,12 @@ export class UsersService {
    * @param submittedPassword
    * @return true if user password is valid, false otherwise
    */
-  async validateUser(submittedEmail: string, submittedPassword: string): Promise<boolean> {
+  validateUser = async (submittedEmail: string, submittedPassword: string): Promise<boolean> => {
     // Get the user password from the database, we need to use a query builder
     // since by default we don't get the user password in the query
     const userWithPassword: User = await this.userRepository
-      .createQueryBuilder()
-      .addSelect("password")
+      .createQueryBuilder("user")
+      .addSelect("user.password")
       .where("email = :email", {email: submittedEmail})
       .getOne();
 
@@ -73,7 +73,6 @@ export class UsersService {
     } else {
       throw new ApiError(HttpResponseCode.BAD_REQUEST, "User with that email could not be found.");
     }
-    return false;
   }
 
   /**
@@ -81,11 +80,11 @@ export class UsersService {
    * @param submittedID
    * @return Promise of a user
    */
-  async getUserByIDFromHub(submittedID: number): Promise<User> {
+  getUserByIDFromHub = async (submittedID: number): Promise<User> => {
     try {
       const user: User = await this.userRepository
-        .createQueryBuilder()
-        .addSelect("password")
+        .createQueryBuilder("user")
+        .addSelect("user.password")
         .where("id = :id", {id: submittedID})
         .getOne();
 
@@ -102,7 +101,7 @@ export class UsersService {
    * @param submittedEmail
    * @return Promise of a user
    */
-  async getUserByEmailFromHub(submittedEmail: string): Promise<User> {
+  getUserByEmailFromHub = async(submittedEmail: string): Promise<User> => {
     try {
       const user: User = await this.userRepository
         .createQueryBuilder("user")
@@ -123,7 +122,7 @@ export class UsersService {
    * @param submittedEmail
    * @return Promise of a application user
    */
-  async getUserByEmailFromApplications(submittedEmail: string): Promise<ApplicationUser> {
+  getUserByEmailFromApplications = async (submittedEmail: string): Promise<ApplicationUser> => {
     try {
       const applicationUser: ApplicationUser = await this.applicationUserRepository
         .createQueryBuilder()
@@ -144,12 +143,10 @@ export class UsersService {
    * @param userID The id of the user in the applications database
    * @return The promise of a users team code
    */
-  async getTeamCodeByUserIDFromApplications(userID: number): Promise<string> {
+  getTeamCodeByUserIDFromApplications = async (userID: number): Promise<string> => {
     try {
       const team: ApplicationTeam = await this.applicationTeamRepository
-        .createQueryBuilder("teams_team")
-        .where("user_id = :id", { id: userID })
-        .getOne();
+        .findOne(userID);
 
       return team ? team.team_code : undefined;
     } catch (err) {
@@ -161,29 +158,28 @@ export class UsersService {
    * Gets all the push ids of the users that we want to send notifications
    * @param userIDs An array of all users to who the notificaiton will be sent
    */
-  async getPushIDFromUserID(userIDs: number[]): Promise<string[]> {
-  const allUsers: User[] = await this.userRepository
-    .findByIds(userIDs);
+  getPushIDFromUserID = async (userIDs: number[]): Promise<string[]> => {
+    const allUsers: User[] = await this.userRepository
+      .findByIds(userIDs);
 
-  // Users can have multiple push ids since they can login on different devices
-  // For every user we want to send the push notifications to, add the push ids to the list
-  const pushIds: string[] = [];
-  allUsers.forEach((user: User) => {
-    if (user.push_id && user.push_id.length > 0) {
-      user.push_id.forEach((player_id: string) => {
-        pushIds.push(player_id);
-      });
-    }
-  });
-
-  return pushIds;
-}
+    // Users can have multiple push ids since they can login on different devices
+    // For every user we want to send the push notifications to, add the push ids to the list
+    const pushIds: string[] = [];
+    allUsers.forEach((user: User) => {
+      if (user.push_id && user.push_id.length > 0) {
+        user.push_id.forEach((player_id: string) => {
+          pushIds.push(player_id);
+        });
+      }
+    });
+    return pushIds;
+  }
 
   /**
    * Inserts the new hub user into the database, then check the insert worked
    * @param hubUser the new user to insert into the hub database
    */
-   async insertNewHubUserToDatabase(hubUser: User): Promise<void> {
+  insertNewHubUserToDatabase = async (hubUser: User): Promise<void> => {
     try {
       // Insert the user to the database
       await this.userRepository.save(hubUser);

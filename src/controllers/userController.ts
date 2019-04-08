@@ -6,17 +6,22 @@ import { AuthLevels } from "../util/user";
 import { NextFunction } from "connect";
 import { getUsersTeamMembers, getUsersTeam, checkTeamExists } from "../util/team/teamValidation";
 import { User } from "../db/entity/hub/user";
-import { getConnection } from "typeorm";
 import { Team } from "../db/entity/hub/team";
+import { UsersService } from "../services/users";
 
 /**
  * A controller for auth methods
  */
 export class UserController {
+  private userService: UsersService;
+  constructor(_userService: UsersService) {
+    this.userService = _userService;
+  }
+
   /**
    * Logs in the user
    */
-  public login(req: Request, res: Response, next: NextFunction): void {
+  login = (req: Request, res: Response, next: NextFunction): void => {
     passport.authenticate("local", (err: Error, user: any, info: any) => {
       if (err) {
         return next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
@@ -49,7 +54,7 @@ export class UserController {
   /**
    * Gets the profile page for the currently logged in user
    */
-  public async profile(req: Request, res: Response, next: NextFunction) {
+  profile = async (req: Request, res: Response, next: NextFunction) => {
     let profile: User = req.user;
     // Use this variable to hide some details in the page
     // When true, the buttons to modify the users profile are hidden
@@ -58,9 +63,7 @@ export class UserController {
     const reqParam: number = Number(req.url.slice(1));
     const isReqParamValid: boolean = !isNaN(reqParam);
     if (isReqParamValid) {
-      profile = await getConnection("hub")
-        .getRepository(User)
-        .findOne(reqParam);
+      profile = await this.userService.getUserByIDFromHub(reqParam);
       isRestrictedView = true;
       if (!profile)
         return next();
@@ -87,7 +90,7 @@ export class UserController {
   /**
    * Logs out the user
    */
-  public logout(req: Request, res: Response): void {
+  logout = (req: Request, res: Response): void => {
     req.logout();
     res.redirect("/login");
   }
@@ -95,7 +98,7 @@ export class UserController {
   /**
    * Used for testing purposes, to be removed in next pull request
    */
-  public test(req: Request, res: Response): void {
+  test = (req: Request, res: Response): void => {
     res.send({ message: "Authorized" });
   }
 }

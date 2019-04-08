@@ -1,11 +1,19 @@
 import { Router } from "express";
 import { HardwareController } from "../controllers/hardwareController";
 import { checkIsLoggedIn, checkIsVolunteer, checkIsOrganizer } from "../util/user";
+import { HardwareService } from "../services/hardware/hardwareService";
+import { HardwareItem, ReservedHardwareItem, User } from "../db/entity/hub";
+import { getConnection } from "typeorm";
 
 export const hardwareRouter = (): Router => {
-  const router = Router();
+  const hardwareService: HardwareService = new HardwareService(
+    getConnection("hub"),
+    getConnection("hub").getRepository(HardwareItem),
+    getConnection("hub").getRepository(ReservedHardwareItem),
+    getConnection("hub").getRepository(User));
 
-  const hardwareController = new HardwareController();
+  const router = Router();
+  const hardwareController = new HardwareController(hardwareService);
 
   /**
    * GET /hardware

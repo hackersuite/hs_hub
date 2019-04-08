@@ -1,5 +1,6 @@
 import { getConnection } from "typeorm";
 import { User, Team } from "../../db/entity/hub";
+import { UsersService } from "../../services/users";
 import { getUserByIDFromHub } from "../user/userValidation";
 
 export const createOrAddTeam = async (userID: number, teamCode: string): Promise<void> => {

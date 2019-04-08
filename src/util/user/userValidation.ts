@@ -38,7 +38,7 @@ export const getAllUsers = async (): Promise<User[]> => {
   return getConnection("hub")
     .getRepository(User)
     .find();
-}
+};
 
 /**
  * This function takes validates a user based on the provided email and password.
@@ -89,6 +89,7 @@ export async function getUserByIDFromHub(submittedID: number): Promise<User> {
     const user: User = await getConnection("hub")
       .getRepository(User)
       .createQueryBuilder("user")
+      .addSelect("password")
       .where("user.id = :id", { id: submittedID })
       .getOne();
 
@@ -108,6 +109,7 @@ export async function getUserByEmailFromHub(submittedEmail: string): Promise<Use
     const user: User = await getConnection("hub")
       .getRepository(User)
       .createQueryBuilder("user")
+      .addSelect("user.password")
       .where("user.email = :email", { email: submittedEmail })
       .getOne();
 

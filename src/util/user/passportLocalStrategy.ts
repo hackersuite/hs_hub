@@ -33,7 +33,7 @@ export const passportLocalStrategy = (): localstrategy.Strategy => {
     try {
       // Step 1:
       // Check if the hub has the user and attempt validation
-      const user: User = await checkIfHubHasUser(email);
+      const user: User = await getUserByEmailFromHub(email);
       if (user && validatePassword(password, user.password)) {
         const permissionLevel: number = await getUserPermissionsFromApplications(email);
         if (permissionLevel !== undefined) {
@@ -79,11 +79,6 @@ export const passportLocalStrategy = (): localstrategy.Strategy => {
       return done(err);
     }
   });
-
-  async function checkIfHubHasUser(email: string): Promise<User> {
-    const user: User = await getUserByEmailFromHub(email);
-    if (user) return user;
-  }
 
   async function checkIfApplicationsHasUser(email: string): Promise<ApplicationUser> {
     // Get the application user from the applications platform
