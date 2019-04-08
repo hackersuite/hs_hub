@@ -1,7 +1,7 @@
 import { Repository } from "typeorm";
-import { AchievementProgress, User } from "../db/entity/hub";
-import { AchievementsService } from "./";
-import { Achievement } from "../util/achievements";
+import { AchievementProgress, User } from "../../db/entity/hub";
+import { AchievementsService } from ".";
+import { Achievement } from "../../util/achievements";
 
 export class AchievementsProgressService {
   private achievementsProgressRepository: Repository<AchievementProgress>;
@@ -147,7 +147,7 @@ export class AchievementsProgressService {
     if (achievement.getIsManual()) {
       throw new Error("This achievement can only be manually awarded by an organiser!");
     } else if (!achievement.tokenIsValidForStep(token, step)) {
-      throw new Error("Invalid token provided!")
+      throw new Error("Invalid token provided!");
     } else if (!achievement.stepIsPossible(step)) {
       throw new Error("The given step is impossible for this achievement!");
     }

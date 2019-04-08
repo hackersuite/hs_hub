@@ -1,4 +1,4 @@
-import { Achievement, AchievementsRepository } from "../util/achievements";
+import { Achievement, AchievementsRepository } from "../../util/achievements";
 
 export class AchievementsService {
   private achievementsRepository: AchievementsRepository;

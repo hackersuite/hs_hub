@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { AchievementsController } from "../controllers/";
 import { checkIsLoggedIn, checkIsOrganizer, checkIsVolunteer } from "../util/user";
-import { AchievementsService, AchievementsProgressService } from "../services";
+import { AchievementsService, AchievementsProgressService } from "../services/achievements";
 import { LocalAchievementsRepository } from "../util/achievements/localAchievementsRepository";
 import { localAchievements } from "../util/achievements/localAchievements";
 import { getConnection } from "typeorm";

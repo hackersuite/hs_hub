@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { AchievementsService, AchievementsProgressService } from "../services";
+import { AchievementsService, AchievementsProgressService } from "../services/achievements";
 import { Achievement } from "../util/achievements";
 import { AchievementProgress, User } from "../db/entity/hub";
 import { getUserByIDFromHub, getAllUsers } from "../util/user/";
@@ -150,14 +150,14 @@ export class AchievementsController {
         message
       };
 
-      res.redirect("/achievements")
+      res.redirect("/achievements");
     } catch (err) {
       req.session.notification = {
         type: "danger",
         message: err.message
       };
 
-      res.redirect("/achievements")
+      res.redirect("/achievements");
     }
   }
 
@@ -183,7 +183,7 @@ export class AchievementsController {
         message: err.message
       };
 
-      res.redirect("/achievements")
+      res.redirect("/achievements");
     }
   }
 
