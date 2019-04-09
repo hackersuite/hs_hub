@@ -36,7 +36,7 @@ export const mainRouter = (): Router => {
   router.use("/team/", teamRouter());
 
   // Requests to /challenge/*
-  router.use("/challenges/", challengesRouter());
+  router.use("/challenges/", challengesRouter(cache));
 
   // Requests to /announcement/*
   router.use("/announcement/", announcementRouter());

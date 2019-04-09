@@ -39,7 +39,7 @@ export class ScheduleController {
 
       if (errors.length > 0) {
         return next(new ApiError(HttpResponseCode.BAD_REQUEST,
-           `Could not create event: ${errors.join(",")}`));
+          `Could not create event: ${errors.join(",")}`));
       }
 
       await getConnection("hub").getRepository(Event).save(newEvent);
@@ -82,7 +82,7 @@ export class ScheduleController {
 
       let eventToUpdate: Event = cache.get(Event.name, Number(id));
       if (!eventToUpdate) {
-        eventToUpdate = await getConnection("hub").getRepository(Event).findOne({ where: { id } });
+        eventToUpdate = await getConnection("hub").getRepository(Event).findOne(id);
         if (!eventToUpdate) {
           return next(new ApiError(HttpResponseCode.BAD_REQUEST,
             `Could not find event with given id`));
@@ -96,7 +96,7 @@ export class ScheduleController {
 
       if (errors.length > 0) {
         return next(new ApiError(HttpResponseCode.BAD_REQUEST,
-           `Could not update event: ${errors.join(",")}`));
+          `Could not update event: ${errors.join(",")}`));
       }
 
       await getConnection("hub").getRepository(Event).save(updatedEvent);

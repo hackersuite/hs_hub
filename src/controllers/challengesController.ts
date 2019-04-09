@@ -4,68 +4,110 @@ import { HttpResponseCode } from "../util/errorHandling/httpResponseCode";
 import { getConnection } from "typeorm";
 import { Challenge } from "../db/entity/hub";
 import { Cache } from "../util/cache";
+import { ValidationError, validate } from "class-validator";
+
+// TODO: move into the controller when JS functions are replaced with arrow functions
+let cache: Cache;
 
 export class ChallengesController {
 
-  public async listChallenges(req: Request, res: Response) {
-    res.send(await Cache.challenges.getElements());
+  constructor(_cache: Cache) {
+    cache = _cache;
+  }
+
+  public async listChallenges(req: Request, res: Response, next: NextFunction) {
+    try {
+      let challenges: Challenge[] = cache.getAll(Challenge.name);
+
+      if (challenges.length === 0) {
+        challenges = await getConnection("hub").getRepository(Challenge).find();
+        cache.setAll(Challenge.name, challenges);
+      }
+
+      res.send(challenges);
+    } catch (err) {
+      return next(err);
+    }
   }
 
   public async createChallenge(req: Request, res: Response, next: NextFunction) {
-    const { title, description, company, prizes } = req.body;
-    if (!title || !description || !company || !prizes)
-      return next(new ApiError(HttpResponseCode.BAD_REQUEST,
-        "Not all parameters were specified. Expected: title, description, company, prizes"));
-    const descriptionString = String(description);
-    const companyString = String(company);
-    const prizesString = String(prizes);
-    const createdChallengeId = (await getConnection("hub")
-      .createQueryBuilder()
-      .insert()
-      .into(Challenge)
-      .values([
-        { title,
-          description: descriptionString,
-          company: companyString,
-          prizes: prizesString,
-        }
-      ])
-      .execute()).identifiers[0].id;
-    await Cache.challenges.sync();
-    res.send(await Cache.challenges.getElement(createdChallengeId));
+    try {
+      const { title, description, company, prizes } = req.body;
+      const newChallenge: Challenge = new Challenge(title, description, company, prizes);
+
+      const errors: ValidationError[] = await validate(newChallenge);
+
+      if (errors.length > 0) {
+        return next(new ApiError(HttpResponseCode.BAD_REQUEST,
+          `Could not create challenge: ${errors.join(",")}`));
+      }
+
+      await getConnection("hub").getRepository(Challenge).save(newChallenge);
+      // Clearing the cache since all challenges in the cache must have
+      // the same lifetime and a new item in the cache would have a
+      // longer lifetime than the other challenges
+      cache.deleteAll(Challenge.name);
+      res.send(newChallenge);
+    } catch (err) {
+      return next(err);
+    }
   }
 
   public async updateChallenge(req: Request, res: Response, next: NextFunction) {
-    const { title, description, company, prizes } = req.body;
-    if (!title || !description || !company || !prizes)
-      return next(new ApiError(HttpResponseCode.BAD_REQUEST,
-        "Not all parameters were specified. Expected: title, description, company, prizes"));
-    // Updating the database
-    await getConnection("hub")
-      .createQueryBuilder()
-      .update(Challenge)
-      .set({ description, company, prizes })
-      .where("title = :titleToUpdate", { titleToUpdate: title })
-      .execute();
-    // Make the challenges update for the user
-    await Cache.challenges.sync();
-    const updatedChallenge = (await Cache.challenges.getElements())
-                             .find(challenge => challenge.title === title);
-    res.send(updatedChallenge);
+    try {
+      const { id, title, description, company, prizes } = req.body;
+
+      let challengeToUpdate: Challenge = cache.get(Challenge.name, Number(id));
+      if (!challengeToUpdate) {
+        challengeToUpdate = await getConnection("hub").getRepository(Challenge).findOne(id);
+        if (!challengeToUpdate) {
+          return next(new ApiError(HttpResponseCode.BAD_REQUEST,
+            `Could not find challenge with given id`));
+        }
+      }
+
+      const updatedChallenge = new Challenge(title, description, company, prizes);
+      updatedChallenge.id = challengeToUpdate.id;
+
+      const errors: ValidationError[] = await validate(updatedChallenge);
+
+      if (errors.length > 0) {
+        return next(new ApiError(HttpResponseCode.BAD_REQUEST,
+          `Could not update challenge: ${errors.join(",")}`));
+      }
+
+      await getConnection("hub").getRepository(Challenge).save(updatedChallenge);
+      // Clearing the cache since all challenges in the cache must have
+      // the same lifetime and updating an object in the cache
+      // resets its lifetime
+      cache.deleteAll(Challenge.name);
+      res.send(updatedChallenge);
+    } catch (err) {
+      return next(err);
+    }
   }
 
   public async deleteChallenge(req: Request, res: Response, next: NextFunction) {
-    const { title } = req.body;
-    if (!title)
-      return next(new ApiError(HttpResponseCode.BAD_REQUEST,
-        "The challenge's title is not provided. Expected: title"));
-    await getConnection("hub")
-      .createQueryBuilder()
-      .delete()
-      .from(Challenge)
-      .where("title = :titleToDelete", { titleToDelete: title })
-      .execute();
-    await Cache.challenges.sync();
-    res.send(`Challenge ${title} deleted`);
+    try {
+      const { id } = req.body;
+
+      if (!id)
+        return next(new ApiError(HttpResponseCode.BAD_REQUEST,
+          "The id of the challenge to delete was not provided. Expected: id"));
+
+      await getConnection("hub")
+        .createQueryBuilder()
+        .delete()
+        .from(Challenge)
+        .where("id = :id", { id })
+        .execute();
+
+
+      cache.delete(Challenge.name, Number(id));
+
+      res.send(`Chalenge ${id} deleted`);
+    } catch (err) {
+      return next(err);
+    }
   }
 }
