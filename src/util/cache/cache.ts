@@ -9,7 +9,17 @@ export class Cache {
    * The 1st level key is the name of the class of the stored object.
    * The 2nd level key is the id of the stored object
    */
-  private items: Map<string, Map<number, Cacheable>> = new Map<string, Map<number, Cacheable>>();
+  private items: Map<string, Map<number, Cacheable>>;
+
+  /**
+   * Creates an in-memory cache.
+   * @param preloadedItems A map of pre-loaded items for the cache.
+   * 1st level key is the name of the collection and the 2nd level key
+   * is the id of the object.
+   */
+  constructor(preloadedItems?: Map<string, Map<number, Cacheable>>) {
+    this.items = preloadedItems || new Map<string, Map<number, Cacheable>>();
+  }
 
   /**
    * Fetches an object from the cache. Returns undefined if no object could be found
@@ -129,6 +139,6 @@ export class Cache {
   private objectIsExpired(obj: Cacheable): boolean {
     if (obj.expiresIn < 0)
       return false;
-    return obj.syncedAt + obj.expiresIn < Date.now();
+    return obj.syncedAt + obj.expiresIn <= Date.now();
   }
 }
