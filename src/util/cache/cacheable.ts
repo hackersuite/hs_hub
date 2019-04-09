@@ -13,7 +13,8 @@ export interface Cacheable {
   syncedAt?: number;
 
   /**
-   * Unix time in milliseconds for the chache lifetime of the object
+   * Unix time in milliseconds for the cache lifetime of the object.
+   * Setting to a negative value will result in an infinite lifetime
    */
   expiresIn: number;
 }

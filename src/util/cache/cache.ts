@@ -127,6 +127,8 @@ export class Cache {
    * @param obj The object
    */
   private objectIsExpired(obj: Cacheable): boolean {
+    if (obj.expiresIn < 0)
+      return false;
     return obj.syncedAt + obj.expiresIn < Date.now();
   }
 }
