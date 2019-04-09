@@ -63,7 +63,8 @@ export class Cache {
   }
 
   /**
-   * Stores an object in the cache
+   * Stores an object in the cache.
+   * Resets the object's cache lifetime.
    * @param className The name of the class of the object to be stored
    * @param obj The object to be stored
    */
@@ -80,7 +81,8 @@ export class Cache {
   }
 
   /**
-   * Stores an array of objects in the cache
+   * Stores an array of objects in the cache.
+   * Resets the objects' cache lifetime.
    * @param className The name of the class of the objects to be stored
    * @param objects The objects to be stored
    */
@@ -94,6 +96,50 @@ export class Cache {
 
     objects.forEach((obj: Cacheable) => {
       obj.syncedAt = Date.now();
+      selectedCollection.set(obj.id, obj);
+    });
+  }
+
+  /**
+   * Updates an object in the cache.
+   * The id of the old and updated objects must be identical.
+   * Updates the object only if it is already in the cache.
+   * Does not reset the object's cache lifetime.
+   * @param className The name of the class of the object to be updated
+   * @param obj The updated object
+   */
+  public update(className: string, obj: Cacheable): void {
+    const selectedCollection: Map<number, Cacheable> = this.items.get(className);
+    if (!selectedCollection)
+      return;
+
+    const objectToUpdate: Cacheable = selectedCollection.get(obj.id);
+    if (!objectToUpdate)
+      return;
+
+    obj.syncedAt = objectToUpdate.syncedAt;
+    selectedCollection.set(obj.id, obj);
+  }
+
+  /**
+   * Updates all given object in the cache.
+   * The id of the old and updated objects must be identical.
+   * Updates each object only if it is already in the cache.
+   * Does not reset the cache lifetime of the objects.
+   * @param className The name of the class of the objects to be updated
+   * @param objects The updated objects
+   */
+  public updateAll(className: string, objects: Cacheable[]): void {
+    const selectedCollection: Map<number, Cacheable> = this.items.get(className);
+    if (!selectedCollection)
+      return;
+
+    objects.forEach((obj: Cacheable) => {
+      const objectToUpdate: Cacheable = selectedCollection.get(obj.id);
+      if (!objectToUpdate)
+        return;
+
+      obj.syncedAt = objectToUpdate.syncedAt;
       selectedCollection.set(obj.id, obj);
     });
   }
