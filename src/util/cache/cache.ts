@@ -36,23 +36,24 @@ export class Cache {
    * Returns empty array if no objects could be found
    * @param className The class of the objects to fetch
    */
-  public getAll(className: string): Cacheable[] {
+  public getAll<T extends Cacheable>(className: string): T[] {
     const selectedCollection: Map<number, Cacheable> = this.items.get(className);
 
     if (!selectedCollection)
       return [];
 
-    const resultArray: Cacheable[] = [];
+    const resultArray: T[] = [];
     const collectionIterator: IterableIterator<Cacheable> = selectedCollection.values();
     let iteratorResult: IteratorResult<Cacheable> = collectionIterator.next();
 
     // Converting an iterator to an array and removing expired objects
-    while(!iteratorResult.done) {
+    while (!iteratorResult.done) {
       const currentElement: Cacheable = iteratorResult.value;
+
       if (this.objectIsExpired(currentElement)) {
         selectedCollection.delete(currentElement.id);
       } else {
-        resultArray.push(currentElement);
+        resultArray.push(currentElement as T);
       }
 
       iteratorResult = collectionIterator.next();
@@ -95,6 +96,28 @@ export class Cache {
       obj.syncedAt = Date.now();
       selectedCollection.set(obj.id, obj);
     });
+  }
+
+  /**
+   * Deletes an object from the cache
+   * @param className The name of the class of the object to be deleted
+   * @param obj The object to be deleted
+   */
+  public delete(className: string, id: number): void {
+    const selectedCollection: Map<number, Cacheable> = this.items.get(className);
+
+    if (!selectedCollection)
+      return;
+
+    selectedCollection.delete(id);
+  }
+
+  /**
+   * Deletes all objects of given class from the cache
+   * @param className The name of the class of the objects to be deleted
+   */
+  public deleteAll(className: string): void {
+    this.items.delete(className);
   }
 
   /**
