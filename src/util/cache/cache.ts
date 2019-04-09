@@ -92,7 +92,8 @@ export class Cache {
 
   /**
    * Stores an array of objects in the cache.
-   * Resets the objects' cache lifetime.
+   * Resets the cache lifetime of the objects.
+   * All new objects will have an identical cache lifetime.
    * @param className The name of the class of the objects to be stored
    * @param objects The objects to be stored
    */
@@ -104,8 +105,10 @@ export class Cache {
       selectedCollection = this.items.get(className);
     }
 
+    const syncTime: number = Date.now();
+
     objects.forEach((obj: Cacheable) => {
-      obj.syncedAt = Date.now();
+      obj.syncedAt = syncTime;
       selectedCollection.set(obj.id, obj);
     });
   }
