@@ -11,9 +11,8 @@ import { User } from "../db/entity/hub";
  */
 export const userRouter = (): Router => {
   const userService: UserService = new UserService(
-    getConnection("hub").getRepository(User),
-    getConnection("applications").getRepository(ApplicationUser),
-    getConnection("applications").getRepository(ApplicationTeam));
+    getConnection("hub").getRepository(User)
+  );
 
 
   const router = Router();

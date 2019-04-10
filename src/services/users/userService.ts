@@ -6,13 +6,9 @@ import { ApplicationUser, ApplicationTeam } from "../../db/entity/applications";
 
 export class UserService {
   private userRepository: Repository<User>;
-  private applicationUserRepository: Repository<ApplicationUser>;
-  private applicationTeamRepository: Repository<ApplicationTeam>;
 
-  constructor(_userRepository: Repository<User>, _applicationUserRepository: Repository<ApplicationUser>, _applicationTeamRepository: Repository<ApplicationTeam>) {
+  constructor(_userRepository: Repository<User>) {
     this.userRepository = _userRepository;
-    this.applicationUserRepository = _applicationUserRepository;
-    this.applicationTeamRepository = _applicationTeamRepository;
   }
 
   /**
@@ -42,7 +38,7 @@ export class UserService {
     ).toString("base64");
 
     return passwordHash === hashFromDatabase;
-  }
+  };
 
   /**
    * Gets all the users from the database, returns all data expect the users password
@@ -50,7 +46,7 @@ export class UserService {
    */
   getAllUsers = async (): Promise<User[]> => {
     return this.userRepository.find();
-  }
+  };
 
   /**
    * This function takes validates a user based on the provided email and password.
@@ -73,7 +69,7 @@ export class UserService {
     } else {
       throw new ApiError(HttpResponseCode.BAD_REQUEST, "User with that email could not be found.");
     }
-  }
+  };
 
   /**
    * Gets the whole user object if it exists based on the user id
@@ -94,7 +90,7 @@ export class UserService {
     } catch (err) {
       throw new ApiError(HttpResponseCode.INTERNAL_ERROR, `Lost connection to database (hub)! ${err}`);
     }
-  }
+  };
 
   /**
    * Gets the whole user object if it exists based on the user email
@@ -115,44 +111,7 @@ export class UserService {
     } catch (err) {
       throw new ApiError(HttpResponseCode.INTERNAL_ERROR, `Lost connection to database (hub)! ${err}`);
     }
-  }
-
-  /**
-   * Gets the whole application user object if it exists based on the user email
-   * @param submittedEmail
-   * @return Promise of a application user
-   */
-  getUserByEmailFromApplications = async (submittedEmail: string): Promise<ApplicationUser> => {
-    try {
-      const applicationUser: ApplicationUser = await this.applicationUserRepository
-        .createQueryBuilder()
-        .addSelect("password")
-        .where("email = :email", { email: submittedEmail })
-        .getOne();
-
-      if (!applicationUser)
-        throw new ApiError(HttpResponseCode.BAD_REQUEST, "Application User does not exist.");
-      return applicationUser;
-    } catch (err) {
-      throw new ApiError(HttpResponseCode.INTERNAL_ERROR, `Lost connection to database (applications)! ${err}`);
-    }
-  }
-
-  /**
-   * Gets the user team code from the applications database
-   * @param userID The id of the user in the applications database
-   * @return The promise of a users team code
-   */
-  getTeamCodeByUserIDFromApplications = async (userID: number): Promise<string> => {
-    try {
-      const team: ApplicationTeam = await this.applicationTeamRepository
-        .findOne(userID);
-
-      return team ? team.team_code : undefined;
-    } catch (err) {
-      throw new ApiError(HttpResponseCode.INTERNAL_ERROR, `Lost connection to database (applications)! ${err}`);
-    }
-  }
+  };
 
   /**
    * Gets all the push ids of the users that we want to send notifications
@@ -173,7 +132,7 @@ export class UserService {
       }
     });
     return pushIds;
-  }
+  };
 
   /**
    * Inserts the new hub user into the database, then check the insert worked
@@ -186,5 +145,69 @@ export class UserService {
     } catch (err) {
       throw new ApiError(HttpResponseCode.INTERNAL_ERROR, `Lost connection to database (applications)! ${err}`);
     }
-  }
+  };
+
+  /**
+   * Sets the new user team code for the user and then gets the count of the
+   * number of users left in the team
+   * @param userID The id of the user to modify
+   * @param newTeamCode The new team code for the user
+   */
+  setUserTeamAndCount = async (userID: number, newTeamCode: string): Promise<number> => {
+    try {
+      // Updates and sets the team code for the specified user
+      await this.userRepository.update(newTeamCode, { id: userID });
+
+      // Finds all the users in the given team and returns the count
+      return await this.userRepository
+      .findAndCount({ team: newTeamCode })[1];
+    } catch (err) {
+      throw new ApiError(HttpResponseCode.INTERNAL_ERROR, `Lost connection to database (applications)! ${err}`);
+    }
+  };
+
+  /**
+   * Sets the new user team code for the user
+   * @param userID The id of the user to modify
+   * @param newTeamCode The new team code for the user
+   */
+  setUserTeam = async (userID: number, newTeamCode: string): Promise<void> => {
+    try {
+      // Updates and sets the team code for the specified user
+      await this.userRepository.update(newTeamCode, { id: userID });
+    } catch (err) {
+      throw new ApiError(HttpResponseCode.INTERNAL_ERROR, `Lost connection to database (applications)! ${err}`);
+    }
+  };
+
+  /**
+   * Gets all the users from any team that exists
+   */
+  getAllUsersInTeams = async (): Promise<User[]> => {
+    try {
+      return await this.userRepository
+      .createQueryBuilder("user")
+      .select(["user.name", "user.team"])
+      .where("user.team != :empty", { empty: "" })
+      .getMany();
+    } catch (err) {
+      throw new Error(`Lost connection to database (hub)! ${err}`);
+    }
+  };
+
+  /**
+   * Gets all the members of a specific team
+   * @param teamCode The team code to identify the team
+   */
+  getUsersTeamMembers = async (teamCode: string): Promise<User[]> => {
+    try {
+      return await this.userRepository
+      .createQueryBuilder("user")
+      .select(["user.name", "user.team"])
+      .where("user.team = :team", { team: teamCode })
+      .getMany();
+    } catch (err) {
+      throw new Error(`Lost connection to database (hub)! ${err}`);
+    }
+  };
 }

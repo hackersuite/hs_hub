@@ -2,21 +2,23 @@ import { Request, Response, NextFunction } from "express";
 import { AchievementsService, AchievementsProgressService } from "../services/achievements";
 import { Achievement } from "../util/achievements";
 import { AchievementProgress, User } from "../db/entity/hub";
-import { getUserByIDFromHub, getAllUsers } from "../util/user/";
 import { ApiError, HttpResponseCode } from "../util/errorHandling";
 import { sendPushNotificationByUserID } from "../util/announcement";
+import { UserService } from "../services/users";
 
 // TODO: move into the controller when JS functions are replaced with arrow functions
 let achievementsService: AchievementsService;
 let achievementsProgressService: AchievementsProgressService;
+let userService: UserService;
 
 /**
  * A controller for the achievements methods
  */
 export class AchievementsController {
-  constructor(_achievementsService: AchievementsService, _achievementsProgressService: AchievementsProgressService) {
+  constructor(_achievementsService: AchievementsService, _achievementsProgressService: AchievementsProgressService, _userService: UserService) {
     achievementsService = _achievementsService;
     achievementsProgressService = _achievementsProgressService;
+    userService = _userService;
   }
 
   public async getAchievementsPage(req: Request, res: Response, next: NextFunction) {
@@ -42,7 +44,7 @@ export class AchievementsController {
 
   public async getVolunteersPage(req: Request, res: Response, next: NextFunction) {
     try {
-      let users: User[] = await getAllUsers();
+      let users: User[] = await userService.getAllUsers();
       users = users.sort((a: User, b: User) => a.getName().localeCompare(b.getName()));
 
       let achievements: Achievement[] = await achievementsService.getAchievements();
@@ -106,7 +108,7 @@ export class AchievementsController {
       if (userId === undefined)
         throw new ApiError(HttpResponseCode.BAD_REQUEST, `Please provide a userId!`);
 
-      const user: User = await getUserByIDFromHub(req.body.userId);
+      const user: User = await userService.getUserByIDFromHub(req.body.userId);
       // TODO: this check should be implemented in getUserByIDFromHub
       if (!user)
         throw new ApiError(HttpResponseCode.BAD_REQUEST, `Could not find user with id ${userId}!`);
@@ -167,7 +169,7 @@ export class AchievementsController {
       const achievement: Achievement = await achievementsService.getAchievementWithId(Number(achievementId));
 
       const { userId } = req.body;
-      const user: User = await getUserByIDFromHub(userId);
+      const user: User = await userService.getUserByIDFromHub(userId);
 
       await achievementsProgressService.giveAchievementPrizeToUser(achievement, user);
 

@@ -51,7 +51,7 @@ export class AchievementProgress {
   achievement: Achievement;
 
   /**
-   * 
+   *
    * @param achievement The achievement
    * @param user The user
    * @param progress (optional) The progress the user has made on this achievement

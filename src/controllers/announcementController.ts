@@ -31,7 +31,7 @@ export class AnnouncementController {
   /**
    * This function will either send a push notifation to all users subscribed to push notifications
    * or to only those users whose ids are provided.
-   * 
+   *
    * If you want to send to particular users, then include the ids in the post request with the following format:
    * included_users = {"users": ["userId1", "userId2", ...]}
    * @param req
