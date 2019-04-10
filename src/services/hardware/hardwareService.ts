@@ -1,21 +1,18 @@
 import { HardwareItem, ReservedHardwareItem, User } from "../../db/entity/hub";
-import { Repository, Connection } from "typeorm";
+import { Repository } from "typeorm";
 import { createToken, parseToken } from "../../util/hardwareLibrary/hardwareItemToken";
 import { ApiError, HttpResponseCode } from "../../util/errorHandling";
 import { LoggerLevels, QueryLogger } from "../../util/logging";
 import { HardwareObject } from "./hardwareObjectOptions";
+import { ReservedHardwareService } from ".";
 
 export class HardwareService {
-  private hubConnection: Connection;
   private hardwareRepository: Repository<HardwareItem>;
-  private reservedHardwareItemRepository: Repository<ReservedHardwareItem>;
-  private userRepository: Repository<User>;
+  private reservedHardwareService: ReservedHardwareService;
 
-  constructor(_hubConnection: Connection, _hardwareRepository: Repository<HardwareItem>, _reservedHardwareItemRepository: Repository<ReservedHardwareItem>, _userRepository: Repository<User>) {
-    this.hubConnection = _hubConnection;
+  constructor(_hardwareRepository: Repository<HardwareItem>, _reservedHardwareService: ReservedHardwareService) {
     this.hardwareRepository = _hardwareRepository;
-    this.reservedHardwareItemRepository = _reservedHardwareItemRepository;
-    this.userRepository = _userRepository;
+    this.reservedHardwareService = _reservedHardwareService;
   }
 
   /**
@@ -25,7 +22,6 @@ export class HardwareService {
    */
   reserveItem = async (user: User, itemToReserve: string, requestedQuantity?: number): Promise<string> => {
     if (!requestedQuantity) requestedQuantity = 1;
-
     const hardwareItem: HardwareItem = await this.getHardwareItemByID(Number(itemToReserve));
     if (await this.isItemReservable(user, hardwareItem, requestedQuantity)) {
       return this.reserveItemQuery(user, hardwareItem, requestedQuantity);
@@ -64,8 +60,7 @@ export class HardwareService {
       // Sets the reservation expiry to be current time + 30 minutes
       newItemReservation.reservationExpiry = new Date(new Date().getTime() + (1000 * 60 * 30));
 
-
-      await this.hubConnection.transaction(async transaction => {
+      await this.hardwareRepository.manager.transaction(async transaction => {
       // Insert the reservation into the database
       await transaction
         .getRepository(ReservedHardwareItem)
@@ -90,17 +85,7 @@ export class HardwareService {
    */
   isItemReservable = async (user: User, hardwareItem: HardwareItem, requestedQuantity: number): Promise<boolean> => {
     // Check the user has not reserved this item yet
-    const hasUserNotReserved: boolean = await this.userRepository
-      .count({
-        join: {
-          alias: "item",
-          innerJoinAndSelect: { hardwareItems: "hardwareItems" }
-        },
-        where: {
-          id: user.id,
-          hardwareItemId: hardwareItem.id
-        }
-      }) == 0;
+    const hasUserReserved: boolean = await this.reservedHardwareService.doesReservationExist(user.id, hardwareItem.id);
 
     // Check the requested item still has non reserved stock
     const hasStock: boolean = (hardwareItem.totalStock - (hardwareItem.reservedStock + hardwareItem.takenStock) - requestedQuantity) >= 0;
@@ -108,8 +93,7 @@ export class HardwareService {
     if (!hasStock) {
       throw new ApiError(HttpResponseCode.BAD_REQUEST, "Not enough items in stock!");
     }
-
-    return hasStock && hasUserNotReserved;
+    return hasStock && !hasUserReserved;
   };
 
   /**
@@ -129,7 +113,7 @@ export class HardwareService {
       // Checks that reservation is not expired
       if (!this.isReservationValid(reservation.reservationExpiry)) {
         // Remove the reservation from the database
-        await this.deleteReservation(token);
+        await this.reservedHardwareService.deleteReservation(token);
         return undefined;
       }
 
@@ -174,7 +158,7 @@ export class HardwareService {
   itemToBeTakenFromLibrary = async (userID: number, hardwareItemID: number, itemQuantity: number): Promise<void> => {
     // The item is reserved and we mark the item as taken
     try {
-      await this.hubConnection.transaction(async transaction => {
+      await this.hardwareRepository.manager.transaction(async transaction => {
         await transaction
           .createQueryBuilder()
           .update(ReservedHardwareItem)
@@ -214,8 +198,7 @@ export class HardwareService {
         .decrement({ id: hardwareItemID }, "takenStock", itemQuantity);
 
       // Delete the user reservation from the database
-      await this.reservedHardwareItemRepository
-        .delete(token);
+      await this.reservedHardwareService.removeReservation(token);
 
       const message: string = `UID ${userID} returned ${itemQuantity} of ${hardwareItemID}`;
       new QueryLogger().hardwareLog(LoggerLevels.LOG, message);
@@ -249,25 +232,23 @@ export class HardwareService {
         }
       });
 
-    const allUserReservations: ReservedHardwareItem[] = await this.reservedHardwareItemRepository
-      .createQueryBuilder("reservation")
-      .addSelect("user.id")
-      .leftJoin("reservation.user", "user")
-      .leftJoinAndSelect("reservation.hardwareItem", "hardwareItem")
-      .getMany();
+    const allUserReservations: ReservedHardwareItem[] = await this.reservedHardwareService.getAllReservations();
 
     const formattedData = [];
     for (const item of hardwareItems) {
       let remainingItemCount: number = item.totalStock - (item.reservedStock + item.takenStock);
 
-      let reservationForItem: ReservedHardwareItem = allUserReservations.find((reservation) => reservation.hardwareItem.name === item.name);
-      if (reservationForItem && reservationForItem.isReserved && !this.isReservationValid(reservationForItem.reservationExpiry)) {
-        remainingItemCount += reservationForItem.reservationQuantity;
-        await this.deleteReservation(reservationForItem.reservationToken);
-        reservationForItem = undefined;
+      // Check if any reservation for the current item have expired
+      const reservationsForItem: ReservedHardwareItem[] = allUserReservations.filter((reservation) => reservation.hardwareItem.name === item.name);
+      for (const itemReservation of reservationsForItem) {
+        if (itemReservation && itemReservation.isReserved && !this.isReservationValid(itemReservation.reservationExpiry)) {
+          remainingItemCount += itemReservation.reservationQuantity;
+          await this.reservedHardwareService.deleteReservation(itemReservation.reservationToken);
+        }
       }
+      const userReservation: ReservedHardwareItem = allUserReservations.find((reservation) => reservation.hardwareItem.name === item.name && reservation.user.id === userId);
 
-      const isUsersReservation: boolean = (reservationForItem !== undefined && userId && reservationForItem.user.id === userId)
+      const isUsersReservation: boolean = (userReservation !== undefined && userId && userReservation.user.id === userId)
         ? true : false;
 
       formattedData.push({
@@ -277,11 +258,11 @@ export class HardwareService {
         "itemStock": item.totalStock,
         "itemsLeft": remainingItemCount,
         "itemHasStock": remainingItemCount > 0 ? "true" : "false",
-        "reserved": isUsersReservation ? reservationForItem.isReserved : false,
-        "taken": isUsersReservation ? !reservationForItem.isReserved : false,
-        "reservationQuantity": isUsersReservation ? reservationForItem.reservationQuantity : 0,
-        "reservationToken": isUsersReservation ? reservationForItem.reservationToken : "",
-        "expiresIn": isUsersReservation ? Math.floor((reservationForItem.reservationExpiry.getTime() - Date.now()) / 60000) : 0
+        "reserved": isUsersReservation ? userReservation.isReserved : false,
+        "taken": isUsersReservation ? !userReservation.isReserved : false,
+        "reservationQuantity": isUsersReservation ? userReservation.reservationQuantity : 0,
+        "reservationToken": isUsersReservation ? userReservation.reservationToken : "",
+        "expiresIn": isUsersReservation ? Math.floor((userReservation.reservationExpiry.getTime() - Date.now()) / 60000) : 0
       });
     }
     return formattedData;
@@ -328,88 +309,6 @@ export class HardwareService {
       throw new ApiError(HttpResponseCode.BAD_REQUEST, "Cannot delete an item that has reservations!");
     }
     await this.hardwareRepository.delete(itemId);
-  };
-
-  getAllReservations = async (): Promise<ReservedHardwareItem[]> => {
-    try {
-      const reservations = await this.reservedHardwareItemRepository
-        .createQueryBuilder("reservation")
-        .innerJoinAndSelect("reservation.hardwareItem", "item")
-        .innerJoinAndSelect("reservation.user", "user")
-        .getMany();
-      return reservations;
-    } catch (err) {
-      throw new Error(`Lost connection to database (hub)! ${err}`);
-    }
-  };
-
-
-  getReservation = async (token: string): Promise<ReservedHardwareItem> => {
-    try {
-      const reservation = await this.reservedHardwareItemRepository
-        .createQueryBuilder("reservation")
-        .innerJoinAndSelect("reservation.hardwareItem", "item")
-        .innerJoinAndSelect("reservation.user", "user")
-        .where("reservation.reservationToken = :token", { token })
-        .getOne();
-      return reservation;
-    } catch (err) {
-      throw new Error(`Lost connection to database (hub)! ${err}`);
-    }
-  };
-
-  cancelReservation = async (token: string, userId: number): Promise<void> => {
-    const reservation = await this.reservedHardwareItemRepository
-      .createQueryBuilder("reservation")
-      .innerJoinAndSelect("reservation.hardwareItem", "item")
-      .innerJoinAndSelect("reservation.user", "user")
-      .where("reservation.reservationToken = :token", { token })
-      .andWhere("userId = :userId", { userId })
-      .getOne();
-    if (!reservation) {
-      throw new ApiError(HttpResponseCode.BAD_REQUEST, "Could not find reservation!");
-    }
-    if (!reservation.isReserved) {
-      throw new ApiError(HttpResponseCode.BAD_REQUEST, "This reservation cannot be cancelled!");
-    }
-    await this.hubConnection.transaction(async transaction => {
-      const response = await transaction
-        .getRepository(ReservedHardwareItem)
-        .delete(token);
-      if (response.raw.affectedRows != 1) {
-        await transaction
-          .getRepository(ReservedHardwareItem)
-          .save(reservation);
-        throw new ApiError(HttpResponseCode.INTERNAL_ERROR, "Could not cancel reservation, please inform us that this error occured.");
-      } else {
-        reservation.hardwareItem.reservedStock -= reservation.reservationQuantity;
-        await transaction
-          .getRepository(HardwareItem)
-          .save(reservation.hardwareItem);
-      }
-    });
-  };
-
-  deleteReservation = async (tokenToDelete: string): Promise<void> => {
-    try {
-      await this.hubConnection.transaction(async transaction => {
-        const reservation: ReservedHardwareItem = await parseToken(tokenToDelete, transaction);
-        const itemID: number = reservation.hardwareItem.id,
-          itemQuantity: number = reservation.reservationQuantity;
-
-        await transaction
-          .getRepository(ReservedHardwareItem)
-          .delete(tokenToDelete);
-
-        // Decrement the reservation count for the hardware item
-        await transaction
-          .getRepository(HardwareItem)
-          .decrement({ id: itemID }, "reservedStock", itemQuantity);
-      });
-
-    } catch (err) {
-      throw new Error(`Lost connection to database (hub)! ${err}`);
-    }
   };
 
   updateHardwareItem = async (itemToUpdate: HardwareItem): Promise<void> => {

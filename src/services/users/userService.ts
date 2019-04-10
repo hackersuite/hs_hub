@@ -4,7 +4,7 @@ import * as pbkdf2 from "pbkdf2";
 import { ApiError, HttpResponseCode } from "../../util/errorHandling";
 import { ApplicationUser, ApplicationTeam } from "../../db/entity/applications";
 
-export class UsersService {
+export class UserService {
   private userRepository: Repository<User>;
   private applicationUserRepository: Repository<ApplicationUser>;
   private applicationTeamRepository: Repository<ApplicationTeam>;

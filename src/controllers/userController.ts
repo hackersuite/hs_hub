@@ -4,17 +4,17 @@ import { ApiError } from "../util/errorHandling";
 import { HttpResponseCode } from "../util/errorHandling";
 import { AuthLevels } from "../util/user";
 import { NextFunction } from "connect";
-import { getUsersTeamMembers, getUsersTeam, checkTeamExists } from "../util/team/teamValidation";
+import { getUsersTeamMembers, getUsersTeam } from "../util/team/teamValidation";
 import { User } from "../db/entity/hub/user";
 import { Team } from "../db/entity/hub/team";
-import { UsersService } from "../services/users";
+import { UserService } from "../services/users";
 
 /**
  * A controller for auth methods
  */
 export class UserController {
-  private userService: UsersService;
-  constructor(_userService: UsersService) {
+  private userService: UserService;
+  constructor(_userService: UserService) {
     this.userService = _userService;
   }
 

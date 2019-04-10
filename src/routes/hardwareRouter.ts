@@ -4,16 +4,20 @@ import { checkIsLoggedIn, checkIsVolunteer, checkIsOrganizer } from "../util/use
 import { HardwareService } from "../services/hardware/hardwareService";
 import { HardwareItem, ReservedHardwareItem, User } from "../db/entity/hub";
 import { getConnection } from "typeorm";
+import { ReservedHardwareService } from "../services/hardware";
 
 export const hardwareRouter = (): Router => {
+  const reservedHardwareService: ReservedHardwareService = new ReservedHardwareService(
+    getConnection("hub").getRepository(ReservedHardwareItem)
+  );
+
   const hardwareService: HardwareService = new HardwareService(
-    getConnection("hub"),
     getConnection("hub").getRepository(HardwareItem),
-    getConnection("hub").getRepository(ReservedHardwareItem),
-    getConnection("hub").getRepository(User));
+    reservedHardwareService
+  );
 
   const router = Router();
-  const hardwareController = new HardwareController(hardwareService);
+  const hardwareController = new HardwareController(hardwareService, reservedHardwareService);
 
   /**
    * GET /hardware

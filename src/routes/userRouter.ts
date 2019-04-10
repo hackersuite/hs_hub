@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { UserController } from "../controllers/userController";
 import { checkIsLoggedIn, checkIsVolunteer, checkIsOrganizer } from "../util/user";
-import { UsersService } from "../services/users";
+import { UserService } from "../services/users";
 import { getConnection } from "typeorm";
 import { ApplicationUser, ApplicationTeam } from "../db/entity/applications";
 import { User } from "../db/entity/hub";
@@ -10,7 +10,7 @@ import { User } from "../db/entity/hub";
  * A router for handling the sign in of a user
  */
 export const userRouter = (): Router => {
-  const userService: UsersService = new UsersService(
+  const userService: UserService = new UserService(
     getConnection("hub").getRepository(User),
     getConnection("applications").getRepository(ApplicationUser),
     getConnection("applications").getRepository(ApplicationTeam));

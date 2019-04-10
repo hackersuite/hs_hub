@@ -4,17 +4,20 @@ import { HttpResponseCode } from "../util/errorHandling/httpResponseCode";
 import { HardwareItem } from "../db/entity/hub";
 import { AuthLevels } from "../util/user";
 import { validate, ValidationError } from "class-validator";
-import { HardwareService } from "../services/hardware/hardwareService";
 import { checkTeamTableIsSet } from "../util/team";
+import { ReservedHardwareService, HardwareService } from "../services/hardware";
 
 /**
  * A controller for handling hardware items
  */
 export class HardwareController {
   private hardwareService: HardwareService;
-  constructor(_hardwareService: HardwareService) {
+  private reservedHardwareService: ReservedHardwareService;
+  constructor(_hardwareService: HardwareService, _reservedHardwareService: ReservedHardwareService) {
     this.hardwareService = _hardwareService;
+    this.reservedHardwareService = _reservedHardwareService;
   }
+
   /**
    * Returns the user-facing hardware libary page
    */
@@ -28,7 +31,7 @@ export class HardwareController {
    */
   loanControls = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const reservations = await this.hardwareService.getAllReservations();
+      const reservations = await this.reservedHardwareService.getAllReservations();
       res.render("pages/hardware/loanControls", { reservations: reservations || [], userIsOrganiser: (req.user.authLevel === AuthLevels.Organizer) });
     } catch (err) {
       return next(err);
@@ -242,7 +245,7 @@ export class HardwareController {
    */
   getAllReservations = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const reservations = await this.hardwareService.getAllReservations();
+      const reservations = await this.reservedHardwareService.getAllReservations();
       res.send(reservations);
     } catch (err) {
       return next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
@@ -257,7 +260,7 @@ export class HardwareController {
       if (!req.params.token) {
         throw new ApiError(HttpResponseCode.BAD_REQUEST, "No reservation token provided!");
       }
-      const reservation = await this.hardwareService.getReservation(req.params.token);
+      const reservation = await this.reservedHardwareService.getReservation(req.params.token);
       if (!reservation) {
         throw new ApiError(HttpResponseCode.BAD_REQUEST, "No reservation with given token found!");
       }
@@ -275,7 +278,7 @@ export class HardwareController {
       if (!req.body.token) {
         throw new ApiError(HttpResponseCode.BAD_REQUEST, "No reservation token provided!");
       }
-      await this.hardwareService.cancelReservation(req.body.token, req.user.id);
+      await this.reservedHardwareService.cancelReservation(req.body.token, req.user.id);
       res.send({ message: "Success" });
     } catch (err) {
       return next(err);
