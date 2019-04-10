@@ -8,10 +8,12 @@ import * as expressSession from "express-session";
 import * as cookieParser from "cookie-parser";
 import { passportLocalStrategy } from "./util/user/passportLocalStrategy";
 import { Express, Request, Response, NextFunction } from "express";
-import { Connection, createConnections, ConnectionOptions } from "typeorm";
+import { Connection, createConnections, ConnectionOptions, getConnection } from "typeorm";
 import { errorHandler, error404Handler } from "./util/errorHandling";
 import { mainRouter } from "./routes";
 import { QueryLogger } from "./util/logging/QueryLogger";
+import { UserService } from "./services/users";
+import { User } from "./db/entity/hub";
 
 // Load environment variables from .env file
 dotenv.config({ path: ".env" });
@@ -25,14 +27,15 @@ export function buildApp(callback: (app: Express, err?: Error) => void): void {
 
   devMiddlewareSetup(app);
 
-  passportSetup(app);
-
-
   // Connecting to database
   createConnections(createDatabaseOptions()).then((connections: Connection[]) => {
     connections.forEach(element => {
       console.log("  Connection to database (" + element.name + ") established.");
     });
+
+    // Set up passport
+    const userService: UserService = new UserService(getConnection("hub").getRepository(User));
+    passportSetup(app, userService);
 
     // Routes set up
     app.use("/", mainRouter());
@@ -109,12 +112,11 @@ const devMiddlewareSetup = (app: Express): void => {
  * Creates the passport middleware for handling user authentication
  * @param app The app to set up the middleware for
  */
-const passportSetup = (app: Express): void => {
+const passportSetup = (app: Express, userService: UserService): void => {
+  // Passport configuration
   app.use(passport.initialize());
   app.use(passport.session());
-
-  // Passport configuration
-  passport.use(passportLocalStrategy());
+  passport.use(passportLocalStrategy(userService));
 };
 
 const getSessionOptions = (app: Express): any => {

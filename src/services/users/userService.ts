@@ -2,7 +2,6 @@ import { Repository } from "typeorm";
 import { User } from "../../db/entity/hub";
 import * as pbkdf2 from "pbkdf2";
 import { ApiError, HttpResponseCode } from "../../util/errorHandling";
-import { ApplicationUser, ApplicationTeam } from "../../db/entity/applications";
 
 export class UserService {
   private userRepository: Repository<User>;
@@ -101,10 +100,9 @@ export class UserService {
     try {
       const user: User = await this.userRepository
         .createQueryBuilder("user")
-        .addSelect("password")
+        .addSelect("user.password")
         .where("user.email = :email", { email: submittedEmail })
         .getOne();
-
       if (!user)
         throw new ApiError(HttpResponseCode.BAD_REQUEST, "User does not exist.");
       return user;

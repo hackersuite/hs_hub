@@ -1,12 +1,9 @@
 import * as localstrategy from "passport-local";
-import { getUserByEmailFromHub, getUserByEmailFromApplications, validatePassword, insertNewHubUserToDatabase, getUserByIDFromHub, getTeamCodeByUserIDFromApplications } from "./userValidation";
 import { User } from "../../db/entity/hub";
-import { ApplicationUser } from "../../db/entity/applications";
-import { getAuthLevel } from "./authLevels";
 import passport = require("passport");
-import { createOrAddTeam } from "../team/teamValidation";
+import { UserService } from "../../services/users";
 
-export const passportLocalStrategy = (): localstrategy.Strategy => {
+export const passportLocalStrategy = (userService: UserService): localstrategy.Strategy => {
   // Passport serialization
   passport.serializeUser((user: User, done: Function): void => {
     done(undefined, user.id);
@@ -15,7 +12,7 @@ export const passportLocalStrategy = (): localstrategy.Strategy => {
   // Passport deserialization
   passport.deserializeUser(async (id: number, done: Function): Promise<void> => {
     try {
-      const user: User = await getUserByIDFromHub(id);
+      const user: User = await userService.getUserByIDFromHub(id);
       if (!user) {
         return done(undefined, undefined);
       } else {
@@ -31,74 +28,15 @@ export const passportLocalStrategy = (): localstrategy.Strategy => {
     passwordField: "password"
   }, async (email: string, password: string, done: Function): Promise<any> => {
     try {
-      // Step 1:
       // Check if the hub has the user and attempt validation
-      const user: User = await getUserByEmailFromHub(email);
-      if (user && validatePassword(password, user.password)) {
-        const permissionLevel: number = await getUserPermissionsFromApplications(email);
-        if (permissionLevel !== undefined) {
-          user.authLevel = permissionLevel;
-          insertNewHubUserToDatabase(user);
-        }
+      const user: User = await userService.getUserByEmailFromHub(email);
+      if (user && userService.validatePassword(password, user.password)) {
         return done(undefined, user);
       }
-
-      // Step 1a:
-      // If the hub has the user, but validation failed, sync with the applications db
-      // Also, works for when a user is not yet on the system
-      const applicationUser: ApplicationUser = await checkIfApplicationsHasUser(email);
-
-      if (applicationUser && applicationUser.email_verified) {
-        // Step 1b:
-        // If validation failed again, the password is incorrect
-        if (!validatePassword(password, applicationUser.password))
-          return done(undefined, false, { message: "Incorrect credentials provided." });
-
-        // Step 2:
-        // If we have an application user, add it to the local db
-        const newHubUser: User = new User();
-        newHubUser.id = applicationUser.id;
-        newHubUser.name = applicationUser.name;
-        newHubUser.email = applicationUser.email;
-        newHubUser.password = applicationUser.password;
-        newHubUser.authLevel = getAuthLevel(applicationUser.is_organizer, applicationUser.is_volunteer, applicationUser.is_director, applicationUser.is_admin);
-
-        await insertNewHubUserToDatabase(newHubUser);
-
-        // After we have added the user to the database, then add them to the team
-        if (applicationUser.teamCode) {
-          newHubUser.team = applicationUser.teamCode;
-          await createOrAddTeam(applicationUser.id, applicationUser.teamCode);
-        }
-        return done(undefined, newHubUser);
-      }
-      // Step 3:
-      // If not found on either platform, then refer to applications to create an account
+      // If not found on the platform, then refer to applications to create an account
       return done(undefined, false, { message: "Incorrect credentials provided." });
     } catch (err) {
       return done(err);
     }
   });
-
-  async function checkIfApplicationsHasUser(email: string): Promise<ApplicationUser> {
-    // Get the application user from the applications platform
-    const applicationUser: ApplicationUser = await getUserByEmailFromApplications(email);
-
-    if (applicationUser) {
-      // Try to get the team code for the user, if they are in a team
-      const userTeamCode: string = await getTeamCodeByUserIDFromApplications(applicationUser.id);
-      if (userTeamCode)
-        applicationUser.teamCode = userTeamCode;
-
-      return applicationUser;
-    }
-  }
-
-  async function getUserPermissionsFromApplications(email: string): Promise<number> {
-    // Get the application user from the applications platform
-    const applicationUser: ApplicationUser = await getUserByEmailFromApplications(email);
-    if (!applicationUser) return undefined;
-    // Find the auth level based on the user data
-    return getAuthLevel(applicationUser.is_organizer, applicationUser.is_volunteer, applicationUser.is_director, applicationUser.is_admin);
-  }
 };
