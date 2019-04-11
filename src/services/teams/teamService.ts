@@ -142,6 +142,10 @@ export class TeamService {
     }
   };
 
+  getUsersTeamMembers = async (teamCode: string): Promise<User[]> => {
+    return this.userService.getUsersTeamMembers(teamCode);
+  };
+
   /**
    * Checks that a users team table is set, this is required since a user cannot reserve hardware unless
    * the team table is set

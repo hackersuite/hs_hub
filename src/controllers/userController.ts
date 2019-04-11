@@ -4,18 +4,20 @@ import { ApiError } from "../util/errorHandling";
 import { HttpResponseCode } from "../util/errorHandling";
 import { AuthLevels } from "../util/user";
 import { NextFunction } from "connect";
-import { getUsersTeamMembers, getUsersTeam } from "../util/team/teamValidation";
 import { User } from "../db/entity/hub/user";
 import { Team } from "../db/entity/hub/team";
 import { UserService } from "../services/users";
+import { TeamService } from "../services/teams/teamService";
 
 /**
  * A controller for auth methods
  */
 export class UserController {
   private userService: UserService;
-  constructor(_userService: UserService) {
+  private teamService: TeamService;
+  constructor(_userService: UserService, _teamService: TeamService) {
     this.userService = _userService;
+    this.teamService = _teamService;
   }
 
   /**
@@ -49,7 +51,7 @@ export class UserController {
         res.redirect(redirectRoute);
       });
     })(req, res);
-  }
+  };
 
   /**
    * Gets the profile page for the currently logged in user
@@ -73,8 +75,8 @@ export class UserController {
     let teamEntity: Team = undefined;
 
     if (profile.team) {
-      userTeam = await getUsersTeamMembers(profile.team);
-      teamEntity = await getUsersTeam(profile.team);
+      userTeam = await this.teamService.getUsersTeamMembers(profile.team);
+      teamEntity = await this.teamService.getUsersTeam(profile.team);
     }
 
     const teamMembers: Array<Object> = [];
@@ -85,12 +87,12 @@ export class UserController {
     }
 
     res.render("pages/profile", { user: profile, team: teamMembers, teamEntity: teamEntity, restrict: isRestrictedView });
-  }
+  };
 
   /**
    * Logs out the user
    */
-  logout = (req: Request, res: Response): void => {
+  public logout(req: Request, res: Response): void {
     req.logout();
     res.redirect("/login");
   }
@@ -98,7 +100,7 @@ export class UserController {
   /**
    * Used for testing purposes, to be removed in next pull request
    */
-  test = (req: Request, res: Response): void => {
+  public test (req: Request, res: Response): void {
     res.send({ message: "Authorized" });
   }
 }

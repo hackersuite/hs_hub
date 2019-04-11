@@ -2,9 +2,11 @@ import { Router } from "express";
 import { HardwareController } from "../controllers/hardwareController";
 import { checkIsLoggedIn, checkIsVolunteer, checkIsOrganizer } from "../util/user";
 import { HardwareService } from "../services/hardware/hardwareService";
-import { HardwareItem, ReservedHardwareItem, User } from "../db/entity/hub";
+import { HardwareItem, ReservedHardwareItem, User, Team } from "../db/entity/hub";
 import { getConnection } from "typeorm";
 import { ReservedHardwareService } from "../services/hardware";
+import { TeamService } from "../services/teams/teamService";
+import { UserService } from "../services/users";
 
 export const hardwareRouter = (): Router => {
   const reservedHardwareService: ReservedHardwareService = new ReservedHardwareService(
@@ -16,8 +18,16 @@ export const hardwareRouter = (): Router => {
     reservedHardwareService
   );
 
+  const userService: UserService = new UserService(
+    getConnection("hub").getRepository(User)
+  )
+
+  const teamService: TeamService = new TeamService(
+    getConnection("hub").getRepository(Team), userService
+  );
+
   const router = Router();
-  const hardwareController = new HardwareController(hardwareService, reservedHardwareService);
+  const hardwareController = new HardwareController(hardwareService, reservedHardwareService, teamService);
 
   /**
    * GET /hardware

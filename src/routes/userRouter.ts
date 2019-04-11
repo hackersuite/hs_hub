@@ -3,8 +3,8 @@ import { UserController } from "../controllers/userController";
 import { checkIsLoggedIn, checkIsVolunteer, checkIsOrganizer } from "../util/user";
 import { UserService } from "../services/users";
 import { getConnection } from "typeorm";
-import { ApplicationUser, ApplicationTeam } from "../db/entity/applications";
-import { User } from "../db/entity/hub";
+import { User, Team } from "../db/entity/hub";
+import { TeamService } from "../services/teams/teamService";
 
 /**
  * A router for handling the sign in of a user
@@ -13,10 +13,12 @@ export const userRouter = (): Router => {
   const userService: UserService = new UserService(
     getConnection("hub").getRepository(User)
   );
-
+  const teamService: TeamService = new TeamService(
+    getConnection("hub").getRepository(Team), userService
+  );
 
   const router = Router();
-  const userController = new UserController(userService);
+  const userController = new UserController(userService, teamService);
 
   /**
    * POST /user/login

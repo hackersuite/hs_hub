@@ -4,8 +4,8 @@ import { HttpResponseCode } from "../util/errorHandling/httpResponseCode";
 import { HardwareItem } from "../db/entity/hub";
 import { AuthLevels } from "../util/user";
 import { validate, ValidationError } from "class-validator";
-import { checkTeamTableIsSet } from "../util/team";
 import { ReservedHardwareService, HardwareService } from "../services/hardware";
+import { TeamService } from "../services/teams/teamService";
 
 /**
  * A controller for handling hardware items
@@ -13,9 +13,11 @@ import { ReservedHardwareService, HardwareService } from "../services/hardware";
 export class HardwareController {
   private hardwareService: HardwareService;
   private reservedHardwareService: ReservedHardwareService;
-  constructor(_hardwareService: HardwareService, _reservedHardwareService: ReservedHardwareService) {
+  private teamService: TeamService;
+  constructor(_hardwareService: HardwareService, _reservedHardwareService: ReservedHardwareService, _teamService: TeamService) {
     this.hardwareService = _hardwareService;
     this.reservedHardwareService = _reservedHardwareService;
+    this.teamService = _teamService;
   }
 
   /**
@@ -144,7 +146,7 @@ export class HardwareController {
     // otherwise, return that the item can't be reserved
     try {
       // First check that the team table number is set
-      if (!(await checkTeamTableIsSet(req.user.id)))
+      if (!(await this.teamService.checkTeamTableIsSet(req.user.id)))
         return next(new ApiError(HttpResponseCode.BAD_REQUEST, "You need to create a team and set your table number in the profile page first."));
 
       const { item, quantity } = req.body;

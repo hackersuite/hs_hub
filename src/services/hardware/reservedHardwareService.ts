@@ -1,7 +1,6 @@
 import { Repository, EntityManager, DeleteResult } from "typeorm";
 import { ReservedHardwareItem, HardwareItem } from "../../db/entity/hub";
 import { ApiError, HttpResponseCode } from "../../util/errorHandling";
-import { parseToken } from "../../util/hardwareLibrary";
 
 export class ReservedHardwareService {
   private reservedHardwareRepository: Repository<ReservedHardwareItem>;
@@ -82,7 +81,7 @@ export class ReservedHardwareService {
   deleteReservation = async (tokenToDelete: string): Promise<void> => {
     try {
       await this.reservedHardwareRepository.manager.transaction(async transaction => {
-        const reservation: ReservedHardwareItem = await parseToken(tokenToDelete, transaction);
+        const reservation: ReservedHardwareItem = await this.getReservationFromToken(tokenToDelete, transaction);
         const itemID: number = reservation.hardwareItem.id,
           itemQuantity: number = reservation.reservationQuantity;
 
@@ -120,5 +119,27 @@ export class ReservedHardwareService {
       .andWhere("user.id = :userId", { userId: userID })
       .getCount();
     return numberOfReservations > 0;
+  };
+
+  /**
+   * Gets the user and hardware item that the reservation token is linked to
+   * @param resToken Unique reservation token for the user reserved hardware item
+   */
+  getReservationFromToken = async (resToken: string, transaction?: EntityManager): Promise<ReservedHardwareItem> => {
+    let reservation: ReservedHardwareItem = undefined;
+    try {
+      reservation = await (transaction ? transaction : this.reservedHardwareRepository.manager)
+      .getRepository(ReservedHardwareItem)
+      .createQueryBuilder("reservation")
+      .innerJoin("reservation.user", "user")
+      .innerJoin("reservation.hardwareItem", "item")
+      .select(["user.id", "item.id", "reservation.isReserved", "reservation.reservationExpiry", "reservation.reservationQuantity"])
+      .where("reservation.reservationToken = :token", { token: resToken })
+      .getOne();
+
+    } catch (err) {
+      throw new Error(`Lost connection to database (hub)! ${err}`);
+    }
+    return reservation;
   };
 }

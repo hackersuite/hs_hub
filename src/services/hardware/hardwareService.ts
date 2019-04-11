@@ -1,10 +1,10 @@
 import { HardwareItem, ReservedHardwareItem, User } from "../../db/entity/hub";
 import { Repository } from "typeorm";
-import { createToken, parseToken } from "../../util/hardwareLibrary/hardwareItemToken";
 import { ApiError, HttpResponseCode } from "../../util/errorHandling";
 import { LoggerLevels, QueryLogger } from "../../util/logging";
 import { HardwareObject } from "./hardwareObjectOptions";
 import { ReservedHardwareService } from ".";
+import { createToken } from "../../util/crypto";
 
 export class HardwareService {
   private hardwareRepository: Repository<HardwareItem>;
@@ -53,7 +53,7 @@ export class HardwareService {
       const newItemReservation: ReservedHardwareItem = new ReservedHardwareItem();
       newItemReservation.user = user;
       newItemReservation.hardwareItem = hardwareItem;
-      newItemReservation.reservationToken = createToken();
+      newItemReservation.reservationToken = createToken(16);
       newItemReservation.isReserved = true;
       newItemReservation.reservationQuantity = requestedQuantity;
 
@@ -101,7 +101,7 @@ export class HardwareService {
    * @param token token of the reservation
    */
   takeItem = async (token: string): Promise<boolean> => {
-    const reservation: ReservedHardwareItem = await parseToken(token);
+    const reservation: ReservedHardwareItem = await this.reservedHardwareService.getReservationFromToken(token);
     if (!reservation) return undefined;
 
     const userID: number = reservation.user.id,
@@ -130,7 +130,7 @@ export class HardwareService {
    * @param token token of the reservation
    */
   returnItem = async (token: string): Promise<boolean> => {
-    const reservation: ReservedHardwareItem = await parseToken(token);
+    const reservation: ReservedHardwareItem = await this.reservedHardwareService.getReservationFromToken(token);
     if (!reservation) return undefined;
 
     const userID: number = reservation.user.id,

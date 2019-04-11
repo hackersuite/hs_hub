@@ -132,6 +132,19 @@ export class UserService {
     return pushIds;
   };
 
+  addPushIDToUser = async (user: User, pushID: string): Promise<void> => {
+    try {
+      if (!user.push_id)
+        user.push_id = [pushID];
+      else
+        user.push_id.push(pushID);
+
+      this.userRepository.save(user);
+    } catch (err) {
+      throw new ApiError(HttpResponseCode.INTERNAL_ERROR, `Lost connection to database (hub)! ${err}`);
+    }
+  };
+
   /**
    * Inserts the new hub user into the database, then check the insert worked
    * @param hubUser the new user to insert into the hub database
