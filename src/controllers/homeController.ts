@@ -3,22 +3,22 @@ import { Cache } from "../util/cache";
 // import { Achievements } from "../util/achievements";
 import { EventCached } from "../util/cache/models/objects";
 import { Announcement } from "../db/entity/hub";
-import { getConnection } from "typeorm";
+import { AnnouncementService } from "../services/announcement";
 
 /**
  * A controller for auth methods
  */
 export class HomeController {
-  public async dashboard(req: Request, res: Response, next: NextFunction) {
-    const events: EventCached[] = await Cache.events.getElements();
-    const announcements: Announcement[] = await getConnection("hub")
-      .getRepository(Announcement)
-      .createQueryBuilder("announcement")
-      .orderBy("announcement.createdAt", "DESC")
-      .limit(5)
-      .getMany();
-    res.render("pages/dashboard", { events, announcements });
+  private announcementService: AnnouncementService;
+  constructor(_announcementService: AnnouncementService) {
+    this.announcementService = _announcementService;
   }
+
+  dashboard = async (req: Request, res: Response, next: NextFunction) => {
+    const events: EventCached[] = await Cache.events.getElements();
+    const announcements: Announcement[] = await this.announcementService.getMostRecentAnnouncements(5);
+    res.render("pages/dashboard", { events, announcements });
+  };
 
   public async challenges(req: Request, res: Response, next: NextFunction) {
     const challenges = await Cache.challenges.getElements();
