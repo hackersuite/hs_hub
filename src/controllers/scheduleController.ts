@@ -6,22 +6,20 @@ import { Event } from "../db/entity/hub";
 import { Cache } from "../util/cache";
 import { ValidationError, validate } from "class-validator";
 
-// TODO: move into the controller when JS functions are replaced with arrow functions
-let cache: Cache;
-
 export class ScheduleController {
+  private cache: Cache;
 
   constructor(_cache: Cache) {
-    cache = _cache;
+    this.cache = _cache;
   }
 
-  public async listEvents(req: Request, res: Response, next: NextFunction) {
+  public listEvents = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      let events: Event[] = cache.getAll(Event.name);
+      let events: Event[] = this.cache.getAll(Event.name);
 
       if (events.length === 0) {
         events = await getConnection("hub").getRepository(Event).find();
-        cache.setAll(Event.name, events);
+        this.cache.setAll(Event.name, events);
       }
 
       res.send(events);
@@ -30,7 +28,7 @@ export class ScheduleController {
     }
   }
 
-  public async createEvent(req: Request, res: Response, next: NextFunction) {
+  public createEvent = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { title, startTime, endTime, location } = req.body;
       const newEvent: Event = new Event(title, new Date(startTime), new Date(endTime), location);
@@ -46,14 +44,14 @@ export class ScheduleController {
       // Clearing the cache since all events in the cache must have
       // the same lifetime and a new item in the cache would have a
       // longer lifetime than the other events
-      cache.deleteAll(Event.name);
+      this.cache.deleteAll(Event.name);
       res.send(newEvent);
     } catch (err) {
       return next(err);
     }
   }
 
-  public async deleteEvent(req: Request, res: Response, next: NextFunction) {
+  public deleteEvent = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.body;
 
@@ -68,7 +66,7 @@ export class ScheduleController {
         .where("id = :id", { id })
         .execute();
 
-      cache.delete(Event.name, Number(id));
+      this.cache.delete(Event.name, Number(id));
 
       res.send(`Event ${id} deleted`);
     } catch (err) {
@@ -76,11 +74,11 @@ export class ScheduleController {
     }
   }
 
-  public async updateEvent(req: Request, res: Response, next: NextFunction) {
+  public updateEvent = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id, title, startTime, endTime, location } = req.body;
 
-      let eventToUpdate: Event = cache.get(Event.name, Number(id));
+      let eventToUpdate: Event = this.cache.get(Event.name, Number(id));
       if (!eventToUpdate) {
         eventToUpdate = await getConnection("hub").getRepository(Event).findOne(id);
         if (!eventToUpdate) {
@@ -103,7 +101,7 @@ export class ScheduleController {
       // Clearing the cache since all events in the cache must have
       // the same lifetime and updating an object in the cache
       // resets its lifetime
-      cache.deleteAll(Event.name);
+      this.cache.deleteAll(Event.name);
       res.send(updatedEvent);
     } catch (err) {
       return next(err);

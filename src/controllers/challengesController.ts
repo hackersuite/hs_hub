@@ -6,22 +6,20 @@ import { Challenge } from "../db/entity/hub";
 import { Cache } from "../util/cache";
 import { ValidationError, validate } from "class-validator";
 
-// TODO: move into the controller when JS functions are replaced with arrow functions
-let cache: Cache;
-
 export class ChallengesController {
+  private cache: Cache;
 
   constructor(_cache: Cache) {
-    cache = _cache;
+    this.cache = _cache;
   }
 
-  public async listChallenges(req: Request, res: Response, next: NextFunction) {
+  public listChallenges = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      let challenges: Challenge[] = cache.getAll(Challenge.name);
+      let challenges: Challenge[] = this.cache.getAll(Challenge.name);
 
       if (challenges.length === 0) {
         challenges = await getConnection("hub").getRepository(Challenge).find();
-        cache.setAll(Challenge.name, challenges);
+        this.cache.setAll(Challenge.name, challenges);
       }
 
       res.send(challenges);
@@ -30,7 +28,7 @@ export class ChallengesController {
     }
   }
 
-  public async createChallenge(req: Request, res: Response, next: NextFunction) {
+  public createChallenge = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { title, description, company, prizes } = req.body;
       const newChallenge: Challenge = new Challenge(title, description, company, prizes);
@@ -46,18 +44,18 @@ export class ChallengesController {
       // Clearing the cache since all challenges in the cache must have
       // the same lifetime and a new item in the cache would have a
       // longer lifetime than the other challenges
-      cache.deleteAll(Challenge.name);
+      this.cache.deleteAll(Challenge.name);
       res.send(newChallenge);
     } catch (err) {
       return next(err);
     }
   }
 
-  public async updateChallenge(req: Request, res: Response, next: NextFunction) {
+  public updateChallenge = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id, title, description, company, prizes } = req.body;
 
-      let challengeToUpdate: Challenge = cache.get(Challenge.name, Number(id));
+      let challengeToUpdate: Challenge = this.cache.get(Challenge.name, Number(id));
       if (!challengeToUpdate) {
         challengeToUpdate = await getConnection("hub").getRepository(Challenge).findOne(id);
         if (!challengeToUpdate) {
@@ -80,14 +78,14 @@ export class ChallengesController {
       // Clearing the cache since all challenges in the cache must have
       // the same lifetime and updating an object in the cache
       // resets its lifetime
-      cache.deleteAll(Challenge.name);
+      this.cache.deleteAll(Challenge.name);
       res.send(updatedChallenge);
     } catch (err) {
       return next(err);
     }
   }
 
-  public async deleteChallenge(req: Request, res: Response, next: NextFunction) {
+  public deleteChallenge = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.body;
 
@@ -103,7 +101,7 @@ export class ChallengesController {
         .execute();
 
 
-      cache.delete(Challenge.name, Number(id));
+      this.cache.delete(Challenge.name, Number(id));
 
       res.send(`Chalenge ${id} deleted`);
     } catch (err) {
