@@ -63,7 +63,7 @@ const expressSetup = (): Express => {
   // Express configuration
   app.set("port", process.env.PORT || 3000);
   app.set("env", process.env.ENVIRONMENT || "production");
-  if (process.env.ENVIROMENT === "production") {
+  if (process.env.ENVIRONMENT === "production") {
     app.set("trust proxy", 1);
   }
 

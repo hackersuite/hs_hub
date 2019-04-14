@@ -1,12 +1,13 @@
 import { Router } from "express";
 import { checkIsOrganizer } from "../util/user";
 import { ChallengesController } from "../controllers";
+import { Cache } from "../util/cache";
 
-export const challengesRouter = (): Router => {
+export const challengesRouter = (cache: Cache): Router => {
   // Initialize router
   const router = Router();
 
-  const challengesController = new ChallengesController();
+  const challengesController = new ChallengesController(cache);
 
   /**
    * GET /challenges/all
@@ -16,8 +17,7 @@ export const challengesRouter = (): Router => {
   /**
    * POST /challenges/create
    */
-  router.post("/create", checkIsOrganizer,
-              challengesController.createChallenge);
+  router.post("/create", checkIsOrganizer, challengesController.createChallenge);
 
   /**
    * PUT /challenges/update
@@ -27,8 +27,7 @@ export const challengesRouter = (): Router => {
   /**
    * DELETE /challenges/delete
    */
-  router.delete("/delete", checkIsOrganizer,
-                challengesController.deleteChallenge);
+  router.delete("/delete", checkIsOrganizer, challengesController.deleteChallenge);
 
   return router;
 };
