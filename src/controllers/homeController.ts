@@ -25,12 +25,6 @@ export class HomeController {
     res.render("pages/challenges", { challenges: [] });
   }
 
-  // public async achievements(req: Request, res: Response, next: NextFunction) {
-  //   const allAchievements = Achievements.getAchievements();
-  //   const progress: Map<string, number> = await Achievements.getUserProgressForAllAchievements(req.user);
-  //   res.render("pages/achievements", { allAchievements: allAchievements, progress: progress });
-  // }
-
   public login(req: Request, res: Response, next: NextFunction) {
     res.render("pages/login", { preventNotificationRequest: true });
   }
