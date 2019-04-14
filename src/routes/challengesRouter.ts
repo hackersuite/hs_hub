@@ -17,8 +17,7 @@ export const challengesRouter = (cache: Cache): Router => {
   /**
    * POST /challenges/create
    */
-  router.post("/create", checkIsOrganizer,
-    challengesController.createChallenge);
+  router.post("/create", checkIsOrganizer, challengesController.createChallenge);
 
   /**
    * PUT /challenges/update
@@ -28,8 +27,7 @@ export const challengesRouter = (cache: Cache): Router => {
   /**
    * DELETE /challenges/delete
    */
-  router.delete("/delete", checkIsOrganizer,
-    challengesController.deleteChallenge);
+  router.delete("/delete", checkIsOrganizer, challengesController.deleteChallenge);
 
   return router;
 };
