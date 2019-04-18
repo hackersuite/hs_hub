@@ -39,10 +39,10 @@ export const mainRouter = (): Router => {
   router.use("/challenges/", challengesRouter(cache));
 
   // Requests to /announcement/*
-  router.use("/announcement/", announcementRouter());
+  router.use("/announcement/", announcementRouter(cache));
 
   // Requests to /*
-  router.use("/", homeRouter());
+  router.use("/", homeRouter(cache));
 
   return router;
 };

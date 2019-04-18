@@ -26,7 +26,7 @@ export class ChallengesController {
     } catch (err) {
       return next(err);
     }
-  }
+  };
 
   public createChallenge = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -49,7 +49,7 @@ export class ChallengesController {
     } catch (err) {
       return next(err);
     }
-  }
+  };
 
   public updateChallenge = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -83,7 +83,7 @@ export class ChallengesController {
     } catch (err) {
       return next(err);
     }
-  }
+  };
 
   public deleteChallenge = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -107,5 +107,5 @@ export class ChallengesController {
     } catch (err) {
       return next(err);
     }
-  }
+  };
 }

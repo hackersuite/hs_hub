@@ -26,7 +26,7 @@ export class HardwareController {
   library = async (req: Request, res: Response, next: NextFunction) => {
     const items = await this.hardwareService.getAllHardwareItems(req.user.id);
     res.render("pages/hardware/index", { items });
-  }
+  };
 
   /**
    * Returns the hardware management page for volunteers
@@ -38,7 +38,7 @@ export class HardwareController {
     } catch (err) {
       return next(err);
     }
-  }
+  };
 
   /**
    * Returns the page to add an item
@@ -51,7 +51,7 @@ export class HardwareController {
     } catch (err) {
       return next(err);
     }
-  }
+  };
 
   addItem = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -85,7 +85,7 @@ export class HardwareController {
     } catch (err) {
       return next(err);
     }
-  }
+  };
 
   updateItem = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -133,7 +133,7 @@ export class HardwareController {
     } catch (err) {
       return next(err);
     }
-  }
+  };
 
   /**
    * Reserves a item from the hardware library
@@ -166,7 +166,7 @@ export class HardwareController {
     } catch (err) {
       return next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
     }
-  }
+  };
 
   /**
    * Attempts to take the item from the hardware library
@@ -184,7 +184,7 @@ export class HardwareController {
     } catch (err) {
       return next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
     }
-  }
+  };
 
   return = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -199,7 +199,7 @@ export class HardwareController {
     } catch (err) {
       return next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
     }
-  }
+  };
 
   /**
    * Gets all the items from the database
@@ -215,7 +215,7 @@ export class HardwareController {
     } catch (err) {
       return next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
     }
-  }
+  };
 
   /**
    * Adds all the items in the request to the database
@@ -240,7 +240,7 @@ export class HardwareController {
     } catch (err) {
       return next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
     }
-  }
+  };
 
   /**
    * Gets all reservations
@@ -252,7 +252,7 @@ export class HardwareController {
     } catch (err) {
       return next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
     }
-  }
+  };
 
   /**
    * Gets a reservation
@@ -270,7 +270,7 @@ export class HardwareController {
     } catch (err) {
       return next(err);
     }
-  }
+  };
 
   /**
    * Cancels a reservation
@@ -285,7 +285,7 @@ export class HardwareController {
     } catch (err) {
       return next(err);
     }
-  }
+  };
 
   management = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -297,7 +297,7 @@ export class HardwareController {
     } catch (err) {
       return next(err);
     }
-  }
+  };
 
   deleteItem = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -311,5 +311,5 @@ export class HardwareController {
     } catch (err) {
       return next(new ApiError(err.statusCode || HttpResponseCode.INTERNAL_ERROR, err.message));
     }
-  }
+  };
 }

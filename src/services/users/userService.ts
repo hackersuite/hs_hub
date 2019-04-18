@@ -15,7 +15,7 @@ export class UserService {
    * @param submittedPassword password provided by the user
    * @param passwordFromDatabase password we have got from the database
    */
-  validatePassword = (submittedPassword: string, passwordFromDatabase: string): boolean => {
+  validatePassword = (submittedPassword: string, passwordFromDatabase: string, keyLength?: number): boolean => {
     // The password from the database comes with some extra information that we need for validation
     // first we extract the required, the password has a format like:
     // <algorithm>$<iterations>$<salt>$<hash>
@@ -57,11 +57,7 @@ export class UserService {
   validateUser = async (submittedEmail: string, submittedPassword: string): Promise<boolean> => {
     // Get the user password from the database, we need to use a query builder
     // since by default we don't get the user password in the query
-    const userWithPassword: User = await this.userRepository
-      .createQueryBuilder("user")
-      .addSelect("user.password")
-      .where("email = :email", {email: submittedEmail})
-      .getOne();
+    const userWithPassword: User = await this.getUserByEmailFromHub(submittedEmail);
 
     if (userWithPassword && userWithPassword.password) {
       return this.validatePassword(submittedPassword, userWithPassword.password);
@@ -76,19 +72,15 @@ export class UserService {
    * @return Promise of a user
    */
   getUserByIDFromHub = async (submittedID: number): Promise<User> => {
-    try {
-      const user: User = await this.userRepository
-        .createQueryBuilder("user")
-        .addSelect("user.password")
-        .where("id = :id", {id: submittedID})
-        .getOne();
+    const user: User = await this.userRepository
+      .createQueryBuilder("user")
+      .addSelect("user.password")
+      .where("id = :id", {id: submittedID})
+      .getOne();
 
-      if (!user)
-        throw new ApiError(HttpResponseCode.BAD_REQUEST, "User does not exist.");
-      return user;
-    } catch (err) {
-      throw new ApiError(HttpResponseCode.INTERNAL_ERROR, `Lost connection to database (hub)! ${err}`);
-    }
+    if (!user)
+      throw new ApiError(HttpResponseCode.BAD_REQUEST, `User does not exist with id ${submittedID}`);
+    return user;
   };
 
   /**
@@ -97,18 +89,14 @@ export class UserService {
    * @return Promise of a user
    */
   getUserByEmailFromHub = async(submittedEmail: string): Promise<User> => {
-    try {
-      const user: User = await this.userRepository
-        .createQueryBuilder("user")
-        .addSelect("user.password")
-        .where("user.email = :email", { email: submittedEmail })
-        .getOne();
-      if (!user)
-        throw new ApiError(HttpResponseCode.BAD_REQUEST, "User does not exist.");
-      return user;
-    } catch (err) {
-      throw new ApiError(HttpResponseCode.INTERNAL_ERROR, `Lost connection to database (hub)! ${err}`);
-    }
+    const user: User = await this.userRepository
+      .createQueryBuilder("user")
+      .addSelect("user.password")
+      .where("user.email = :email", { email: submittedEmail })
+      .getOne();
+    if (!user)
+      throw new ApiError(HttpResponseCode.BAD_REQUEST, "User does not exist.");
+    return user;
   };
 
   /**
@@ -139,7 +127,7 @@ export class UserService {
       else
         user.push_id.push(pushID);
 
-      this.userRepository.save(user);
+      await this.userRepository.save(user);
     } catch (err) {
       throw new ApiError(HttpResponseCode.INTERNAL_ERROR, `Lost connection to database (hub)! ${err}`);
     }
@@ -167,11 +155,15 @@ export class UserService {
   setUserTeamAndCount = async (userID: number, newTeamCode: string): Promise<number> => {
     try {
       // Updates and sets the team code for the specified user
-      await this.userRepository.update(newTeamCode, { id: userID });
+      await this.userRepository.save({ id: userID, team: newTeamCode });
 
       // Finds all the users in the given team and returns the count
-      return await this.userRepository
-      .findAndCount({ team: newTeamCode })[1];
+      const userAndTeam: [User[], number] = await this.userRepository
+      .findAndCount({ team: newTeamCode });
+      if (userAndTeam)
+        return userAndTeam[1];
+      else
+        throw new ApiError(HttpResponseCode.BAD_REQUEST, "Failed to find the user.");
     } catch (err) {
       throw new ApiError(HttpResponseCode.INTERNAL_ERROR, `Lost connection to database (applications)! ${err}`);
     }
@@ -185,7 +177,7 @@ export class UserService {
   setUserTeam = async (userID: number, newTeamCode: string): Promise<void> => {
     try {
       // Updates and sets the team code for the specified user
-      await this.userRepository.update(newTeamCode, { id: userID });
+      await this.userRepository.save({ id: userID, team: newTeamCode });
     } catch (err) {
       throw new ApiError(HttpResponseCode.INTERNAL_ERROR, `Lost connection to database (applications)! ${err}`);
     }

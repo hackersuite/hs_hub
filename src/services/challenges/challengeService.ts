@@ -8,6 +8,10 @@ export class ChallengeService {
     this.challengeRepository = _challengeRepository;
   }
 
+  getAll = async (): Promise<Challenge[]> => {
+    return undefined;
+  };
+
   createChallenge = async (): Promise<void> => {
   };
 
