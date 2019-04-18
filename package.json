@@ -1,7 +1,7 @@
 {
-  "name": "guh18_hub_back-end",
-  "version": "0.0.1",
-  "description": "The back-end app for the GUH18 Hub",
+  "name": "hackathon_attendee_hub",
+  "version": "2.0.0",
+  "description": "The Hub system for hackathons",
   "main": "app.ts",
   "engines": {
     "node": ">=9.0.0"
@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "GitHub",
-    "url": "https://github.com/hacksoc-manchester/GUH18-Hub/tree/master/back-end"
+    "url": "https://github.com/hacksoc-manchester/Hackathon_Attendee_Hub/tree/master"
   },
   "author": "CSSoc/HackSoc",
   "license": "MIT",
@@ -57,6 +57,7 @@
     "errorhandler": "^1.5.0",
     "jest": "^23.6.0",
     "nodemon": "^1.18.4",
+    "sqlite3": "^4.0.6",
     "supertest": "^3.3.0",
     "ts-jest": "^23.10.4",
     "tslint": "^5.11.0"
