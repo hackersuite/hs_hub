@@ -52,9 +52,10 @@ export class TeamService {
     try {
       if (userID === undefined || currentTeam === undefined) return false;
 
-      const teamMembers: number = await this.userService.setUserTeamAndCount(userID, undefined);
-      if (teamMembers === 0)
+      const teamMembers: number = await this.userService.setUserTeamAndCount(userID, currentTeam, undefined);
+      if (teamMembers === 0) {
         await this.teamRepository.delete(currentTeam);
+      }
       return true;
     } catch (err) {
       throw new Error(`Lost connection to database (hub)! ${err}`);
