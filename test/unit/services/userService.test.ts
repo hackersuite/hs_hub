@@ -22,14 +22,9 @@ beforeAll(async (): Promise<void> => {
   userService = new UserService(getRepository(User));
 });
 
-afterAll(async (): Promise<void> => {
-  await closeTestDatabaseConnection();
-});
-
 beforeEach(async (): Promise<void> => {
   await reloadTestDatabaseConnection();
 });
-
 
 /**
  * User validation tests
@@ -137,6 +132,19 @@ describe("User service tests", (): void => {
     expect(modifiedUser.push_id.length).toBe(2);
     expect(modifiedUser.push_id[1]).toBe(testPushID);
   });
+  test("Should ensure that first push id is added to user", async (): Promise<void> => {
+    const testPushID: string = "abc";
+    const userRepository: Repository<User> = getRepository(User);
+    testHubUser.push_id = undefined;
+    await userRepository.save(testHubUser);
+
+    await userService.addPushIDToUser(testHubUser, testPushID);
+
+    const modifiedUser: User = await userRepository.findOne({ id: testHubUser.id });
+    expect(modifiedUser.push_id.length).toBe(1);
+    expect(modifiedUser.push_id[0]).toBe(testPushID);
+  });
+
 
   /**
    * Should test that new users can be saved
@@ -159,7 +167,7 @@ describe("User service tests", (): void => {
     const userRepository: Repository<User> = getRepository(User);
     await userRepository.save(testHubUser);
 
-    const count: number = await userService.setUserTeamAndCount(testHubUser.id, newTeamCode);
+    const count: number = await userService.setUserTeamAndCount(testHubUser.id, testHubUser.team, newTeamCode);
     expect(count).toBeDefined();
     expect(count).toBe(1);
 
@@ -197,4 +205,8 @@ describe("User service tests", (): void => {
     expect(allUsersInTeams.length).toBe(2);
   });
 
+});
+
+afterAll(async (): Promise<void> => {
+  await closeTestDatabaseConnection();
 });

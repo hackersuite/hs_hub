@@ -150,20 +150,18 @@ export class UserService {
    * Sets the new user team code for the user and then gets the count of the
    * number of users left in the team
    * @param userID The id of the user to modify
+   * @param currentTeam Current team of the user, used if team is removed
    * @param newTeamCode The new team code for the user
    */
-  setUserTeamAndCount = async (userID: number, newTeamCode: string): Promise<number> => {
+  setUserTeamAndCount = async (userID: number, currentTeam: string, newTeamCode: string): Promise<number> => {
     try {
       // Updates and sets the team code for the specified user
-      await this.userRepository.save({ id: userID, team: newTeamCode });
+      await this.userRepository.update(userID, { team: newTeamCode });
 
       // Finds all the users in the given team and returns the count
       const userAndTeam: [User[], number] = await this.userRepository
-      .findAndCount({ team: newTeamCode });
-      if (userAndTeam)
-        return userAndTeam[1];
-      else
-        throw new ApiError(HttpResponseCode.BAD_REQUEST, "Failed to find the user.");
+      .findAndCount({ team: newTeamCode ? newTeamCode : currentTeam });
+      return userAndTeam[1];
     } catch (err) {
       throw new ApiError(HttpResponseCode.INTERNAL_ERROR, `Lost connection to database (applications)! ${err}`);
     }
