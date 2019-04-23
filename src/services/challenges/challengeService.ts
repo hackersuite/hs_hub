@@ -1,5 +1,6 @@
 import { Repository } from "typeorm";
 import { Challenge } from "../../db/entity/hub";
+import { ApiError, HttpResponseCode } from "../../util/errorHandling";
 
 export class ChallengeService {
   private challengeRepository: Repository<Challenge>;
@@ -9,15 +10,26 @@ export class ChallengeService {
   }
 
   getAll = async (): Promise<Challenge[]> => {
-    return undefined;
+    return this.challengeRepository.find();
   };
 
-  createChallenge = async (): Promise<void> => {
+  findByID = async (challengeID: number): Promise<Challenge> => {
+    const challenge: Challenge = await this.challengeRepository.findOne(challengeID);
+    if (!challenge) {
+      throw new ApiError(HttpResponseCode.BAD_REQUEST, `Could not find challenge with given id ${challengeID}`);
+    }
+    return challenge;
   };
 
-  updateChallenge = async (): Promise<void> => {
+  saveChallenge = async (challenge: Challenge): Promise<void> => {
+    await this.challengeRepository.save(challenge);
   };
 
-  deleteChallenge = async (): Promise<void> => {
+  deleteChallengeByID = async (id: number): Promise<void> => {
+    await this.challengeRepository
+      .createQueryBuilder()
+      .delete()
+      .where("id = :id", { id })
+      .execute();
   };
 }
