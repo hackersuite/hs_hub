@@ -1,7 +1,6 @@
 import { Repository } from "typeorm";
 import { Announcement } from "../../db/entity/hub";
 
-// TODO: This class should be cachable when #110 is merged
 export class AnnouncementService {
   private announcementRepository: Repository<Announcement>;
 

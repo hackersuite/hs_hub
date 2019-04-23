@@ -27,4 +27,8 @@ export class EventService {
         location
       }]).execute()).identifiers[0].id;
   };
+
+  deleteEventByID = async (eventID: number): Promise<void> => {
+    await this.eventRepository.delete(eventID);
+  };
 }
