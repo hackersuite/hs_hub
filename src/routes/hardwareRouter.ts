@@ -20,7 +20,7 @@ export const hardwareRouter = (): Router => {
 
   const userService: UserService = new UserService(
     getConnection("hub").getRepository(User)
-  )
+  );
 
   const teamService: TeamService = new TeamService(
     getConnection("hub").getRepository(Team), userService

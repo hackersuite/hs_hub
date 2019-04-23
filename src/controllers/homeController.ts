@@ -21,16 +21,25 @@ export class HomeController {
     this.challengeService = _challengeService;
   }
 
-  dashboard = async (req: Request, res: Response, next: NextFunction) => {
-    // TODO: re-implement the list of events when the service architecture refactor is finished
-    const events: Event[] = await this.eventService.findAllEvents();
-    const announcements: Announcement[] = await this.announcementService.getMostRecentAnnouncements(5);
+  public dashboard = async (req: Request, res: Response, next: NextFunction) => {
+    let events: Event[] = this.cache.getAll(Event.name); // await this.eventService.findAllEvents();
+    if (events.length === 0) {
+      events = await this.eventService.findAllEvents();
+      if (events.length !== 0) this.cache.setAll(Event.name, events);
+    }
+
+    let announcements: Announcement[] = this.cache.getAll(Announcement.name);
+    if (announcements.length === 0) {
+      announcements = await this.announcementService.getMostRecentAnnouncements(5);
+      if (announcements.length !== 0) this.cache.setAll(Announcement.name, announcements);
+    }
+
     res.render("pages/dashboard", { events, announcements });
   };
 
-  public async challenges(req: Request, res: Response, next: NextFunction) {
+  public challenges = async(req: Request, res: Response, next: NextFunction) => {
     const challenges: Challenge[] = await this.challengeService.getAll();
-    res.render("pages/challenges", { challenges: [] });
+    res.render("pages/challenges", { challenges: challenges });
   }
 
   public login(req: Request, res: Response, next: NextFunction) {
