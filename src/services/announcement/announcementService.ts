@@ -9,7 +9,7 @@ export class AnnouncementService {
   }
 
   createAnnouncement = async (announcement: Announcement): Promise<void> => {
-    this.announcementRepository.save(announcement);
+    await this.announcementRepository.save(announcement);
   };
 
   /**

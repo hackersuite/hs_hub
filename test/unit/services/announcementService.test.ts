@@ -42,9 +42,10 @@ describe("Announcement service tests", (): void => {
     expect(recentAnnouncements.length).toBe(RECENT_ANNOUNCEMENTS);
   });
   test("Should return empty array with no announcements", async (): Promise<void> => {
-    // Ensure that we can find the most recent announcements
+    // Ensure that an empty array returned with no announcements
     const recentAnnouncements: Announcement[] = await announcementService.getMostRecentAnnouncements(1);
-    expect(recentAnnouncements).toBeUndefined();
+    expect(recentAnnouncements).toBeDefined();
+    expect(recentAnnouncements.length).toBe(0);
   });
 
   /**
