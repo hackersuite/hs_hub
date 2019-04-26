@@ -28,16 +28,20 @@ testHubTeam.teamCode = testHubUser.team;
 let teamService: TeamService;
 let userService: UserService;
 
-beforeAll(async (): Promise<void> => {
+beforeAll(async (done: jest.DoneCallback): Promise<void> => {
   dotenv.config({ path: ".env" });
 
   await createTestDatabaseConnection([ User, AchievementProgress, ReservedHardwareItem, HardwareItem, Team ]);
   userService = new UserService(getRepository(User));
   teamService = new TeamService(getRepository(Team), userService);
+
+  done();
 });
 
-beforeEach(async (): Promise<void> => {
+beforeEach(async (done: jest.DoneCallback): Promise<void> => {
   await reloadTestDatabaseConnection();
+
+  done();
 });
 
 /**

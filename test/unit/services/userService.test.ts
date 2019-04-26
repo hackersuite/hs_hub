@@ -15,15 +15,19 @@ testHubUser.push_id = ["a64a87ad-df62-47c7-9592-85d71291abf2"];
 
 let userService: UserService;
 
-beforeAll(async (): Promise<void> => {
+beforeAll(async (done: jest.DoneCallback): Promise<void> => {
   dotenv.config({ path: ".env" });
 
   await createTestDatabaseConnection([ User, AchievementProgress, ReservedHardwareItem, HardwareItem ]);
   userService = new UserService(getRepository(User));
+
+  done();
 });
 
-beforeEach(async (): Promise<void> => {
+beforeEach(async (done: jest.DoneCallback): Promise<void> => {
   await reloadTestDatabaseConnection();
+
+  done();
 });
 
 /**

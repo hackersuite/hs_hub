@@ -9,15 +9,19 @@ const testEvent2: Event = new Event("Test Event2", new Date(), new Date(), "Here
 
 let eventService: EventService;
 
-beforeAll(async (): Promise<void> => {
+beforeAll(async (done: jest.DoneCallback): Promise<void> => {
   dotenv.config({ path: ".env" });
 
   await createTestDatabaseConnection([ Event ]);
   eventService = new EventService(getRepository(Event));
+
+  done();
 });
 
-beforeEach(async (): Promise<void> => {
+beforeEach(async (done: jest.DoneCallback): Promise<void> => {
   await reloadTestDatabaseConnection();
+
+  done();
 });
 
 /**

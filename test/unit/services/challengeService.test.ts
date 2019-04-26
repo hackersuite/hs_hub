@@ -10,15 +10,19 @@ const testChallenge1: Challenge = new Challenge("Test Challenge", "Best Challeng
 
 let challengeService: ChallengeService;
 
-beforeAll(async (): Promise<void> => {
+beforeAll(async (done: jest.DoneCallback): Promise<void> => {
   dotenv.config({ path: ".env" });
 
   await createTestDatabaseConnection([ Challenge ]);
   challengeService = new ChallengeService(getRepository(Challenge));
+
+  done();
 });
 
-beforeEach(async (): Promise<void> => {
+beforeEach(async (done: jest.DoneCallback): Promise<void> => {
   await reloadTestDatabaseConnection();
+
+  done();
 });
 
 /**
