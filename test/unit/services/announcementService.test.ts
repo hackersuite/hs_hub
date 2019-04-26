@@ -54,7 +54,7 @@ describe("Announcement service tests", (): void => {
     expect(recentAnnouncements).toBeDefined();
     expect(recentAnnouncements.length).toBe(RECENT_ANNOUNCEMENTS);
   });
-  test("Should return empty array with no announcements", async (): Promise<void> => { 
+  test("Should return empty array with no announcements", async (): Promise<void> => {
     // Ensure that an empty array returned with no announcements
     const recentAnnouncements: Announcement[] = await announcementService.getMostRecentAnnouncements(1);
     expect(recentAnnouncements).toBeDefined();
@@ -89,11 +89,17 @@ describe("Announcement service cache tests", (): void => {
     announcementService = new AnnouncementService(getRepository(Announcement), mockCache);
   });
 
-
-  test("Should ensure that the cache is used in the announcement service", async (): Promise<void> => {
+  test("Should ensure that the cache used in most recent announcements", async (): Promise<void> => {
     await announcementService.getMostRecentAnnouncements(1);
+    expect(mockCache.getAll).toBeCalled();
     expect(mockCache.getAll.mock.calls[0][0]).toEqual(Announcement.name);
     expect(mockCache.setAll).toBeCalled();
+  });
+
+  test("Should ensure that the cache used in create announcement", async (): Promise<void> => {
+    await announcementService.createAnnouncement(testAnnouncement);
+    expect(mockCache.deleteAll).toBeCalled();
+    expect(mockCache.deleteAll.mock.calls[0][0]).toEqual(Announcement.name);
   });
 });
 
