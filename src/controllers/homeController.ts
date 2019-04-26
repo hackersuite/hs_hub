@@ -27,12 +27,7 @@ export class HomeController {
       events = await this.eventService.findAllEvents();
       if (events.length !== 0) this.cache.setAll(Event.name, events);
     }
-
-    let announcements: Announcement[] = this.cache.getAll(Announcement.name);
-    if (announcements.length === 0) {
-      announcements = await this.announcementService.getMostRecentAnnouncements(5);
-      if (announcements.length !== 0) this.cache.setAll(Announcement.name, announcements);
-    }
+    const announcements: Announcement[] = await this.announcementService.getMostRecentAnnouncements(5);
 
     res.render("pages/dashboard", { events, announcements });
   };

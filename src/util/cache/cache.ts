@@ -19,6 +19,13 @@ export class Cache {
    */
   constructor(preloadedItems?: Map<string, Map<number, Cacheable>>) {
     this.items = preloadedItems || new Map<string, Map<number, Cacheable>>();
+    this.get = this.get.bind(this);
+    this.getAll = this.getAll.bind(this);
+    this.set = this.set.bind(this);
+    this.setAll = this.setAll.bind(this);
+    this.delete = this.delete.bind(this);
+    this.deleteAll = this.deleteAll.bind(this);
+    this.objectIsExpired = this.objectIsExpired.bind(this);
   }
 
   /**
@@ -26,7 +33,7 @@ export class Cache {
    * @param className The name of the class of the stored object
    * @param id The id of the object
    */
-  public get = <T extends Cacheable>(className: string, id: number): T => {
+  public get<T extends Cacheable>(className: string, id: number): T {
     const selectedCollection: Map<number, Cacheable> = this.items.get(className);
 
     if (!selectedCollection)
@@ -46,7 +53,7 @@ export class Cache {
    * Returns empty array if no objects could be found
    * @param className The class of the objects to fetch
    */
-  public getAll = <T extends Cacheable>(className: string): T[] => {
+  public getAll<T extends Cacheable>(className: string): T[] {
     const selectedCollection: Map<number, Cacheable> = this.items.get(className);
 
     if (!selectedCollection)
@@ -78,7 +85,7 @@ export class Cache {
    * @param className The name of the class of the object to be stored
    * @param obj The object to be stored
    */
-  public set = (className: string, obj: Cacheable): void => {
+  public set(className: string, obj: Cacheable): void {
     let selectedCollection: Map<number, Cacheable> = this.items.get(className);
 
     if (!selectedCollection) {
@@ -97,7 +104,7 @@ export class Cache {
    * @param className The name of the class of the objects to be stored
    * @param objects The objects to be stored
    */
-  public setAll = (className: string, objects: Cacheable[]): void => {
+  public setAll(className: string, objects: Cacheable[]): void {
     let selectedCollection: Map<number, Cacheable> = this.items.get(className);
 
     if (!selectedCollection) {
@@ -118,7 +125,7 @@ export class Cache {
    * @param className The name of the class of the object to be deleted
    * @param obj The object to be deleted
    */
-  public delete = (className: string, id: number): void => {
+  public delete(className: string, id: number): void {
     const selectedCollection: Map<number, Cacheable> = this.items.get(className);
 
     if (!selectedCollection)
@@ -131,7 +138,7 @@ export class Cache {
    * Deletes all objects of given class from the cache
    * @param className The name of the class of the objects to be deleted
    */
-  public deleteAll = (className: string): void => {
+  public deleteAll(className: string): void {
     this.items.delete(className);
   }
 
@@ -139,7 +146,7 @@ export class Cache {
    * Checks wether the given Cacheable object is expired
    * @param obj The object
    */
-  private objectIsExpired = (obj: Cacheable): boolean => {
+  private objectIsExpired(obj: Cacheable): boolean {
     if (obj.expiresIn < 0)
       return false;
     return obj.syncedAt + obj.expiresIn <= Date.now();

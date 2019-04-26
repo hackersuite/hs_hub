@@ -5,19 +5,16 @@ import { Announcement } from "../db/entity/hub";
 import { sendOneSignalNotification } from "../util/announcement";
 import { AnnouncementService } from "../services/announcement/announcementService";
 import { UserService } from "../services/users";
-import { Cache } from "../util/cache";
 
 /**
  * A controller for the announcement methods
  */
 export class AnnouncementController {
-  private cache: Cache;
 
   private announcementService: AnnouncementService;
   private userService: UserService;
 
-  constructor(_cache: Cache, _announcementService: AnnouncementService, _userService: UserService) {
-    this.cache = _cache;
+  constructor(_announcementService: AnnouncementService, _userService: UserService) {
     this.announcementService = _announcementService;
     this.userService = _userService;
   }

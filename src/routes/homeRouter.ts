@@ -10,7 +10,7 @@ import { Cache } from "../util/cache";
 
 export const homeRouter = (cache: Cache): Router => {
   const announcementService: AnnouncementService = new AnnouncementService(
-    getConnection("hub").getRepository(Announcement)
+    getConnection("hub").getRepository(Announcement), cache
   );
   const eventService: EventService = new EventService(
     getConnection("hub").getRepository(Event)

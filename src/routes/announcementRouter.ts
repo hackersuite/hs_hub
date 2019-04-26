@@ -9,7 +9,7 @@ import { Cache } from "../util/cache";
 
 export const announcementRouter = (cache: Cache): Router => {
   const announcementService: AnnouncementService = new AnnouncementService(
-    getConnection("hub").getRepository(Announcement)
+    getConnection("hub").getRepository(Announcement), cache
   );
   const userService: UserService = new UserService(
     getConnection("hub").getRepository(User)
@@ -17,7 +17,7 @@ export const announcementRouter = (cache: Cache): Router => {
 
   // Initialize router
   const router = Router();
-  const announcementController = new AnnouncementController(cache, announcementService, userService);
+  const announcementController = new AnnouncementController(announcementService, userService);
 
   /**
    * POST /announcement/

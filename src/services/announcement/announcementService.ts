@@ -1,15 +1,18 @@
 import { Repository } from "typeorm";
 import { Announcement } from "../../db/entity/hub";
+import { Cache } from "../../util/cache";
 
 export class AnnouncementService {
   private announcementRepository: Repository<Announcement>;
-
-  constructor(_announcementRepository: Repository<Announcement>) {
+  private cache: Cache;
+  constructor(_announcementRepository: Repository<Announcement>, _cache: Cache) {
     this.announcementRepository = _announcementRepository;
+    this.cache = _cache;
   }
 
   createAnnouncement = async (announcement: Announcement): Promise<void> => {
     await this.announcementRepository.save(announcement);
+    this.cache.deleteAll(Announcement.name);
   };
 
   /**
@@ -18,15 +21,26 @@ export class AnnouncementService {
    * @returns An array of announcements from the database
    */
   getMostRecentAnnouncements = async (mostRecent: number): Promise<Announcement[]> => {
-    try {
-      const mostRecentAnnouncements: Announcement[] = await this.announcementRepository
-      .createQueryBuilder("announcement")
-      .orderBy("announcement.createdAt", "DESC")
-      .limit(mostRecent)
-      .getMany();
-      return (mostRecentAnnouncements !== undefined ? mostRecentAnnouncements : []);
-    } catch (err) {
-      throw new Error(`Lost connection to database (hub)! ${err}`);
+    let mostRecentAnnouncements: Announcement[] = undefined;
+    const cachedAnnouncements: Announcement[] = this.cache.getAll(Announcement.name);
+
+    // Either there are no announcements or the cache has expired
+    if (cachedAnnouncements.length === 0) {
+      try {
+        mostRecentAnnouncements = await this.announcementRepository
+          .createQueryBuilder("announcement")
+          .orderBy("announcement.createdAt", "DESC")
+          .limit(mostRecent)
+          .getMany();
+      } catch (err) {
+        throw new Error(`Failed to get the most recent announcements: ${err}`);
+      }
+      if (mostRecentAnnouncements !== undefined) {
+        this.cache.setAll(Announcement.name, mostRecentAnnouncements);
+      }
+      return mostRecentAnnouncements;
+    } else {
+      return cachedAnnouncements;
     }
   };
 }
