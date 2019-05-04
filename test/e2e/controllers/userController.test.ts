@@ -1,7 +1,6 @@
 import { Express } from "express";
 import { buildApp } from "../../../src/app";
 import { User } from "../../../src/db/entity/hub";
-import { ApplicationUser } from "../../../src/db/entity/applications";
 import { getConnection } from "typeorm";
 import { getUserByEmailFromHub } from "../../../src/util/user/userValidation";
 import * as request from "supertest";
@@ -16,21 +15,6 @@ testHubUser.name = "Billy Tester II";
 testHubUser.email = "billyII@testing-userController.com";
 testHubUser.authLevel = 1;
 
-const testApplicationUser: ApplicationUser = new ApplicationUser();
-
-testApplicationUser.name = "Billy Tester";
-testApplicationUser.email = "billy@testing.com";
-testApplicationUser.password = "pbkdf2_sha256$30000$xmAiV8Wihzn5$BBVJrxmsVASkYuOI6XdIZoYLfy386hdMOF8S14WRTi8=";
-testApplicationUser.last_login = "2018-10-09 18:50:24.000262+00";
-testApplicationUser.created_time = "2018-09-24 18:30:00.16251+00";
-testApplicationUser.is_organizer = false;
-testApplicationUser.is_volunteer = false;
-testApplicationUser.is_admin = false;
-testApplicationUser.is_hardware_admin = false;
-testApplicationUser.is_active = true;
-testApplicationUser.is_director = false;
-testApplicationUser.email_verified = true;
-
 /**
  * Preparing for the tests
  */
@@ -41,14 +25,6 @@ beforeAll((done: jest.DoneCallback): void => {
       done();
     } else {
       bApp = builtApp;
-      // Creating the test user
-      testApplicationUser.id = (await getConnection("applications")
-        .createQueryBuilder()
-        .insert()
-        .into(ApplicationUser)
-        .values([testApplicationUser])
-        .execute()).identifiers[0].id;
-
       done();
     }
   });
@@ -73,13 +49,13 @@ describe("User controller tests", (): void => {
   });
 
   /**
-   * Test that we can port the user from the applications to the hub
+   * Test that a user that is not logged in can login
    */
-  test("Should check the user is copied to hub on login", async (): Promise<void> => {
+  test("Should check the user can login", async (): Promise<void> => {
     const response = await request(bApp)
       .post("/user/login")
       .send({
-        email: testApplicationUser.email,
+        email: testHubUser.email,
         password: "password123"
       });
 
@@ -87,43 +63,6 @@ describe("User controller tests", (): void => {
     sessionCookie = response.header["set-cookie"].pop().split(";")[0];
     expect(sessionCookie).not.toBeUndefined();
     expect(sessionCookie).toMatch(/connect.sid=*/);
-
-    const newHubUser: User = await getUserByEmailFromHub(testApplicationUser.email);
-    expect(newHubUser).not.toBe(undefined);
-    testHubUser.id = newHubUser.id;
-  });
-
-  /**
-   * Test that when the user password is changed on applications, it gets changed on the hub
-   */
-  test("Should check password is updated on hub", async (): Promise<void> => {
-    await request(bApp)
-      .get("/user/logout")
-      .set("Cookie", sessionCookie)
-      .send();
-
-    // Update the password and save to the database
-    // New password is password12, the old password was password123
-    testApplicationUser.password = "pbkdf2_sha256$30000$xmAiV8Wihzn5$aj1h839Z7MU7UFPcmS3xrjVXdR8wtrhgY3Qi7i19cNY=";
-    await getConnection("applications")
-      .manager
-      .save(testApplicationUser);
-
-    const response = await request(bApp)
-    .post("/user/login")
-    .send({
-      email: testApplicationUser.email,
-      password: "password12"
-    });
-
-    expect(response.status).toBe(HttpResponseCode.REDIRECT);
-    sessionCookie = response.header["set-cookie"].pop().split(";")[0];
-    expect(sessionCookie).not.toBeUndefined();
-    expect(sessionCookie).toMatch(/connect.sid=*/);
-
-    const newHubUser: User = await getUserByEmailFromHub(testApplicationUser.email);
-    expect(newHubUser).not.toBe(undefined);
-    expect(newHubUser.password).toEqual(testApplicationUser.password);
   });
 
   /**
@@ -133,7 +72,7 @@ describe("User controller tests", (): void => {
     const response = await request(bApp)
       .post("/user/login")
       .send({
-        email: testApplicationUser.email,
+        email: testHubUser.email,
         password: "password1234"
       });
 
@@ -176,28 +115,6 @@ describe("User controller tests", (): void => {
  * Cleaning up after the tests
  */
 afterAll(async (): Promise<void> => {
-  await getConnection("hub")
-    .createQueryBuilder()
-    .delete()
-    .from(User)
-    .where("id = :id", { id: testHubUser.id })
-    .execute();
-
-  await getConnection("hub")
-    .createQueryBuilder()
-    .delete()
-    .from(User)
-    .where("id = :id", { id: testApplicationUser.id })
-    .execute();
-
-  await getConnection("applications")
-    .createQueryBuilder()
-    .delete()
-    .from(ApplicationUser)
-    .where("id = :id", { id: testApplicationUser.id })
-    .execute();
-
   await getConnection("hub").close();
-  await getConnection("applications").close();
 });
 

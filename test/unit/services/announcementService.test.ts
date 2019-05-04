@@ -54,6 +54,20 @@ describe("Announcement service tests", (): void => {
     expect(recentAnnouncements).toBeDefined();
     expect(recentAnnouncements.length).toBe(RECENT_ANNOUNCEMENTS);
   });
+  test("Should return array when announcements are cached", async (): Promise<void> => {
+    // Test setup
+    const announcementRepository: Repository<Announcement> = getRepository(Announcement);
+    await announcementRepository.save(testAnnouncement);
+
+    // Should save the announcements in the cache
+    await announcementService.getMostRecentAnnouncements(1);
+    // Manually remove the announcement from the database, only exists in the cache now
+    await announcementRepository.delete(testAnnouncement);
+
+    // Check that the announcements are still cachedw
+    const returnedAnnouncements: Announcement[] = await announcementService.getMostRecentAnnouncements(1);
+    expect(returnedAnnouncements.length).toBe(1);
+  });
   test("Should return empty array with no announcements", async (): Promise<void> => {
     // Ensure that an empty array returned with no announcements
     const recentAnnouncements: Announcement[] = await announcementService.getMostRecentAnnouncements(1);
@@ -77,7 +91,6 @@ describe("Announcement service tests", (): void => {
     expect(foundAnnouncement.id).toBe(testAnnouncement.id);
   });
 });
-
 
 describe("Announcement service cache tests", (): void => {
   beforeEach((): void => {

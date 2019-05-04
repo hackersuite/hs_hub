@@ -195,6 +195,43 @@ describe("Team service tests", (): void => {
     const teamMembers: User[] = await teamService.getUsersTeamMembers(testHubTeam.teamCode);
     expect(teamMembers.length).toBe(0);
   });
+
+  /**
+   * Test that a users team members function works
+   */
+  test("Should check that all the members of a team can be found", async (): Promise<void> => {
+    // Test setup
+    const teamRepository: Repository<Team> = getRepository(Team);
+    await teamRepository.save(testHubTeam);
+
+    // Check the user does not exist in the team
+    const teamData: Team = await teamService.getUsersTeam(testHubTeam.teamCode);
+    expect(teamData).toEqual(testHubTeam);
+  });
+
+  /**
+   * Test that it can be determined if a team table is set by the team code
+   */
+  test("Should check that a team table number is set", async (): Promise<void> => {
+    // Test setup
+    const teamRepository: Repository<Team> = getRepository(Team);
+    await teamRepository.save(testHubTeam);
+
+    // Check the user does not exist in the team
+    const isTeamSet: boolean = await teamService.checkTeamTableIsSet(testHubTeam.teamCode);
+    expect(isTeamSet).toBeFalsy();
+
+    // Update the team with a table number and store in the database
+    testHubTeam.tableNumber = 10;
+    await teamRepository.save(testHubTeam);
+    const isTeamSetAfterUpdate: boolean = await teamService.checkTeamTableIsSet(testHubTeam.teamCode);
+    expect(isTeamSetAfterUpdate).toBeTruthy();
+  });
+  test("Should check a team table returns false when undefined", async (): Promise<void> => {
+    // Check the user does not exist in the team
+    const isTeamSet: boolean = await teamService.checkTeamTableIsSet(undefined);
+    expect(isTeamSet).toBeFalsy();
+  });
 });
 
 afterAll(async (): Promise<void> => {

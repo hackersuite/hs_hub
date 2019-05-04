@@ -146,7 +146,7 @@ export class HardwareController {
     // otherwise, return that the item can't be reserved
     try {
       // First check that the team table number is set
-      if (!(await this.teamService.checkTeamTableIsSet(req.user.id)))
+      if (!(await this.teamService.checkTeamTableIsSet(req.user.team)))
         return next(new ApiError(HttpResponseCode.BAD_REQUEST, "You need to create a team and set your table number in the profile page first."));
 
       const { item, quantity } = req.body;

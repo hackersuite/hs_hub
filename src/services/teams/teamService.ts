@@ -131,7 +131,7 @@ export class TeamService {
   };
 
   /**
-   * Gets all the users in a given team from the team code
+   * Gets the team data for a given team code
    */
   getUsersTeam = async (teamCode: string): Promise<Team> => {
     try {
@@ -143,6 +143,9 @@ export class TeamService {
     }
   };
 
+  /**
+   * Gets all the members for a specific team
+   */
   getUsersTeamMembers = async (teamCode: string): Promise<User[]> => {
     return this.userService.getUsersTeamMembers(teamCode);
   };
@@ -151,11 +154,10 @@ export class TeamService {
    * Checks that a users team table is set, this is required since a user cannot reserve hardware unless
    * the team table is set
    */
-  checkTeamTableIsSet = async (userID: number): Promise<boolean> => {
+  checkTeamTableIsSet = async (teamCode: string): Promise<boolean> => {
     try {
-      const user: User = await this.userService.getUserByIDFromHub(userID);
-      if (user && user.team) {
-        const team: Team = await this.getUsersTeam(user.team);
+      if (teamCode) {
+        const team: Team = await this.getUsersTeam(teamCode);
         return (team && team.tableNumber ? true : false);
       }
       return false;
