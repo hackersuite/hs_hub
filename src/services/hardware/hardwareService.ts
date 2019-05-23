@@ -17,14 +17,14 @@ export class HardwareService {
 
   /**
    * Finds the item by name and tries to reserve the item for the user
-   * @param itemToReserve
-   * @return A boolean indicating if the item was successfully reserved
+   * @param itemToReserve - the id of the item to reserve
+   * @return A string of the reservation token if successful, `undefined` otherwise
    */
   reserveItem = async (user: User, itemToReserve: string, requestedQuantity?: number): Promise<string> => {
     if (!requestedQuantity) requestedQuantity = 1;
     const hardwareItem: HardwareItem = await this.getHardwareItemByID(Number(itemToReserve));
     if (await this.isItemReservable(user, hardwareItem, requestedQuantity)) {
-      return this.reserveItemQuery(user, hardwareItem, requestedQuantity);
+      return await this.reserveItemQuery(user, hardwareItem, requestedQuantity);
     }
     return undefined;
   };
@@ -53,7 +53,7 @@ export class HardwareService {
       const newItemReservation: ReservedHardwareItem = new ReservedHardwareItem();
       newItemReservation.user = user;
       newItemReservation.hardwareItem = hardwareItem;
-      newItemReservation.reservationToken = createToken(16);
+      newItemReservation.reservationToken = createToken();
       newItemReservation.isReserved = true;
       newItemReservation.reservationQuantity = requestedQuantity;
 
@@ -114,7 +114,7 @@ export class HardwareService {
       if (!this.isReservationValid(reservation.reservationExpiry)) {
         // Remove the reservation from the database
         await this.reservedHardwareService.deleteReservation(token);
-        return undefined;
+        throw new ApiError(HttpResponseCode.BAD_REQUEST, "Item reservation has expired");
       }
 
       await this.itemToBeTakenFromLibrary(userID, itemID, itemQuantity);
@@ -131,7 +131,7 @@ export class HardwareService {
    */
   returnItem = async (token: string): Promise<boolean> => {
     const reservation: ReservedHardwareItem = await this.reservedHardwareService.getReservationFromToken(token);
-    if (!reservation) return undefined;
+    if (!reservation) return false;
 
     const userID: number = reservation.user.id,
       itemID: number = reservation.hardwareItem.id,
@@ -144,7 +144,7 @@ export class HardwareService {
       throw new ApiError(HttpResponseCode.BAD_REQUEST, "This has not been taken yet");
     }
 
-    return isReserved;
+    return true;
   };
 
   /**
@@ -257,7 +257,7 @@ export class HardwareService {
         "itemURL": item.itemURL,
         "itemStock": item.totalStock,
         "itemsLeft": remainingItemCount,
-        "itemHasStock": remainingItemCount > 0 ? "true" : "false",
+        "itemHasStock": remainingItemCount > 0,
         "reserved": isUsersReservation ? userReservation.isReserved : false,
         "taken": isUsersReservation ? !userReservation.isReserved : false,
         "reservationQuantity": isUsersReservation ? userReservation.reservationQuantity : 0,
@@ -278,9 +278,9 @@ export class HardwareService {
 
     items.forEach((item: HardwareObject) => {
       const newHardwareItem = new HardwareItem();
-      newHardwareItem.name = item.itemName;
+      newHardwareItem.name = item.name;
       newHardwareItem.itemURL = item.itemURL;
-      newHardwareItem.totalStock = item.itemStock;
+      newHardwareItem.totalStock = item.totalStock;
       newHardwareItem.reservedStock = 0;
       newHardwareItem.takenStock = 0;
 
@@ -305,7 +305,7 @@ export class HardwareService {
     if (!item) {
       throw new ApiError(HttpResponseCode.BAD_REQUEST, "Could not find an item with the given id!");
     }
-    if (item.reservedStock != 0 || item.takenStock != 0) {
+    if (item.reservedStock > 0 || item.takenStock > 0) {
       throw new ApiError(HttpResponseCode.BAD_REQUEST, "Cannot delete an item that has reservations!");
     }
     await this.hardwareRepository.delete(itemId);

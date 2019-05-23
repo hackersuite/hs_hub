@@ -1,5 +1,5 @@
 export interface HardwareObject {
-  itemName?: string;
+  name?: string;
   itemURL?: string;
-  itemStock?: number;
+  totalStock?: number;
 }

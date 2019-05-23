@@ -1,9 +1,8 @@
-import * as crypto from "crypto";
+import { v4 } from "uuid";
 
 /**
- * Generates a random token for the hardware item reservation
- * @param tokenLength The length of random string to produce (default is 10)
+ * Generates a uuid token for the hardware item reservation
  */
-export const createToken = (tokenLength?: number): string => {
-  return crypto.randomBytes(tokenLength !== undefined ? tokenLength : 10).toString("hex");
+export const createToken = (): string => {
+  return v4();
 };

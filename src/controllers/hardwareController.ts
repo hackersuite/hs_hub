@@ -189,7 +189,7 @@ export class HardwareController {
   return = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const returnedItem: boolean  = await this.hardwareService.returnItem(req.body.token);
-      if (returnedItem !== undefined) {
+      if (returnedItem !== false) {
         res.send({
           message: "Item has been returned to the library"
         });
