@@ -8,6 +8,7 @@ export class QueryLogger implements Logger {
   constructor(private options?: LoggerOptions) {}
 
   protected writeToFile(message: string, file?: string) {
+    if (Number(process.env.ENABLE_LOGGING) === 0) return;
     const fileName: string = file !== undefined ? file : process.env.HUB_LOG_FILE_NAME;
 
     const basePath: string = PlatformTools.load("app-root-path").path;

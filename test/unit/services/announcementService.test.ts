@@ -1,4 +1,3 @@
-import * as dotenv from "dotenv";
 import { createTestDatabaseConnection, closeTestDatabaseConnection, reloadTestDatabaseConnection } from "../../util/testUtils";
 import { getRepository, Repository } from "typeorm";
 import { Announcement } from "../../../src/db/entity/hub";
@@ -14,7 +13,6 @@ let cache: Cache;
 let mockCache: jest.Mocked<Cache>;
 
 beforeAll(async (done: jest.DoneCallback): Promise<void> => {
-  dotenv.config({ path: ".env" });
   await createTestDatabaseConnection([ Announcement ]);
 
   done();

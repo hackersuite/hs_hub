@@ -31,6 +31,7 @@
     "@types/passport-local": "^1.0.33",
     "@types/pbkdf2": "^3.0.0",
     "@types/request": "^2.48.1",
+    "@types/uuid": "^3.4.4",
     "body-parser": "^1.19.0",
     "class-validator": "^0.9.1",
     "cookie-parser": "^1.4.4",
@@ -48,7 +49,8 @@
     "reflect-metadata": "^0.1.13",
     "ts-node": "^7.0.1",
     "typeorm": "^0.2.16",
-    "typescript": "^3.4.5"
+    "typescript": "^3.4.5",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
     "@types/errorhandler": "0.0.32",

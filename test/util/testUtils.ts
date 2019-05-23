@@ -23,3 +23,11 @@ export async function closeTestDatabaseConnection(): Promise<void> {
 export async function reloadTestDatabaseConnection(): Promise<void> {
   await getConnection().synchronize(true);
 }
+
+export function initEnv(): void {
+  process.env.SALT = "random";
+  process.env.ITERATIONS = "30000";
+  process.env.KEY_LENGTH = "32";
+  process.env.DIGEST = "sha256";
+  process.env.ENABLE_LOGGING = "0";
+}
