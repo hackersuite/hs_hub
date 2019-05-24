@@ -11,7 +11,7 @@ export class AchievementsService {
    * Returns all achievements
    */
   public async getAchievements(): Promise<Achievement[]> {
-    return this.achievementsRepository.getAchievements();
+    return await this.achievementsRepository.getAchievements();
   }
 
   /**
