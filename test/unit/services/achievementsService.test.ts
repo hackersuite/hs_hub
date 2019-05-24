@@ -20,22 +20,22 @@ describe("Achievements service tests", (): void => {
    */
   describe("Test getAchievements", (): void => {
     test("Should ensure that an empty array is returned when there are no achievements", async (): Promise<void> => {
-      when(mockAchievementsRepository.getAchievements()).thenReturn(Promise.resolve([]));
+      when(mockAchievementsRepository.getAll()).thenReturn(Promise.resolve([]));
 
       expect(await achievementsService.getAchievements()).toEqual([]);
 
-      verify(mockAchievementsRepository.getAchievements()).once();
+      verify(mockAchievementsRepository.getAll()).once();
     });
     test("Should ensure that the service returns all achievements from the repository", async (): Promise<void> => {
       const testAchievements: Achievement[] = [
         new Achievement(0, { title: "test", description: "teeest", maxProgress: 0, prizeURL: "tessst.com" }),
         new Achievement(1, { title: "test2", description: "teeest", maxProgress: 0, prizeURL: "tessst.com" })
       ];
-      when(mockAchievementsRepository.getAchievements()).thenReturn(Promise.resolve(testAchievements));
+      when(mockAchievementsRepository.getAll()).thenReturn(Promise.resolve(testAchievements));
 
       expect(await achievementsService.getAchievements()).toBe(testAchievements);
 
-      verify(mockAchievementsRepository.getAchievements()).once();
+      verify(mockAchievementsRepository.getAll()).once();
     });
   });
 
@@ -46,15 +46,15 @@ describe("Achievements service tests", (): void => {
     test("Should ensure that the correct achievement is returned", async (): Promise<void> => {
       const testAchievement = new Achievement(0, { title: "test", description: "teeeeest", maxProgress: 0, prizeURL: "test.com" });
 
-      when(mockAchievementsRepository.getAchievementWithId(testAchievement.getId())).thenReturn(Promise.resolve(testAchievement));
+      when(mockAchievementsRepository.findOne(testAchievement.getId())).thenReturn(Promise.resolve(testAchievement));
 
       expect(await achievementsService.getAchievementWithId(testAchievement.getId())).toBe(testAchievement);
 
-      verify(mockAchievementsRepository.getAchievementWithId(testAchievement.getId())).once();
+      verify(mockAchievementsRepository.findOne(testAchievement.getId())).once();
     });
 
     test("Should ensure that an error is thrown when achievement with given id doesn't exist", async (): Promise<void> => {
-      when(mockAchievementsRepository.getAchievementWithId(0)).thenReturn(undefined);
+      when(mockAchievementsRepository.findOne(0)).thenReturn(undefined);
 
       try {
         expect(await achievementsService.getAchievementWithId(0)).toThrow();
@@ -62,7 +62,7 @@ describe("Achievements service tests", (): void => {
         expect(error).not.toBe(undefined);
       }
 
-      verify(mockAchievementsRepository.getAchievementWithId(0)).once();
+      verify(mockAchievementsRepository.findOne(0)).once();
     });
   });
 });

@@ -11,7 +11,7 @@ export class AchievementsService {
    * Returns all achievements
    */
   public async getAchievements(): Promise<Achievement[]> {
-    return await this.achievementsRepository.getAchievements();
+    return await this.achievementsRepository.getAll();
   }
 
   /**
@@ -20,7 +20,7 @@ export class AchievementsService {
    * @param id The id of the achievement to search for
    */
   public async getAchievementWithId(id: number): Promise<Achievement> {
-    const achievement: Achievement = await this.achievementsRepository.getAchievementWithId(id);
+    const achievement: Achievement = await this.achievementsRepository.findOne(id);
     if (!achievement) {
       throw new Error("Could not find an achievement with given id!");
     }
