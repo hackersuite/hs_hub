@@ -65,13 +65,18 @@ export class ReservedHardwareService {
       const response: DeleteResult = await this.removeReservation(token, transaction);
 
       if (response.raw.affectedRows != 1) {
-        await transaction.save(reservation);
-        throw new ApiError(HttpResponseCode.INTERNAL_ERROR, "Could not cancel reservation, please inform us that this error occured.");
-      } else {
-        await transaction
-          .getRepository(HardwareItem)
-          .decrement({ id: reservation.hardwareItem.id }, "reservedStock", reservation.reservationQuantity);
+        // The delete result isn't defined, so manually check the deletion
+        const reservationForToken: ReservedHardwareItem = await transaction
+          .getRepository(ReservedHardwareItem)
+          .createQueryBuilder("reservation")
+          .where("reservation.reservationToken = :token", { token })
+          .getOne();
+        if (reservationForToken)
+          throw new ApiError(HttpResponseCode.INTERNAL_ERROR, "Could not cancel reservation, please inform us that this error occured.");
       }
+      await transaction
+        .getRepository(HardwareItem)
+        .decrement({ id: reservation.hardwareItem.id }, "reservedStock", reservation.reservationQuantity);
     });
   };
 
