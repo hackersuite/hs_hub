@@ -4,7 +4,7 @@ import { HttpResponseCode } from "./httpResponseCode";
 import { NextFunction } from "connect";
 import { sendEmail } from "../mail";
 
-const toEmails: string[] = ["kzalys@gmail.com"];
+const toEmails: string[] = ["admin@unicsmcr.com"];
 
 /**
  * Handles errors thrown by requests
@@ -13,7 +13,7 @@ export const errorHandler = (err: ApiError|Error, req: Request, res: Response, n
   if (err instanceof Error) {
     if (process.env.ENVIRONMENT === "production") {
       // Send notification to admins when an uncaught error occurs
-      sendEmail("noreply@hacksoc.com",
+      sendEmail("noreply@unicsmcr.com",
       toEmails,
         "Uncaught Error: " + err.name,
         err.message + err.stack
