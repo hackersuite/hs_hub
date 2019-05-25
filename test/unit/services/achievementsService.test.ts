@@ -1,13 +1,17 @@
 import { AchievementsService } from "../../../src/services/achievements";
 import { Achievement, LocalAchievementsRepository, AchievementsRepository } from "../../../src/util/achievements";
-import { mock, instance, when, verify } from "ts-mockito";
+import { mock, instance, when, verify, reset } from "ts-mockito";
 
 let mockAchievementsRepository: AchievementsRepository;
 let achievementsService: AchievementsService;
 
-beforeEach(async (): Promise<void> => {
+beforeAll((): void => {
   mockAchievementsRepository = mock(LocalAchievementsRepository);
   achievementsService = new AchievementsService(instance(mockAchievementsRepository));
+});
+
+afterEach((): void => {
+  reset(mockAchievementsRepository);
 });
 
 /**
