@@ -1,16 +1,16 @@
 import { User } from "../../../../../src/db/entity/hub";
 import { buildApp } from "../../../../../src/app";
-import { getConnection } from "typeorm";
+import { getConnection, getRepository } from "typeorm";
 import * as request from "supertest";
 import { HttpResponseCode } from "../../../../../src/util/errorHandling";
 import { AuthLevels } from "../../../../../src/util/user";
 import { Express } from "express";
+import { reloadTestDatabaseConnection, closeTestDatabaseConnection, getTestDatabaseOptions } from "../../../../util/testUtils";
 
 let bApp: Express;
 let sessionCookie: string;
 
 const testHubUser: User = new User();
-
 testHubUser.name = "Billy Tester II";
 testHubUser.email = "billyII@testing-authorization.com";
 testHubUser.authLevel = AuthLevels.Organizer;
@@ -19,31 +19,31 @@ testHubUser.password = "pbkdf2_sha256$30000$xmAiV8Wihzn5$BBVJrxmsVASkYuOI6XdIZoY
 /**
  * Preparing for the tests
  */
-beforeAll((done: jest.DoneCallback): void => {
+beforeAll(async (done: jest.DoneCallback): Promise<void> => {
   buildApp(async (builtApp: Express, err: Error): Promise<void> => {
     if (err) {
-      console.error("Could not start server!");
-      done();
+      throw new Error("Failed to setup test");
     } else {
       bApp = builtApp;
-      // Creating the test user
-      testHubUser.id = (await getConnection("hub")
-        .createQueryBuilder()
-        .insert()
-        .into(User)
-        .values([testHubUser])
-        .execute()).identifiers[0].id;
-
-      const response = await request(bApp)
-        .post("/user/login")
-        .send({
-          email: testHubUser.email,
-          password: "password123"
-        });
-      sessionCookie = response.header["set-cookie"].pop().split(";")[0];
       done();
     }
-  });
+  }, getTestDatabaseOptions(undefined, "hub"));
+});
+
+beforeEach(async (done: jest.DoneCallback): Promise<void> => {
+  await reloadTestDatabaseConnection("hub");
+
+  // Creating the test user
+  await getConnection("hub").getRepository(User).save(testHubUser);
+
+  const response = await request(bApp)
+    .post("/user/login")
+    .send({
+      email: testHubUser.email,
+      password: "password123"
+    });
+  sessionCookie = response.header["set-cookie"].pop().split(";")[0];
+  done();
 });
 
 /**
@@ -145,23 +145,24 @@ describe("Authorization tests", (): void => {
    * Test that a user with an invalid session token cannot access any methods that require authorization
    */
   test("Should not give access to user with invalid session token", async (): Promise<void> => {
+    const invalidSessionCookie: string = "invalid_token";
     let response = await request(bApp)
       .get("/user/checkOrganizer")
-      .set("Cookie", sessionCookie + "made the token invalid")
+      .set("Cookie", invalidSessionCookie)
       .send();
 
     expect(response.status).toBe(HttpResponseCode.REDIRECT);
 
     response = await request(bApp)
       .get("/user/checkAttendee")
-      .set("Cookie", sessionCookie + "made the token invalid")
+      .set("Cookie", invalidSessionCookie)
       .send();
 
     expect(response.status).toBe(HttpResponseCode.REDIRECT);
 
     response = await request(bApp)
       .get("/user/checkVolunteer")
-      .set("Cookie", sessionCookie + "made the token invalid")
+      .set("Cookie", invalidSessionCookie)
       .send();
 
     expect(response.status).toBe(HttpResponseCode.REDIRECT);
@@ -171,15 +172,8 @@ describe("Authorization tests", (): void => {
 /**
  * Cleaning up after the tests
  */
-afterAll(async (): Promise<void> => {
-  await getConnection("hub")
-    .createQueryBuilder()
-    .delete()
-    .from(User)
-    .where("id = :id", { id: testHubUser.id })
-    .execute();
-
-  await getConnection("hub").close();
-  await getConnection("applications").close();
+afterAll(async (done: jest.DoneCallback): Promise<void> => {
+  await closeTestDatabaseConnection("hub");
+  done();
 });
 

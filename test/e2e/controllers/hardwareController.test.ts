@@ -4,6 +4,8 @@ import { User, HardwareItem, ReservedHardwareItem, Team } from "../../../src/db/
 import { getConnection } from "typeorm";
 import * as request from "supertest";
 import { HttpResponseCode } from "../../../src/util/errorHandling/httpResponseCode";
+import { getTestDatabaseOptions, reloadTestDatabaseConnection, closeTestDatabaseConnection } from "../../util/testUtils";
+import { AuthLevels } from "../../../src/util/user";
 
 let bApp: Express;
 let sessionCookie: string;
@@ -15,7 +17,7 @@ const testAttendeeUser: User = new User();
 testAttendeeUser.name = "Billy Tester II";
 testAttendeeUser.email = "billyII@testing.com";
 testAttendeeUser.password = "pbkdf2_sha256$30000$xmAiV8Wihzn5$BBVJrxmsVASkYuOI6XdIZoYLfy386hdMOF8S14WRTi8=";
-testAttendeeUser.authLevel = 0;
+testAttendeeUser.authLevel = AuthLevels.Attendee;
 testAttendeeUser.team = testHubTeamCode;
 
 const piHardwareItem: HardwareItem = new HardwareItem();
@@ -36,59 +38,45 @@ const testHubTeam: Team = new Team();
 testHubTeam.teamCode = testHubTeamCode;
 testHubTeam.tableNumber = 42;
 
+const itemReservation: ReservedHardwareItem = new ReservedHardwareItem();
+itemReservation.reservationToken = "token";
+itemReservation.isReserved = true;
+itemReservation.reservationQuantity = 1;
+itemReservation.reservationExpiry = new Date(new Date().getTime() + (10000 * 60));
+
 /**
  * Preparing for the tests
  */
-beforeAll((done: jest.DoneCallback): void => {
+beforeAll(async (done: jest.DoneCallback): Promise<void> => {
   buildApp(async (builtApp: Express, err: Error): Promise<void> => {
     if (err) {
-      console.error("Could not start server!");
-      done();
+      throw new Error("Failed to setup test");
     } else {
       bApp = builtApp;
-      // Creating the test users
-      testAttendeeUser.id = (await getConnection("hub")
-        .createQueryBuilder()
-        .insert()
-        .into(User)
-        .values(testAttendeeUser)
-        .execute()).identifiers[0].id;
-
-      // Insert the hardware items into the database
-      piHardwareItem.id = (await getConnection("hub")
-        .createQueryBuilder()
-        .insert()
-        .into(HardwareItem)
-        .values(piHardwareItem)
-        .execute()).identifiers[0].id;
-
-      viveHardwareItem.id = (await getConnection("hub")
-        .createQueryBuilder()
-        .insert()
-        .into(HardwareItem)
-        .values(viveHardwareItem)
-        .execute()).identifiers[0].id;
-
-      await getConnection("hub")
-        .createQueryBuilder()
-        .insert()
-        .into(Team)
-        .values(testHubTeam)
-        .execute();
-
-      // Login to the app as the attendee
-      const response = await request(bApp)
-        .post("/user/login")
-        .send({
-          email: testAttendeeUser.email,
-          password: "password123"
-        });
-
-      sessionCookie = response.header["set-cookie"].pop().split(";")[0];
+      done();
     }
-    done();
-  });
+  }, getTestDatabaseOptions(undefined, "hub"));
 });
+
+beforeEach(async (done: jest.DoneCallback): Promise<void> => {
+  await reloadTestDatabaseConnection("hub");
+
+  // Setup the data for the test
+  await getConnection("hub").getRepository(User).save(testAttendeeUser);
+  await getConnection("hub").getRepository(HardwareItem).save(piHardwareItem);
+  await getConnection("hub").getRepository(HardwareItem).save(viveHardwareItem);
+  await getConnection("hub").getRepository(Team).save(testHubTeam);
+
+  const response = await request(bApp)
+    .post("/user/login")
+    .send({
+      email: testAttendeeUser.email,
+      password: "password123"
+    });
+  sessionCookie = response.header["set-cookie"].pop().split(";")[0];
+  done();
+});
+
 
 /**
  * Testing hardware library requests
@@ -105,6 +93,7 @@ describe("Hardware controller tests", (): void => {
         token: "58zb1a546e4ad19b97bdcapc6ce",
       });
     expect(response.status).toBe(HttpResponseCode.REDIRECT);
+    expect(response.header.location).toBe("/login");
   });
 
   /**
@@ -121,22 +110,24 @@ describe("Hardware controller tests", (): void => {
 
     expect(response.status).toBe(HttpResponseCode.OK);
     expect(response.body.message).toBe("Item(s) reserved!");
-    expect(response.body.token).not.toBeUndefined();
+    expect(response.body.token).toBeDefined();
     userReservationToken = response.body.token;
-  });
 
-  /**
-   * Test that once item is reserved, reservation is added to database
-   */
-  test("Should check that reservation is added to database", async (): Promise<void> => {
+    // Test that once item is reserved, reservation is added to database
     const reservation: ReservedHardwareItem = await getConnection("hub")
       .getRepository(ReservedHardwareItem)
       .createQueryBuilder("item")
       .where("item.userId = :id", { id: testAttendeeUser.id })
       .andWhere("item.hardwareItemId = :itemID", { itemID: piHardwareItem.id })
       .getOne();
-    expect(reservation).not.toBeUndefined();
+    expect(reservation).toBeDefined();
     expect(reservation.isReserved).toBe(true);
+    expect(reservation.reservationQuantity).toBe(1);
+
+    const updatedHardwareItem: HardwareItem = await getConnection("hub")
+      .getRepository(HardwareItem)
+      .findOne(piHardwareItem.id);
+    expect(updatedHardwareItem.reservedStock).toBe(1);
   });
 
   /**
@@ -169,74 +160,61 @@ describe("Hardware controller tests", (): void => {
   /**
    * Test that item can be taken and database is updated
    */
-  test("Should check that item can be taken and database is updated", async (): Promise<void> => {
-    // Make it so the test user has access to take the items from the library for ease of use
-    await getConnection("hub")
-      .createQueryBuilder()
-      .update(User)
-      .set({ authLevel: 1 })
-      .where("id = :id", { id: testAttendeeUser.id })
-      .execute();
-
-    const response = await request(bApp)
-      .post("/hardware/take")
-      .set("Cookie", sessionCookie)
-      .send({
-        token: userReservationToken,
+  describe("Take and return item tests", (): void => {
+    beforeEach(async (done: jest.DoneCallback): Promise<void> => {
+      // Make it so the test user has access to take the items from the library for ease of use
+      await getConnection("hub")
+        .createQueryBuilder()
+        .update(User)
+        .set({ authLevel: AuthLevels.Volunteer })
+        .where("id = :id", { id: testAttendeeUser.id })
+        .execute();
+      done();
     });
-    expect(response).not.toBeUndefined();
-    expect(response.body.message).toBe("Item has been taken from the library");
-  });
+    test("Should check that item can be taken and database is updated", async (): Promise<void> => {
+      // Add the reservation to the database
+      const testItemReservation: ReservedHardwareItem = {...itemReservation, user: testAttendeeUser, hardwareItem: piHardwareItem};
+      await getConnection("hub")
+        .getRepository(ReservedHardwareItem)
+        .save(testItemReservation);
 
-  /**
-   * Test that item can be returned and database is updated
-   */
-  test("Should check that item can be returned and database is updated", async (): Promise<void> => {
-    const response = await request(bApp)
-      .post("/hardware/return")
-      .set("Cookie", sessionCookie)
-      .send({
-        token: userReservationToken,
+      const response = await request(bApp)
+        .post("/hardware/take")
+        .set("Cookie", sessionCookie)
+        .send({
+          token: testItemReservation.reservationToken,
+        });
+      expect(response).toBeDefined();
+      expect(response.body.message).toBe("Item has been taken from the library");
     });
-    expect(response).not.toBeUndefined();
-    expect(response.body.message).toBe("Item has been returned to the library");
+
+    /**
+     * Test that item can be returned and database is updated
+     */
+    test("Should check that item can be returned and database is updated", async (): Promise<void> => {
+      // Add the reservation to the database
+      const testItemReservation: ReservedHardwareItem = {...itemReservation, user: testAttendeeUser, hardwareItem: piHardwareItem, isReserved: false};
+      await getConnection("hub")
+        .getRepository(ReservedHardwareItem)
+        .save(testItemReservation);
+
+      const response = await request(bApp)
+        .post("/hardware/return")
+        .set("Cookie", sessionCookie)
+        .send({
+          token: testItemReservation.reservationToken,
+      });
+      expect(response).toBeDefined();
+      expect(response.body.message).toBe("Item has been returned to the library");
+    });
   });
 });
 
 /**
  * Cleaning up after the tests
  */
-afterAll(async (): Promise<void> => {
-  await getConnection("hub")
-    .createQueryBuilder()
-    .delete()
-    .from(ReservedHardwareItem)
-    .where("userId = :id1", { id1: testAttendeeUser.id })
-    .execute();
-
-  await getConnection("hub")
-    .createQueryBuilder()
-    .delete()
-    .from(User)
-    .where("id = :id1", { id1: testAttendeeUser.id })
-    .execute();
-
-  await getConnection("hub")
-    .createQueryBuilder()
-    .delete()
-    .from(HardwareItem)
-    .where("id = :id1", { id1: piHardwareItem.id })
-    .orWhere("id = :id2", { id2: viveHardwareItem.id })
-    .execute();
-
-  await getConnection("hub")
-    .createQueryBuilder()
-    .delete()
-    .from(Team)
-    .where("teamCode = :teamcode", { teamcode: testHubTeam.teamCode })
-    .execute();
-
-  await getConnection("hub").close();
-  await getConnection("applications").close();
+afterAll(async (done: jest.DoneCallback): Promise<void> => {
+  await closeTestDatabaseConnection("hub");
+  done();
 });
 

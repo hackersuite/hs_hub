@@ -52,17 +52,24 @@ export class UserService {
    * Gets the hashed password and validates the password using pbkdf2
    * @param submittedEmail
    * @param submittedPassword
-   * @return true if user password is valid, false otherwise
+   * @return the user if validated
+   * @throws `BAD_REQUEST` if the email or password is invalid
    */
-  validateUser = async (submittedEmail: string, submittedPassword: string): Promise<boolean> => {
+  validateUser = async (submittedEmail: string, submittedPassword: string): Promise<User> => {
     // Get the user password from the database, we need to use a query builder
     // since by default we don't get the user password in the query
-    const userWithPassword: User = await this.getUserByEmailFromHub(submittedEmail);
+    try {
+      const userWithPassword: User = await this.getUserByEmailFromHub(submittedEmail);
 
-    if (userWithPassword && userWithPassword.password) {
-      return this.validatePassword(submittedPassword, userWithPassword.password);
-    } else {
-      throw new ApiError(HttpResponseCode.BAD_REQUEST, "User with that email could not be found.");
+      if (userWithPassword && userWithPassword.password) {
+        if (this.validatePassword(submittedPassword, userWithPassword.password)) {
+          delete userWithPassword.password;
+          return userWithPassword;
+        }
+      }
+      throw new ApiError(HttpResponseCode.BAD_REQUEST, "Email or password is invalid");
+    } catch (err) {
+      throw new ApiError(HttpResponseCode.BAD_REQUEST, "Email or password is invalid");
     }
   };
 

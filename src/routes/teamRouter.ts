@@ -1,11 +1,22 @@
 import { Router } from "express";
+import { getConnection } from "typeorm";
 import { TeamController } from "../controllers/teamController";
 import { checkIsLoggedIn, checkIsVolunteer } from "../util/user";
+import { UserService } from "../services/users";
+import { User, Team } from "../db/entity/hub";
+import { TeamService } from "../services/teams";
 
 export const teamRouter = (): Router => {
+  const userService: UserService = new UserService(
+    getConnection("hub").getRepository(User)
+  );
+  const teamService: TeamService = new TeamService(
+    getConnection("hub").getRepository(Team), userService
+  );
+
   const router = Router();
 
-  const teamController = new TeamController();
+  const teamController = new TeamController(teamService, userService);
 
   /**
    * POST /team/add
