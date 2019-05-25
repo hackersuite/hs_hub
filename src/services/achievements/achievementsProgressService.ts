@@ -52,8 +52,9 @@ export class AchievementsProgressService {
 
     const achievements: Achievement[] = await this.achievementsService.getAchievements();
 
+    // Mapping Achievement objects to the AchievementProgress objects
     achievements.forEach((achievement: Achievement) => {
-      const progressForCurrentAchievement = achievementsProgress
+      const progressForCurrentAchievement: AchievementProgress = achievementsProgress
         .find((progress: AchievementProgress) => progress.getAchievementId() == achievement.getId());
       if (progressForCurrentAchievement) {
         progressForCurrentAchievement.setAchievement(achievement);
