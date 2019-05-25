@@ -13,14 +13,14 @@ beforeEach(async (): Promise<void> => {
 /**
  * Achievements tests
  */
-describe("Achievements service tests", (): void => {
+describe("AchievementsService tests", (): void => {
 
   /**
    * Test that all achievements are returned correctly
    */
   describe("Test getAchievements", (): void => {
     test("Should ensure that an empty array is returned when there are no achievements", async (): Promise<void> => {
-      when(mockAchievementsRepository.getAll()).thenReturn(Promise.resolve([]));
+      when(mockAchievementsRepository.getAll()).thenResolve([]);
 
       expect(await achievementsService.getAchievements()).toEqual([]);
 
@@ -31,7 +31,7 @@ describe("Achievements service tests", (): void => {
         new Achievement(0, { title: "test", description: "teeest", maxProgress: 0, prizeURL: "tessst.com" }),
         new Achievement(1, { title: "test2", description: "teeest", maxProgress: 0, prizeURL: "tessst.com" })
       ];
-      when(mockAchievementsRepository.getAll()).thenReturn(Promise.resolve(testAchievements));
+      when(mockAchievementsRepository.getAll()).thenResolve(testAchievements);
 
       expect(await achievementsService.getAchievements()).toBe(testAchievements);
 
@@ -46,7 +46,7 @@ describe("Achievements service tests", (): void => {
     test("Should ensure that the correct achievement is returned", async (): Promise<void> => {
       const testAchievement = new Achievement(0, { title: "test", description: "teeeeest", maxProgress: 0, prizeURL: "test.com" });
 
-      when(mockAchievementsRepository.findOne(testAchievement.getId())).thenReturn(Promise.resolve(testAchievement));
+      when(mockAchievementsRepository.findOne(testAchievement.getId())).thenResolve(testAchievement);
 
       expect(await achievementsService.getAchievementWithId(testAchievement.getId())).toBe(testAchievement);
 
@@ -54,7 +54,7 @@ describe("Achievements service tests", (): void => {
     });
 
     test("Should ensure that an error is thrown when achievement with given id doesn't exist", async (): Promise<void> => {
-      when(mockAchievementsRepository.findOne(0)).thenReturn(undefined);
+      when(mockAchievementsRepository.findOne(0)).thenResolve(undefined);
 
       try {
         expect(await achievementsService.getAchievementWithId(0)).toThrow();

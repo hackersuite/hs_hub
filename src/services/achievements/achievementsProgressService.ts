@@ -19,10 +19,12 @@ export class AchievementsProgressService {
    */
   public async getAchievementProgressForUser(achievement: Achievement, user: User): Promise<AchievementProgress> {
     let achievementProgress: AchievementProgress = await this.achievementsProgressRepository
-      .findOne({ where: {
+      .findOne({
+        where: {
           achievementId: achievement.getId(),
           user: user
-        }});
+        }
+      });
 
     if (!achievementProgress) {
       // Returning an empty AchievementProgress object if it wasn't found in the DB
@@ -42,9 +44,11 @@ export class AchievementsProgressService {
    */
   public async getAchievementsProgressForUser(user: User): Promise<AchievementProgress[]> {
     const achievementsProgress: AchievementProgress[] = await this.achievementsProgressRepository
-      .find({ where: {
-        user
-        }});
+      .find({
+        where: {
+          user
+        }
+      });
 
     const achievements: Achievement[] = await this.achievementsService.getAchievements();
 
@@ -64,9 +68,11 @@ export class AchievementsProgressService {
 
   public async getAchievementsProgressThatCanClaimPrize(): Promise<AchievementProgress[]> {
     let achievementsProgress: AchievementProgress[] = await this.achievementsProgressRepository
-      .find({ where: {
-        prizeClaimed: false
-      }});
+      .find({
+        where: {
+          prizeClaimed: false
+        }
+      });
 
     const achievements: Achievement[] = await this.achievementsService.getAchievements();
 
