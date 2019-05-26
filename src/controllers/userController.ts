@@ -29,7 +29,7 @@ export class UserController {
         return next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
       }
       if (!user) {
-        return res.render("pages/login", { error: info.message });
+        return res.status(HttpResponseCode.BAD_REQUEST).render("pages/login", { error: info.message });
       }
       req.logIn(user, (err: any) => {
         let redirectRoute: string;

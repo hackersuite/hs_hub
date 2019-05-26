@@ -20,7 +20,7 @@ dotenv.config({ path: ".env" });
 
 
 // codebeat:disable[LOC]
-export function buildApp(callback: (app: Express, err?: Error) => void): void {
+export function buildApp(callback: (app: Express, err?: Error) => void, connectionOptions?: ConnectionOptions[]): void {
   const app: Express = expressSetup();
 
   middlewareSetup(app);
@@ -28,7 +28,10 @@ export function buildApp(callback: (app: Express, err?: Error) => void): void {
   devMiddlewareSetup(app);
 
   // Connecting to database
-  createConnections(createDatabaseOptions()).then((connections: Connection[]) => {
+  const databaseConnectionSettings: ConnectionOptions[] = connectionOptions ?
+  connectionOptions : createDatabaseSettings();
+
+  createConnections(databaseConnectionSettings).then((connections: Connection[]) => {
     connections.forEach(element => {
       console.log("  Connection to database (" + element.name + ") established.");
     });
@@ -131,7 +134,7 @@ const getSessionOptions = (app: Express): any => {
   };
 };
 
-const createDatabaseOptions = (): ConnectionOptions[] => {
+const createDatabaseSettings = (): ConnectionOptions[] => {
   return [{
     name: "hub",
     type: "mysql",

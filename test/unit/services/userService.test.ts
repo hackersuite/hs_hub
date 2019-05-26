@@ -112,8 +112,11 @@ describe("User service tests", (): void => {
       await userRepository.save(testHubUser);
       await userRepository.save({...testHubUser, id: testHubUser.id + 1, email: "another@random.com"});
 
-      const hubUserValid: boolean = await userService.validateUser(testHubUser.email, "password123");
-      expect(hubUserValid).toBeTruthy();
+      const hubUser: User = await userService.validateUser(testHubUser.email, "password123");
+      expect(hubUser).toBeTruthy();
+      expect(hubUser.password).toBeUndefined();
+      expect(hubUser.email).toBe(testHubUser.email);
+      expect(hubUser.id).toBe(testHubUser.id);
     });
     test("Should check that an invalid user is not validated", async (): Promise<void> => {
       try {
@@ -245,6 +248,7 @@ describe("User service tests", (): void => {
   });
 });
 
-afterAll(async (): Promise<void> => {
+afterAll(async (done: jest.DoneCallback): Promise<void> => {
   await closeTestDatabaseConnection();
+  done();
 });
