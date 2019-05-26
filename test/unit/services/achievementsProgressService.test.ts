@@ -390,6 +390,41 @@ describe("AchievementsProgressService tests", (): void => {
       });
   });
 
+  describe("Test giveAchievementPrizeToUser", (): void => {
+    test(`Should ensure that an error is thrown if the user has not completed the achievement`, async (): Promise<void> => {
+      const mockMaxProgress: number = 3;
+      when(mockAchievementProgress.getProgress()).thenReturn(mockMaxProgress - 1);
+      when(mockAchievement.getMaxProgress()).thenReturn(mockMaxProgress);
+      when(mockAchievementsProgressRepository.findOne(anything())).thenResolve(instance(mockAchievementProgress));
+
+      try {
+        expect(
+          await achievementsProgressService.giveAchievementPrizeToUser(instance(mockAchievement), instance(mockUser))
+        ).toThrow();
+      } catch (error) {
+        expect(error).toEqual(new Error("The user hasn't completed this achievement yet!"));
+      }
+
+      verify(mockAchievementsProgressRepository.findOne(anything())).once();
+      verify(mockAchievementProgress.getProgress()).once();
+      verify(mockAchievement.getMaxProgress()).once();
+    });
+
+    test(`Should ensure that prizeClaimed is set to true and the new progress object is saved`, async (): Promise<void> => {
+      const mockMaxProgress: number = 3;
+      when(mockAchievementProgress.getProgress()).thenReturn(mockMaxProgress);
+      when(mockAchievement.getMaxProgress()).thenReturn(mockMaxProgress);
+      when(mockAchievementsProgressRepository.findOne(anything())).thenResolve(instance(mockAchievementProgress));
+
+      expect(
+        await achievementsProgressService.giveAchievementPrizeToUser(instance(mockAchievement), instance(mockUser))
+      ).toBe(instance(mockAchievementProgress));
+
+      verify(mockAchievementProgress.setPrizeClaimed(true)).once();
+      verify(mockAchievementsProgressRepository.save(instance(mockAchievementProgress))).once();
+    });
+  });
+
   describe("Test completeAchievementStepForUser", (): void => {
     test(`Should ensure that an error is thrown when trying to complete a step for
         a manual achievement`, async (): Promise<void> => {
