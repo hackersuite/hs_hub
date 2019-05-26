@@ -1,7 +1,7 @@
 import { Repository } from "typeorm";
 import { AchievementsService, AchievementsProgressService } from "../../../src/services/achievements";
 import { Achievement } from "../../../src/util/achievements";
-import { mock, instance, when, verify, deepEqual, reset, anything, resetCalls } from "ts-mockito";
+import { mock, instance, when, verify, deepEqual, reset, anything } from "ts-mockito";
 import { AchievementProgress, User } from "../../../src/db/entity/hub";
 
 let mockAchievementsService: AchievementsService;
@@ -12,7 +12,7 @@ let mockAchievementProgress: AchievementProgress;
 let achievementsProgressService: AchievementsProgressService;
 class StubAchievementProgressRepository extends Repository<AchievementProgress> { }
 
-// The achievments used in the tests
+// The achievements used in the tests
 // the length of this array should be a multiple of 2
 const testAchievements: Achievement[] = [
   new Achievement(0, { title: "test", description: "teeest", maxProgress: 0, prizeURL: "tessst.com" }),
