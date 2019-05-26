@@ -374,6 +374,22 @@ describe("AchievementsProgressService tests", (): void => {
     });
   });
 
+  describe("Test setAchievementCompleteForUser", (): void => {
+    test(`Should ensure that the user's progress for the achievement is set to the
+        maximum progress for the achievement`, async (): Promise<void> => {
+        const mockMaxProgress: number = 2;
+        when(mockAchievement.getMaxProgress()).thenReturn(mockMaxProgress);
+
+        const expectedAchievementProgress: AchievementProgress =
+          new AchievementProgress(instance(mockAchievement), instance(mockUser), mockMaxProgress);
+        expect(await achievementsProgressService.setAchievementCompleteForUser(instance(mockAchievement), instance(mockUser)))
+          .toEqual(expectedAchievementProgress);
+
+        verify(mockAchievement.getMaxProgress()).twice();
+        verify(mockAchievementsProgressRepository.save(deepEqual(expectedAchievementProgress))).once();
+      });
+  });
+
   describe("Test completeAchievementStepForUser", (): void => {
     test(`Should ensure that an error is thrown when trying to complete a step for
         a manual achievement`, async (): Promise<void> => {
