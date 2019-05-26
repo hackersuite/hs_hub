@@ -1,7 +1,7 @@
 import { Repository } from "typeorm";
 import { AchievementsService, AchievementsProgressService } from "../../../src/services/achievements";
 import { Achievement } from "../../../src/util/achievements";
-import { mock, instance, when, verify, deepEqual, reset } from "ts-mockito";
+import { mock, instance, when, verify, deepEqual, reset, anything } from "ts-mockito";
 import { AchievementProgress, User } from "../../../src/db/entity/hub";
 
 let mockAchievementsService: AchievementsService;
@@ -342,6 +342,153 @@ describe("AchievementsProgressService tests", (): void => {
           }
         }))).once();
         verify(mockAchievementsService.getAchievements()).once();
+      });
+  });
+
+  describe("Test completeAchievementStepForUser", (): void => {
+    test(`Should ensure that an error is thrown when trying to complete a step for
+        a manual achievement`, async (): Promise<void> => {
+        const mockAchievement: Achievement = mock(Achievement);
+        when(mockAchievement.getIsManual()).thenReturn(true);
+
+        try {
+          expect(
+            await achievementsProgressService.completeAchievementStepForUser(0, "", instance(mockAchievement), mockUserInstance)
+          ).toThrow();
+        } catch (error) {
+          expect(error).toEqual(new Error("This achievement can only be manually awarded by an organiser!"));
+        }
+
+        verify(mockAchievement.getIsManual()).once();
+      });
+
+    test(`Should ensure that an error is thrown when the given token is invalid`, async (): Promise<void> => {
+      const mockAchievement: Achievement = mock(Achievement);
+      when(mockAchievement.getIsManual()).thenReturn(false);
+      const mockToken: string = "token";
+      const mockStep: number = 1;
+      when(mockAchievement.tokenIsValidForStep(mockToken, mockStep)).thenReturn(false);
+
+      try {
+        expect(
+          await achievementsProgressService.completeAchievementStepForUser(mockStep, mockToken, instance(mockAchievement), mockUserInstance)
+        ).toThrow();
+      } catch (error) {
+        expect(error).toEqual(new Error("Invalid token provided!"));
+      }
+
+      verify(mockAchievement.tokenIsValidForStep(mockToken, mockStep)).once();
+    });
+
+    test(`Should ensure that an error is thrown when the given step is not possible for
+          the achievement`, async (): Promise<void> => {
+        const mockAchievement: Achievement = mock(Achievement);
+        when(mockAchievement.getIsManual()).thenReturn(false);
+        const mockStep: number = 1;
+        when(mockAchievement.tokenIsValidForStep(anything(), anything())).thenReturn(true);
+        when(mockAchievement.stepIsPossible(mockStep)).thenReturn(false);
+
+        try {
+          expect(
+            await achievementsProgressService.completeAchievementStepForUser(mockStep, "", instance(mockAchievement), mockUserInstance)
+          ).toThrow();
+        } catch (error) {
+          expect(error).toEqual(new Error("The given step is impossible for this achievement!"));
+        }
+
+        verify(mockAchievement.stepIsPossible(mockStep)).once();
+      });
+
+    test(`Should ensure that an error is thrown when trying to complete a step
+        that has been completed already`, async (): Promise<void> => {
+        const mockAchievementProgress: AchievementProgress = mock(AchievementProgress);
+        when(mockAchievementProgress.stepIsCompleted(anything())).thenReturn(true);
+
+        when(mockAchievementsProgressRepository.findOne(anything())).thenResolve(instance(mockAchievementProgress));
+
+        const mockAchievement: Achievement = mock(Achievement);
+        when(mockAchievement.getIsManual()).thenReturn(false);
+        when(mockAchievement.tokenIsValidForStep(anything(), anything())).thenReturn(true);
+        when(mockAchievement.stepIsPossible(anything())).thenReturn(true);
+
+        try {
+          expect(
+            await achievementsProgressService.completeAchievementStepForUser(0, "", instance(mockAchievement), mockUserInstance)
+          ).toThrow();
+        } catch (error) {
+          expect(error).toEqual(new Error("The given step is already completed!"));
+        }
+
+        verify(mockAchievementsProgressRepository.findOne(anything())).once();
+      });
+
+    test(`Should ensure that an error is thrown when trying to complete steps out-of-order
+        for an in-order achievement`, async (): Promise<void> => {
+        const mockAchievementProgress: AchievementProgress = mock(AchievementProgress);
+        when(mockAchievementProgress.stepIsCompleted(anything())).thenReturn(false);
+        when(mockAchievementProgress.stepIsTheNextConsecutiveStep(anything())).thenReturn(false);
+
+        when(mockAchievementsProgressRepository.findOne(anything())).thenResolve(instance(mockAchievementProgress));
+
+        const mockAchievement: Achievement = mock(Achievement);
+        when(mockAchievement.getIsManual()).thenReturn(false);
+        when(mockAchievement.tokenIsValidForStep(anything(), anything())).thenReturn(true);
+        when(mockAchievement.stepIsPossible(anything())).thenReturn(true);
+        when(mockAchievement.getMustCompleteStepsInOrder()).thenReturn(true);
+
+        try {
+          expect(
+            await achievementsProgressService.completeAchievementStepForUser(0, "", instance(mockAchievement), mockUserInstance)
+          ).toThrow();
+        } catch (error) {
+          expect(error).toEqual(new Error("The steps of this achievement must be completed in order!"));
+        }
+
+        verify(mockAchievementsProgressRepository.findOne(anything())).once();
+        verify(mockAchievementProgress.stepIsTheNextConsecutiveStep(anything())).once();
+        verify(mockAchievement.getMustCompleteStepsInOrder()).once();
+      });
+
+    test(`Should ensure that the service completes the step when trying to complete the steps
+      out-of-order for an out-of-order achievement`, async (): Promise<void> => {
+        const mockAchievementProgress: AchievementProgress = mock(AchievementProgress);
+        when(mockAchievementProgress.stepIsCompleted(anything())).thenReturn(false);
+        when(mockAchievementProgress.stepIsTheNextConsecutiveStep(anything())).thenReturn(false);
+
+        when(mockAchievementsProgressRepository.findOne(anything())).thenResolve(instance(mockAchievementProgress));
+
+        const mockAchievement: Achievement = mock(Achievement);
+        when(mockAchievement.getIsManual()).thenReturn(false);
+        when(mockAchievement.tokenIsValidForStep(anything(), anything())).thenReturn(true);
+        when(mockAchievement.stepIsPossible(anything())).thenReturn(true);
+        when(mockAchievement.getMustCompleteStepsInOrder()).thenReturn(false);
+
+        expect(await achievementsProgressService.completeAchievementStepForUser(0, "", instance(mockAchievement), mockUserInstance)
+        ).toBe(instance(mockAchievementProgress));
+
+        verify(mockAchievementProgress.addCompletedStep(anything())).once();
+        verify(mockAchievementsProgressRepository.save(instance(mockAchievementProgress))).once();
+      });
+
+    test(`Should ensure that the service completes the step when trying to complete the steps
+        in-order for an in-order achievement`, async (): Promise<void> => {
+        const mockAchievementProgress: AchievementProgress = mock(AchievementProgress);
+        when(mockAchievementProgress.stepIsCompleted(anything())).thenReturn(false);
+        when(mockAchievementProgress.stepIsTheNextConsecutiveStep(anything())).thenReturn(true);
+
+        when(mockAchievementsProgressRepository.findOne(anything())).thenResolve(instance(mockAchievementProgress));
+
+        const mockAchievement: Achievement = mock(Achievement);
+        when(mockAchievement.getIsManual()).thenReturn(false);
+        when(mockAchievement.tokenIsValidForStep(anything(), anything())).thenReturn(true);
+        when(mockAchievement.stepIsPossible(anything())).thenReturn(true);
+        when(mockAchievement.getMustCompleteStepsInOrder()).thenReturn(true);
+
+        expect(await achievementsProgressService.completeAchievementStepForUser(0, "", instance(mockAchievement), mockUserInstance)
+        ).toBe(instance(mockAchievementProgress));
+
+        verify(mockAchievementProgress.addCompletedStep(anything())).once();
+        verify(mockAchievementsProgressRepository.save(instance(mockAchievementProgress))).once();
       });
   });
 });
