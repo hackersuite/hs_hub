@@ -108,6 +108,7 @@ export class AchievementsProgressService {
     }
 
     const achievementProgress: AchievementProgress = await this.getAchievementProgressForUser(achievement, user);
+    achievementProgress.setProgress(progress);
 
     await this.achievementsProgressRepository.save(achievementProgress);
 
