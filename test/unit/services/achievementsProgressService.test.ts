@@ -13,6 +13,13 @@ let mockAchievementInstance: Achievement;
 let achievementsProgressService: AchievementsProgressService;
 class StubAchievementProgressRepository extends Repository<AchievementProgress> { }
 
+// The achievments used in the tests
+// the length of this array should be a multiple of 2
+const testAchievements: Achievement[] = [
+  new Achievement(0, { title: "test", description: "teeest", maxProgress: 0, prizeURL: "tessst.com" }),
+  new Achievement(1, { title: "test2", description: "teeest", maxProgress: 0, prizeURL: "tessst.com" })
+];
+
 beforeAll((): void => {
   mockAchievementsService = mock(AchievementsService);
   mockAchievementsProgressRepository = mock(StubAchievementProgressRepository);
@@ -83,23 +90,26 @@ describe("AchievementsProgressService tests", (): void => {
 
   describe("Test getAchievementsProgressForUser", (): void => {
     test("Should ensure that an empty array is returned when there are no achievements", async (): Promise<void> => {
-      when(mockAchievementsProgressRepository.find(anything())).thenResolve([]);
+      when(mockAchievementsProgressRepository.find(deepEqual({
+        where: {
+          user: mockUserInstance
+        }
+      }))).thenResolve([]);
       when(mockAchievementsService.getAchievements()).thenResolve([]);
 
       expect(await achievementsProgressService.getAchievementsProgressForUser(mockUserInstance))
         .toEqual([]);
 
-      verify(mockAchievementsProgressRepository.find(anything())).once();
+      verify(mockAchievementsProgressRepository.find(deepEqual({
+        where: {
+          user: mockUserInstance
+        }
+      }))).once();
       verify(mockAchievementsService.getAchievements()).once();
     });
 
     test(`Should ensure that progress for all achievements is returned
-          when there is an AchievementProgress object for each achievement`, async (): Promise<void> => {
-        const testAchievements: Achievement[] = [
-          new Achievement(0, { title: "test", description: "teeest", maxProgress: 0, prizeURL: "tessst.com" }),
-          new Achievement(1, { title: "test2", description: "teeest", maxProgress: 0, prizeURL: "tessst.com" })
-        ];
-
+        when there is an AchievementProgress object for each achievement`, async (): Promise<void> => {
         const testAchievementsProgress: AchievementProgress[] = [];
         const mockTestAchievementsProgress: AchievementProgress[] = [];
 
@@ -112,7 +122,11 @@ describe("AchievementsProgressService tests", (): void => {
           testAchievementsProgress.push(instance(mockAchievementProgress));
         }
 
-        when(mockAchievementsProgressRepository.find(anything())).thenResolve(testAchievementsProgress);
+        when(mockAchievementsProgressRepository.find(deepEqual({
+          where: {
+            user: mockUserInstance
+          }
+        }))).thenResolve(testAchievementsProgress);
         when(mockAchievementsService.getAchievements()).thenResolve(testAchievements);
 
         const foundAchievementsProgress: AchievementProgress[] =
@@ -126,17 +140,16 @@ describe("AchievementsProgressService tests", (): void => {
           expect(foundAchievementsProgress).toContain(instance(mockTestAchievementsProgress[i]));
         }
 
-        verify(mockAchievementsProgressRepository.find(anything())).once();
+        verify(mockAchievementsProgressRepository.find(deepEqual({
+          where: {
+            user: mockUserInstance
+          }
+        }))).once();
         verify(mockAchievementsService.getAchievements()).once();
       });
 
     test(`Should ensure that progress for all achievements is returned
-          when there are AchievementProgress objects only for some achievements`, async (): Promise<void> => {
-        const testAchievements: Achievement[] = [
-          new Achievement(0, { title: "test", description: "teeest", maxProgress: 0, prizeURL: "tessst.com" }),
-          new Achievement(1, { title: "test2", description: "teeest", maxProgress: 0, prizeURL: "tessst.com" })
-        ];
-
+        when there are AchievementProgress objects only for some achievements`, async (): Promise<void> => {
         const testAchievementsProgress: AchievementProgress[] = [];
         const mockTestAchievementsProgress: AchievementProgress[] = [];
 
@@ -149,7 +162,11 @@ describe("AchievementsProgressService tests", (): void => {
           testAchievementsProgress.push(instance(mockAchievementProgress));
         }
 
-        when(mockAchievementsProgressRepository.find(anything())).thenResolve(testAchievementsProgress);
+        when(mockAchievementsProgressRepository.find(deepEqual({
+          where: {
+            user: mockUserInstance
+          }
+        }))).thenResolve(testAchievementsProgress);
         when(mockAchievementsService.getAchievements()).thenResolve(testAchievements);
 
         const foundAchievementsProgress: AchievementProgress[] =
@@ -170,19 +187,27 @@ describe("AchievementsProgressService tests", (): void => {
             .toBeTruthy();
         }
 
-        verify(mockAchievementsProgressRepository.find(anything())).once();
+        verify(mockAchievementsProgressRepository.find(deepEqual({
+          where: {
+            user: mockUserInstance
+          }
+        }))).once();
         verify(mockAchievementsService.getAchievements()).once();
       });
 
 
     test(`Should ensure that progress for all achievements is returned
-      when there aren't any AchievementProgress objects for any achievements`, async (): Promise<void> => {
+        when there aren't any AchievementProgress objects for any achievements`, async (): Promise<void> => {
         const testAchievements: Achievement[] = [
           new Achievement(0, { title: "test", description: "teeest", maxProgress: 0, prizeURL: "tessst.com" }),
           new Achievement(1, { title: "test2", description: "teeest", maxProgress: 0, prizeURL: "tessst.com" })
         ];
 
-        when(mockAchievementsProgressRepository.find(anything())).thenResolve([]);
+        when(mockAchievementsProgressRepository.find(deepEqual({
+          where: {
+            user: mockUserInstance
+          }
+        }))).thenResolve([]);
         when(mockAchievementsService.getAchievements()).thenResolve(testAchievements);
 
         const foundAchievementsProgress: AchievementProgress[] =
@@ -197,7 +222,125 @@ describe("AchievementsProgressService tests", (): void => {
             .toBeTruthy();
         }
 
-        verify(mockAchievementsProgressRepository.find(anything())).once();
+        verify(mockAchievementsProgressRepository.find(deepEqual({
+          where: {
+            user: mockUserInstance
+          }
+        }))).once();
+        verify(mockAchievementsService.getAchievements()).once();
+      });
+  });
+
+  describe("Test getAchievementsProgressThatCanClaimPrize", (): void => {
+    test(`Should ensure that an empty array is returned
+        when no achievements have been completed or their prizes have already been claimed`, async (): Promise<void> => {
+        when(mockAchievementsProgressRepository.find(deepEqual({
+          where: {
+            prizeClaimed: false
+          }
+        }))).thenResolve([]);
+        when(mockAchievementsService.getAchievements()).thenResolve(testAchievements);
+
+        expect(await achievementsProgressService.getAchievementsProgressThatCanClaimPrize())
+          .toEqual([]);
+
+        verify(mockAchievementsProgressRepository.find(deepEqual({
+          where: {
+            prizeClaimed: false
+          }
+        }))).once();
+        verify(mockAchievementsService.getAchievements()).once();
+      });
+
+    test(`Should ensure that an AchievementProgress object is returned for each
+        achievement when all achievements are completed but prizes for them have not yet been claimed`, async (): Promise<void> => {
+        // Creating AchievementProgress objects
+        // that mark each achievement as completed
+        const mockAchievementsProgress: AchievementProgress[] = [];
+        testAchievements.forEach((achievement: Achievement) => {
+          const mockAchievementProgress: AchievementProgress = mock(AchievementProgress);
+          when(mockAchievementProgress.getAchievementId()).thenReturn(achievement.getId());
+          when(mockAchievementProgress.achievementIsCompleted()).thenReturn(true);
+          mockAchievementsProgress.push(mockAchievementProgress);
+        });
+
+        when(mockAchievementsProgressRepository.find(deepEqual({
+          where: {
+            prizeClaimed: false
+          }
+        }))).thenResolve(mockAchievementsProgress.map((ap: AchievementProgress) => instance(ap)));
+        when(mockAchievementsService.getAchievements()).thenResolve(testAchievements);
+
+        const returnedAchievementsProgress: AchievementProgress[] =
+          await achievementsProgressService.getAchievementsProgressThatCanClaimPrize();
+        expect(returnedAchievementsProgress.length).toEqual(mockAchievementsProgress.length);
+
+        // The service should have checked if the achievement is complete
+        // for all AchievementProgress objects returned by the repository
+        mockAchievementsProgress.forEach((ap: AchievementProgress) => {
+          verify(ap.achievementIsCompleted()).once();
+        });
+
+        // There should be an AchievementProgress object for each achievement in the result
+        // and all AchievementProgress objects should be the object returned by the repository
+        testAchievements.forEach((achievement: Achievement, index: number) => {
+          const returnedProgress: AchievementProgress =
+            returnedAchievementsProgress.find((ap: AchievementProgress) => ap.getAchievementId() === achievement.getId());
+          expect(returnedProgress).toBe(instance(mockAchievementsProgress[index]));
+        });
+
+        verify(mockAchievementsProgressRepository.find(deepEqual({
+          where: {
+            prizeClaimed: false
+          }
+        }))).once();
+        verify(mockAchievementsService.getAchievements()).once();
+      });
+
+    test(`Should ensure that an AchievementProgress object is returned for each
+        completed achievement but not for uncompleted achievements`, async (): Promise<void> => {
+        // Creating AchievementProgress objects
+        // that mark each achievement as completed
+        const mockAchievementsProgress: AchievementProgress[] = [];
+        for (let i = 0; i < testAchievements.length / 2; i++) {
+          const achievement: Achievement = testAchievements[i];
+          const mockAchievementProgress: AchievementProgress = mock(AchievementProgress);
+          when(mockAchievementProgress.getAchievementId()).thenReturn(achievement.getId());
+          when(mockAchievementProgress.achievementIsCompleted()).thenReturn(true);
+          mockAchievementsProgress.push(mockAchievementProgress);
+        }
+
+        when(mockAchievementsProgressRepository.find(deepEqual({
+          where: {
+            prizeClaimed: false
+          }
+        }))).thenResolve(mockAchievementsProgress.map((ap: AchievementProgress) => instance(ap)));
+        when(mockAchievementsService.getAchievements()).thenResolve(testAchievements);
+
+        const returnedAchievementsProgress: AchievementProgress[] =
+          await achievementsProgressService.getAchievementsProgressThatCanClaimPrize();
+        expect(returnedAchievementsProgress.length).toEqual(mockAchievementsProgress.length);
+
+        // The service should have checked if the achievement is complete
+        // for all AchievementProgress objects returned by the repository
+        mockAchievementsProgress.forEach((ap: AchievementProgress) => {
+          verify(ap.achievementIsCompleted()).once();
+        });
+
+        // There should be an AchievementProgress object for each completed achievement in the result
+        // and all AchievementProgress objects should be the object returned by the repository
+        for (let i = 0; i < testAchievements.length / 2; i++) {
+          const achievement: Achievement = testAchievements[i];
+          const returnedProgress: AchievementProgress =
+            returnedAchievementsProgress.find((ap: AchievementProgress) => ap.getAchievementId() === achievement.getId());
+          expect(returnedProgress).toBe(instance(mockAchievementsProgress[i]));
+        }
+
+        verify(mockAchievementsProgressRepository.find(deepEqual({
+          where: {
+            prizeClaimed: false
+          }
+        }))).once();
         verify(mockAchievementsService.getAchievements()).once();
       });
   });

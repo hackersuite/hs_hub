@@ -67,6 +67,11 @@ export class AchievementsProgressService {
     return achievementsProgress;
   }
 
+  /***
+   * Returns all AchievementProgress objects for all users
+   * where the user has completed the achievement
+   * but has not yet claimed the prize
+   */
   public async getAchievementsProgressThatCanClaimPrize(): Promise<AchievementProgress[]> {
     let achievementsProgress: AchievementProgress[] = await this.achievementsProgressRepository
       .find({
