@@ -23,7 +23,7 @@ export class UserController {
   /**
    * Logs in the user
    */
-  login = (req: Request, res: Response, next: NextFunction): void => {
+  public login = (req: Request, res: Response, next: NextFunction): void => {
     passport.authenticate("local", (err: Error, user: any, info: any) => {
       if (err) {
         return next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
@@ -56,7 +56,7 @@ export class UserController {
   /**
    * Gets the profile page for the currently logged in user
    */
-  profile = async (req: Request, res: Response, next: NextFunction) => {
+  public profile = async (req: Request, res: Response, next: NextFunction) => {
     let profile: User = req.user;
     // Use this variable to hide some details in the page
     // When true, the buttons to modify the users profile are hidden

@@ -23,7 +23,7 @@ export class HardwareController {
   /**
    * Returns the user-facing hardware libary page
    */
-  library = async (req: Request, res: Response, next: NextFunction) => {
+  public library = async (req: Request, res: Response, next: NextFunction) => {
     const items = await this.hardwareService.getAllHardwareItems(req.user.id);
     res.render("pages/hardware/index", { items });
   };
@@ -31,7 +31,7 @@ export class HardwareController {
   /**
    * Returns the hardware management page for volunteers
    */
-  loanControls = async (req: Request, res: Response, next: NextFunction) => {
+  public loanControls = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const reservations = await this.reservedHardwareService.getAllReservations();
       res.render("pages/hardware/loanControls", { reservations: reservations || [], userIsOrganiser: (req.user.authLevel === AuthLevels.Organizer) });
@@ -43,7 +43,7 @@ export class HardwareController {
   /**
    * Returns the page to add an item
    */
-  addPage = async (req: Request, res: Response, next: NextFunction) => {
+  public addPage = async (req: Request, res: Response, next: NextFunction) => {
     try {
       // TODO: the reservations are unnecessary
       const items = await this.hardwareService.getAllHardwareItemsWithReservations();
@@ -53,7 +53,7 @@ export class HardwareController {
     }
   };
 
-  addItem = async (req: Request, res: Response, next: NextFunction) => {
+  public addItem = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { totalStock, name, itemURL  } = req.body;
 
@@ -87,7 +87,7 @@ export class HardwareController {
     }
   };
 
-  updateItem = async (req: Request, res: Response, next: NextFunction) => {
+  public updateItem = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { totalStock, name, itemURL  } = req.body;
       const id = req.params.id;
@@ -138,7 +138,7 @@ export class HardwareController {
   /**
    * Reserves a item from the hardware library
    */
-  reserve = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public reserve = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     // Check the requested item in req.body.item can be reserved
     // Using the hardware_item and reserved_hardware_item tables get the current reserved and taken
     // if (stock - (reserved + taken) > 0)
@@ -171,7 +171,7 @@ export class HardwareController {
   /**
    * Attempts to take the item from the hardware library
    */
-  take = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public take = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const takenItem: boolean  = await this.hardwareService.takeItem(req.body.token);
       if (takenItem !== undefined) {
@@ -186,7 +186,7 @@ export class HardwareController {
     }
   };
 
-  return = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public return = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const returnedItem: boolean  = await this.hardwareService.returnItem(req.body.token);
       if (returnedItem !== false) {
@@ -204,7 +204,7 @@ export class HardwareController {
   /**
    * Gets all the items from the database
    */
-  getAllItems = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public getAllItems = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const allItems: Object[] = await this.hardwareService.getAllHardwareItems();
       if (allItems !== undefined) {
@@ -233,7 +233,7 @@ export class HardwareController {
    * "itemStock": 0
    * }]
    */
-  addAllItems = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public addAllItems = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       await this.hardwareService.addAllHardwareItems(JSON.parse(req.body.items));
       res.send({"message": "Added all items"});
@@ -245,7 +245,7 @@ export class HardwareController {
   /**
    * Gets all reservations
    */
-  getAllReservations = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public getAllReservations = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const reservations = await this.reservedHardwareService.getAllReservations();
       res.send(reservations);
@@ -257,7 +257,7 @@ export class HardwareController {
   /**
    * Gets a reservation
    */
-  getReservation = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public getReservation = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       if (!req.params.token) {
         throw new ApiError(HttpResponseCode.BAD_REQUEST, "No reservation token provided!");
@@ -275,7 +275,7 @@ export class HardwareController {
   /**
    * Cancels a reservation
    */
-  cancelReservation = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public cancelReservation = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       if (!req.body.token) {
         throw new ApiError(HttpResponseCode.BAD_REQUEST, "No reservation token provided!");
@@ -287,7 +287,7 @@ export class HardwareController {
     }
   };
 
-  management = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public management = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const items: HardwareItem[] = await this.hardwareService.getAllHardwareItemsWithReservations();
       const notification = req.session.notification;
@@ -299,7 +299,7 @@ export class HardwareController {
     }
   };
 
-  deleteItem = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public deleteItem = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       if (!req.params.id) {
         throw new ApiError(HttpResponseCode.BAD_REQUEST, "Please provide the ID of the item to delete!");

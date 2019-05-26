@@ -20,7 +20,7 @@ export class TeamService {
    * @param userID The user to add to the team
    * @param teamCode The new (or existing) team code
    */
-  createOrAddTeam = async (userID: number, teamCode: string): Promise<void> => {
+  public createOrAddTeam = async (userID: number, teamCode: string): Promise<void> => {
     // Try to create a new team, if it exists, then add the user instead
     if (teamCode === undefined) return;
     if (!(await this.createTeam(teamCode))) {
@@ -32,7 +32,7 @@ export class TeamService {
    * Creates a new team in the database
    * @param teamCode The new team code to identify the team
    */
-  createTeam = async (teamCode: string): Promise<boolean> => {
+  public createTeam = async (teamCode: string): Promise<boolean> => {
     if (teamCode === undefined) return false;
 
     if (!(await this.checkTeamExists(teamCode))) {
@@ -48,7 +48,7 @@ export class TeamService {
    * @param userID The user to make leave the team
    * @param currentTeam The team code which the user is part of
    */
-  leaveTeam = async (userID: number, currentTeam: string): Promise<boolean> => {
+  public leaveTeam = async (userID: number, currentTeam: string): Promise<boolean> => {
     try {
       if (userID === undefined || currentTeam === undefined) return false;
 
@@ -67,7 +67,7 @@ export class TeamService {
    * @param userID The user to make leave the team
    * @param currentTeam The team code which the user is part of
    */
-  joinTeam = async (userID: number, teamCode: string): Promise<boolean> => {
+  public joinTeam = async (userID: number, teamCode: string): Promise<boolean> => {
     if (userID === undefined || teamCode === undefined) return false;
 
     if (await this.checkTeamExists(teamCode)) {
@@ -84,7 +84,7 @@ export class TeamService {
    * @param teamCode The team code of the team to update
    * @param newTeamRepo The new repo link
    */
-  updateTeamRepository = async (teamCode: string, newTeamRepo: string): Promise<boolean> => {
+  public updateTeamRepository = async (teamCode: string, newTeamRepo: string): Promise<boolean> => {
     if (!(await this.checkTeamExists(teamCode)))
       return false;
 
@@ -101,7 +101,7 @@ export class TeamService {
    * @param teamCode
    * @param newTeamTable
    */
-  updateTeamTableNumber = async (teamCode: string, newTeamTable: number): Promise<boolean> => {
+  public updateTeamTableNumber = async (teamCode: string, newTeamTable: number): Promise<boolean> => {
     if (!(await this.checkTeamExists(teamCode)))
       return false;
 
@@ -117,7 +117,7 @@ export class TeamService {
    * Checks that the team exists given a team code
    * @param userTeamCode
    */
-  checkTeamExists = async (userTeamCode: string): Promise<boolean> => {
+  public checkTeamExists = async (userTeamCode: string): Promise<boolean> => {
     try {
       const teamCodeValid: boolean = await this.teamRepository
         .createQueryBuilder()
@@ -133,7 +133,7 @@ export class TeamService {
   /**
    * Gets the team data for a given team code
    */
-  getUsersTeam = async (teamCode: string): Promise<Team> => {
+  public getUsersTeam = async (teamCode: string): Promise<Team> => {
     try {
       const usersTeam: Team = await this.teamRepository
         .findOne({ teamCode: teamCode });
@@ -146,7 +146,7 @@ export class TeamService {
   /**
    * Gets all the members for a specific team
    */
-  getUsersTeamMembers = async (teamCode: string): Promise<User[]> => {
+  public getUsersTeamMembers = async (teamCode: string): Promise<User[]> => {
     return this.userService.getUsersTeamMembers(teamCode);
   };
 
@@ -154,7 +154,7 @@ export class TeamService {
    * Checks that a users team table is set, this is required since a user cannot reserve hardware unless
    * the team table is set
    */
-  checkTeamTableIsSet = async (teamCode: string): Promise<boolean> => {
+  public checkTeamTableIsSet = async (teamCode: string): Promise<boolean> => {
     try {
       if (teamCode) {
         const team: Team = await this.getUsersTeam(teamCode);

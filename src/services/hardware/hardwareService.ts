@@ -20,7 +20,7 @@ export class HardwareService {
    * @param itemToReserve - the id of the item to reserve
    * @return A string of the reservation token if successful, `undefined` otherwise
    */
-  reserveItem = async (user: User, itemToReserve: string, requestedQuantity?: number): Promise<string> => {
+  public reserveItem = async (user: User, itemToReserve: string, requestedQuantity?: number): Promise<string> => {
     if (!requestedQuantity) requestedQuantity = 1;
     const hardwareItem: HardwareItem = await this.getHardwareItemByID(Number(itemToReserve));
     if (await this.isItemReservable(user, hardwareItem, requestedQuantity)) {
@@ -29,7 +29,7 @@ export class HardwareService {
     return undefined;
   };
 
-  getHardwareItemByID = async (hardwareItemID: number): Promise<HardwareItem> => {
+  public getHardwareItemByID = async (hardwareItemID: number): Promise<HardwareItem> => {
     try {
       const item: HardwareItem = await this.hardwareRepository
         .findOne({ where: {
@@ -47,7 +47,7 @@ export class HardwareService {
    * @param user
    * @param hardwareItem
    */
-  reserveItemQuery = async (user: User, hardwareItem: HardwareItem, requestedQuantity: number): Promise<string> => {
+  public reserveItemQuery = async (user: User, hardwareItem: HardwareItem, requestedQuantity: number): Promise<string> => {
     try {
       // Create the new item reservation object
       const newItemReservation: ReservedHardwareItem = new ReservedHardwareItem();
@@ -83,7 +83,7 @@ export class HardwareService {
    * @param user
    * @param hardwareItem
    */
-  isItemReservable = async (user: User, hardwareItem: HardwareItem, requestedQuantity: number): Promise<boolean> => {
+  public isItemReservable = async (user: User, hardwareItem: HardwareItem, requestedQuantity: number): Promise<boolean> => {
     // Check the user has not reserved this item yet
     const hasUserReserved: boolean = await this.reservedHardwareService.doesReservationExist(user.id, hardwareItem.id);
 
@@ -100,7 +100,7 @@ export class HardwareService {
    * Takes an item from the library
    * @param token token of the reservation
    */
-  takeItem = async (token: string): Promise<boolean> => {
+  public takeItem = async (token: string): Promise<boolean> => {
     const reservation: ReservedHardwareItem = await this.reservedHardwareService.getReservationFromToken(token);
     if (!reservation) return undefined;
 
@@ -129,7 +129,7 @@ export class HardwareService {
    * Returns an item to the library
    * @param token token of the reservation
    */
-  returnItem = async (token: string): Promise<boolean> => {
+  public returnItem = async (token: string): Promise<boolean> => {
     const reservation: ReservedHardwareItem = await this.reservedHardwareService.getReservationFromToken(token);
     if (!reservation) return false;
 
@@ -151,11 +151,11 @@ export class HardwareService {
    * Helper function to check that the expiry time has not been reached
    * @param expiryDate
    */
-  isReservationValid = (expiryDate: Date): boolean => {
+  public isReservationValid = (expiryDate: Date): boolean => {
     return Date.now() <= expiryDate.getTime();
   };
 
-  itemToBeTakenFromLibrary = async (userID: number, hardwareItemID: number, itemQuantity: number): Promise<void> => {
+  public itemToBeTakenFromLibrary = async (userID: number, hardwareItemID: number, itemQuantity: number): Promise<void> => {
     // The item is reserved and we mark the item as taken
     try {
       await this.hardwareRepository.manager.transaction(async transaction => {
@@ -190,7 +190,7 @@ export class HardwareService {
    * @param hardwareItemID
    * @param token
    */
-  itemToBeReturnedToLibrary = async (userID: number, hardwareItemID: number, token: string, itemQuantity: number): Promise<void> => {
+  public itemToBeReturnedToLibrary = async (userID: number, hardwareItemID: number, token: string, itemQuantity: number): Promise<void> => {
     // The item is being returned
     try {
       // Decrement the reservation count for the hardware item
@@ -210,7 +210,7 @@ export class HardwareService {
   /**
    * Fetches all hardware items with their reservations
    */
-  getAllHardwareItemsWithReservations = async (): Promise<HardwareItem[]> => {
+  public getAllHardwareItemsWithReservations = async (): Promise<HardwareItem[]> => {
     const items: HardwareItem[] = await this.hardwareRepository
       .createQueryBuilder("hardwareItem")
       .leftJoinAndSelect("hardwareItem.reservations", "reservations")
@@ -224,7 +224,7 @@ export class HardwareService {
   /**
    * Returns all the hardware items from the database in a formatted array
    */
-  getAllHardwareItems = async (userId?: number): Promise<Object[]> => {
+  public getAllHardwareItems = async (userId?: number): Promise<Object[]> => {
     const hardwareItems: HardwareItem[] = await this.hardwareRepository
       .find({
         order: {
@@ -273,7 +273,7 @@ export class HardwareService {
    *
    * @param items
    */
-  addAllHardwareItems = async (items: HardwareObject[]): Promise<void> => {
+  public addAllHardwareItems = async (items: HardwareObject[]): Promise<void> => {
     const hardwareItems: Array<HardwareItem> = new Array<HardwareItem>();
 
     items.forEach((item: HardwareObject) => {
@@ -298,7 +298,7 @@ export class HardwareService {
    * Deletes an item if it has no reservations
    * @param id The id of the item to delete
    */
-  deleteHardwareItem = async(id: number): Promise<void> => {
+  public deleteHardwareItem = async(id: number): Promise<void> => {
     const itemId = id;
     const item: HardwareItem = await this.hardwareRepository.findOne(itemId);
 
@@ -311,7 +311,7 @@ export class HardwareService {
     await this.hardwareRepository.delete(itemId);
   };
 
-  updateHardwareItem = async (itemToUpdate: HardwareItem): Promise<void> => {
+  public updateHardwareItem = async (itemToUpdate: HardwareItem): Promise<void> => {
     try {
       await this.hardwareRepository.save(itemToUpdate);
     } catch (err) {

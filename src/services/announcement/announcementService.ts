@@ -10,7 +10,7 @@ export class AnnouncementService {
     this.cache = _cache;
   }
 
-  createAnnouncement = async (announcement: Announcement): Promise<void> => {
+  public createAnnouncement = async (announcement: Announcement): Promise<void> => {
     await this.announcementRepository.save(announcement);
     this.cache.deleteAll(Announcement.name);
   };
@@ -20,7 +20,7 @@ export class AnnouncementService {
    * @param mostRecent The number of announcements to get from the database
    * @returns An array of announcements from the database
    */
-  getMostRecentAnnouncements = async (mostRecent: number): Promise<Announcement[]> => {
+  public getMostRecentAnnouncements = async (mostRecent: number): Promise<Announcement[]> => {
     let mostRecentAnnouncements: Announcement[] = undefined;
     const cachedAnnouncements: Announcement[] = this.cache.getAll(Announcement.name);
 

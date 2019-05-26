@@ -8,14 +8,14 @@ export class EventService {
     this.eventRepository = _eventRepository;
   }
 
-  findAllEvents = async (): Promise<HubEvent[]> => {
+  public findAllEvents = async (): Promise<HubEvent[]> => {
     return await this.eventRepository.find();
   };
 
   /**
    * @returns Event ID
    */
-  createEvent = async (title: string, startTime: Date, endTime: Date, location: string): Promise<number> => {
+  public createEvent = async (title: string, startTime: Date, endTime: Date, location: string): Promise<number> => {
     return (await this.eventRepository
       .createQueryBuilder()
       .insert()
@@ -28,7 +28,7 @@ export class EventService {
       }]).execute()).identifiers[0].id;
   };
 
-  deleteEventByID = async (eventID: number): Promise<void> => {
+  public deleteEventByID = async (eventID: number): Promise<void> => {
     await this.eventRepository.delete(eventID);
   };
 }

@@ -9,11 +9,11 @@ export class ChallengeService {
     this.challengeRepository = _challengeRepository;
   }
 
-  getAll = async (): Promise<Challenge[]> => {
+  public getAll = async (): Promise<Challenge[]> => {
     return this.challengeRepository.find();
   };
 
-  findByID = async (challengeID: number): Promise<Challenge> => {
+  public findByID = async (challengeID: number): Promise<Challenge> => {
     const challenge: Challenge = await this.challengeRepository.findOne(challengeID);
     if (!challenge) {
       throw new ApiError(HttpResponseCode.BAD_REQUEST, `Could not find challenge with given id ${challengeID}`);
@@ -21,11 +21,11 @@ export class ChallengeService {
     return challenge;
   };
 
-  saveChallenge = async (challenge: Challenge): Promise<void> => {
+  public saveChallenge = async (challenge: Challenge): Promise<void> => {
     await this.challengeRepository.save(challenge);
   };
 
-  deleteChallengeByID = async (id: number): Promise<void> => {
+  public deleteChallengeByID = async (id: number): Promise<void> => {
     await this.challengeRepository
       .createQueryBuilder()
       .delete()

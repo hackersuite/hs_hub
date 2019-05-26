@@ -15,7 +15,7 @@ export class UserService {
    * @param submittedPassword password provided by the user
    * @param passwordFromDatabase password we have got from the database
    */
-  validatePassword = (submittedPassword: string, passwordFromDatabase: string, keyLength?: number): boolean => {
+  public validatePassword = (submittedPassword: string, passwordFromDatabase: string, keyLength?: number): boolean => {
     // The password from the database comes with some extra information that we need for validation
     // first we extract the required, the password has a format like:
     // <algorithm>$<iterations>$<salt>$<hash>
@@ -43,7 +43,7 @@ export class UserService {
    * Gets all the users from the database, returns all data expect the users password
    * which is defined as a hidden column in the entity
    */
-  getAllUsers = async (): Promise<User[]> => {
+  public getAllUsers = async (): Promise<User[]> => {
     return this.userRepository.find();
   };
 
@@ -55,7 +55,7 @@ export class UserService {
    * @return the user if validated
    * @throws `BAD_REQUEST` if the email or password is invalid
    */
-  validateUser = async (submittedEmail: string, submittedPassword: string): Promise<User> => {
+  public validateUser = async (submittedEmail: string, submittedPassword: string): Promise<User> => {
     // Get the user password from the database, we need to use a query builder
     // since by default we don't get the user password in the query
     try {
@@ -78,7 +78,7 @@ export class UserService {
    * @param submittedID
    * @return Promise of a user
    */
-  getUserByIDFromHub = async (submittedID: number): Promise<User> => {
+  public getUserByIDFromHub = async (submittedID: number): Promise<User> => {
     const user: User = await this.userRepository
       .createQueryBuilder("user")
       .addSelect("user.password")
@@ -95,7 +95,7 @@ export class UserService {
    * @param submittedEmail
    * @return Promise of a user
    */
-  getUserByEmailFromHub = async(submittedEmail: string): Promise<User> => {
+  public getUserByEmailFromHub = async(submittedEmail: string): Promise<User> => {
     const user: User = await this.userRepository
       .createQueryBuilder("user")
       .addSelect("user.password")
@@ -110,7 +110,7 @@ export class UserService {
    * Gets all the push ids of the users that we want to send notifications
    * @param userIDs An array of all users to who the notificaiton will be sent
    */
-  getPushIDFromUserID = async (userIDs: number[]): Promise<string[]> => {
+  public getPushIDFromUserID = async (userIDs: number[]): Promise<string[]> => {
     const allUsers: User[] = await this.userRepository
       .findByIds(userIDs);
 
@@ -127,7 +127,7 @@ export class UserService {
     return pushIds;
   };
 
-  addPushIDToUser = async (user: User, pushID: string): Promise<void> => {
+  public addPushIDToUser = async (user: User, pushID: string): Promise<void> => {
     try {
       if (!user.push_id)
         user.push_id = [pushID];
@@ -144,7 +144,7 @@ export class UserService {
    * Inserts the new hub user into the database, then check the insert worked
    * @param hubUser the new user to insert into the hub database
    */
-  insertNewHubUserToDatabase = async (hubUser: User): Promise<void> => {
+  public insertNewHubUserToDatabase = async (hubUser: User): Promise<void> => {
     try {
       // Insert the user to the database
       await this.userRepository.save(hubUser);
@@ -160,7 +160,7 @@ export class UserService {
    * @param currentTeam Current team of the user, used if team is removed
    * @param newTeamCode The new team code for the user
    */
-  setUserTeamAndCount = async (userID: number, currentTeam: string, newTeamCode: string): Promise<number> => {
+  public setUserTeamAndCount = async (userID: number, currentTeam: string, newTeamCode: string): Promise<number> => {
     try {
       // Updates and sets the team code for the specified user
       await this.userRepository.update(userID, { team: newTeamCode });
@@ -179,7 +179,7 @@ export class UserService {
    * @param userID The id of the user to modify
    * @param newTeamCode The new team code for the user
    */
-  setUserTeam = async (userID: number, newTeamCode: string): Promise<void> => {
+  public setUserTeam = async (userID: number, newTeamCode: string): Promise<void> => {
     try {
       // Updates and sets the team code for the specified user
       await this.userRepository.save({ id: userID, team: newTeamCode });
@@ -191,7 +191,7 @@ export class UserService {
   /**
    * Gets all the users from any team that exists
    */
-  getAllUsersInTeams = async (): Promise<User[]> => {
+  public getAllUsersInTeams = async (): Promise<User[]> => {
     try {
       return await this.userRepository
       .createQueryBuilder("user")
@@ -207,7 +207,7 @@ export class UserService {
    * Gets all the members of a specific team
    * @param teamCode The team code to identify the team
    */
-  getUsersTeamMembers = async (teamCode: string): Promise<User[]> => {
+  public getUsersTeamMembers = async (teamCode: string): Promise<User[]> => {
     try {
       return await this.userRepository
       .createQueryBuilder("user")

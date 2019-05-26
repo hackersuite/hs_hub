@@ -9,7 +9,7 @@ export class ReservedHardwareService {
     this.reservedHardwareRepository = _reservedHardwareRepository;
   }
 
-  getAllReservations = async (): Promise<ReservedHardwareItem[]> => {
+  public getAllReservations = async (): Promise<ReservedHardwareItem[]> => {
     try {
       const reservations: ReservedHardwareItem[] = await this.reservedHardwareRepository
         .createQueryBuilder("reservation")
@@ -24,7 +24,7 @@ export class ReservedHardwareService {
     }
   };
 
-  getReservation = async (token: string): Promise<ReservedHardwareItem> => {
+  public getReservation = async (token: string): Promise<ReservedHardwareItem> => {
     try {
       const reservation: ReservedHardwareItem = await this.reservedHardwareRepository
         .createQueryBuilder("reservation")
@@ -47,7 +47,7 @@ export class ReservedHardwareService {
    * @param token The token of the reservation
    * @param userId The user id of the user performing the cancellation
    */
-  cancelReservation = async (token: string, userId: number): Promise<void> => {
+  public cancelReservation = async (token: string, userId: number): Promise<void> => {
     const reservation: ReservedHardwareItem = await this.reservedHardwareRepository
       .createQueryBuilder("reservation")
       .innerJoinAndSelect("reservation.hardwareItem", "item")
@@ -83,7 +83,7 @@ export class ReservedHardwareService {
   /**
    * Delete reservation is used to remove the reservation entry from the database, and decrement the number of the item reserved
    */
-  deleteReservation = async (tokenToDelete: string): Promise<void> => {
+  public deleteReservation = async (tokenToDelete: string): Promise<void> => {
     try {
       await this.reservedHardwareRepository.manager.transaction(async transaction => {
         const reservation: ReservedHardwareItem = await this.getReservationFromToken(tokenToDelete, transaction);
@@ -106,7 +106,7 @@ export class ReservedHardwareService {
   /**
    * Remove reservation is used to just directly remove a reservation entry from the database
    */
-  removeReservation = async (tokenToRemove: string, transaction?: EntityManager): Promise<DeleteResult> => {
+  public removeReservation = async (tokenToRemove: string, transaction?: EntityManager): Promise<DeleteResult> => {
     return await (transaction ? transaction.getRepository(ReservedHardwareItem) : this.reservedHardwareRepository)
       .createQueryBuilder()
       .delete()
@@ -115,7 +115,7 @@ export class ReservedHardwareService {
       .execute();
   };
 
-  doesReservationExist = async (userID: number, hardwareItemID: number): Promise<boolean> => {
+  public doesReservationExist = async (userID: number, hardwareItemID: number): Promise<boolean> => {
     const numberOfReservations: number = await this.reservedHardwareRepository
       .createQueryBuilder("reservation")
       .innerJoinAndSelect("reservation.hardwareItem", "item")
@@ -130,7 +130,7 @@ export class ReservedHardwareService {
    * Gets the user and hardware item that the reservation token is linked to
    * @param resToken Unique reservation token for the user reserved hardware item
    */
-  getReservationFromToken = async (resToken: string, transaction?: EntityManager): Promise<ReservedHardwareItem> => {
+  public getReservationFromToken = async (resToken: string, transaction?: EntityManager): Promise<ReservedHardwareItem> => {
     let reservation: ReservedHardwareItem = undefined;
     try {
       reservation = await (transaction ? transaction : this.reservedHardwareRepository.manager)
