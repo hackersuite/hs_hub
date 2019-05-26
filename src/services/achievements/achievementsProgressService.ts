@@ -17,7 +17,7 @@ export class AchievementsProgressService {
    * @param achievement The achievement
    * @param user The user
    */
-  public async getAchievementProgressForUser(achievement: Achievement, user: User): Promise<AchievementProgress> {
+  public getAchievementProgressForUser = async (achievement: Achievement, user: User): Promise<AchievementProgress> => {
     let achievementProgress: AchievementProgress = await this.achievementsProgressRepository
       .findOne({
         where: {
@@ -42,7 +42,7 @@ export class AchievementsProgressService {
    * Returns the given user's progress for each achievement
    * @param user The user
    */
-  public async getAchievementsProgressForUser(user: User): Promise<AchievementProgress[]> {
+  public getAchievementsProgressForUser = async (user: User): Promise<AchievementProgress[]> => {
     const achievementsProgress: AchievementProgress[] = await this.achievementsProgressRepository
       .find({
         where: {
@@ -72,7 +72,7 @@ export class AchievementsProgressService {
    * where the user has completed the achievement
    * but has not yet claimed the prize
    */
-  public async getAchievementsProgressThatCanClaimPrize(): Promise<AchievementProgress[]> {
+  public getAchievementsProgressThatCanClaimPrize = async (): Promise<AchievementProgress[]> => {
     let achievementsProgress: AchievementProgress[] = await this.achievementsProgressRepository
       .find({
         where: {
@@ -102,7 +102,7 @@ export class AchievementsProgressService {
    * @param achievement The achievement
    * @param user The user
    */
-  public async setAchievementProgressForUser(progress: number, achievement: Achievement, user: User): Promise<AchievementProgress> {
+  public setAchievementProgressForUser = async (progress: number, achievement: Achievement, user: User): Promise<AchievementProgress> => {
     if (!achievement.progressIsValid(progress)) {
       throw new Error("Invalid progress provided!");
     }
@@ -120,7 +120,7 @@ export class AchievementsProgressService {
    * @param achievement The achievement
    * @param user The user
    */
-  public async setAchievementCompleteForUser(achievement: Achievement, user: User): Promise<AchievementProgress> {
+  public setAchievementCompleteForUser = async (achievement: Achievement, user: User): Promise<AchievementProgress> => {
     const achievementProgress: AchievementProgress = new AchievementProgress(achievement, user, achievement.getMaxProgress());
 
     achievementProgress.setProgress(achievement.getMaxProgress());
@@ -135,7 +135,7 @@ export class AchievementsProgressService {
    * @param achievement The achievement
    * @param user The user
    */
-  public async giveAchievementPrizeToUser(achievement: Achievement, user: User): Promise<AchievementProgress> {
+  public giveAchievementPrizeToUser = async (achievement: Achievement, user: User): Promise<AchievementProgress> => {
     const achievementProgress: AchievementProgress = await this.getAchievementProgressForUser(achievement, user);
 
     if (achievementProgress.getProgress() < achievement.getMaxProgress()) {
@@ -156,7 +156,7 @@ export class AchievementsProgressService {
    * @param achievement The achievement
    * @param user The user
    */
-  public async completeAchievementStepForUser(step: number, token: string, achievement: Achievement, user: User): Promise<AchievementProgress> {
+  public completeAchievementStepForUser = async (step: number, token: string, achievement: Achievement, user: User): Promise<AchievementProgress> => {
     if (achievement.getIsManual()) {
       throw new Error("This achievement can only be manually awarded by an organiser!");
     } else if (!achievement.tokenIsValidForStep(token, step)) {
