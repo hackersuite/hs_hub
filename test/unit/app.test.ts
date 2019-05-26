@@ -1,6 +1,7 @@
 import { Express } from "express";
 import { buildApp } from "../../src/app";
 import { getConnection } from "typeorm";
+import { getTestDatabaseOptions } from "../util/testUtils";
 
 /**
  * App startup tests
@@ -17,7 +18,7 @@ describe("App startup tests", (): void => {
       expect(getConnection("hub").isConnected).toBeTruthy();
       await getConnection("hub").close();
       done();
-    });
+    }, getTestDatabaseOptions(undefined, "hub"));
   });
 
   /**
@@ -31,7 +32,7 @@ describe("App startup tests", (): void => {
       expect(getConnection("hub").isConnected).toBeTruthy();
       await getConnection("hub").close();
       done();
-    });
+    }, getTestDatabaseOptions(undefined, "hub"));
   });
 
   /**
@@ -46,7 +47,7 @@ describe("App startup tests", (): void => {
       expect(getConnection("hub").isConnected).toBeTruthy();
       await getConnection("hub").close();
       done();
-    });
+    }, getTestDatabaseOptions(undefined, "hub"));
   });
 
   /**
@@ -55,7 +56,7 @@ describe("App startup tests", (): void => {
   test("App should throw error with invalid settings", async (done: jest.DoneCallback): Promise<void> => {
     process.env.DB_HOST = "invalidhost";
     buildApp(async (builtApp: Express, err: Error): Promise<void> => {
-      expect(err).not.toBe(undefined);
+      expect(err).toBeDefined();
       expect(getConnection("hub").isConnected).toBeFalsy();
       done();
     });
