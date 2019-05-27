@@ -22,7 +22,7 @@ export class LocalAchievementsRepository implements AchievementsRepository {
   /**
    * Returns all achievements
    */
-  public getAll = async (): Promise<Achievement[]> => {
+  public async getAll(): Promise<Achievement[]> {
     return this.achievements;
   }
 
@@ -30,7 +30,7 @@ export class LocalAchievementsRepository implements AchievementsRepository {
    * Returns an achievement with the given id. Returns undefined if not found
    * @param id The id of the achievement to search for
    */
-  public findOne = async (id: number): Promise<Achievement> => {
+  public async findOne(id: number): Promise<Achievement> {
     return this.achievements.find((achievement: Achievement) => achievement.getId() === id);
   }
 }
