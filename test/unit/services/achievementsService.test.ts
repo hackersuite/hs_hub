@@ -63,7 +63,7 @@ describe("AchievementsService tests", (): void => {
       try {
         expect(await achievementsService.getAchievementWithId(0)).toThrow();
       } catch (error) {
-        expect(error).not.toBe(undefined);
+        expect(error).toBeDefined();
       }
 
       verify(mockAchievementsRepository.findOne(0)).once();
