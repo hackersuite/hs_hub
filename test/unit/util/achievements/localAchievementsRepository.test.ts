@@ -1,9 +1,38 @@
 import { LocalAchievementsRepository, Achievement, AchievementOptions } from "../../../../src/util/achievements";
-import { testAchievementOptions } from "./testAchievementOptions";
 
 let achievementsRepository: LocalAchievementsRepository;
 const testAchievements: Achievement[] = [];
 
+const testAchievementOptions: AchievementOptions[] = [
+  {
+    title: "test",
+    description: "teeeeest",
+    prizeURL: "test.com",
+    maxProgress: 2,
+    requiresToken: true
+  },
+  {
+    title: "test1",
+    description: "teeeeest",
+    prizeURL: "test.com",
+    maxProgress: 2,
+    requiresToken: true
+  },
+  {
+    title: "test2",
+    description: "teeeeest",
+    prizeURL: "test.com",
+    maxProgress: 2,
+    requiresToken: true
+  },
+  {
+    title: "test3",
+    description: "teeeeest",
+    prizeURL: "test.com",
+    maxProgress: 2,
+    requiresToken: true
+  }
+];
 
 beforeAll((): void => {
   let id = 0;
