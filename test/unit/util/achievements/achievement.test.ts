@@ -1,4 +1,4 @@
-import { Achievement, AchievementOptions } from "../../../../src/util/achievements";
+import { Achievement } from "../../../../src/util/achievements";
 
 const achievementId: number = 0;
 const tokenForNoStep: string = "x6ENEedMH7kEDg==";
