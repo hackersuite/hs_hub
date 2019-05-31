@@ -37,11 +37,11 @@ export class HomeController {
     res.render("pages/challenges", { challenges: challenges });
   }
 
-  public login(req: Request, res: Response, next: NextFunction) {
+  public login = (req: Request, res: Response, next: NextFunction) => {
     res.render("pages/login", { preventNotificationRequest: true });
-  }
+  };
 
-  public contacts(req: Request, res: Response, next: NextFunction) {
+  public contacts = (req: Request, res: Response, next: NextFunction) => {
     res.render("pages/contacts");
-  }
+  };
 }

@@ -262,22 +262,6 @@ describe("Hardware service tests", (): void => {
   });
 
   /**
-   * Test isReservationValid
-   */
-  describe("isReservationValid tests", (): void => {
-    test("Should ensure reservation not expired", (): void => {
-      const expiryDate: Date = new Date(new Date().getTime() + 100);
-      const reservationValid: boolean = hardwareService.isReservationValid(expiryDate);
-      expect(reservationValid).toBeTruthy();
-    });
-    test("Should ensure reservation invalid when expired", (): void => {
-      const expiryDate: Date = new Date(new Date().getTime() - 100);
-      const reservationValid: boolean = hardwareService.isReservationValid(expiryDate);
-      expect(reservationValid).toBeFalsy();
-    });
-  });
-
-  /**
    * Test getAllHardwareItemsWithReservations
    */
   describe("getAllHardwareItemsWithReservations tests", (): void => {
@@ -342,55 +326,6 @@ describe("Hardware service tests", (): void => {
 
       const allItems: Object[] = await hardwareService.getAllHardwareItems();
       expect(allItems.length).toBe(array_len);
-    });
-
-    test("Should ensure expired reservations are deleted", async (): Promise<void> => {
-      const array_len: number = 10;
-      for (let i = 1; i <= array_len; i++) {
-        await hardwareRepository.save({...piHardwareItem, id: i, name: `h${i}`});
-      }
-      const piReservation: ReservedHardwareItem = {...itemReservation, hardwareItem: piHardwareItem, user: testUser, reservationExpiry: new Date(), isReserved: true};
-      await reservedHardwareRepository.save(piReservation);
-
-      const allItems: Object[] = await hardwareService.getAllHardwareItems();
-      expect(allItems.length).toBe(array_len);
-
-      // Check that we don't have any more reservations
-      const itemReservations: ReservedHardwareItem[] = await reservedHardwareRepository.find();
-      expect(itemReservations).toEqual([]);
-
-      // We expect the reserved stock to be -1 since when we add the reservations, we don't increase the number of resservations for the test
-      const afterDeleteHardwareItem: HardwareItem = await hardwareRepository.findOne(piHardwareItem.id);
-      expect(afterDeleteHardwareItem.reservedStock).toBe(-1);
-    });
-
-    test("Should ensure items with reservations returned with data for current user", async (): Promise<void> => {
-      const array_len: number = 10;
-      for (let i = 1; i <= array_len; i++) {
-        await hardwareRepository.save({...piHardwareItem, id: i, name: `h${i}`});
-      }
-      // Has hardware item id = 1
-      const testHardwareItem: HardwareItem = {...piHardwareItem, name: "h1"};
-      const piReservation: ReservedHardwareItem = {
-        ...itemReservation,
-        hardwareItem: testHardwareItem,
-        user: testUser,
-        isReserved: itemReservation.isReserved,
-        reservationToken: itemReservation.reservationToken,
-        reservationExpiry: itemReservation.reservationExpiry
-      };
-      await reservedHardwareRepository.save(piReservation);
-
-      const allItems: any[] = await hardwareService.getAllHardwareItems(testUser.id);
-      expect(allItems.length).toBe(array_len);
-      expect(allItems[0].itemID).toBe(1);
-      expect(allItems[0].taken).toBeFalsy();
-      expect(allItems[0].reserved).toBeTruthy();
-      expect(allItems[0].reservationToken).toBe(itemReservation.reservationToken);
-
-      // Check that there is still a reservation for the user
-      const itemReservations: ReservedHardwareItem[] = await reservedHardwareRepository.find();
-      expect(itemReservations.length).toBe(1);
     });
 
     test("Should ensure all empty array when no items", async (): Promise<void> => {

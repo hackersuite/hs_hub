@@ -36,7 +36,7 @@ export class HardwareService {
             id: hardwareItemID
           }
         });
-      return item ? item : undefined;
+      return item;
     } catch (err) {
       throw new Error(`Lost connection to database (hub)! ${err}`);
     }
@@ -111,7 +111,7 @@ export class HardwareService {
 
     if (isReserved) {
       // Checks that reservation is not expired
-      if (!this.isReservationValid(reservation.reservationExpiry)) {
+      if (!this.reservedHardwareService.isReservationValid(reservation.reservationExpiry)) {
         // Remove the reservation from the database
         await this.reservedHardwareService.deleteReservation(token);
         throw new ApiError(HttpResponseCode.BAD_REQUEST, "Item reservation has expired");
@@ -145,14 +145,6 @@ export class HardwareService {
     }
 
     return true;
-  };
-
-  /**
-   * Helper function to check that the expiry time has not been reached
-   * @param expiryDate
-   */
-  public isReservationValid = (expiryDate: Date): boolean => {
-    return Date.now() <= expiryDate.getTime();
   };
 
   public itemToBeTakenFromLibrary = async (userID: number, hardwareItemID: number, itemQuantity: number): Promise<void> => {
@@ -222,50 +214,16 @@ export class HardwareService {
   };
 
   /**
-   * Returns all the hardware items from the database in a formatted array
+   * Returns all the hardware items from the database
    */
-  public getAllHardwareItems = async (userId?: number): Promise<Object[]> => {
+  public getAllHardwareItems = async (): Promise<HardwareItem[]> => {
     const hardwareItems: HardwareItem[] = await this.hardwareRepository
       .find({
         order: {
           name: "ASC"
         }
       });
-
-    const allUserReservations: ReservedHardwareItem[] = await this.reservedHardwareService.getAllReservations();
-
-    const formattedData = [];
-    for (const item of hardwareItems) {
-      let remainingItemCount: number = item.totalStock - (item.reservedStock + item.takenStock);
-
-      // Check if any reservation for the current item have expired
-      const reservationsForItem: ReservedHardwareItem[] = allUserReservations.filter((reservation) => reservation.hardwareItem.name === item.name);
-      for (const itemReservation of reservationsForItem) {
-        if (itemReservation && itemReservation.isReserved && !this.isReservationValid(itemReservation.reservationExpiry)) {
-          remainingItemCount += itemReservation.reservationQuantity;
-          await this.reservedHardwareService.deleteReservation(itemReservation.reservationToken);
-        }
-      }
-      const userReservation: ReservedHardwareItem = allUserReservations.find((reservation) => reservation.hardwareItem.name === item.name && reservation.user.id === userId);
-
-      const isUsersReservation: boolean = (userReservation !== undefined && userId && userReservation.user.id === userId)
-        ? true : false;
-
-      formattedData.push({
-        "itemID": item.id,
-        "itemName": item.name,
-        "itemURL": item.itemURL,
-        "itemStock": item.totalStock,
-        "itemsLeft": remainingItemCount,
-        "itemHasStock": remainingItemCount > 0,
-        "reserved": isUsersReservation ? userReservation.isReserved : false,
-        "taken": isUsersReservation ? !userReservation.isReserved : false,
-        "reservationQuantity": isUsersReservation ? userReservation.reservationQuantity : 0,
-        "reservationToken": isUsersReservation ? userReservation.reservationToken : "",
-        "expiresIn": isUsersReservation ? Math.floor((userReservation.reservationExpiry.getTime() - Date.now()) / 60000) : 0
-      });
-    }
-    return formattedData;
+    return hardwareItems;
   };
 
   /**

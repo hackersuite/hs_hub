@@ -54,9 +54,9 @@ beforeEach(async (done: jest.DoneCallback): Promise<void> => {
  */
 describe("Hardware service tests", (): void => {
   /**
-   * Test getAllReservations
+   * Test getAll
    */
-  describe("getAllReservations tests", (): void => {
+  describe("getAll tests", (): void => {
     let hardwareRepository: Repository<HardwareItem>;
     let userRepository: Repository<User>;
     let reservedHardwareRepository: Repository<ReservedHardwareItem>;
@@ -66,8 +66,7 @@ describe("Hardware service tests", (): void => {
       userRepository = getRepository(User);
       reservedHardwareRepository = getRepository(ReservedHardwareItem);
       await userRepository.save(testUser);
-      await hardwareRepository.save(piHardwareItem);
-      await hardwareRepository.save(viveHardwareItem);
+      await hardwareRepository.save([piHardwareItem, viveHardwareItem]);
     });
 
     test("Should ensure all reservations can be found", async (): Promise<void> => {
@@ -76,13 +75,32 @@ describe("Hardware service tests", (): void => {
       await reservedHardwareRepository.save({...itemReservation, user: testUser, hardwareItem: viveHardwareItem, reservationToken: `${itemReservation.reservationToken}2`});
 
       // Perform the test
-      const allReservations: ReservedHardwareItem[] = await reservedHardwareService.getAllReservations();
+      const allReservations: ReservedHardwareItem[] = await reservedHardwareService.getAll();
       expect(allReservations.length).toBe(2);
+    });
+
+    test("Should ensure all expired reservation are removed from return result", async (): Promise<void> => {
+      // Test setup
+      const validReservation: ReservedHardwareItem = {...itemReservation, user: testUser, hardwareItem: piHardwareItem, reservationToken: `${itemReservation.reservationToken}1`};
+      const invalidReservation: ReservedHardwareItem = {...itemReservation, user: testUser, hardwareItem: viveHardwareItem, reservationToken: `${itemReservation.reservationToken}2`, reservationExpiry: new Date()};
+      await reservedHardwareRepository.save([validReservation, invalidReservation]);
+
+      // Perform the test
+      const allReservations: ReservedHardwareItem[] = await reservedHardwareService.getAll();
+      expect(allReservations.length).toBe(1);
+
+      // Check that only the valid reservation is remaining
+      const itemReservations: ReservedHardwareItem[] = await reservedHardwareRepository.find();
+      expect(itemReservations[0].reservationToken).toEqual(validReservation.reservationToken);
+
+      // We expect the reserved stock to be -1 since when we add the reservations, we don't increase the number of resservations for the test
+      const afterDeleteHardwareItem: HardwareItem = await hardwareRepository.findOne(viveHardwareItem.id);
+      expect(afterDeleteHardwareItem.reservedStock).toBe(-1);
     });
 
     test("Should ensure empty array returned when no reservations", async (): Promise<void> => {
       // Perform the test
-      const allReservations: ReservedHardwareItem[] = await reservedHardwareService.getAllReservations();
+      const allReservations: ReservedHardwareItem[] = await reservedHardwareService.getAll();
       expect(allReservations).toEqual([]);
       expect(allReservations.length).toBe(0);
     });
@@ -101,8 +119,7 @@ describe("Hardware service tests", (): void => {
       userRepository = getRepository(User);
       reservedHardwareRepository = getRepository(ReservedHardwareItem);
       await userRepository.save(testUser);
-      await hardwareRepository.save(piHardwareItem);
-      await hardwareRepository.save(viveHardwareItem);
+      await hardwareRepository.save([piHardwareItem, viveHardwareItem]);
     });
 
     test("Should ensure reservation can be found by token", async (): Promise<void> => {
@@ -138,8 +155,7 @@ describe("Hardware service tests", (): void => {
       userRepository = getRepository(User);
       reservedHardwareRepository = getRepository(ReservedHardwareItem);
       await userRepository.save(testUser);
-      await hardwareRepository.save(piHardwareItem);
-      await hardwareRepository.save(viveHardwareItem);
+      await hardwareRepository.save([piHardwareItem, viveHardwareItem]);
     });
 
     test("Should ensure reservation can be cancelled by token and userID", async (): Promise<void> => {
@@ -188,7 +204,6 @@ describe("Hardware service tests", (): void => {
     });
   });
 
-
   /**
    * Test deleteReservation
    */
@@ -202,11 +217,10 @@ describe("Hardware service tests", (): void => {
       userRepository = getRepository(User);
       reservedHardwareRepository = getRepository(ReservedHardwareItem);
       await userRepository.save(testUser);
-      await hardwareRepository.save(piHardwareItem);
-      await hardwareRepository.save(viveHardwareItem);
+      await hardwareRepository.save([piHardwareItem, viveHardwareItem]);
     });
 
-    test("Should ensure reservation can be found by token", async (): Promise<void> => {
+    test("Should ensure reservation is deleted ", async (): Promise<void> => {
       // Test setup
       await reservedHardwareRepository.save({...itemReservation, user: testUser, hardwareItem: piHardwareItem, reservationToken: `${itemReservation.reservationToken}1`});
       await reservedHardwareRepository.save({...itemReservation, user: testUser, hardwareItem: viveHardwareItem, reservationToken: `${itemReservation.reservationToken}2`});
@@ -223,6 +237,22 @@ describe("Hardware service tests", (): void => {
       // Perform the test
       const reservation: ReservedHardwareItem = await reservedHardwareService.getReservation("doesnt_exist");
       expect(reservation).toBeUndefined();
+    });
+  });
+
+  /**
+   * Test isReservationValid
+   */
+  describe("isReservationValid tests", (): void => {
+    test("Should ensure reservation not expired", (): void => {
+      const expiryDate: Date = new Date(new Date().getTime() + 100);
+      const reservationValid: boolean = reservedHardwareService.isReservationValid(expiryDate);
+      expect(reservationValid).toBeTruthy();
+    });
+    test("Should ensure reservation invalid when expired", (): void => {
+      const expiryDate: Date = new Date(new Date().getTime() - 100);
+      const reservationValid: boolean = reservedHardwareService.isReservationValid(expiryDate);
+      expect(reservationValid).toBeFalsy();
     });
   });
 });

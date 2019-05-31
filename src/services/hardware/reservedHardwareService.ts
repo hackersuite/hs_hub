@@ -9,15 +9,40 @@ export class ReservedHardwareService {
     this.reservedHardwareRepository = _reservedHardwareRepository;
   }
 
-  public getAllReservations = async (): Promise<ReservedHardwareItem[]> => {
+  /**
+   * Gets all the user reservations, for all hardware items, that have not expired
+   *
+   * Gets both taken and reserved items
+   */
+  public getAll = async (): Promise<ReservedHardwareItem[]> => {
+    return await this.getAllReservationsRemoveExpired();
+  };
+
+  private getAllReservationsRemoveExpired = async (): Promise<ReservedHardwareItem[]> => {
+    let allReservations: ReservedHardwareItem[] = await this.getAllReservations();
+    allReservations = await Promise.all(allReservations.map(async reservation => {
+      if (reservation.isReserved && !this.isReservationValid(reservation.reservationExpiry)) {
+        try {
+          await this.deleteReservation(undefined, reservation);
+          return Promise.resolve(undefined);
+        } catch (err) {
+          return Promise.reject("Failed to remove expired reservations");
+        }
+      }
+      return Promise.resolve(reservation);
+    }));
+    return allReservations.filter((reservation) => reservation !== undefined);
+  };
+
+  private getAllReservations = async (): Promise<ReservedHardwareItem[]> => {
     try {
+      // Get the reservations for all items and users
       const reservations: ReservedHardwareItem[] = await this.reservedHardwareRepository
         .createQueryBuilder("reservation")
         .addSelect("user.id")
         .innerJoinAndSelect("reservation.hardwareItem", "item")
         .innerJoinAndSelect("reservation.user", "user")
         .getMany();
-
       return reservations;
     } catch (err) {
       throw new Error(`Lost connection to database (hub)! ${err}`);
@@ -39,7 +64,7 @@ export class ReservedHardwareService {
   };
 
   /**
-   * Cancel reservation is the most involved:
+   * `cancelReservation` is safer to use than `deleteReservation`. Cancelling a reservation will do the following:
    *
    *  - It finds the reservation entity from the token
    *
@@ -82,13 +107,15 @@ export class ReservedHardwareService {
 
   /**
    * Delete reservation is used to remove the reservation entry from the database, and decrement the number of the item reserved
+   * @param tokenToDelete The token is used to find the item reservation
+   * @param reservation If defined, then the reservation object is used instead of the token
    */
-  public deleteReservation = async (tokenToDelete: string): Promise<void> => {
+  public deleteReservation = async (tokenToDelete: string, reservation?: ReservedHardwareItem): Promise<void> => {
     try {
       await this.reservedHardwareRepository.manager.transaction(async transaction => {
-        const reservation: ReservedHardwareItem = await this.getReservationFromToken(tokenToDelete, transaction);
-        const itemID: number = reservation.hardwareItem.id,
-          itemQuantity: number = reservation.reservationQuantity;
+        const itemReservation: ReservedHardwareItem = reservation || await this.getReservationFromToken(tokenToDelete, transaction);
+        const itemID: number = itemReservation.hardwareItem.id,
+          itemQuantity: number = itemReservation.reservationQuantity;
 
         await this.removeReservation(tokenToDelete, transaction);
 
@@ -146,5 +173,14 @@ export class ReservedHardwareService {
       throw new Error(`Lost connection to database (hub)! ${err}`);
     }
     return reservation;
+  };
+
+  /**
+   * Helper function to check that the expiry time has not been reached
+   * @param expiryDate
+   * @returns True if the reservation is valid, false otherwise
+   */
+  public isReservationValid = (expiryDate: Date): boolean => {
+    return Date.now() <= expiryDate.getTime();
   };
 }

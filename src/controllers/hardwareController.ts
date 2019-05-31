@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { ApiError } from "../util/errorHandling/apiError";
 import { HttpResponseCode } from "../util/errorHandling/httpResponseCode";
-import { HardwareItem } from "../db/entity/hub";
+import { HardwareItem, ReservedHardwareItem } from "../db/entity/hub";
 import { AuthLevels } from "../util/user";
 import { validate, ValidationError } from "class-validator";
 import { ReservedHardwareService, HardwareService } from "../services/hardware";
@@ -24,8 +24,32 @@ export class HardwareController {
    * Returns the user-facing hardware libary page
    */
   public library = async (req: Request, res: Response, next: NextFunction) => {
-    const items = await this.hardwareService.getAllHardwareItems(req.user.id);
-    res.render("pages/hardware/index", { items });
+    const userID: number = req.user.id;
+    // First get all the hardware reservations as the expired reservation are removed in the call
+    const allReservations: ReservedHardwareItem[] = await this.reservedHardwareService.getAll();
+    // Only then get the hardware items as the reservation count will be correctly updated
+    const hardwareItems: HardwareItem[] = await this.hardwareService.getAllHardwareItems();
+    const formattedData = [];
+    for (const item of hardwareItems) {
+      const remainingItemCount: number = item.totalStock - (item.reservedStock + item.takenStock);
+
+      const userReservation: ReservedHardwareItem = allReservations.find((reservation) => reservation.hardwareItem.name === item.name && reservation.user.id === userID);
+
+      formattedData.push({
+        "itemID": item.id,
+        "itemName": item.name,
+        "itemURL": item.itemURL,
+        "itemStock": item.totalStock,
+        "itemsLeft": remainingItemCount,
+        "itemHasStock": remainingItemCount > 0,
+        "reserved": userReservation ? userReservation.isReserved : false,
+        "taken": userReservation ? !userReservation.isReserved : false,
+        "reservationQuantity": userReservation ? userReservation.reservationQuantity : 0,
+        "reservationToken": userReservation ? userReservation.reservationToken : "",
+        "expiresIn": userReservation ? Math.floor((userReservation.reservationExpiry.getTime() - Date.now()) / 60000) : 0
+      });
+    }
+    res.render("pages/hardware/index", { items: formattedData });
   };
 
   /**
@@ -33,7 +57,7 @@ export class HardwareController {
    */
   public loanControls = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const reservations = await this.reservedHardwareService.getAllReservations();
+      const reservations = await this.reservedHardwareService.getAll();
       res.render("pages/hardware/loanControls", { reservations: reservations || [], userIsOrganiser: (req.user.authLevel === AuthLevels.Organizer) });
     } catch (err) {
       return next(err);
@@ -206,7 +230,7 @@ export class HardwareController {
    */
   public getAllItems = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const allItems: Object[] = await this.hardwareService.getAllHardwareItems();
+      const allItems: HardwareItem[] = await this.hardwareService.getAllHardwareItems();
       if (allItems !== undefined) {
         res.send(allItems);
       } else {
@@ -247,7 +271,7 @@ export class HardwareController {
    */
   public getAllReservations = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const reservations = await this.reservedHardwareService.getAllReservations();
+      const reservations = await this.reservedHardwareService.getAll();
       res.send(reservations);
     } catch (err) {
       return next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
