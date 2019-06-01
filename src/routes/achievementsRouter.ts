@@ -1,11 +1,12 @@
 import { Router } from "express";
 import { AchievementsController } from "../controllers/";
 import { checkIsLoggedIn, checkIsOrganizer, checkIsVolunteer } from "../util/user";
-import { AchievementsService, AchievementsProgressService } from "../services";
+import { AchievementsService, AchievementsProgressService } from "../services/achievements";
 import { LocalAchievementsRepository } from "../util/achievements/localAchievementsRepository";
 import { localAchievements } from "../util/achievements/localAchievements";
 import { getConnection } from "typeorm";
-import { AchievementProgress } from "../db/entity/hub";
+import { AchievementProgress, User } from "../db/entity/hub";
+import { UserService } from "../services/users";
 
 export const achievementsRouter = (): Router => {
   const achievementsService: AchievementsService =
@@ -14,8 +15,10 @@ export const achievementsRouter = (): Router => {
   const achievementsProgressService: AchievementsProgressService =
     new AchievementsProgressService(getConnection("hub").getRepository(AchievementProgress), achievementsService);
 
+  const userService: UserService = new UserService(getConnection("hub").getRepository(User));
+
   const router = Router();
-  const achievementsController = new AchievementsController(achievementsService, achievementsProgressService);
+  const achievementsController = new AchievementsController(achievementsService, achievementsProgressService, userService);
 
   /**
    * GET /achievements

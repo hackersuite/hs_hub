@@ -110,7 +110,7 @@ export class Achievement {
   }
 
   /**
-   * Checks wheter given step is possible for the achievement 
+   * Checks wheter given step is possible for the achievement
    * @param step The step
    */
   public stepIsPossible(step: number): boolean {
@@ -129,7 +129,7 @@ export class Achievement {
 
   public generateToken(step?: number): string {
     const token: string = pbkdf2Sync(
-      `${this.id}->${this.maxProgress > 0 ? step.toString() : ""}`,
+      `${this.id}->${this.maxProgress > 1 && step ? step.toString() : ""}`,
       process.env.ACHIEVEMENT_TOKEN_SALT,
       1,
       10
@@ -145,7 +145,7 @@ export class Achievement {
   /**
    * Checks if given token is valid for given step
    * @param token The token
-   * @param step The step
+   * @param step The step (optional for single-step achievements)
    */
   public tokenIsValidForStep(token: string, step?: number): boolean {
     if (!this.requiresToken)

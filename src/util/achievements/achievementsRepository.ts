@@ -8,11 +8,11 @@ export interface AchievementsRepository {
   /**
    * Returns all achievements
    */
-  getAchievements(): Promise<Achievement[]>;
+  getAll(): Promise<Achievement[]>;
 
   /**
    * Returns an achievement with the given id
    * @param id The id of the achievement to search for
    */
-  getAchievementWithId(id: number): Promise<Achievement>;
+  findOne(id: number): Promise<Achievement>;
 }

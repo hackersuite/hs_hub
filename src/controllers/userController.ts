@@ -4,25 +4,32 @@ import { ApiError } from "../util/errorHandling";
 import { HttpResponseCode } from "../util/errorHandling";
 import { AuthLevels } from "../util/user";
 import { NextFunction } from "connect";
-import { getUsersTeamMembers, getUsersTeam, checkTeamExists } from "../util/team/teamValidation";
 import { User } from "../db/entity/hub/user";
-import { getConnection } from "typeorm";
 import { Team } from "../db/entity/hub/team";
+import { UserService } from "../services/users";
+import { TeamService } from "../services/teams/teamService";
 
 /**
  * A controller for auth methods
  */
 export class UserController {
+  private userService: UserService;
+  private teamService: TeamService;
+  constructor(_userService: UserService, _teamService: TeamService) {
+    this.userService = _userService;
+    this.teamService = _teamService;
+  }
+
   /**
    * Logs in the user
    */
-  public login(req: Request, res: Response, next: NextFunction): void {
+  public login = (req: Request, res: Response, next: NextFunction): void => {
     passport.authenticate("local", (err: Error, user: any, info: any) => {
       if (err) {
         return next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
       }
       if (!user) {
-        return res.render("pages/login", { error: info.message });
+        return res.status(HttpResponseCode.BAD_REQUEST).render("pages/login", { error: info.message });
       }
       req.logIn(user, (err: any) => {
         let redirectRoute: string;
@@ -44,12 +51,12 @@ export class UserController {
         res.redirect(redirectRoute);
       });
     })(req, res);
-  }
+  };
 
   /**
    * Gets the profile page for the currently logged in user
    */
-  public async profile(req: Request, res: Response, next: NextFunction) {
+  public profile = async (req: Request, res: Response, next: NextFunction) => {
     let profile: User = req.user;
     // Use this variable to hide some details in the page
     // When true, the buttons to modify the users profile are hidden
@@ -58,9 +65,7 @@ export class UserController {
     const reqParam: number = Number(req.url.slice(1));
     const isReqParamValid: boolean = !isNaN(reqParam);
     if (isReqParamValid) {
-      profile = await getConnection("hub")
-        .getRepository(User)
-        .findOne(reqParam);
+      profile = await this.userService.getUserByIDFromHub(reqParam);
       isRestrictedView = true;
       if (!profile)
         return next();
@@ -70,8 +75,8 @@ export class UserController {
     let teamEntity: Team = undefined;
 
     if (profile.team) {
-      userTeam = await getUsersTeamMembers(profile.team);
-      teamEntity = await getUsersTeam(profile.team);
+      userTeam = await this.teamService.getUsersTeamMembers(profile.team);
+      teamEntity = await this.teamService.getUsersTeam(profile.team);
     }
 
     const teamMembers: Array<Object> = [];
@@ -82,7 +87,7 @@ export class UserController {
     }
 
     res.render("pages/profile", { user: profile, team: teamMembers, teamEntity: teamEntity, restrict: isRestrictedView });
-  }
+  };
 
   /**
    * Logs out the user
@@ -95,7 +100,7 @@ export class UserController {
   /**
    * Used for testing purposes, to be removed in next pull request
    */
-  public test(req: Request, res: Response): void {
+  public test (req: Request, res: Response): void {
     res.send({ message: "Authorized" });
   }
 }

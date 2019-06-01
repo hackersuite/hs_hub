@@ -1,4 +1,4 @@
-import { getPushIDFromUserID } from "../user/userValidation";
+import { User } from "../../db/entity/hub";
 
 interface OneSignalData {
   app_id: string;
@@ -8,18 +8,23 @@ interface OneSignalData {
   include_player_ids?: Object;
 }
 
-// TODO: would probably be more efficient if we just passed in User objects rather than their ids
-// since you have to fetch the User object to find its id anyway
-export async function sendPushNotificationByUserID(text: string, ...onlyTheseUsers: number[]): Promise<Object> {
-  const users: string[] = await getPushIDFromUserID(onlyTheseUsers);
-  const response: Object = await sendOneSignalNotification(text, { "users": users });
+export async function sendPushNotificationByUserID(text: string, ...onlyTheseUsers: User[]): Promise<Object> {
+  const userPushIds: string[] = [];
+  onlyTheseUsers.forEach((user: User) => {
+    if (user.push_id !== undefined) {
+      user.push_id.forEach(token => {
+        userPushIds.push(token);
+      });
+    }
+  });
+  const response: Object = await sendOneSignalNotification(text, userPushIds);
   if (response.hasOwnProperty("errors") === false)
     return response;
   else
     return `Failed to send the push notification!. ${JSON.stringify(response)}`;
 }
 
-export function sendOneSignalNotification(text: string, onlyTheseUsers?: Object): Promise<any> {
+export function sendOneSignalNotification(text: string, onlyThesePushIds?: string[]): Promise<any> {
   return new Promise((resolve, reject) => {
     const headers: Object = {
       "Content-Type": "application/json; charset=utf-8",
@@ -51,10 +56,10 @@ export function sendOneSignalNotification(text: string, onlyTheseUsers?: Object)
       headings: {"en": process.env.ONE_SIGNAL_NOTIFICATION_HEADING}
     };
 
-    if (onlyTheseUsers === undefined) {
+    if (onlyThesePushIds === undefined) {
       message.included_segments = [process.env.ONE_SIGNAL_USER_SEGMENTS];
     } else {
-      message.include_player_ids = onlyTheseUsers["users"];
+      message.include_player_ids = onlyThesePushIds;
     }
 
     req.write(JSON.stringify(message));

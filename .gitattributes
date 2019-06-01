@@ -1,0 +1,3 @@
+src/public/scss/* linguist-vendored
+src/public/js/core/* linguist-vendored
+src/public/js/plugins/* linguist-vendored

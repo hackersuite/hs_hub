@@ -1,35 +1,47 @@
 import { Request, Response, NextFunction } from "express";
-import { getAllReservations, getAllHardwareItems } from "../util/hardwareLibrary";
-// import { Achievements } from "../util/achievements";
-import { Announcement } from "../db/entity/hub";
-import { getConnection } from "typeorm";
-import { AuthLevels } from "../util/user";
+import { Cache } from "../util/cache";
+import { Announcement, Event, Challenge } from "../db/entity/hub";
+import { AnnouncementService } from "../services/announcement";
+import { EventService } from "../services/events";
+import { ChallengeService } from "../services/challenges";
 
 /**
  * A controller for auth methods
  */
 export class HomeController {
-  public async dashboard(req: Request, res: Response, next: NextFunction) {
-    const announcements: Announcement[] = await getConnection("hub")
-      .getRepository(Announcement)
-      .createQueryBuilder("announcement")
-      .orderBy("announcement.createdAt", "DESC")
-      .limit(5)
-      .getMany();
-    // TODO: re-implement the list of events when the service architecture refactor is finished
-    res.render("pages/dashboard", { events: [], announcements });
+  private cache: Cache;
+
+  private announcementService: AnnouncementService;
+  private eventService: EventService;
+  private challengeService: ChallengeService;
+  constructor(_cache: Cache, _announcementService: AnnouncementService, _eventService: EventService, _challengeService: ChallengeService) {
+    this.cache = _cache;
+    this.announcementService = _announcementService;
+    this.eventService = _eventService;
+    this.challengeService = _challengeService;
   }
 
-  public async challenges(req: Request, res: Response, next: NextFunction) {
-    // TODO: re-implement the list of challenges when the service architecture refactor is finished
-    res.render("pages/challenges", { challenges: [] });
+  public dashboard = async (req: Request, res: Response, next: NextFunction) => {
+    let events: Event[] = this.cache.getAll(Event.name); // await this.eventService.findAllEvents();
+    if (events.length === 0) {
+      events = await this.eventService.findAllEvents();
+      if (events.length !== 0) this.cache.setAll(Event.name, events);
+    }
+    const announcements: Announcement[] = await this.announcementService.getMostRecentAnnouncements(5);
+
+    res.render("pages/dashboard", { events, announcements });
+  };
+
+  public challenges = async(req: Request, res: Response, next: NextFunction) => {
+    const challenges: Challenge[] = await this.challengeService.getAll();
+    res.render("pages/challenges", { challenges: challenges });
   }
 
-  public login(req: Request, res: Response, next: NextFunction) {
+  public login = (req: Request, res: Response, next: NextFunction) => {
     res.render("pages/login", { preventNotificationRequest: true });
-  }
+  };
 
-  public contacts(req: Request, res: Response, next: NextFunction) {
+  public contacts = (req: Request, res: Response, next: NextFunction) => {
     res.render("pages/contacts");
-  }
+  };
 }

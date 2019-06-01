@@ -1,30 +1,31 @@
 import { Request, Response, NextFunction } from "express";
-import { AchievementsService, AchievementsProgressService } from "../services";
+import { AchievementsService, AchievementsProgressService } from "../services/achievements";
 import { Achievement } from "../util/achievements";
 import { AchievementProgress, User } from "../db/entity/hub";
-import { getUserByIDFromHub, getAllUsers } from "../util/user/";
 import { ApiError, HttpResponseCode } from "../util/errorHandling";
 import { sendPushNotificationByUserID } from "../util/announcement";
-
-// TODO: move into the controller when JS functions are replaced with arrow functions
-let achievementsService: AchievementsService;
-let achievementsProgressService: AchievementsProgressService;
+import { UserService } from "../services/users";
 
 /**
  * A controller for the achievements methods
  */
 export class AchievementsController {
-  constructor(_achievementsService: AchievementsService, _achievementsProgressService: AchievementsProgressService) {
-    achievementsService = _achievementsService;
-    achievementsProgressService = _achievementsProgressService;
+  private achievementsService: AchievementsService;
+  private achievementsProgressService: AchievementsProgressService;
+  private userService: UserService;
+
+  constructor(_achievementsService: AchievementsService, _achievementsProgressService: AchievementsProgressService, _userService: UserService) {
+    this.achievementsService = _achievementsService;
+    this.achievementsProgressService = _achievementsProgressService;
+    this.userService = _userService;
   }
 
-  public async getAchievementsPage(req: Request, res: Response, next: NextFunction) {
+  public getAchievementsPage = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      let achievements: Achievement[] = await achievementsService.getAchievements();
+      let achievements: Achievement[] = await this.achievementsService.getAchievements();
       achievements = achievements.sort((a: Achievement, b: Achievement) => a.getTitle().localeCompare(b.getTitle()));
 
-      const achievementsProgress: AchievementProgress[] = await achievementsProgressService.getAchievementsProgressForUser(req.user);
+      const achievementsProgress: AchievementProgress[] = await this.achievementsProgressService.getAchievementsProgressForUser(req.user);
 
       const progressMap: Map<number, AchievementProgress> = new Map<number, AchievementProgress>();
       achievementsProgress.forEach((achievementProgress: AchievementProgress) => {
@@ -38,17 +39,17 @@ export class AchievementsController {
     } catch (err) {
       next(err);
     }
-  }
+  };
 
-  public async getVolunteersPage(req: Request, res: Response, next: NextFunction) {
+  public getVolunteersPage = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      let users: User[] = await getAllUsers();
+      let users: User[] = await this.userService.getAllUsers();
       users = users.sort((a: User, b: User) => a.getName().localeCompare(b.getName()));
 
-      let achievements: Achievement[] = await achievementsService.getAchievements();
+      let achievements: Achievement[] = await this.achievementsService.getAchievements();
       achievements = achievements.sort((a: Achievement, b: Achievement) => a.getTitle().localeCompare(b.getTitle()));
 
-      let prizesToClaim: AchievementProgress[] = await achievementsProgressService.getAchievementsProgressThatCanClaimPrize();
+      let prizesToClaim: AchievementProgress[] = await this.achievementsProgressService.getAchievementsProgressThatCanClaimPrize();
       prizesToClaim = prizesToClaim.sort((a: AchievementProgress, b: AchievementProgress) => {
         const achievementsComparison: number = a.getAchievement().getTitle().localeCompare(b.getAchievement().getTitle());
         if (achievementsComparison === 0) {
@@ -65,53 +66,49 @@ export class AchievementsController {
     } catch (err) {
       next(err);
     }
-  }
+  };
 
 
-  public async getAllAchievements(req: Request, res: Response, next: NextFunction) {
+  public getAllAchievements = async(req: Request, res: Response, next: NextFunction) => {
     try {
-      const achievements: Achievement[] = await achievementsService.getAchievements();
+      const achievements: Achievement[] = await this.achievementsService.getAchievements();
       res.send(achievements);
     } catch (err) {
       next(err);
     }
-  }
+  };
 
-  public async getProgressForAllAchievements(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public getProgressForAllAchievements = async(req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const progress: AchievementProgress[] =
-        await achievementsProgressService.getAchievementsProgressForUser(req.user);
+        await this.achievementsProgressService.getAchievementsProgressForUser(req.user);
       res.send(progress);
     } catch (err) {
       next(err);
     }
-  }
+  };
 
-  public async getProgressForAchievement(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public getProgressForAchievement = async(req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const achievement: Achievement = await achievementsService.getAchievementWithId(Number(req.params.id));
-      const progress: AchievementProgress = await achievementsProgressService.getAchievementProgressForUser(achievement, req.user);
+      const achievement: Achievement = await this.achievementsService.getAchievementWithId(Number(req.params.id));
+      const progress: AchievementProgress = await this.achievementsProgressService.getAchievementProgressForUser(achievement, req.user);
 
       res.send(progress);
     } catch (err) {
       next(err);
     }
-  }
+  };
 
-  public async completeAchievementForUser(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public completeAchievementForUser = async(req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const achievement: Achievement = await achievementsService.getAchievementWithId(Number(req.params.id));
+      const achievement: Achievement = await this.achievementsService.getAchievementWithId(Number(req.params.id));
 
       const { userId } = req.body;
       if (userId === undefined)
         throw new ApiError(HttpResponseCode.BAD_REQUEST, `Please provide a userId!`);
 
-      const user: User = await getUserByIDFromHub(req.body.userId);
-      // TODO: this check should be implemented in getUserByIDFromHub
-      if (!user)
-        throw new ApiError(HttpResponseCode.BAD_REQUEST, `Could not find user with id ${userId}!`);
-
-      await achievementsProgressService.setAchievementCompleteForUser(achievement, user);
+      const user: User = await this.userService.getUserByIDFromHub(req.body.userId);
+      await this.achievementsProgressService.setAchievementCompleteForUser(achievement, user);
 
       sendPushNotificationByUserID(`Congratulations you have completed the achievement ${achievement.getTitle()}!`, userId);
 
@@ -124,11 +121,11 @@ export class AchievementsController {
     } catch (err) {
       next(err);
     }
-  }
+  };
 
-  public async completeAchievementStep(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public completeAchievementStep = async(req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const achievement: Achievement = await achievementsService.getAchievementWithId(Number(req.params.id));
+      const achievement: Achievement = await this.achievementsService.getAchievementWithId(Number(req.params.id));
 
       const { step } = req.params;
       const token = decodeURIComponent(req.query.token);
@@ -136,7 +133,7 @@ export class AchievementsController {
       if (step === undefined)
         throw new ApiError(HttpResponseCode.BAD_REQUEST, `Please provide a step to complete!`);
 
-      const achievementProgress: AchievementProgress = await achievementsProgressService.completeAchievementStepForUser(Number(step), token, achievement, req.user);
+      const achievementProgress: AchievementProgress = await this.achievementsProgressService.completeAchievementStepForUser(Number(step), token, achievement, req.user);
 
       let message: string;
       if (achievementProgress.achievementIsCompleted()) {
@@ -150,26 +147,26 @@ export class AchievementsController {
         message
       };
 
-      res.redirect("/achievements")
+      res.redirect("/achievements");
     } catch (err) {
       req.session.notification = {
         type: "danger",
         message: err.message
       };
 
-      res.redirect("/achievements")
+      res.redirect("/achievements");
     }
-  }
+  };
 
-  public async givePrizeToUser(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public givePrizeToUser = async(req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const achievementId: number = req.params.id;
-      const achievement: Achievement = await achievementsService.getAchievementWithId(Number(achievementId));
+      const achievement: Achievement = await this.achievementsService.getAchievementWithId(Number(achievementId));
 
       const { userId } = req.body;
-      const user: User = await getUserByIDFromHub(userId);
+      const user: User = await this.userService.getUserByIDFromHub(userId);
 
-      await achievementsProgressService.giveAchievementPrizeToUser(achievement, user);
+      await this.achievementsProgressService.giveAchievementPrizeToUser(achievement, user);
 
       req.session.notification = {
         type: "success",
@@ -183,19 +180,19 @@ export class AchievementsController {
         message: err.message
       };
 
-      res.redirect("/achievements")
+      res.redirect("/achievements");
     }
-  }
+  };
 
-  public async getAchievementToken(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public getAchievementToken = async(req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const achievementId: number = req.params.id;
       const step: number = req.params.step;
-      const achievement: Achievement = await achievementsService.getAchievementWithId(Number(achievementId));
+      const achievement: Achievement = await this.achievementsService.getAchievementWithId(Number(achievementId));
 
       res.send({ message: encodeURIComponent(achievement.generateToken(step)) });
     } catch (err) {
       next(err);
     }
-  }
+  };
 }

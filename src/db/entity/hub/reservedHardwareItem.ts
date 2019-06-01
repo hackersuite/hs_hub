@@ -13,7 +13,7 @@ export class ReservedHardwareItem {
   @Column()
   isReserved: boolean;
 
-  @Column("varchar")
+  @Column("varchar", { unique: true })
   reservationToken: string;
 
   @Column("datetime")

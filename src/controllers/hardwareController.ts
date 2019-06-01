@@ -1,51 +1,83 @@
 import { Request, Response, NextFunction } from "express";
-import { reserveItem, takeItem, getAllHardwareItems, addAllHardwareItems, getAllReservations, returnItem, getReservation, cancelReservation, deleteHardwareItem, getAllHardwareItemsWithReservations } from "../util/hardwareLibrary";
 import { ApiError } from "../util/errorHandling/apiError";
 import { HttpResponseCode } from "../util/errorHandling/httpResponseCode";
-import { HardwareItem } from "../db/entity/hub";
+import { HardwareItem, ReservedHardwareItem } from "../db/entity/hub";
 import { AuthLevels } from "../util/user";
 import { validate, ValidationError } from "class-validator";
-import { getConnection } from "typeorm";
-import { checkTeamTableIsSet } from "../util/team/teamValidation";
+import { ReservedHardwareService, HardwareService } from "../services/hardware";
+import { TeamService } from "../services/teams/teamService";
+
 /**
  * A controller for handling hardware items
  */
 export class HardwareController {
+  private hardwareService: HardwareService;
+  private reservedHardwareService: ReservedHardwareService;
+  private teamService: TeamService;
+  constructor(_hardwareService: HardwareService, _reservedHardwareService: ReservedHardwareService, _teamService: TeamService) {
+    this.hardwareService = _hardwareService;
+    this.reservedHardwareService = _reservedHardwareService;
+    this.teamService = _teamService;
+  }
 
   /**
    * Returns the user-facing hardware libary page
    */
-  public async library(req: Request, res: Response, next: NextFunction) {
-    const items = await getAllHardwareItems(req.user.id);
-    res.render("pages/hardware/index", { items });
-  }
+  public library = async (req: Request, res: Response, next: NextFunction) => {
+    const userID: number = req.user.id;
+    // First get all the hardware reservations as the expired reservation are removed in the call
+    const allReservations: ReservedHardwareItem[] = await this.reservedHardwareService.getAll();
+    // Only then get the hardware items as the reservation count will be correctly updated
+    const hardwareItems: HardwareItem[] = await this.hardwareService.getAllHardwareItems();
+    const formattedData = [];
+    for (const item of hardwareItems) {
+      const remainingItemCount: number = item.totalStock - (item.reservedStock + item.takenStock);
+
+      const userReservation: ReservedHardwareItem = allReservations.find((reservation) => reservation.hardwareItem.name === item.name && reservation.user.id === userID);
+
+      formattedData.push({
+        "itemID": item.id,
+        "itemName": item.name,
+        "itemURL": item.itemURL,
+        "itemStock": item.totalStock,
+        "itemsLeft": remainingItemCount,
+        "itemHasStock": remainingItemCount > 0,
+        "reserved": userReservation ? userReservation.isReserved : false,
+        "taken": userReservation ? !userReservation.isReserved : false,
+        "reservationQuantity": userReservation ? userReservation.reservationQuantity : 0,
+        "reservationToken": userReservation ? userReservation.reservationToken : "",
+        "expiresIn": userReservation ? Math.floor((userReservation.reservationExpiry.getTime() - Date.now()) / 60000) : 0
+      });
+    }
+    res.render("pages/hardware/index", { items: formattedData });
+  };
 
   /**
    * Returns the hardware management page for volunteers
    */
-  public async loanControls(req: Request, res: Response, next: NextFunction) {
+  public loanControls = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const reservations = await getAllReservations();
+      const reservations = await this.reservedHardwareService.getAll();
       res.render("pages/hardware/loanControls", { reservations: reservations || [], userIsOrganiser: (req.user.authLevel === AuthLevels.Organizer) });
     } catch (err) {
       return next(err);
     }
-  }
+  };
 
   /**
    * Returns the page to add an item
    */
-  public async addPage(req: Request, res: Response, next: NextFunction) {
+  public addPage = async (req: Request, res: Response, next: NextFunction) => {
     try {
       // TODO: the reservations are unnecessary
-      const items = await getAllHardwareItemsWithReservations();
+      const items = await this.hardwareService.getAllHardwareItemsWithReservations();
       res.render("pages/hardware/add", { item: items[0] });
     } catch (err) {
       return next(err);
     }
-  }
+  };
 
-  public async addItem(req: Request, res: Response, next: NextFunction) {
+  public addItem = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { totalStock, name, itemURL  } = req.body;
 
@@ -67,7 +99,7 @@ export class HardwareController {
           message: `Could not create item: ${errors.join(",")}`,
         });
       }
-      await getConnection("hub").getRepository(HardwareItem).save(newItem);
+      await this.hardwareService.addAllHardwareItems([newItem]);
 
       req.session.notification = {
         message: `Item ${newItem.name} created!`,
@@ -77,16 +109,14 @@ export class HardwareController {
     } catch (err) {
       return next(err);
     }
-  }
+  };
 
-  public async updateItem(req: Request, res: Response, next: NextFunction) {
+  public updateItem = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { totalStock, name, itemURL  } = req.body;
       const id = req.params.id;
 
-      const itemToUpdate = await getConnection("hub")
-        .getRepository(HardwareItem)
-        .findOne(id);
+      const itemToUpdate: HardwareItem = await this.hardwareService.getHardwareItemByID(id);
 
       if (itemToUpdate === undefined) {
         req.session.notification = {
@@ -116,12 +146,8 @@ export class HardwareController {
           message: `Could not create item: ${errors.join(",")}`
         });
       }
-      await getConnection("hub")
-        .createQueryBuilder()
-        .update(HardwareItem)
-        .set(itemToUpdate)
-        .where("id = :id", { id: itemToUpdate.id })
-        .execute();
+
+      await this.hardwareService.updateHardwareItem(itemToUpdate);
 
       req.session.notification = {
         message: `Item ${itemToUpdate.name} updated!`,
@@ -131,12 +157,12 @@ export class HardwareController {
     } catch (err) {
       return next(err);
     }
-  }
+  };
 
   /**
    * Reserves a item from the hardware library
    */
-  public async reserve(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public reserve = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     // Check the requested item in req.body.item can be reserved
     // Using the hardware_item and reserved_hardware_item tables get the current reserved and taken
     // if (stock - (reserved + taken) > 0)
@@ -144,14 +170,14 @@ export class HardwareController {
     // otherwise, return that the item can't be reserved
     try {
       // First check that the team table number is set
-      if (!(await checkTeamTableIsSet(req.user.id)))
+      if (!(await this.teamService.checkTeamTableIsSet(req.user.team)))
         return next(new ApiError(HttpResponseCode.BAD_REQUEST, "You need to create a team and set your table number in the profile page first."));
 
       const { item, quantity } = req.body;
       if (isNaN(quantity) || Number(quantity) < 1) {
         return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Invalid quantity provided!"));
       }
-      const token: string = await reserveItem(req.user, item, quantity);
+      const token: string = await this.hardwareService.reserveItem(req.user, item, quantity);
       if (token) {
         res.send({
           "message": "Item(s) reserved!",
@@ -164,14 +190,14 @@ export class HardwareController {
     } catch (err) {
       return next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
     }
-  }
+  };
 
   /**
    * Attempts to take the item from the hardware library
    */
-  public async take(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public take = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const takenItem: boolean  = await takeItem(req.body.token);
+      const takenItem: boolean  = await this.hardwareService.takeItem(req.body.token);
       if (takenItem !== undefined) {
         res.send({
           message: "Item has been taken from the library"
@@ -182,12 +208,12 @@ export class HardwareController {
     } catch (err) {
       return next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
     }
-  }
+  };
 
-  public async return(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public return = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const returnedItem: boolean  = await returnItem(req.body.token);
-      if (returnedItem !== undefined) {
+      const returnedItem: boolean  = await this.hardwareService.returnItem(req.body.token);
+      if (returnedItem !== false) {
         res.send({
           message: "Item has been returned to the library"
         });
@@ -197,14 +223,14 @@ export class HardwareController {
     } catch (err) {
       return next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
     }
-  }
+  };
 
   /**
    * Gets all the items from the database
    */
-  public async getAllItems(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public getAllItems = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const allItems: Object[] = await getAllHardwareItems();
+      const allItems: HardwareItem[] = await this.hardwareService.getAllHardwareItems();
       if (allItems !== undefined) {
         res.send(allItems);
       } else {
@@ -213,7 +239,7 @@ export class HardwareController {
     } catch (err) {
       return next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
     }
-  }
+  };
 
   /**
    * Adds all the items in the request to the database
@@ -231,36 +257,36 @@ export class HardwareController {
    * "itemStock": 0
    * }]
    */
-  public async addAllItems(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public addAllItems = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      await addAllHardwareItems(JSON.parse(req.body.items));
+      await this.hardwareService.addAllHardwareItems(JSON.parse(req.body.items));
       res.send({"message": "Added all items"});
     } catch (err) {
       return next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
     }
-  }
+  };
 
   /**
    * Gets all reservations
    */
-  public async getAllReservations(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public getAllReservations = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const reservations = await getAllReservations();
+      const reservations = await this.reservedHardwareService.getAll();
       res.send(reservations);
     } catch (err) {
       return next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
     }
-  }
+  };
 
   /**
    * Gets a reservation
    */
-  public async getReservation(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public getReservation = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       if (!req.params.token) {
         throw new ApiError(HttpResponseCode.BAD_REQUEST, "No reservation token provided!");
       }
-      const reservation = await getReservation(req.params.token);
+      const reservation = await this.reservedHardwareService.getReservation(req.params.token);
       if (!reservation) {
         throw new ApiError(HttpResponseCode.BAD_REQUEST, "No reservation with given token found!");
       }
@@ -268,26 +294,26 @@ export class HardwareController {
     } catch (err) {
       return next(err);
     }
-  }
+  };
 
   /**
    * Cancels a reservation
    */
-  public async cancelReservation(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public cancelReservation = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       if (!req.body.token) {
         throw new ApiError(HttpResponseCode.BAD_REQUEST, "No reservation token provided!");
       }
-      await cancelReservation(req.body.token, req.user.id);
+      await this.reservedHardwareService.cancelReservation(req.body.token, req.user.id);
       res.send({ message: "Success" });
     } catch (err) {
       return next(err);
     }
-  }
+  };
 
-  public async management(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public management = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const items: HardwareItem[] = await getAllHardwareItemsWithReservations();
+      const items: HardwareItem[] = await this.hardwareService.getAllHardwareItemsWithReservations();
       const notification = req.session.notification;
       req.session.notification = undefined;
 
@@ -295,19 +321,19 @@ export class HardwareController {
     } catch (err) {
       return next(err);
     }
-  }
+  };
 
-  public async deleteItem(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public deleteItem = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       if (!req.params.id) {
         throw new ApiError(HttpResponseCode.BAD_REQUEST, "Please provide the ID of the item to delete!");
       }
 
-      await deleteHardwareItem(req.params.id);
+      await this.hardwareService.deleteHardwareItem(req.params.id);
 
       res.send({ message: `Item ${req.params.id} deleted` });
     } catch (err) {
       return next(new ApiError(err.statusCode || HttpResponseCode.INTERNAL_ERROR, err.message));
     }
-  }
+  };
 }

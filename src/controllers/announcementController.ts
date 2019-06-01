@@ -2,15 +2,24 @@ import { Request, Response } from "express";
 import { NextFunction } from "connect";
 import { ApiError, HttpResponseCode } from "../util/errorHandling";
 import { Announcement } from "../db/entity/hub";
-import { getConnection } from "typeorm";
 import { sendOneSignalNotification } from "../util/announcement";
-import { User } from "../db/entity/hub/user";
+import { AnnouncementService } from "../services/announcement/announcementService";
+import { UserService } from "../services/users";
 
 /**
  * A controller for the announcement methods
  */
 export class AnnouncementController {
-  public async announce(req: Request, res: Response, next: NextFunction) {
+
+  private announcementService: AnnouncementService;
+  private userService: UserService;
+
+  constructor(_announcementService: AnnouncementService, _userService: UserService) {
+    this.announcementService = _announcementService;
+    this.userService = _userService;
+  }
+
+  public announce = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const message = req.body.message;
       if (!message) {
@@ -19,33 +28,36 @@ export class AnnouncementController {
         throw new ApiError(HttpResponseCode.BAD_REQUEST, "Message too long!");
       }
       const announcement = new Announcement(message);
-      await getConnection("hub")
-        .getRepository(Announcement)
-        .save(announcement);
+      await this.announcementService.createAnnouncement(announcement);
       res.send(announcement);
     } catch (error) {
       return next(error);
     }
-  }
+  };
 
   /**
    * This function will either send a push notifation to all users subscribed to push notifications
    * or to only those users whose ids are provided.
-   * 
+   *
    * If you want to send to particular users, then include the ids in the post request with the following format:
    * included_users = {"users": ["userId1", "userId2", ...]}
    * @param req
    * @param res
    * @param next
    */
-  public async pushNotification(req: Request, res: Response, next: NextFunction) {
+  public pushNotification = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const text: string = req.body.message;
-      let usersToSendNotification: string = req.body.included_users;
-      if (usersToSendNotification !== undefined)
-        usersToSendNotification = JSON.parse(usersToSendNotification);
+      const includedUsers: string = req.body.included_users;
+      let userIds: string[] = [];
+      if (includedUsers !== undefined) {
+        const includedUsersObj: Object = JSON.parse(includedUsers);
+        if (includedUsersObj.hasOwnProperty("users")) {
+          userIds = includedUsersObj["users"];
+        }
+      }
 
-      const result: Object = await sendOneSignalNotification(text, usersToSendNotification);
+      const result: Object = await sendOneSignalNotification(text, userIds);
       if (result.hasOwnProperty("errors") === false)
         res.send(result);
       else
@@ -53,18 +65,15 @@ export class AnnouncementController {
     } catch (error) {
       return next(error);
     }
-  }
+  };
 
-  public async pushNotificationRegister(req: Request, res: Response, next: NextFunction) {
+  public pushNotificationRegister = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const playerID: string = req.body.data;
-      req.user.push_id.push(playerID);
-      await getConnection("hub")
-        .getRepository(User)
-        .save(req.user);
+      await this.userService.addPushIDToUser(req.user, playerID);
       res.status(200).send(`Updated with player ID: ${playerID}`);
     } catch (error) {
       return next(error);
     }
-  }
+  };
 }

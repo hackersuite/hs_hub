@@ -12,14 +12,6 @@ function scanReservationToken(callback) {
   startCustomScanner("hardware-qr-scanner", callback);
 }
 
-function showError(error) {
-  $.notify({
-    message: error.responseJSON.message
-  }, {
-      type: 'danger'
-    });
-}
-
 function updateReservationStatus(token, action) {
   $.post({
     url: "/hardware/" + action,
@@ -41,7 +33,7 @@ function takeItem(token) {
   getReservationInfo(token,
     function (response) {
       if (!response.isReserved) {
-        return showError({ responseJSON: { message: "This item has already been taken!" } });
+        return showError("This item has already been taken!");
       }
       showConfirmationModal(response, "take", function () {
         updateReservationStatus(token, "take");
@@ -53,7 +45,7 @@ function returnItem(token) {
   getReservationInfo(token,
     function (response) {
       if (response.isReserved) {
-        return showError({ responseJSON: { message: "This item has not been taken yet!" } });
+        return showError("This item has not been taken yet!");
       }
       showConfirmationModal(response, "return", function () {
         updateReservationStatus(token, "return");

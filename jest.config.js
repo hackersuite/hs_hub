@@ -5,6 +5,11 @@ module.exports = {
   "transform": {
     "^.+\\.tsx?$": "ts-jest"
   },
+  "coveragePathIgnorePatterns":[
+    "<rootDir>/dist/",
+    "<rootDir>/node_modules/",
+    "<rootDir>/test/util/"
+  ],
   "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$",
   "moduleFileExtensions": [
     "ts",

@@ -1,57 +1,41 @@
 import { Express } from "express";
 import { buildApp } from "../../../src/app";
 import { User } from "../../../src/db/entity/hub";
-import { ApplicationUser } from "../../../src/db/entity/applications";
 import { getConnection } from "typeorm";
-import { getUserByEmailFromHub } from "../../../src/util/user/userValidation";
 import * as request from "supertest";
 import { HttpResponseCode } from "../../../src/util/errorHandling";
+import { getTestDatabaseOptions, reloadTestDatabaseConnection, closeTestDatabaseConnection } from "../../util/testUtils";
+import { AuthLevels } from "../../../src/util/user";
 
 let bApp: Express;
 let sessionCookie: string;
 
 const testHubUser: User = new User();
-
 testHubUser.name = "Billy Tester II";
 testHubUser.email = "billyII@testing-userController.com";
-testHubUser.authLevel = 1;
-
-const testApplicationUser: ApplicationUser = new ApplicationUser();
-
-testApplicationUser.name = "Billy Tester";
-testApplicationUser.email = "billy@testing.com";
-testApplicationUser.password = "pbkdf2_sha256$30000$xmAiV8Wihzn5$BBVJrxmsVASkYuOI6XdIZoYLfy386hdMOF8S14WRTi8=";
-testApplicationUser.last_login = "2018-10-09 18:50:24.000262+00";
-testApplicationUser.created_time = "2018-09-24 18:30:00.16251+00";
-testApplicationUser.is_organizer = false;
-testApplicationUser.is_volunteer = false;
-testApplicationUser.is_admin = false;
-testApplicationUser.is_hardware_admin = false;
-testApplicationUser.is_active = true;
-testApplicationUser.is_director = false;
-testApplicationUser.email_verified = true;
+testHubUser.authLevel = AuthLevels.Volunteer;
+testHubUser.password = "pbkdf2_sha256$30000$xmAiV8Wihzn5$BBVJrxmsVASkYuOI6XdIZoYLfy386hdMOF8S14WRTi8=";
 
 /**
  * Preparing for the tests
  */
-beforeAll((done: jest.DoneCallback): void => {
+beforeAll(async (done: jest.DoneCallback): Promise<void> => {
   buildApp(async (builtApp: Express, err: Error): Promise<void> => {
     if (err) {
-      console.error("Could not start server!");
-      done();
+      throw new Error("Failed to setup test");
     } else {
       bApp = builtApp;
-      // Creating the test user
-      testApplicationUser.id = (await getConnection("applications")
-        .createQueryBuilder()
-        .insert()
-        .into(ApplicationUser)
-        .values([testApplicationUser])
-        .execute()).identifiers[0].id;
-
       done();
     }
-  });
+  }, getTestDatabaseOptions(undefined, "hub"));
+});
+
+beforeEach(async (done: jest.DoneCallback): Promise<void> => {
+  await reloadTestDatabaseConnection("hub");
+
+  // Creating the test user
+  await getConnection("hub").getRepository(User).save(testHubUser);
+  done();
 });
 
 /**
@@ -68,62 +52,24 @@ describe("User controller tests", (): void => {
         email: "this.email.doesnt.exist@testing.com",
         password: "password123"
       });
-    expect(response.status).toBe(HttpResponseCode.OK);
-    expect(response.text).toContain("Incorrect credentials provided.");
+    expect(response.status).toBe(HttpResponseCode.BAD_REQUEST);
   });
 
   /**
-   * Test that we can port the user from the applications to the hub
+   * Test that a user that is not logged in can login
    */
-  test("Should check the user is copied to hub on login", async (): Promise<void> => {
+  test("Should check the user can login", async (): Promise<void> => {
     const response = await request(bApp)
       .post("/user/login")
       .send({
-        email: testApplicationUser.email,
+        email: testHubUser.email,
         password: "password123"
       });
 
     expect(response.status).toBe(HttpResponseCode.REDIRECT);
     sessionCookie = response.header["set-cookie"].pop().split(";")[0];
-    expect(sessionCookie).not.toBeUndefined();
+    expect(sessionCookie).toBeDefined();
     expect(sessionCookie).toMatch(/connect.sid=*/);
-
-    const newHubUser: User = await getUserByEmailFromHub(testApplicationUser.email);
-    expect(newHubUser).not.toBe(undefined);
-    testHubUser.id = newHubUser.id;
-  });
-
-  /**
-   * Test that when the user password is changed on applications, it gets changed on the hub
-   */
-  test("Should check password is updated on hub", async (): Promise<void> => {
-    await request(bApp)
-      .get("/user/logout")
-      .set("Cookie", sessionCookie)
-      .send();
-
-    // Update the password and save to the database
-    // New password is password12, the old password was password123
-    testApplicationUser.password = "pbkdf2_sha256$30000$xmAiV8Wihzn5$aj1h839Z7MU7UFPcmS3xrjVXdR8wtrhgY3Qi7i19cNY=";
-    await getConnection("applications")
-      .manager
-      .save(testApplicationUser);
-
-    const response = await request(bApp)
-    .post("/user/login")
-    .send({
-      email: testApplicationUser.email,
-      password: "password12"
-    });
-
-    expect(response.status).toBe(HttpResponseCode.REDIRECT);
-    sessionCookie = response.header["set-cookie"].pop().split(";")[0];
-    expect(sessionCookie).not.toBeUndefined();
-    expect(sessionCookie).toMatch(/connect.sid=*/);
-
-    const newHubUser: User = await getUserByEmailFromHub(testApplicationUser.email);
-    expect(newHubUser).not.toBe(undefined);
-    expect(newHubUser.password).toEqual(testApplicationUser.password);
   });
 
   /**
@@ -133,71 +79,68 @@ describe("User controller tests", (): void => {
     const response = await request(bApp)
       .post("/user/login")
       .send({
-        email: testApplicationUser.email,
+        email: testHubUser.email,
         password: "password1234"
       });
 
-    expect(response.status).toBe(HttpResponseCode.OK);
+    expect(response.status).toBe(HttpResponseCode.BAD_REQUEST);
   });
 
   /**
    * Test that we can logout after we have logged in
    */
-  test("Should check the user is logged out by passport", async (): Promise<void> => {
-    let response = await request(bApp)
-      .get("/user/logout")
-      .set("Cookie", sessionCookie)
-      .send();
+  describe("Logout tests", (): void => {
+    beforeEach(async (done: jest.DoneCallback): Promise<void> => {
+      const response = await request(bApp)
+      .post("/user/login")
+      .send({
+        email: testHubUser.email,
+        password: "password123"
+      });
+      sessionCookie = response.header["set-cookie"].pop().split(";")[0];
+      done();
+    });
+    test("Should check the user is logged out by passport", async (): Promise<void> => {
+      let response = await request(bApp)
+        .get("/user/logout")
+        .set("Cookie", sessionCookie)
+        .send();
+      expect(response.status).toBe(HttpResponseCode.REDIRECT);
+      expect(response.header.location).toBe("/login");
 
-    expect(response.status).toBe(HttpResponseCode.REDIRECT);
+      response = await request(bApp)
+        .get("/")
+        .set("Cookie", sessionCookie)
+        .send();
 
-    response = await request(bApp)
-      .get("/")
-      .set("Cookie", sessionCookie)
-      .send();
+      expect(response.status).toBe(HttpResponseCode.REDIRECT);
+      expect(response.header.location).toBe("/login");
+    });
 
-    expect(response.status).toBe(HttpResponseCode.REDIRECT);
-  });
+    /**
+     * Test that we cannot use methods that require authorization after logging out
+     */
+    test("Should not log out after already logged out", async (): Promise<void> => {
+      await request(bApp)
+        .get("/user/logout")
+        .set("Cookie", sessionCookie)
+        .send();
 
-  /**
-   * Test that we cannot use methods that require authorization after logging out
-   */
-  test("Should not log out after already logged out", async (): Promise<void> => {
-    const response = await request(bApp)
-      .get("/user/logout")
-      .set("Cookie", sessionCookie)
-      .send();
+      const response = await request(bApp)
+        .get("/user/logout")
+        .set("Cookie", sessionCookie)
+        .send();
 
-    expect(response.status).toBe(HttpResponseCode.REDIRECT);
+      expect(response.status).toBe(HttpResponseCode.REDIRECT);
+      expect(response.header.location).toBe("/login");
+    });
   });
 });
 
 /**
  * Cleaning up after the tests
  */
-afterAll(async (): Promise<void> => {
-  await getConnection("hub")
-    .createQueryBuilder()
-    .delete()
-    .from(User)
-    .where("id = :id", { id: testHubUser.id })
-    .execute();
-
-  await getConnection("hub")
-    .createQueryBuilder()
-    .delete()
-    .from(User)
-    .where("id = :id", { id: testApplicationUser.id })
-    .execute();
-
-  await getConnection("applications")
-    .createQueryBuilder()
-    .delete()
-    .from(ApplicationUser)
-    .where("id = :id", { id: testApplicationUser.id })
-    .execute();
-
-  await getConnection("hub").close();
-  await getConnection("applications").close();
+afterAll(async (done: jest.DoneCallback): Promise<void> => {
+  await closeTestDatabaseConnection("hub");
+  done();
 });
-
