@@ -8,14 +8,19 @@ services:
   - postgresql
 
 before_install:
+ - npm i -g npm@6.5.0
  - mysql -e 'CREATE DATABASE IF NOT EXISTS hub;'
 
 before_script:  
  - psql -c 'CREATE DATABASE applications;' -U postgres 
 
+# Use npm ci to ensure a clean install of dependencies
 install:
- - npm i
+ - npm ci
  - npm i -g codeclimate-test-reporter
+
+# Keep the npm cache around to speed up installs
+cache: npm
 
 script:
  - npm run test:coverage
