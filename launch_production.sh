@@ -1,4 +1,5 @@
 #!/bin/bash
 
+npm run build
 npm i --production
-npm start
+node ./dist/server.js
