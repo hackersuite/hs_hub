@@ -28,11 +28,18 @@ services:
       MYSQL_DATABASE: hub
     ports:
       - "3306:3306"
+    # The healthcheck is used to ensure the database is running before the hub starts
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h localhost --silent"]
       timeout: 5s
       retries: 10
     networks:
       - backend
+    volumes:
+      - db_store:/var/lib/mysql
+# The volume for the database is persistent across launches
+volumes:
+  db_store:
+# The network allows the two containers to connect together
 networks:
   backend:
