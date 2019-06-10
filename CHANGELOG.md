@@ -14,3 +14,4 @@
 * 18/03/2019 - Added push notifications using OneSignal, push notification form on the admin page
 * 09/04/2019 - Reworked the cache to a cache-aside architecture
 * 03/05/2019 - Implemented the services architecture
+* 10/06/2019 - Added docker containers for database and hub

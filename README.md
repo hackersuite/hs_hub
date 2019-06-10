@@ -13,7 +13,7 @@
 Run the following commands in the console:
 ```
 $ git clone https://github.com/hacksoc-manchester/Hackathon_Attendee_Hub.git
-$ cd Hackathon_Attendee_Hub/back-end
+$ cd Hackathon_Attendee_Hub
 $ cp .env.example .env
 ```
 
@@ -27,7 +27,7 @@ The fastest way of getting the project up and running is to use the provided `do
 ```
 $ docker-compose up -d
 ```
-*Note: You can omit -d if you want to see the log output from the hub*
+**Note**: *You can omit -d if you want to see the log output from the hub*
 
 This will create two containers, one for the MySQL database and a NodeJS container. The first time you run the command, it will take a while since it will install the required services. Next time you run the command, it will be much faster since dependecies are cached.
 
@@ -35,6 +35,7 @@ If you want to shut down the hub & database containers, run the command:
 ```
 $ docker-compose stop
 ```
+**Note**: *Running the command above with the `-v` option will remove the database volume*
 
 ### Manually launching
 Make sure you have completed the initial set up (above).
