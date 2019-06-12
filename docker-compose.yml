@@ -1,0 +1,45 @@
+version: '2.1'
+services:
+  hub-dev:
+    container_name: hub
+    build: .
+    depends_on:
+      mysql_db:
+        condition: service_healthy
+    volumes:
+      - .:/home/node/app/
+      - /home/node/app/node_modules
+    environment:
+      - DB_TYPE=mysql
+      - DB_HOST=mysql_db
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_DATABASE=hub
+    ports:
+      - "5000:5000"
+    networks:
+      - backend
+  mysql_db:
+    container_name: mysql_db
+    image: mysql:5.7
+    command: --default-authentication-plugin=mysql_native_password --log_error_verbosity=1
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: hub
+    ports:
+      - "3306:3306"
+    # The healthcheck is used to ensure the database is running before the hub starts
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost --silent"]
+      timeout: 5s
+      retries: 10
+    networks:
+      - backend
+    volumes:
+      - db_store:/var/lib/mysql
+# The volume for the database is persistent across launches
+volumes:
+  db_store:
+# The network allows the two containers to connect together
+networks:
+  backend:
