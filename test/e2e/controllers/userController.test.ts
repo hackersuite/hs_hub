@@ -4,7 +4,7 @@ import { User } from "../../../src/db/entity/hub";
 import { getConnection } from "typeorm";
 import * as request from "supertest";
 import { HttpResponseCode } from "../../../src/util/errorHandling";
-import { getTestDatabaseOptions, reloadTestDatabaseConnection, closeTestDatabaseConnection } from "../../util/testUtils";
+import { getTestDatabaseOptions, reloadTestDatabaseConnection, closeTestDatabaseConnection, initEnv } from "../../util/testUtils";
 import { AuthLevels } from "../../../src/util/user";
 
 let bApp: Express;
@@ -20,6 +20,7 @@ testHubUser.password = "pbkdf2_sha256$30000$xmAiV8Wihzn5$BBVJrxmsVASkYuOI6XdIZoY
  * Preparing for the tests
  */
 beforeAll(async (done: jest.DoneCallback): Promise<void> => {
+  initEnv();
   buildApp(async (builtApp: Express, err: Error): Promise<void> => {
     if (err) {
       throw new Error("Failed to setup test");

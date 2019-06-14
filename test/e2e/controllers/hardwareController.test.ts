@@ -4,7 +4,7 @@ import { User, HardwareItem, ReservedHardwareItem, Team } from "../../../src/db/
 import { getConnection } from "typeorm";
 import * as request from "supertest";
 import { HttpResponseCode } from "../../../src/util/errorHandling/httpResponseCode";
-import { getTestDatabaseOptions, reloadTestDatabaseConnection, closeTestDatabaseConnection } from "../../util/testUtils";
+import { getTestDatabaseOptions, reloadTestDatabaseConnection, closeTestDatabaseConnection, initEnv } from "../../util/testUtils";
 import { AuthLevels } from "../../../src/util/user";
 
 let bApp: Express;
@@ -48,6 +48,7 @@ itemReservation.reservationExpiry = new Date(new Date().getTime() + (10000 * 60)
  * Preparing for the tests
  */
 beforeAll(async (done: jest.DoneCallback): Promise<void> => {
+  initEnv();
   buildApp(async (builtApp: Express, err: Error): Promise<void> => {
     if (err) {
       throw new Error("Failed to setup test");
