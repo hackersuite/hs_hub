@@ -75,8 +75,8 @@ export class UserController {
     let teamEntity: Team = undefined;
 
     if (profile.team) {
-      userTeam = await this.teamService.getUsersTeamMembers(profile.team);
-      teamEntity = await this.teamService.getUsersTeam(profile.team);
+      userTeam = await this.teamService.getUsersTeamMembers(profile.team.teamCode);
+      teamEntity = await this.teamService.getTeam(profile.team.teamCode);
     }
 
     const teamMembers: Array<Object> = [];
