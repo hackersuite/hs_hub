@@ -1,5 +1,5 @@
 import { Repository } from "typeorm";
-import { User } from "../../db/entity/hub";
+import { User, Team } from "../../db/entity/hub";
 import * as pbkdf2 from "pbkdf2";
 import { ApiError, HttpResponseCode } from "../../util/errorHandling";
 
@@ -82,7 +82,8 @@ export class UserService {
     const user: User = await this.userRepository
       .createQueryBuilder("user")
       .addSelect("user.password")
-      .where("id = :id", {id: submittedID})
+      .leftJoinAndSelect("user.team", "team")
+      .where("id = :id", { id: submittedID })
       .getOne();
 
     if (!user)
@@ -149,7 +150,7 @@ export class UserService {
       // Insert the user to the database
       await this.userRepository.save(hubUser);
     } catch (err) {
-      throw new ApiError(HttpResponseCode.INTERNAL_ERROR, `Lost connection to database (applications)! ${err}`);
+      throw new ApiError(HttpResponseCode.INTERNAL_ERROR, `Lost connection to database! ${err}`);
     }
   };
 
@@ -158,33 +159,38 @@ export class UserService {
    * number of users left in the team
    * @param userID The id of the user to modify
    * @param currentTeam Current team of the user, used if team is removed
-   * @param newTeamCode The new team code for the user
+   * @param newTeamCode The new team for the user
    */
-  public setUserTeamAndCount = async (userID: number, currentTeam: string, newTeamCode: string): Promise<number> => {
+  public setUserTeamAndCount = async (userID: number, currentTeam: Team, newTeam: Team): Promise<number> => {
     try {
-      // Updates and sets the team code for the specified user
-      await this.userRepository.update(userID, { team: newTeamCode });
+      // Updates and sets the team for the specified user
+      await this.userRepository.update(userID, { team: newTeam });
 
       // Finds all the users in the given team and returns the count
       const userAndTeam: [User[], number] = await this.userRepository
-      .findAndCount({ team: newTeamCode ? newTeamCode : currentTeam });
+        .findAndCount({ team: newTeam ? newTeam : currentTeam });
       return userAndTeam[1];
     } catch (err) {
-      throw new ApiError(HttpResponseCode.INTERNAL_ERROR, `Lost connection to database (applications)! ${err}`);
+      throw new ApiError(HttpResponseCode.INTERNAL_ERROR, `Lost connection to database! ${err}`);
     }
   };
 
   /**
    * Sets the new user team code for the user
    * @param userID The id of the user to modify
-   * @param newTeamCode The new team code for the user
+   * @param newTeam The new team for the user
    */
-  public setUserTeam = async (userID: number, newTeamCode: string): Promise<void> => {
+  public setUserTeam = async (userID: number, newTeam: Team): Promise<void> => {
     try {
-      // Updates and sets the team code for the specified user
-      await this.userRepository.save({ id: userID, team: newTeamCode });
+      // Updates and sets the team for the specified user
+      const user: User = await this.getUserByIDFromHub(userID);
+      if (!user) throw new ApiError(HttpResponseCode.BAD_REQUEST, "Failed to find the user with id");
+
+      // Set the new team and update the user
+      user.team = newTeam;
+      await this.userRepository.save(user);
     } catch (err) {
-      throw new ApiError(HttpResponseCode.INTERNAL_ERROR, `Lost connection to database (applications)! ${err}`);
+      throw new ApiError(HttpResponseCode.INTERNAL_ERROR, `Lost connection to database! ${err}`);
     }
   };
 
@@ -196,7 +202,7 @@ export class UserService {
       return await this.userRepository
       .createQueryBuilder("user")
       .select(["user.name", "user.team"])
-      .where("user.team != :empty", { empty: "" })
+      .innerJoinAndSelect("user.team", "team")
       .getMany();
     } catch (err) {
       throw new Error(`Lost connection to database (hub)! ${err}`);
@@ -211,7 +217,8 @@ export class UserService {
     try {
       return await this.userRepository
       .createQueryBuilder("user")
-      .select(["user.name", "user.team"])
+      .select(["user.name"])
+      .innerJoinAndSelect("user.team", "team")
       .where("user.team = :team", { team: teamCode })
       .getMany();
     } catch (err) {
