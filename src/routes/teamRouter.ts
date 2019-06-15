@@ -19,11 +19,6 @@ export const teamRouter = (): Router => {
   const teamController = new TeamController(teamService, userService);
 
   /**
-   * POST /team/add
-   */
-  router.post("/add", checkIsLoggedIn, teamController.add);
-
-  /**
    * POST /team/create
    */
   router.post("/create", checkIsLoggedIn, teamController.create);
