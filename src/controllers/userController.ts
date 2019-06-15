@@ -96,11 +96,4 @@ export class UserController {
     req.logout();
     res.redirect("/login");
   }
-
-  /**
-   * Used for testing purposes, to be removed in next pull request
-   */
-  public test (req: Request, res: Response): void {
-    res.send({ message: "Authorized" });
-  }
 }
