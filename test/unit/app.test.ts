@@ -1,12 +1,18 @@
 import { Express } from "express";
 import { buildApp } from "../../src/app";
 import { getConnection } from "typeorm";
-import { getTestDatabaseOptions } from "../util/testUtils";
+import { getTestDatabaseOptions, initEnv } from "../util/testUtils";
 
 /**
  * App startup tests
  */
 describe("App startup tests", (): void => {
+  /**
+   * Setup the env variables for the tests
+   */
+  beforeAll((): void => {
+    initEnv();
+  });
   /**
    * Building app with default settings
    */

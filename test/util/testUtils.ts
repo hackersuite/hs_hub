@@ -38,4 +38,8 @@ export function initEnv(): void {
   process.env.KEY_LENGTH = "32";
   process.env.DIGEST = "sha256";
   process.env.ENABLE_LOGGING = "0";
+  process.env.SESSION_SECRET = "cat";
+  process.env.HARDWARE_LOG_FILE_NAME = "hub.hardware.test.log";
+  process.env.HUB_LOG_FILE_NAME = "hub.test.log";
+  process.env.ENVIRONMENT = "dev";
 }
