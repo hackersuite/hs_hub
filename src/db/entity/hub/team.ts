@@ -1,8 +1,9 @@
-import { Entity, Column, PrimaryColumn } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToOne } from "typeorm";
+import { User } from ".";
 
 @Entity()
 export class Team {
-  @PrimaryColumn("varchar", { length: 13 })
+  @PrimaryGeneratedColumn("uuid")
   teamCode: string;
 
   @Column({ nullable: true })
@@ -10,4 +11,7 @@ export class Team {
 
   @Column({ nullable: true })
   tableNumber: number;
+
+  @OneToMany(() => User, user => user.team)
+  users: User[];
 }
