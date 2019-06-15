@@ -181,11 +181,10 @@ export class UserService {
    * @param newTeam The new team for the user
    */
   public setUserTeam = async (userID: number, newTeam: Team): Promise<void> => {
-    try {
-      // Updates and sets the team for the specified user
-      const user: User = await this.getUserByIDFromHub(userID);
-      if (!user) throw new ApiError(HttpResponseCode.BAD_REQUEST, "Failed to find the user with id");
+    // Updates and sets the team for the specified user
+    const user: User = await this.getUserByIDFromHub(userID);
 
+    try {
       // Set the new team and update the user
       user.team = newTeam;
       await this.userRepository.save(user);

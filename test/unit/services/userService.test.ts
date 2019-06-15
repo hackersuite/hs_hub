@@ -1,4 +1,4 @@
-import { User, AchievementProgress, ReservedHardwareItem, HardwareItem } from "../../../src/db/entity/hub";
+import { User, AchievementProgress, ReservedHardwareItem, HardwareItem, Team } from "../../../src/db/entity/hub";
 import { UserService } from "../../../src/services/users";
 import { createTestDatabaseConnection, closeTestDatabaseConnection, reloadTestDatabaseConnection, initEnv } from "../../util/testUtils";
 import { getRepository, Repository } from "typeorm";
@@ -9,7 +9,6 @@ testHubUser.name = "Billy Tester II";
 testHubUser.email = "billyII@testing-validation.com";
 testHubUser.password = "pbkdf2_sha256$30000$xmAiV8Wihzn5$BBVJrxmsVASkYuOI6XdIZoYLfy386hdMOF8S14WRTi8=";
 testHubUser.authLevel = 1;
-testHubUser.team = "TeamCodeHere-";
 testHubUser.push_id = ["a64a87ad-df62-47c7-9592-85d71291abf2"];
 
 let userService: UserService;
@@ -18,7 +17,7 @@ beforeAll(async (done: jest.DoneCallback): Promise<void> => {
   // Setup env variables for password generation
   initEnv();
 
-  await createTestDatabaseConnection([ User, AchievementProgress, ReservedHardwareItem, HardwareItem ]);
+  await createTestDatabaseConnection([ User, Team, AchievementProgress, ReservedHardwareItem, HardwareItem ]);
   userService = new UserService(getRepository(User));
 
   done();
@@ -91,7 +90,10 @@ describe("User service tests", (): void => {
 
       // Get the user from the hub using the user service and check it found the correct user
       const hubUser: User = await userService.getUserByIDFromHub(testHubUser.id);
-      expect(hubUser).toEqual(testHubUser);
+      expect(hubUser.name).toEqual(testHubUser.name);
+      expect(hubUser.email).toEqual(testHubUser.email);
+      expect(hubUser.password).toEqual(testHubUser.password);
+      expect(hubUser.push_id).toEqual(testHubUser.push_id);
     });
     test("Should fail to find invalid user", async (): Promise<void> => {
       try {
@@ -186,17 +188,24 @@ describe("User service tests", (): void => {
    */
   describe("Test setUserTeamAndCount", (): void => {
     test("Should ensure that a user can set the team and get the new count", async (): Promise<void> => {
-      const newTeamCode: string = "NewTeamCode--";
+      const newTeam: Team = new Team();
       const userRepository: Repository<User> = getRepository(User);
+      const teamRepository: Repository<Team> = getRepository(Team);
+      await teamRepository.save(newTeam);
+      testHubUser.team = newTeam;
       await userRepository.save(testHubUser);
 
-      const count: number = await userService.setUserTeamAndCount(testHubUser.id, testHubUser.team, newTeamCode);
+      const count: number = await userService.setUserTeamAndCount(testHubUser.id, testHubUser.team, newTeam);
       expect(count).toBeDefined();
       expect(count).toBe(1);
 
-      const newUser: User = await userRepository.findOne({ id: testHubUser.id });
+      const newUser: User = await userRepository
+        .createQueryBuilder("user")
+        .leftJoinAndSelect("user.team", "team")
+        .where("id = :id", { id: testHubUser.id })
+        .getOne();
       expect(newUser).toBeDefined();
-      expect(newUser.team).toBe(newTeamCode);
+      expect(newUser.team).toEqual(newTeam);
     });
   });
 
@@ -205,14 +214,28 @@ describe("User service tests", (): void => {
    */
   describe("Test setUserTeam", (): void => {
     test("Should ensure that a user team can be set", async (): Promise<void> => {
-      const newTeamCode: string = "NewTeamAgain-";
+      const newTeam: Team = new Team();
       const userRepository: Repository<User> = getRepository(User);
+      const teamRepository: Repository<Team> = getRepository(Team);
+      await teamRepository.save(newTeam);
+      testHubUser.team = undefined;
       await userRepository.save(testHubUser);
 
-      await userService.setUserTeam(testHubUser.id, newTeamCode);
-      const newUser: User = await userRepository.findOne({ id: testHubUser.id });
+      await userService.setUserTeam(testHubUser.id, newTeam);
+      const newUser: User = await userRepository
+        .createQueryBuilder("user")
+        .leftJoinAndSelect("user.team", "team")
+        .where("id = :id", { id: testHubUser.id })
+        .getOne();
       expect(newUser).toBeDefined();
-      expect(newUser.team).toBe(newTeamCode);
+      expect(newUser.team).toEqual(newTeam);
+    });
+    test("Should throw error when user not found", async (): Promise<void> => {
+      try {
+        await userService.setUserTeam(100, undefined);
+      } catch (err) {
+        expect(err.statusCode).toBe(HttpResponseCode.BAD_REQUEST);
+      }
     });
   });
 
@@ -222,10 +245,15 @@ describe("User service tests", (): void => {
   describe("Test getUsersTeamMembers", (): void => {
     test("Should ensure that all users from a specific team can be found", async (): Promise<void> => {
       const userRepository: Repository<User> = getRepository(User);
+      const teamRepository: Repository<Team> = getRepository(Team);
+      const newTeam: Team = new Team();
+      await teamRepository.save(newTeam);
+      testHubUser.team = newTeam;
+
       await userRepository.save(testHubUser);
       await userRepository.save({...testHubUser, id: testHubUser.id + 1, email: "test@test.com"});
 
-      const teamMembers: User[] = await userService.getUsersTeamMembers(testHubUser.team);
+      const teamMembers: User[] = await userService.getUsersTeamMembers(testHubUser.team.teamCode);
       expect(teamMembers).toBeDefined();
       expect(teamMembers.length).toBe(2);
     });
@@ -236,10 +264,15 @@ describe("User service tests", (): void => {
    */
   describe("Test getAllUsersInTeams", (): void => {
     test("Should get all members for all teams", async (): Promise<void> => {
+      const newTeam: Team = new Team();
       const userRepository: Repository<User> = getRepository(User);
+      const teamRepository: Repository<Team> = getRepository(Team);
+      await teamRepository.save(newTeam);
+      testHubUser.team = newTeam;
       await userRepository.save(testHubUser);
-      await userRepository.save({...testHubUser, id: testHubUser.id + 1, email: "test@test.com", team: "newteamcode"});
-      await userRepository.save({...testHubUser, id: testHubUser.id + 2, email: "test1@test.com", team: undefined});
+
+      await userRepository.save({...testHubUser, id: testHubUser.id + 1, email: "test@test.com", team: undefined});
+      await userRepository.save({...testHubUser, id: testHubUser.id + 2, email: "test1@test.com"});
 
       const allUsersInTeams: User[] = await userService.getAllUsersInTeams();
       expect(allUsersInTeams).toBeDefined();

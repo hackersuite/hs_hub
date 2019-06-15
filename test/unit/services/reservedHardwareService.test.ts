@@ -1,7 +1,7 @@
 import { HardwareService, ReservedHardwareService } from "../../../src/services/hardware";
 import { createTestDatabaseConnection, closeTestDatabaseConnection, reloadTestDatabaseConnection, initEnv } from "../../util/testUtils";
 import { getRepository, Repository } from "typeorm";
-import { User, AchievementProgress, ReservedHardwareItem, HardwareItem } from "../../../src/db/entity/hub";
+import { User, AchievementProgress, ReservedHardwareItem, HardwareItem, Team } from "../../../src/db/entity/hub";
 import { HttpResponseCode } from "../../../src/util/errorHandling";
 
 const piHardwareItem: HardwareItem = new HardwareItem();
@@ -23,7 +23,6 @@ testUser.name = "Billy Tester II";
 testUser.email = "billyII@testing-validation.com";
 testUser.password = "pbkdf2_sha256$30000$xmAiV8Wihzn5$BBVJrxmsVASkYuOI6XdIZoYLfy386hdMOF8S14WRTi8=";
 testUser.authLevel = 1;
-testUser.team = "TeamCodeHere-";
 testUser.push_id = ["a64a87ad-df62-47c7-9592-85d71291abf2"];
 
 const itemReservation: ReservedHardwareItem = new ReservedHardwareItem();
@@ -37,7 +36,7 @@ let reservedHardwareService: ReservedHardwareService;
 beforeAll(async (done: jest.DoneCallback): Promise<void> => {
   initEnv();
 
-  await createTestDatabaseConnection([ User, AchievementProgress, ReservedHardwareItem, HardwareItem ]);
+  await createTestDatabaseConnection([ User, Team, AchievementProgress, ReservedHardwareItem, HardwareItem ]);
   reservedHardwareService = new ReservedHardwareService(getRepository(ReservedHardwareItem));
 
   done();

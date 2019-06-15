@@ -4,21 +4,18 @@ import { User, HardwareItem, ReservedHardwareItem, Team } from "../../../src/db/
 import { getConnection } from "typeorm";
 import * as request from "supertest";
 import { HttpResponseCode } from "../../../src/util/errorHandling/httpResponseCode";
-import { getTestDatabaseOptions, reloadTestDatabaseConnection, closeTestDatabaseConnection } from "../../util/testUtils";
+import { getTestDatabaseOptions, reloadTestDatabaseConnection, closeTestDatabaseConnection, initEnv } from "../../util/testUtils";
 import { AuthLevels } from "../../../src/util/user";
 
 let bApp: Express;
 let sessionCookie: string;
 let userReservationToken: string;
 
-const testHubTeamCode: string = "qwerty";
-
 const testAttendeeUser: User = new User();
 testAttendeeUser.name = "Billy Tester II";
 testAttendeeUser.email = "billyII@testing.com";
 testAttendeeUser.password = "pbkdf2_sha256$30000$xmAiV8Wihzn5$BBVJrxmsVASkYuOI6XdIZoYLfy386hdMOF8S14WRTi8=";
 testAttendeeUser.authLevel = AuthLevels.Attendee;
-testAttendeeUser.team = testHubTeamCode;
 
 const piHardwareItem: HardwareItem = new HardwareItem();
 piHardwareItem.name = "Pi";
@@ -35,8 +32,7 @@ viveHardwareItem.takenStock = 0;
 viveHardwareItem.itemURL = "";
 
 const testHubTeam: Team = new Team();
-testHubTeam.teamCode = testHubTeamCode;
-testHubTeam.tableNumber = 42;
+testHubTeam.tableNumber = 10;
 
 const itemReservation: ReservedHardwareItem = new ReservedHardwareItem();
 itemReservation.reservationToken = "token";
@@ -60,20 +56,6 @@ beforeAll(async (done: jest.DoneCallback): Promise<void> => {
 
 beforeEach(async (done: jest.DoneCallback): Promise<void> => {
   await reloadTestDatabaseConnection("hub");
-
-  // Setup the data for the test
-  await getConnection("hub").getRepository(User).save(testAttendeeUser);
-  await getConnection("hub").getRepository(HardwareItem).save(piHardwareItem);
-  await getConnection("hub").getRepository(HardwareItem).save(viveHardwareItem);
-  await getConnection("hub").getRepository(Team).save(testHubTeam);
-
-  const response = await request(bApp)
-    .post("/user/login")
-    .send({
-      email: testAttendeeUser.email,
-      password: "password123"
-    });
-  sessionCookie = response.header["set-cookie"].pop().split(";")[0];
   done();
 });
 
@@ -81,7 +63,22 @@ beforeEach(async (done: jest.DoneCallback): Promise<void> => {
 /**
  * Testing hardware library requests
  */
-describe("Hardware controller tests", (): void => {
+describe("Hardware controller tests, user not in team", (): void => {
+  beforeEach(async (done: jest.DoneCallback): Promise<void> => {
+    // Setup the data for the test
+    await getConnection("hub").getRepository(User).save(testAttendeeUser);
+    await getConnection("hub").getRepository(HardwareItem).save(piHardwareItem);
+    await getConnection("hub").getRepository(HardwareItem).save(viveHardwareItem);
+    const response = await request(bApp)
+      .post("/user/login")
+      .send({
+        email: testAttendeeUser.email,
+        password: "password123"
+      });
+    sessionCookie = response.header["set-cookie"].pop().split(";")[0];
+    done();
+  });
+
   /**
    * Test that the take item route is protected
    */
@@ -97,49 +94,9 @@ describe("Hardware controller tests", (): void => {
   });
 
   /**
-   * Test that an item is reserved when a user sends a request
-   */
-  test("Should check the specified item is reserved by the user", async (): Promise<void> => {
-    const response = await request(bApp)
-      .post("/hardware/reserve")
-      .set("Cookie", sessionCookie)
-      .send({
-        item: piHardwareItem.id,
-        quantity: 1
-      });
-
-    expect(response.status).toBe(HttpResponseCode.OK);
-    expect(response.body.message).toBe("Item(s) reserved!");
-    expect(response.body.token).toBeDefined();
-    userReservationToken = response.body.token;
-
-    // Test that once item is reserved, reservation is added to database
-    const reservation: ReservedHardwareItem = await getConnection("hub")
-      .getRepository(ReservedHardwareItem)
-      .createQueryBuilder("item")
-      .where("item.userId = :id", { id: testAttendeeUser.id })
-      .andWhere("item.hardwareItemId = :itemID", { itemID: piHardwareItem.id })
-      .getOne();
-    expect(reservation).toBeDefined();
-    expect(reservation.isReserved).toBe(true);
-    expect(reservation.reservationQuantity).toBe(1);
-
-    const updatedHardwareItem: HardwareItem = await getConnection("hub")
-      .getRepository(HardwareItem)
-      .findOne(piHardwareItem.id);
-    expect(updatedHardwareItem.reservedStock).toBe(1);
-  });
-
-  /**
    * Test if a user can reserve if not in a team
    */
   test("Should check that reservation is rejected when user not in a team", async (): Promise<void> => {
-    // Remove the team from the user
-    testAttendeeUser.team = "";
-    await getConnection("hub")
-      .getRepository(User)
-      .save(testAttendeeUser);
-
     const response = await request(bApp)
     .post("/hardware/reserve")
     .set("Cookie", sessionCookie)
@@ -150,11 +107,6 @@ describe("Hardware controller tests", (): void => {
 
     expect(response.status).toBe(HttpResponseCode.BAD_REQUEST);
     expect(response.body.message).toBe("You need to create a team and set your table number in the profile page first.");
-
-    testAttendeeUser.team = testHubTeamCode;
-    await getConnection("hub")
-      .getRepository(User)
-      .save(testAttendeeUser);
   });
 
   /**
@@ -207,6 +159,62 @@ describe("Hardware controller tests", (): void => {
       expect(response).toBeDefined();
       expect(response.body.message).toBe("Item has been returned to the library");
     });
+  });
+});
+
+/**
+ * Testing hardware library requests, user not in team
+ */
+describe("Hardware controller tests, user in team", (): void => {
+  beforeEach(async (done: jest.DoneCallback): Promise<void> => {
+    // Setup the data for the test
+    await getConnection("hub").getRepository(Team).save(testHubTeam);
+    testAttendeeUser.team = testHubTeam;
+    await getConnection("hub").getRepository(User).save(testAttendeeUser);
+    await getConnection("hub").getRepository(HardwareItem).save(piHardwareItem);
+    await getConnection("hub").getRepository(HardwareItem).save(viveHardwareItem);
+    const response = await request(bApp)
+      .post("/user/login")
+      .send({
+        email: testAttendeeUser.email,
+        password: "password123"
+      });
+    sessionCookie = response.header["set-cookie"].pop().split(";")[0];
+    done();
+  });
+
+  /**
+   * Test that an item is reserved when a user sends a request
+   */
+  test("Should check the specified item is reserved by the user", async (): Promise<void> => {
+    const response = await request(bApp)
+      .post("/hardware/reserve")
+      .set("Cookie", sessionCookie)
+      .send({
+        item: piHardwareItem.id,
+        quantity: 1
+      });
+
+    expect(response.status).toBe(HttpResponseCode.OK);
+    expect(response.body.message).toBe("Item reserved!");
+    expect(response.body.token).toBeDefined();
+    userReservationToken = response.body.token;
+
+    // Test that once item is reserved, reservation is added to database
+    const reservation: ReservedHardwareItem = await getConnection("hub")
+      .getRepository(ReservedHardwareItem)
+      .createQueryBuilder("item")
+      .where("item.userId = :id", { id: testAttendeeUser.id })
+      .andWhere("item.hardwareItemId = :itemID", { itemID: piHardwareItem.id })
+      .getOne();
+    expect(reservation).toBeDefined();
+    expect(reservation.isReserved).toBe(true);
+    expect(reservation.reservationQuantity).toBe(1);
+
+    const updatedHardwareItem: HardwareItem = await getConnection("hub")
+      .getRepository(HardwareItem)
+      .findOne(piHardwareItem.id);
+    expect(updatedHardwareItem.reservedStock).toBe(1);
   });
 });
 

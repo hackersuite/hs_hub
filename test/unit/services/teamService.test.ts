@@ -3,6 +3,7 @@ import { TeamService } from "../../../src/services/teams";
 import { createTestDatabaseConnection, closeTestDatabaseConnection, reloadTestDatabaseConnection } from "../../util/testUtils";
 import { getRepository, Repository } from "typeorm";
 import { UserService } from "../../../src/services/users";
+import { HttpResponseCode } from "../../../src/util/errorHandling";
 
 const TEST_PASSWORD: string = "pbkdf2_sha256$30000$xmAiV8Wihzn5$BBVJrxmsVASkYuOI6XdIZoYLfy386hdMOF8S14WRTi8=";
 
@@ -15,14 +16,11 @@ testHubUser.name = "Billy Tester II";
 testHubUser.email = "billyII@testing-validation.com";
 testHubUser.password = TEST_PASSWORD;
 testHubUser.authLevel = 1;
-testHubUser.team = "TeamCodeHere-";
 
 testHubUserNoTeam.name = "Billy Tester No Team";
 testHubUserNoTeam.email = "billyI@testing-validation.com";
 testHubUserNoTeam.password = TEST_PASSWORD;
 testHubUserNoTeam.authLevel = 0;
-
-testHubTeam.teamCode = testHubUser.team;
 
 let teamService: TeamService;
 let userService: UserService;
@@ -45,56 +43,26 @@ beforeEach(async (done: jest.DoneCallback): Promise<void> => {
  * Team tests
  */
 describe("Team service tests", (): void => {
-  beforeEach(async (): Promise<void> => {
+  beforeEach(async (done: jest.DoneCallback): Promise<void> => {
     const teamRepository: Repository<Team> = getRepository(Team);
+    const userRepository: Repository<User> = getRepository(User);
     await teamRepository.save(testHubTeam);
-  });
+    testHubUser.team = testHubTeam;
 
-  /**
-   * Test that a user can join a current team
-   */
-  describe("Test createOrAddTeam", (): void => {
-    test("Should ensure that a user can join a team that exists in the hub database", async (): Promise<void> => {
-      // Test setup, store the test user
-      const userRepository: Repository<User> = getRepository(User);
-      await userRepository.save(testHubUserNoTeam);
+    await userRepository.save(testHubUser);
 
-      // Add the no-team-user to the test team
-      await teamService.createOrAddTeam(testHubUserNoTeam.id, testHubTeam.teamCode);
-
-      // Checks that the required user exists in the team
-      const userWithTeam: User = await userService.getUserByIDFromHub(testHubUserNoTeam.id);
-      expect(userWithTeam).toBeDefined();
-      expect(userWithTeam.team).toBe(testHubTeam.teamCode);
-    });
-    test("Should ensure that a new team can be created", async (): Promise<void> => {
-      // Test setup, store the test user
-      const userRepository: Repository<User> = getRepository(User);
-      await userRepository.save(testHubUserNoTeam);
-
-      const newTeamCode: string = "qwertyuiop";
-      await teamService.createOrAddTeam(testHubUserNoTeam.id, newTeamCode);
-
-      const teamExists: boolean = await teamService.checkTeamExists(newTeamCode);
-      expect(teamExists).toBeTruthy();
-    });
-    test("Should ensure invalid team code is rejected in createOrAddTeam", async (): Promise<void> => {
-      const teamRepository: Repository<Team> = getRepository(Team);
-      await teamService.createOrAddTeam(1, undefined);
-      const undefinedTeam: Team = await teamRepository.findOne({ teamCode: undefined });
-      expect(undefinedTeam).toBeUndefined();
-    });
+    done();
   });
 
   /**
    * Test that createTeam works correctly
    */
   describe("Test createTeam", (): void => {
-    test("Should ensure invalid team code is rejected", async (): Promise<void> => {
+    test("Should ensure team can be created", async (): Promise<void> => {
       const teamRepository: Repository<Team> = getRepository(Team);
-      await teamService.createTeam(undefined);
-      const undefinedTeam: Team = await teamRepository.findOne({ teamCode: undefined });
-      expect(undefinedTeam).toBeUndefined();
+      const newTeam: Team = await teamService.createTeam();
+      const foundTeam: Team = await teamRepository.findOne(newTeam.teamCode);
+      expect(foundTeam).toBeDefined();
     });
   });
 
@@ -113,7 +81,7 @@ describe("Team service tests", (): void => {
       const returnedValue: boolean = await teamService.leaveTeam(testHubUser.id, testHubUser.team);
       expect(returnedValue).toBeTruthy();
 
-      const modifiedTeam: Team = await teamRepository.findOne({teamCode: testHubTeam.teamCode});
+      const modifiedTeam: Team = await teamRepository.findOne(testHubTeam.teamCode);
       expect(modifiedTeam).toBeDefined();
 
       const modifiedUser: User = await userService.getUserByIDFromHub(testHubUser.id);
@@ -129,7 +97,7 @@ describe("Team service tests", (): void => {
       const returnedValue: boolean = await teamService.leaveTeam(testHubUser.id, testHubUser.team);
       expect(returnedValue).toBeTruthy();
 
-      const modifiedTeam: Team = await teamRepository.findOne({teamCode: testHubTeam.teamCode});
+      const modifiedTeam: Team = await teamRepository.findOne(testHubTeam.teamCode);
       expect(modifiedTeam).toBeUndefined();
 
       const modifiedUser: User = await userService.getUserByIDFromHub(testHubUser.id);
@@ -145,12 +113,37 @@ describe("Team service tests", (): void => {
    * Test if a user can join a non-existant team
    */
   describe("Test joinTeam", (): void => {
-    test("Should ensure that a user cannot join a team that does not exist", async (): Promise<void> => {
-      const userJoinedUndefined: boolean = await teamService.joinTeam(testHubUser.id, undefined);
+    beforeEach(async (done: jest.DoneCallback): Promise<void> => {
+      const userRepository: Repository<User> = getRepository(User);
+      await userRepository.save(testHubUserNoTeam);
+      done();
+    });
+
+    test("Should ensure that a user cannot join a team when not exist", async (): Promise<void> => {
+      const userJoinedUndefined: boolean = await teamService.joinTeam(testHubUserNoTeam.id, undefined);
       expect(userJoinedUndefined).toBeFalsy();
 
-      const userJoined: boolean = await teamService.joinTeam(testHubUser.id, "abcde");
-      expect(userJoined).toBeFalsy();
+      const userAfterJoinFailed: User = await userService.getUserByIDFromHub(testHubUserNoTeam.id);
+      expect(userAfterJoinFailed.team).toBeFalsy();
+    });
+
+    test("Should ensure error thrown when invalid team provided", async (): Promise<void> => {
+      try {
+        await teamService.joinTeam(testHubUserNoTeam.id, "invalid");
+      } catch (err) {
+        expect(err.statusCode).toBe(HttpResponseCode.INTERNAL_ERROR);
+      }
+
+      const userAfterJoinFailed: User = await userService.getUserByIDFromHub(testHubUserNoTeam.id);
+      expect(userAfterJoinFailed.team).toBeFalsy();
+    });
+
+    test("Should ensure that team joined when team exists", async (): Promise<void> => {
+      const userJoinedTeam: boolean = await teamService.joinTeam(testHubUserNoTeam.id, testHubTeam);
+      expect(userJoinedTeam).toBeTruthy();
+
+      const userAfterJoin: User = await userService.getUserByIDFromHub(testHubUserNoTeam.id);
+      expect(userAfterJoin.team).toEqual(testHubTeam);
     });
   });
 
@@ -203,22 +196,47 @@ describe("Team service tests", (): void => {
     test("Should check that all the members of a team can be found", async (): Promise<void> => {
       // Check the user does not exist in the team
       const teamMembers: User[] = await teamService.getUsersTeamMembers(testHubTeam.teamCode);
-      expect(teamMembers.length).toBe(0);
+      expect(teamMembers.length).toBe(1);
     });
   });
 
   /**
    * Test that a users team members function works
    */
-  describe("Test getUsersTeam", (): void => {
+  describe("Test getTeam", (): void => {
     test("Should check that all the members of a team can be found", async (): Promise<void> => {
       // Test setup
       const teamRepository: Repository<Team> = getRepository(Team);
       await teamRepository.save(testHubTeam);
 
       // Check the user does not exist in the team
-      const teamData: Team = await teamService.getUsersTeam(testHubTeam.teamCode);
+      const teamData: Team = await teamService.getTeam(testHubTeam.teamCode);
       expect(teamData).toEqual(testHubTeam);
+    });
+  });
+
+  /**
+   * Test that a users team members function works
+   */
+  describe("Test checkTeamExists", (): void => {
+    test("Should check that a team can be found", async (): Promise<void> => {
+      // Test setup
+      const teamRepository: Repository<Team> = getRepository(Team);
+      await teamRepository.save(testHubTeam);
+
+      // Check the team exists
+      const doesTeamExist: boolean = await teamService.checkTeamExists(testHubTeam.teamCode);
+      expect(doesTeamExist).toBeTruthy();
+    });
+
+    test("Should check that a an invalid team not found", async (): Promise<void> => {
+      // Test setup
+      const teamRepository: Repository<Team> = getRepository(Team);
+      await teamRepository.save(testHubTeam);
+
+      // Check the team exists
+      const doesTeamExist: boolean = await teamService.checkTeamExists("invalid");
+      expect(doesTeamExist).toBeFalsy();
     });
   });
 
@@ -249,6 +267,7 @@ describe("Team service tests", (): void => {
   });
 });
 
-afterAll(async (): Promise<void> => {
+afterAll(async (done: jest.DoneCallback): Promise<void> => {
   await closeTestDatabaseConnection();
+  done();
 });
