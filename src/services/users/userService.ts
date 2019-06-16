@@ -181,6 +181,8 @@ export class UserService {
    * @param newTeam The new team for the user
    */
   public setUserTeam = async (userID: number, newTeam: Team): Promise<void> => {
+    if (userID === undefined || newTeam === undefined) throw new Error("Failed to update team.");
+
     // Updates and sets the team for the specified user
     const user: User = await this.getUserByIDFromHub(userID);
 

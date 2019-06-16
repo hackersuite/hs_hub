@@ -67,7 +67,7 @@ export class TeamService {
       await this.userService.setUserTeam(userID, teamToJoin);
       return true;
     } catch (err) {
-      throw new ApiError(HttpResponseCode.INTERNAL_ERROR, "Failed to update the users team");
+      return false;
     }
   };
 
