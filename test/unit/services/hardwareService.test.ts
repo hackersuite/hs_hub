@@ -282,7 +282,7 @@ describe("Hardware service tests", (): void => {
       await hardwareRepository.save(piHardwareItem);
       await hardwareRepository.save(viveHardwareItem);
       for (let i = 1; i <= array_len; i++) {
-        const tmpTestUser: User = {...testUser, id: i, email: `test${i}@test.com`, getName: undefined, getId: undefined};
+        const tmpTestUser: User = {...testUser, id: i, email: `test${i}@test.com` };
         await userRepository.save(tmpTestUser);
 
         const tmpTestReservation: ReservedHardwareItem = {...itemReservation, user: tmpTestUser, hardwareItem: piHardwareItem, reservationToken: `t${i}`};

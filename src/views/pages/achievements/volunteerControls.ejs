@@ -57,15 +57,15 @@
                               <%= claim.getAchievement().getTitle() %>
                             </td>
                             <td>
-                              <a href="/user/<%= claim.getUser().getId() %>"><%= claim.getUser().getName() %></a>
+                              <a href="/user/<%= claim.getUser().id %>"><%= claim.getUser().name %></a>
                             </td>
                             <td>
                               <button class="btn btn-warning"
                                       onclick="showConfirmationModal(<%= claim.getAchievement().getId() %>, 
-                                                                     <%= claim.getUser().getId() %>,
+                                                                     <%= claim.getUser().id %>,
                                                                      '<%= claim.getAchievement().getPrizeURL() %>',
                                                                      '<%= claim.getAchievement().getTitle() %>',
-                                                                     '<%= claim.getUser().getName() %>')">
+                                                                     '<%= claim.getUser().name %>')">
                                       gib
                               </button>
                             </td>
@@ -99,7 +99,7 @@
                             <label for="select-user">User:</label>
                             <select class="form-control" id="select-user">
                               <% users.forEach(user => { %>
-                                <option data-id="<%= user.getId() %>"><%= user.getName() %></option>
+                                <option data-id="<%= user.id %>"><%= user.name %></option>
                               <% }) %>
                             </select>
                           </div>

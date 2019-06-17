@@ -44,7 +44,7 @@ export class AchievementsController {
   public getVolunteersPage = async (req: Request, res: Response, next: NextFunction) => {
     try {
       let users: User[] = await this.userService.getAllUsers();
-      users = users.sort((a: User, b: User) => a.getName().localeCompare(b.getName()));
+      users = users.sort((a: User, b: User) => a.name.localeCompare(b.name));
 
       let achievements: Achievement[] = await this.achievementsService.getAchievements();
       achievements = achievements.sort((a: Achievement, b: Achievement) => a.getTitle().localeCompare(b.getTitle()));
@@ -53,7 +53,7 @@ export class AchievementsController {
       prizesToClaim = prizesToClaim.sort((a: AchievementProgress, b: AchievementProgress) => {
         const achievementsComparison: number = a.getAchievement().getTitle().localeCompare(b.getAchievement().getTitle());
         if (achievementsComparison === 0) {
-          return a.getUser().getName().localeCompare(b.getUser().getName());
+          return a.getUser().name.localeCompare(b.getUser().name);
         } else {
           return achievementsComparison;
         }
@@ -114,10 +114,10 @@ export class AchievementsController {
 
       req.session.notification = {
         type: "success",
-        message: `Achievement ${achievement.getTitle()} has been awarded to user ${user.getName()}!`
+        message: `Achievement ${achievement.getTitle()} has been awarded to user ${user.name}!`
       };
 
-      res.send({ message: `Achievement ${achievement.getTitle()} has been awarded to user ${user.getName()}!`});
+      res.send({ message: `Achievement ${achievement.getTitle()} has been awarded to user ${user.name}!`});
     } catch (err) {
       next(err);
     }
@@ -170,10 +170,10 @@ export class AchievementsController {
 
       req.session.notification = {
         type: "success",
-        message: `Prize for achievement ${achievement.getTitle()} awarded to user ${user.getName()}`
+        message: `Prize for achievement ${achievement.getTitle()} awarded to user ${user.name}`
       };
 
-      res.send({ message: `Prize for achievement ${achievement.getTitle()} awarded to user ${user.getName()}`});
+      res.send({ message: `Prize for achievement ${achievement.getTitle()} awarded to user ${user.name}`});
     } catch (err) {
       req.session.notification = {
         type: "danger",

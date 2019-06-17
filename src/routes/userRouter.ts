@@ -26,6 +26,11 @@ export const userRouter = (): Router => {
   router.post("/login", userController.login);
 
   /**
+   * POST /user
+   */
+  router.post("/", userController.register);
+
+  /**
    * GET /user/profile
    */
   router.get("/profile", checkIsLoggedIn, userController.profile);
