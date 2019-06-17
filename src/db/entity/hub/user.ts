@@ -1,13 +1,27 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from "typeorm";
 import { AchievementProgress } from "./achievementProgress";
 import { ReservedHardwareItem } from "./reservedHardwareItem";
-import { IsDefined, IsString, IsEmail, IsNumber, IsArray } from "class-validator";
+import { IsDefined, IsString, IsEmail, IsNumber, IsArray, Max } from "class-validator";
 
 /**
  * A class to store the user entity in the database
  */
 @Entity()
 export class User {
+  /**
+   *
+   */
+  constructor(name: string, email: string, password: string, id?: number,
+              authLevel?: number, team?: string, pushId?: string[]) {
+    this.id = id;
+    this.name = name;
+    this.email = email;
+    this.password = password;
+    this.authLevel = authLevel;
+    this.team = team;
+    this.push_id = pushId;
+  }
+
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -19,6 +33,7 @@ export class User {
   @IsDefined({ message: "The email must be defined" })
   @Column("varchar", { length: 255, nullable: false, unique: true })
   @IsEmail(undefined, { message: "The email must have a valid format for an email adress" })
+  @IsString()
   email: string;
 
   @IsDefined({ message: "The password must be defined" })

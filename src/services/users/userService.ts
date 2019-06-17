@@ -218,4 +218,16 @@ export class UserService {
       throw new Error(`Lost connection to database (hub)! ${err}`);
     }
   };
+
+  /**
+   * Creates a new user. Returns the saved user with its new id or throws an error.
+   * @param user the user to be saved
+   */
+  public createUser = async (user: User): Promise<User> => {
+    try {
+      return await this.userRepository.save(user);
+    } catch (err) {
+      throw new Error(`Lost connection to database (hub)! ${err}`);
+    }
+  }
 }

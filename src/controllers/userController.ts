@@ -8,6 +8,7 @@ import { User } from "../db/entity/hub/user";
 import { Team } from "../db/entity/hub/team";
 import { UserService } from "../services/users";
 import { TeamService } from "../services/teams/teamService";
+import { ValidationError, validate } from "class-validator";
 
 /**
  * A controller for auth methods
@@ -92,8 +93,41 @@ export class UserController {
   /**
    * Logs out the user
    */
-  public logout(req: Request, res: Response): void {
+  public logout = (req: Request, res: Response): void => {
     req.logout();
     res.redirect("/login");
+  }
+
+  public register = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { name, email, password } = req.body;
+
+      const newUser: User = new User(name, email, password);
+
+      const errors: ValidationError[] = await validate(newUser);
+
+      if (errors.length > 0) {
+        req.session.notification = {
+          message: `Could not create user: ${errors.join(",")}`,
+          type: "danger"
+        };
+        res.status(HttpResponseCode.BAD_REQUEST);
+        res.send({
+          error: true,
+          message: `Could not create user: ${errors.join(",")}`,
+        });
+        return;
+      }
+
+      await this.userService.createUser(newUser);
+
+      req.session.notification = {
+        message: `User ${newUser.name} created!`,
+        type: "success"
+      };
+      res.send({ message: "User created" });
+    } catch (err) {
+      next(err);
+    }
   }
 }
