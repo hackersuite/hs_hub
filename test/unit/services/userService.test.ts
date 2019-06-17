@@ -261,11 +261,11 @@ describe("User service tests", (): void => {
     });
   });
 
-  describe("Test createUser", (): void => {
+  describe("Test save", (): void => {
     test("Should query the repository to create a user", async (): Promise<void> => {
       when(mockUserRepository.save(instance(mockUser))).thenResolve(instance(mockUser));
 
-      await userServiceWithMocks.create(instance(mockUser));
+      await userServiceWithMocks.save(instance(mockUser));
 
       verify(mockUserRepository.save(instance(mockUser))).once();
     });

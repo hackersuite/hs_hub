@@ -220,10 +220,10 @@ export class UserService {
   };
 
   /**
-   * Creates a new user. Returns the saved user with its new id or throws an error.
+   * Creates or updates a user. Returns the saved user with its id or throws an error.
    * @param user the user to be saved
    */
-  public create = async (user: User): Promise<User> => {
+  public save = async (user: User): Promise<User> => {
     return await this.userRepository.save(user);
   }
 }
