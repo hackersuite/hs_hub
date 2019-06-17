@@ -11,8 +11,8 @@ interface OneSignalData {
 export async function sendPushNotificationByUserID(text: string, ...onlyTheseUsers: User[]): Promise<Object> {
   const userPushIds: string[] = [];
   onlyTheseUsers.forEach((user: User) => {
-    if (user.push_id !== undefined) {
-      user.push_id.forEach(token => {
+    if (user.pushId !== undefined) {
+      user.pushId.forEach(token => {
         userPushIds.push(token);
       });
     }

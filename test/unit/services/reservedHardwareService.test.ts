@@ -24,7 +24,7 @@ testUser.email = "billyII@testing-validation.com";
 testUser.password = "pbkdf2_sha256$30000$xmAiV8Wihzn5$BBVJrxmsVASkYuOI6XdIZoYLfy386hdMOF8S14WRTi8=";
 testUser.authLevel = 1;
 testUser.team = "TeamCodeHere-";
-testUser.push_id = ["a64a87ad-df62-47c7-9592-85d71291abf2"];
+testUser.pushId = ["a64a87ad-df62-47c7-9592-85d71291abf2"];
 
 const itemReservation: ReservedHardwareItem = new ReservedHardwareItem();
 itemReservation.reservationToken = "token";

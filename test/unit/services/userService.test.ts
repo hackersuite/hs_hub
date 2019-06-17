@@ -152,7 +152,7 @@ describe("User service tests", (): void => {
 
       const userPushIds: string[] = await userService.getPushIDFromUserID([testHubUser.id]);
       expect(userPushIds.length).toBe(1);
-      expect(userPushIds[0]).toBe(testHubUser.push_id[0]);
+      expect(userPushIds[0]).toBe(testHubUser.pushId[0]);
     });
     test("Should ensure that push id is added to user", async (): Promise<void> => {
       const testPushID: string = "abc";
@@ -162,20 +162,20 @@ describe("User service tests", (): void => {
       await userService.addPushIDToUser(testHubUser, testPushID);
 
       const modifiedUser: User = await userRepository.findOne({ id: testHubUser.id });
-      expect(modifiedUser.push_id.length).toBe(2);
-      expect(modifiedUser.push_id[1]).toBe(testPushID);
+      expect(modifiedUser.pushId.length).toBe(2);
+      expect(modifiedUser.pushId[1]).toBe(testPushID);
     });
     test("Should ensure that first push id is added to user", async (): Promise<void> => {
       const testPushID: string = "abc";
       const userRepository: Repository<User> = getRepository(User);
-      testHubUser.push_id = undefined;
+      testHubUser.pushId = undefined;
       await userRepository.save(testHubUser);
 
       await userService.addPushIDToUser(testHubUser, testPushID);
 
       const modifiedUser: User = await userRepository.findOne({ id: testHubUser.id });
-      expect(modifiedUser.push_id.length).toBe(1);
-      expect(modifiedUser.push_id[0]).toBe(testPushID);
+      expect(modifiedUser.pushId.length).toBe(1);
+      expect(modifiedUser.pushId[0]).toBe(testPushID);
     });
   });
 

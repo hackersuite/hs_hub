@@ -118,8 +118,8 @@ export class UserService {
     // For every user we want to send the push notifications to, add the push ids to the list
     const pushIds: string[] = [];
     allUsers.forEach((user: User) => {
-      if (user.push_id && user.push_id.length > 0) {
-        user.push_id.forEach((player_id: string) => {
+      if (user.pushId && user.pushId.length > 0) {
+        user.pushId.forEach((player_id: string) => {
           pushIds.push(player_id);
         });
       }
@@ -129,10 +129,10 @@ export class UserService {
 
   public addPushIDToUser = async (user: User, pushID: string): Promise<void> => {
     try {
-      if (!user.push_id)
-        user.push_id = [pushID];
+      if (!user.pushId)
+        user.pushId = [pushID];
       else
-        user.push_id.push(pushID);
+        user.pushId.push(pushID);
 
       await this.userRepository.save(user);
     } catch (err) {

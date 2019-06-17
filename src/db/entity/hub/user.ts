@@ -16,7 +16,7 @@ export class User {
     this.password = password;
     this.authLevel = authLevel;
     this.team = team;
-    this.push_id = pushId;
+    this.pushId = pushId;
   }
 
   @PrimaryGeneratedColumn()
@@ -45,7 +45,7 @@ export class User {
   team: string;
 
   @Column("simple-array", { nullable: true })
-  push_id: string[];
+  pushId: string[];
 
   /**
    * Every user is able to have many different achievements so create a typeorm relationship
