@@ -1,7 +1,8 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from "typeorm";
 import { AchievementProgress } from "./achievementProgress";
 import { ReservedHardwareItem } from "./reservedHardwareItem";
-import { IsDefined, IsString, IsEmail, IsNumber, IsArray, Max } from "class-validator";
+import { IsDefined, IsString, IsEmail } from "class-validator";
+import { AuthLevels } from "../../../util/user";
 
 /**
  * A class to store the user entity in the database
@@ -14,7 +15,7 @@ export class User {
     this.name = name;
     this.email = email;
     this.password = password;
-    this.authLevel = authLevel;
+    this.authLevel = authLevel ? AuthLevels.Applicant;
     this.team = team;
     this.pushId = pushId;
   }

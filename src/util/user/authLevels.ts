@@ -3,13 +3,8 @@
  */
 export enum AuthLevels {
   // NOTE: the auth levels must be ordered in ascending order
-  Attendee,
-  Volunteer,
-  Organizer
-}
-
-export function getAuthLevel(isOrganizer: boolean, isVolunteer: boolean, isDirector: boolean, isAdmin: boolean): number {
-  if (isOrganizer || isDirector || isAdmin) return AuthLevels.Organizer;
-  else if (isVolunteer) return AuthLevels.Volunteer;
-  else return AuthLevels.Attendee;
+  Applicant, // The default authorization level. A user who made an application to the hackathon
+  Attendee, // A user that has been accepted to the hackathon
+  Volunteer, // A user who has access to some management functionalities (e.g.: hardware loans)
+  Organizer // A user who has access to everything
 }
