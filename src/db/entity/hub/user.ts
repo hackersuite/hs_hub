@@ -15,7 +15,7 @@ export class User {
     this.name = name;
     this.email = email;
     this.password = password;
-    this.authLevel = authLevel ? AuthLevels.Applicant;
+    this.authLevel = authLevel || AuthLevels.Applicant;
     this.team = team;
     this.pushId = pushId;
   }
