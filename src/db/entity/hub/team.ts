@@ -12,6 +12,9 @@ export class Team {
   @Column({ nullable: true })
   tableNumber: number;
 
+  @Column({ unique: true, nullable: true })
+  name: string;
+
   @OneToMany(() => User, user => user.team)
   users: User[];
 }

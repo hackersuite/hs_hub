@@ -54,6 +54,22 @@ function createTeam() {
   });
 }
 
+function updateName(newName) {
+  $.post({
+    url: "/team/updateTeamName",
+    data: {
+      name: newName
+    },
+    success: function(response) {
+      location.reload();
+    },
+    error: function(error) {
+      showError(error.responseJSON.message);
+      return;
+    }
+  });
+}
+
 function joinTeam(teamCode) {
   $.post({
     url: "/team/join",

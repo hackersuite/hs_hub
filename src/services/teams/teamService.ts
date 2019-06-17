@@ -109,6 +109,24 @@ export class TeamService {
   };
 
   /**
+   * Updates the team name
+   * @param teamCode
+   * @param newTeamName
+   */
+  public updateTeamName = async (teamCode: string, newTeamName: string): Promise<boolean> => {
+    const foundTeam: Team = await this.getTeam(teamCode);
+    if (!foundTeam) return false;
+
+    try {
+      foundTeam.name = newTeamName;
+      await this.teamRepository.save(foundTeam);
+    } catch (err) {
+      return false;
+    }
+    return true;
+  };
+
+  /**
    * Checks that the team exists given a team code
    * @param teamCode The team code to check that the team exists
    * @returns true if the team exists, false otherwise
@@ -129,8 +147,12 @@ export class TeamService {
    */
   public getTeam = async (teamCode: string): Promise<Team> => {
     try {
-      return await this.teamRepository
-        .findOne(teamCode);
+      let team: Team = await this.teamRepository.findOne(teamCode);
+      // The given code wasn't found as an id, check if its the team name
+      if (team === undefined)
+        team = await this.teamRepository.findOne({ name: teamCode });
+
+      return team;
     } catch (err) {
       throw new Error(`Lost connection to database (hub)! ${err}`);
     }

@@ -116,4 +116,13 @@ export class TeamController {
     else
       return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Failed to update the team table number."));
   };
+
+  public updateName = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    if (!req.user.team) return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Team not found"));
+
+    if (await this.teamService.updateTeamName(req.user.team, req.body.name))
+      res.send("Updated the teams name!");
+    else
+      return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Team name may already be taken"));
+  };
 }

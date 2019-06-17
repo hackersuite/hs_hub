@@ -53,5 +53,10 @@ export const teamRouter = (): Router => {
    */
   router.post("/updateTableNumber", checkIsLoggedIn, teamController.updateTable);
 
+  /**
+   * POST /team/updateTeamName
+   */
+  router.post("/updateTeamName", checkIsLoggedIn, teamController.updateName);
+
   return router;
 };
