@@ -269,21 +269,6 @@ describe("User service tests", (): void => {
 
       verify(mockUserRepository.save(instance(mockUser))).once();
     });
-
-    test("Should throw error when the repository throws", async (): Promise<void> => {
-      const mockError: Error = new Error("test error");
-      when(mockUserRepository.save(anything())).thenThrow(mockError);
-
-      try {
-        expect(
-          await userServiceWithMocks.create(instance(mockUser))
-        ).toThrow();
-      } catch (err) {
-        expect(err).toBeDefined();
-      }
-
-      verify(mockUserRepository.save(instance(mockUser))).once();
-    });
   });
 });
 

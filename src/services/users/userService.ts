@@ -224,10 +224,6 @@ export class UserService {
    * @param user the user to be saved
    */
   public create = async (user: User): Promise<User> => {
-    try {
-      return await this.userRepository.save(user);
-    } catch (err) {
-      throw new Error(`Lost connection to database (hub)! ${err}`);
-    }
+    return await this.userRepository.save(user);
   }
 }
