@@ -8,10 +8,7 @@ import { IsDefined, IsString, IsEmail, IsNumber, IsArray, Max } from "class-vali
  */
 @Entity()
 export class User {
-  /**
-   *
-   */
-  constructor(name: string, email: string, password: string, id?: number,
+  constructor(name?: string, email?: string, password?: string, id?: number,
               authLevel?: number, team?: string, pushId?: string[]) {
     this.id = id;
     this.name = name;

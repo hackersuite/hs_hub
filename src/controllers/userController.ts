@@ -119,7 +119,7 @@ export class UserController {
         return;
       }
 
-      await this.userService.createUser(newUser);
+      await this.userService.create(newUser);
 
       req.session.notification = {
         message: `User ${newUser.name} created!`,

@@ -3,22 +3,27 @@ import { UserService } from "../../../src/services/users";
 import { createTestDatabaseConnection, closeTestDatabaseConnection, reloadTestDatabaseConnection, initEnv } from "../../util/testUtils";
 import { getRepository, Repository } from "typeorm";
 import { HttpResponseCode } from "../../../src/util/errorHandling";
+import { mock, reset, instance, when, verify, anything } from "ts-mockito";
 
-const testHubUser: User = new User();
-testHubUser.name = "Billy Tester II";
-testHubUser.email = "billyII@testing-validation.com";
-testHubUser.password = "pbkdf2_sha256$30000$xmAiV8Wihzn5$BBVJrxmsVASkYuOI6XdIZoYLfy386hdMOF8S14WRTi8=";
-testHubUser.authLevel = 1;
-testHubUser.team = "TeamCodeHere-";
-testHubUser.push_id = ["a64a87ad-df62-47c7-9592-85d71291abf2"];
+const testHubUser: User = new User(
+  "Billy Tester II",
+  "billyII@testing-validation.com",
+  "pbkdf2_sha256$30000$xmAiV8Wihzn5$BBVJrxmsVASkYuOI6XdIZoYLfy386hdMOF8S14WRTi8=",
+  undefined, 1, "TeamCodeHere-",
+  ["a64a87ad-df62-47c7-9592-85d71291abf2"]);
 
 let userService: UserService;
+
+let userServiceWithMocks: UserService;
+let mockUser: User;
+let mockUserRepository: Repository<User>;
+class StubUserRepository extends Repository<User> { }
 
 beforeAll(async (done: jest.DoneCallback): Promise<void> => {
   // Setup env variables for password generation
   initEnv();
 
-  await createTestDatabaseConnection([ User, AchievementProgress, ReservedHardwareItem, HardwareItem ]);
+  await createTestDatabaseConnection([User, AchievementProgress, ReservedHardwareItem, HardwareItem]);
   userService = new UserService(getRepository(User));
 
   done();
@@ -27,7 +32,16 @@ beforeAll(async (done: jest.DoneCallback): Promise<void> => {
 beforeEach(async (done: jest.DoneCallback): Promise<void> => {
   await reloadTestDatabaseConnection();
 
+  mockUser = mock(User);
+  mockUserRepository = mock(StubUserRepository);
+  userServiceWithMocks = new UserService(instance(mockUserRepository));
+
   done();
+});
+
+afterEach((): void => {
+  reset(mockUser);
+  reset(mockUserRepository);
 });
 
 /**
@@ -58,7 +72,7 @@ describe("User service tests", (): void => {
 
       // Add test users to the database
       for (let i = 1; i <= TOTAL_USERS; i++) {
-        await userRepository.insert({...testHubUser, id: i, email: `test${i}@test.com`});
+        await userRepository.insert({ ...testHubUser, id: i, email: `test${i}@test.com` });
       }
 
       const allUsers: User[] = await userService.getAllUsers();
@@ -74,7 +88,7 @@ describe("User service tests", (): void => {
       // Insert the test user into the database, along with a random user
       const userRepository: Repository<User> = getRepository(User);
       await userRepository.save(testHubUser);
-      await userRepository.save({...testHubUser, id: testHubUser.id + 1, email: "another@random.com"});
+      await userRepository.save({ ...testHubUser, id: testHubUser.id + 1, email: "another@random.com" });
 
       // Get the user from the hub using the user service and check it found the correct user
       const hubUser: User = await userService.getUserByEmailFromHub(testHubUser.email);
@@ -87,7 +101,7 @@ describe("User service tests", (): void => {
       // Insert the test user into the database, along with a random user
       const userRepository: Repository<User> = getRepository(User);
       await userRepository.save(testHubUser);
-      await userRepository.save({...testHubUser, id: testHubUser.id + 1, email: "another@random.com"});
+      await userRepository.save({ ...testHubUser, id: testHubUser.id + 1, email: "another@random.com" });
 
       // Get the user from the hub using the user service and check it found the correct user
       const hubUser: User = await userService.getUserByIDFromHub(testHubUser.id);
@@ -110,7 +124,7 @@ describe("User service tests", (): void => {
     test("Should ensure that a user can be verified", async (): Promise<void> => {
       const userRepository: Repository<User> = getRepository(User);
       await userRepository.save(testHubUser);
-      await userRepository.save({...testHubUser, id: testHubUser.id + 1, email: "another@random.com"});
+      await userRepository.save({ ...testHubUser, id: testHubUser.id + 1, email: "another@random.com" });
 
       const hubUser: User = await userService.validateUser(testHubUser.email, "password123");
       expect(hubUser).toBeTruthy();
@@ -223,7 +237,7 @@ describe("User service tests", (): void => {
     test("Should ensure that all users from a specific team can be found", async (): Promise<void> => {
       const userRepository: Repository<User> = getRepository(User);
       await userRepository.save(testHubUser);
-      await userRepository.save({...testHubUser, id: testHubUser.id + 1, email: "test@test.com"});
+      await userRepository.save({ ...testHubUser, id: testHubUser.id + 1, email: "test@test.com" });
 
       const teamMembers: User[] = await userService.getUsersTeamMembers(testHubUser.team);
       expect(teamMembers).toBeDefined();
@@ -238,12 +252,37 @@ describe("User service tests", (): void => {
     test("Should get all members for all teams", async (): Promise<void> => {
       const userRepository: Repository<User> = getRepository(User);
       await userRepository.save(testHubUser);
-      await userRepository.save({...testHubUser, id: testHubUser.id + 1, email: "test@test.com", team: "newteamcode"});
-      await userRepository.save({...testHubUser, id: testHubUser.id + 2, email: "test1@test.com", team: undefined});
+      await userRepository.save({ ...testHubUser, id: testHubUser.id + 1, email: "test@test.com", team: "newteamcode" });
+      await userRepository.save({ ...testHubUser, id: testHubUser.id + 2, email: "test1@test.com", team: undefined });
 
       const allUsersInTeams: User[] = await userService.getAllUsersInTeams();
       expect(allUsersInTeams).toBeDefined();
       expect(allUsersInTeams.length).toBe(2);
+    });
+  });
+
+  describe("Test createUser", (): void => {
+    test("Should query the repository to create a user", async (): Promise<void> => {
+      when(mockUserRepository.save(instance(mockUser))).thenResolve(instance(mockUser));
+
+      await userServiceWithMocks.create(instance(mockUser));
+
+      verify(mockUserRepository.save(instance(mockUser))).once();
+    });
+
+    test("Should throw error when the repository throws", async (): Promise<void> => {
+      const mockError: Error = new Error("test error");
+      when(mockUserRepository.save(anything())).thenThrow(mockError);
+
+      try {
+        expect(
+          await userServiceWithMocks.create(instance(mockUser))
+        ).toThrow();
+      } catch (err) {
+        expect(err).toBeDefined();
+      }
+
+      verify(mockUserRepository.save(instance(mockUser))).once();
     });
   });
 });
