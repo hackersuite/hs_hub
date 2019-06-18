@@ -210,8 +210,19 @@ describe("Team service tests", (): void => {
       await teamRepository.save(testTeam);
 
       // Run the test
-      const result: boolean = await teamService.updateTeamName(testHubUser.team.teamCode, "test");
-      expect(result).toBeFalsy();
+      const resultWhenTeamValid: boolean = await teamService.updateTeamName(testHubUser.team.teamCode, "test");
+      expect(resultWhenTeamValid).toBeFalsy();
+
+      const resultWhenNoTeam: boolean = await teamService.updateTeamName("abcdef", "test");
+      expect(resultWhenNoTeam).toBeFalsy();
+    });
+    test("Should ensure that a team name not updated when team not found", async (): Promise<void> => {
+      // Test setup
+      const teamRepository: Repository<Team> = getRepository(Team);
+      const testTeam: Team = {...testHubTeam, teamCode: "id1", name: "test"};
+
+      // Run the test
+
     });
   });
 

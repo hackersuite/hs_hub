@@ -115,7 +115,7 @@ export class TeamService {
    */
   public updateTeamName = async (teamCode: string, newTeamName: string): Promise<boolean> => {
     const foundTeam: Team = await this.getTeam(teamCode);
-    if (!foundTeam) return false;
+    if (foundTeam === undefined) return false;
 
     try {
       foundTeam.name = newTeamName;
