@@ -190,6 +190,32 @@ describe("Team service tests", (): void => {
   });
 
   /**
+   * Test if a teams name can be updated
+   */
+  describe("Test updateTeamName", (): void => {
+    test("Should ensure that a teams name can be updated", async (): Promise<void> => {
+      const teamRepository: Repository<Team> = getRepository(Team);
+      const newName: string = "test1";
+
+      const result: boolean = await teamService.updateTeamName(testHubTeam.teamCode, newName);
+      expect(result).toBeTruthy();
+
+      const updatedTeam: Team = await teamRepository.findOne({ name: newName });
+      expect(updatedTeam.name).toEqual(newName);
+    });
+    test("Should ensure that a team name not updated when invalid", async (): Promise<void> => {
+      // Test setup
+      const teamRepository: Repository<Team> = getRepository(Team);
+      const testTeam: Team = {...testHubTeam, teamCode: "id1", name: "test"};
+      await teamRepository.save(testTeam);
+
+      // Run the test
+      const result: boolean = await teamService.updateTeamName(testHubUser.team.teamCode, "test");
+      expect(result).toBeFalsy();
+    });
+  });
+
+  /**
    * Test that a users team members function works
    */
   describe("Test getUsersTeamMembers", (): void => {
