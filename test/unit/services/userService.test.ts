@@ -234,7 +234,7 @@ describe("User service tests", (): void => {
       try {
         await userService.setUserTeam(100, undefined);
       } catch (err) {
-        expect(err.statusCode).toBe(HttpResponseCode.BAD_REQUEST);
+        expect(err.message).toBe("Failed to update team.");
       }
     });
   });
