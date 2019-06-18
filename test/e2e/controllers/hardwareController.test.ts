@@ -44,6 +44,7 @@ itemReservation.reservationExpiry = new Date(new Date().getTime() + (10000 * 60)
  * Preparing for the tests
  */
 beforeAll(async (done: jest.DoneCallback): Promise<void> => {
+  initEnv();
   buildApp(async (builtApp: Express, err: Error): Promise<void> => {
     if (err) {
       throw new Error("Failed to setup test");
