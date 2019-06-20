@@ -1,7 +1,6 @@
 import { Repository } from "typeorm";
 import { Team, User } from "../../db/entity/hub";
 import { UserService } from "../users";
-import { ApiError, HttpResponseCode } from "../../util/errorHandling";
 
 export class TeamService {
   private teamRepository: Repository<Team>;
