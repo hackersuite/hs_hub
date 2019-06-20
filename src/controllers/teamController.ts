@@ -2,7 +2,7 @@ import * as crypto from "crypto";
 
 import { Request, Response } from "express";
 import { ApiError, HttpResponseCode } from "../util/errorHandling";
-import { User } from "../db/entity/hub";
+import { User, Team } from "../db/entity/hub";
 import { NextFunction } from "connect";
 import { TeamService } from "../services/teams";
 import { UserService } from "../services/users";
@@ -19,25 +19,12 @@ export class TeamController {
   }
 
   /**
-   * Adds the user to a team using the team code
-   */
-  public add = async (req: Request, res: Response, next: Function): Promise<void> => {
-    const teamCode: string = req.body.teamcode;
-
-    if (teamCode && await this.teamService.joinTeam(req.user.id, teamCode))
-      res.send({"teamcode": req.body.teamcode});
-    else
-      return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Invalid team code"));
-  };
-
-  /**
    * Creates a new team, returning a custom team code
    */
   public create = async (req: Request, res: Response, next: Function): Promise<void> => {
-    // Create a cryptographically strong random hex string of length 13
-    const newTeamCode: string = crypto.randomBytes(Math.ceil(13 / 2)).toString("hex").slice(0, 13);
-    if (await this.teamService.createTeam(newTeamCode)) {
-      if (await this.teamService.joinTeam(req.user.id, newTeamCode)) {
+    const createdTeam: Team = await this.teamService.createTeam();
+    if (createdTeam) {
+      if (await this.teamService.joinTeam(req.user.id, createdTeam.teamCode)) {
         res.send("Created new team");
         return;
       }
@@ -57,10 +44,10 @@ export class TeamController {
   };
 
   /**
-   * Leaves the users current team
+   * Joins the team specified by the teamcode
    */
   public join = async (req: Request, res: Response, next: Function): Promise<void> => {
-    if (await this.teamService.joinTeam(req.user.id, req.body.team)) {
+    if (req.body.hasOwnProperty("team") && await this.teamService.joinTeam(req.user.id, req.body.team)) {
       res.send("Joined team successfully.");
       return;
     }
@@ -76,10 +63,10 @@ export class TeamController {
     const teams: Map<string, Object[]> = new Map<string, Object[]>();
 
     allUserTeams.forEach((user: User) => {
-      if (!teams.has(user.team))
-        teams.set(user.team, []);
+      if (!teams.has(user.team.teamCode))
+        teams.set(user.team.teamCode, []);
 
-      teams.get(user.team).push({
+      teams.get(user.team.teamCode).push({
         "name": user.name,
         "email": user.email
       });
@@ -122,11 +109,20 @@ export class TeamController {
   };
 
   public updateTable = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    if (!req.user.team) return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Team not found"));
+    if (!req.user.team || !req.body.tableNumber) return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Failed to update the team table number."));
 
     if (await this.teamService.updateTeamTableNumber(req.user.team, req.body.tableNumber))
       res.send("Updated the teams table number!");
     else
       return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Failed to update the team table number."));
+  };
+
+  public updateName = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    if (!req.user.team) return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Team not found"));
+
+    if (await this.teamService.updateTeamName(req.user.team, req.body.name))
+      res.send("Updated the teams name!");
+    else
+      return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Team name may already be taken"));
   };
 }

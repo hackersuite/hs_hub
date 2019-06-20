@@ -170,7 +170,8 @@ export class HardwareController {
     // otherwise, return that the item can't be reserved
     try {
       // First check that the team table number is set
-      if (!(await this.teamService.checkTeamTableIsSet(req.user.team)))
+      // Check if the team is undefined, use == instead of === since typeorm returns null for relations that are not defined
+      if (req.user.team == undefined || !(await this.teamService.checkTeamTableIsSet(req.user.team.teamCode)))
         return next(new ApiError(HttpResponseCode.BAD_REQUEST, "You need to create a team and set your table number in the profile page first."));
 
       const { item, quantity } = req.body;
@@ -180,7 +181,7 @@ export class HardwareController {
       const token: string = await this.hardwareService.reserveItem(req.user, item, quantity);
       if (token) {
         res.send({
-          "message": "Item(s) reserved!",
+          "message": `Item${quantity > 1 ? "(s)" : ""} reserved!`,
           "token": token,
           "quantity": quantity || 1
         });

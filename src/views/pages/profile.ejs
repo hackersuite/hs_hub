@@ -24,6 +24,21 @@
                   <h2><%= user.name %></h2>
                   <h3 id="emailText"><%= user.email %></h3>
                 </div>
+
+                <% if (user.team) { %>
+                <div class="card-body">
+                  <div class="form-group">
+                    <label for="teamName">Team Name </label>
+                    <% if (restrict) { %>
+                    <input type="text" class="form-control" id="teamName" placeholder="Hackathon Team" value="<%= teamEntity.name %>" disabled>
+                    <% } else { %>
+                    <input type="text" class="form-control" id="teamName" placeholder="Hackathon Team" value="<%= teamEntity.name %>">
+                    <button class="btn btn-success" onclick="updateName($('#teamName').val())">Save</button>
+                    <% } %>
+                  </div>
+                </div>
+                <% } %>
+
                 <% if (user.team) { %>
                 <div class="card-body">
                   <div class="form-group">
@@ -37,6 +52,7 @@
                   </div>
                 </div>
                 <% } %>
+
                 <div class="card-body">
                   <div class="form-group">
                     <% if (restrict && user.team) { %>
@@ -64,7 +80,11 @@
                   <h4 class="card-title">Team Information</h4>
                 </div>
                 <div class="card-body">
-                  <h2 class="text-center">Team code: <%= user.team %></h2>
+                  <% if (user.team.name) { %>
+                    <h2 class="text-center text">Team name: <%= user.team.name %></h2>
+                  <% } else { %>
+                    <h2 class="text-center text">Team code: <%= user.team.teamCode %></h2> 
+                  <% } %>
                   <div class="form-group">
                     <div id="teamMemberList">
                       <h3>Team members</h3>
@@ -96,7 +116,7 @@
                 </div>
                 <div class="card-body">
                   <div class="form-group">
-                    <label for="teamCodeInput">Team code</label>
+                    <label for="teamCodeInput">Team name or code</label>
                     <input type="text" class="form-control" id="teamCodeInput" placeholder="aWeRsOmEtEaM">
                     <button class="btn btn-success" onclick="joinTeam($('#teamCodeInput').val())">Join team</button>
                   </div>

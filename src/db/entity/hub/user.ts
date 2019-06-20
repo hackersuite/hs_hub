@@ -1,6 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, OneToOne, JoinColumn, ManyToOne } from "typeorm";
 import { AchievementProgress } from "./achievementProgress";
 import { ReservedHardwareItem } from "./reservedHardwareItem";
+import { Team } from "./";
 
 /**
  * A class to store the user entity in the database
@@ -22,8 +23,11 @@ export class User {
   @Column()
   authLevel: number;
 
-  @Column("varchar", { length: 13, nullable: true })
-  team: string;
+  /**
+   * Each user can only be in one team at a time, they are allowed to be in no team
+   */
+  @ManyToOne(() => Team, team => team.users, { nullable: true })
+  team: Team;
 
   @Column("simple-array", { nullable: true })
   push_id: string[];

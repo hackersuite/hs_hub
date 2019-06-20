@@ -19,11 +19,6 @@ export const teamRouter = (): Router => {
   const teamController = new TeamController(teamService, userService);
 
   /**
-   * POST /team/add
-   */
-  router.post("/add", checkIsLoggedIn, teamController.add);
-
-  /**
    * POST /team/create
    */
   router.post("/create", checkIsLoggedIn, teamController.create);
@@ -57,6 +52,11 @@ export const teamRouter = (): Router => {
    * POST /team/updateTableNumber
    */
   router.post("/updateTableNumber", checkIsLoggedIn, teamController.updateTable);
+
+  /**
+   * POST /team/updateTeamName
+   */
+  router.post("/updateTeamName", checkIsLoggedIn, teamController.updateName);
 
   return router;
 };
