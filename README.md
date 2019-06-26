@@ -1,6 +1,6 @@
 # Hackathon Attendee Hub
 
-[![Build Status](https://travis-ci.org/hacksoc-manchester/Hackathon_Attendee_Hub.svg?branch=master)](https://travis-ci.org/hacksoc-manchester/Hackathon_Attendee_Hub/)
+[![Build Status](https://travis-ci.org/unicsmcr/Hackathon_Attendee_Hub.svg?branch=master)](https://travis-ci.org/hacksoc-manchester/Hackathon_Attendee_Hub/)
 ![GitHub](https://img.shields.io/github/license/hacksoc-manchester/GUH18-Hub.svg)
 
 ## Dependencies
