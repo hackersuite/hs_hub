@@ -10,3 +10,5 @@ node_modules
 
 #Tests coverage reports
 coverage
+
+.DS_Store
