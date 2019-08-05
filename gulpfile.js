@@ -32,18 +32,17 @@ const paths = {
   }
 };
 
-function css(cb) {
-  gulp.src(paths.css.src)
+function css() {
+  return gulp.src(paths.css.src)
     .pipe(cleanCSS())
     .pipe(rename({
       suffix: '.min'
     }))
     .pipe(gulp.dest(paths.css.dest));
-  cb();
 }
 
-function scripts(cb) {
-  gulp.src(paths.scripts.src, {
+function scripts() {
+  return gulp.src(paths.scripts.src, {
       sourcemaps: true
     })
     .pipe(terser())
@@ -51,35 +50,34 @@ function scripts(cb) {
       suffix: '.min'
     }))
     .pipe(gulp.dest(paths.scripts.dest))
-  cb();
 }
 
-function scriptsCopyMin(cb) {
-  gulp.src(paths.scripts_min.src)
+function scriptsCopyMin() {
+  return gulp.src(paths.scripts_min.src)
     .pipe(gulp.dest(paths.scripts_min.dest));
-  cb();
 }
 
-function views(cb) {
-  gulp.src(paths.views.src)
-    // Positive lookahead to match subpattern, without consuming characters
-    // Replaces the match with the match, then .min, then the remaining .js
-    .pipe(replace(/^[a-zA-z]+(?=.js)/gm, '$&.min'))
-    .pipe(replace(/^[a-zA-z]+(?=.css)/gm, '$&.min'))
+function views() {
+  return gulp.src(paths.views.src)
+    /* The regex looks complicated but here are the steps:
+     * 1. Positive lookbehind -- check that the HTML contains src="|', href="|'
+     * (this remove changing references to remote resources)
+     * 2. Check for any charater any number of times, this is the uri
+     * 3. Positive lookahead for the file extension being .js or .css with no other characters after
+     * Replaces the match with .min.js or .min.css
+     */
+    .pipe(replace(/(?<=(src|href)=['"])[\/a-zA-z-_]+(?=\.(js|css)[^a-z])/gm, '$&.min'))
     .pipe(gulp.dest(paths.views.dest));
-  cb();
 }
 
-function images(cb) {
-  gulp.src(paths.images.src)
+function images() {
+  return gulp.src(paths.images.src)
     .pipe(gulp.dest(paths.images.dest));
-  cb();
 }
 
-function copyRemaining(cb) {
-  gulp.src(paths.publicRoot.src)
+function copyRemaining() {
+  return gulp.src(paths.publicRoot.src)
     .pipe(gulp.dest(paths.publicRoot.dest));
-  cb();
 }
 
 exports.default = parallel(
