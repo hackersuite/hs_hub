@@ -5,7 +5,7 @@
 
 ## Dependencies
 
- - Node.js (v8.0.0 or later)
+ - Node (v8.10.0 or later)
  - MySQL database (v5.7 or later)
 
 ## Getting started
