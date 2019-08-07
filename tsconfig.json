@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "module": "commonjs",
-        "target": "es2017",
+        "target": "es2016",
         "noImplicitAny": false,
         "outDir": "dist",
         "inlineSourceMap": true,
@@ -17,4 +17,4 @@
     "include": [
         "src/**/*.ts"
     ]
-  }
+}
