@@ -7,13 +7,15 @@ import * as passport from "passport";
 import * as expressSession from "express-session";
 import * as cookieParser from "cookie-parser";
 import { passportLocalStrategy } from "./util/user/passportLocalStrategy";
+import { RequestAuthentication } from "./util/hs_auth";
 import { Express, Request, Response, NextFunction } from "express";
 import { Connection, createConnections, ConnectionOptions, getConnection } from "typeorm";
 import { errorHandler, error404Handler } from "./util/errorHandling";
 import { mainRouter } from "./routes";
 import { QueryLogger } from "./util/logging/QueryLogger";
 import { UserService } from "./services/users";
-import { User } from "./db/entity/hub";
+import { TYPES } from "./types";
+import container from "./inversify.config";
 
 // Load environment variables from .env file
 dotenv.config({ path: ".env" });
@@ -36,9 +38,8 @@ export function buildApp(callback: (app: Express, err?: Error) => void, connecti
       console.log("  Connection to database (" + element.name + ") established.");
     });
 
-    // Set up passport
-    const userService: UserService = new UserService(getConnection("hub").getRepository(User));
-    passportSetup(app, userService);
+    const requestAuth: RequestAuthentication = container.get(TYPES.RequestAuthentication);
+    requestAuth.passportSetup(app);
 
     // Routes set up
     app.use("/", mainRouter());

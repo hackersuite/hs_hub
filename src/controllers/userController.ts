@@ -57,7 +57,7 @@ export class UserController {
    * Gets the profile page for the currently logged in user
    */
   public profile = async (req: Request, res: Response, next: NextFunction) => {
-    let profile: User = req.user;
+    let profile: User = req.user as User;
     // Use this variable to hide some details in the page
     // When true, the buttons to modify the users profile are hidden
     let isRestrictedView: boolean = false;

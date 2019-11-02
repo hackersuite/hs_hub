@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { ApiError } from "../util/errorHandling/apiError";
 import { HttpResponseCode } from "../util/errorHandling/httpResponseCode";
 import { HardwareItem, ReservedHardwareItem } from "../db/entity/hub";
+import { User } from "../db/entity/hub";
 import { AuthLevels } from "../util/user";
 import { validate, ValidationError } from "class-validator";
 import { ReservedHardwareService, HardwareService } from "../services/hardware";
@@ -24,7 +25,8 @@ export class HardwareController {
    * Returns the user-facing hardware libary page
    */
   public library = async (req: Request, res: Response, next: NextFunction) => {
-    const userID: number = req.user.id;
+    const requestUser: User = req.user as User;
+    const userID: number = requestUser.id;
     // First get all the hardware reservations as the expired reservation are removed in the call
     const allReservations: ReservedHardwareItem[] = await this.reservedHardwareService.getAll();
     // Only then get the hardware items as the reservation count will be correctly updated
@@ -56,9 +58,10 @@ export class HardwareController {
    * Returns the hardware management page for volunteers
    */
   public loanControls = async (req: Request, res: Response, next: NextFunction) => {
+    const requestUser: User = req.user as User;
     try {
       const reservations = await this.reservedHardwareService.getAll();
-      res.render("pages/hardware/loanControls", { reservations: reservations || [], userIsOrganiser: (req.user.authLevel === AuthLevels.Organizer) });
+      res.render("pages/hardware/loanControls", { reservations: reservations || [], userIsOrganiser: (requestUser.authLevel === AuthLevels.Organizer) });
     } catch (err) {
       return next(err);
     }
@@ -113,10 +116,11 @@ export class HardwareController {
 
   public updateItem = async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const requestUser: User = req.user as User;
       const { totalStock, name, itemURL  } = req.body;
       const id = req.params.id;
 
-      const itemToUpdate: HardwareItem = await this.hardwareService.getHardwareItemByID(id);
+      const itemToUpdate: HardwareItem = await this.hardwareService.getHardwareItemByID(requestUser.id);
 
       if (itemToUpdate === undefined) {
         req.session.notification = {
@@ -169,16 +173,17 @@ export class HardwareController {
     // then the item can be reserved (reserve the item and return success (+ create qr))
     // otherwise, return that the item can't be reserved
     try {
+      const requestUser: User = req.user as User;
       // First check that the team table number is set
       // Check if the team is undefined, use == instead of === since typeorm returns null for relations that are not defined
-      if (req.user.team == undefined || !(await this.teamService.checkTeamTableIsSet(req.user.team.teamCode)))
+      if (requestUser.team == undefined || !(await this.teamService.checkTeamTableIsSet(requestUser.team.teamCode)))
         return next(new ApiError(HttpResponseCode.BAD_REQUEST, "You need to create a team and set your table number in the profile page first."));
 
       const { item, quantity } = req.body;
       if (isNaN(quantity) || Number(quantity) < 1) {
         return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Invalid quantity provided!"));
       }
-      const token: string = await this.hardwareService.reserveItem(req.user, item, quantity);
+      const token: string = await this.hardwareService.reserveItem(requestUser, item, quantity);
       if (token) {
         res.send({
           "message": `Item${quantity > 1 ? "(s)" : ""} reserved!`,
@@ -301,11 +306,12 @@ export class HardwareController {
    * Cancels a reservation
    */
   public cancelReservation = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const requestUser: User = req.user as User;
     try {
       if (!req.body.token) {
         throw new ApiError(HttpResponseCode.BAD_REQUEST, "No reservation token provided!");
       }
-      await this.reservedHardwareService.cancelReservation(req.body.token, req.user.id);
+      await this.reservedHardwareService.cancelReservation(req.body.token, requestUser.id);
       res.send({ message: "Success" });
     } catch (err) {
       return next(err);
@@ -330,7 +336,7 @@ export class HardwareController {
         throw new ApiError(HttpResponseCode.BAD_REQUEST, "Please provide the ID of the item to delete!");
       }
 
-      await this.hardwareService.deleteHardwareItem(req.params.id);
+      await this.hardwareService.deleteHardwareItem(Number(req.params.id));
 
       res.send({ message: `Item ${req.params.id} deleted` });
     } catch (err) {

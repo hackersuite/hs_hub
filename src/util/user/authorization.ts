@@ -1,59 +1,62 @@
 import { Request, Response, NextFunction } from "express";
+import * as passport from "passport";
+import * as querystring from "querystring";
+
 import { AuthLevels } from "./authLevels";
-import { User } from "../../db/entity/hub";
+import { RequestUser } from "../hs_auth";
 
-/**
- * Checks if the request's sender is logged in
- * @param req The request
- * @param res The response
- * @param next The next handler
- */
 export const checkIsLoggedIn = (req: Request, res: Response, next: NextFunction): void => {
-  if (!req.user) {
-    req.session.redirectTo = req.originalUrl;
-    return res.redirect("/login");
-  }
-  if ((req.user as User).authLevel >= AuthLevels.Volunteer) {
-    res.locals.isVolunteer = true;
-  }
-  if ((req.user as User).authLevel >= AuthLevels.Organizer) {
-    res.locals.isOrganizer = true;
-  }
-  return next();
+  passport.authenticate(
+    "cookie",
+    {
+      session: false
+    },
+    (err, user, info) => {
+      if (err) {
+        return next(err);
+      }
+
+      // There is not authenticated user, so redirect to logins
+      if (!user) {
+        const queryParam: string = querystring.stringify({
+          returnto: `${process.env.HUB_URL}${req.originalUrl}`
+        });
+        res.redirect(`${process.env.AUTH_URL}/login?${queryParam}`);
+        return;
+      }
+      res.locals.authLevel = user.authLevel;
+      return next();
+    }
+  )(req, res, next);
 };
 
-/**
- * Checks if the request's sender is logged in
- * and has the authorization level of at least a volunteer
- * @param req The request
- * @param res The response
- * @param next The next handler
- */
-export const checkIsVolunteer = (req: Request, res: Response, next: NextFunction): void => {
-  if (!req.user || (req.user as User).authLevel < AuthLevels.Volunteer) {
-    req.session.redirectTo = req.originalUrl;
-    return res.redirect("/login");
+const checkAuthLevel = (req: Request, res: Response, user: RequestUser, requiredAuth: AuthLevels): boolean => {
+  if (!user || user.authLevel < requiredAuth) {
+    const queryParam: string = querystring.stringify({ returnto: `${process.env.HUB_URL}${req.originalUrl}` });
+    res.redirect(`${process.env.AUTH_URL}/login?${queryParam}`);
+    return;
   }
-  res.locals.isVolunteer = true;
-  if ((req.user as User).authLevel >= AuthLevels.Organizer) {
-    res.locals.isOrganizer = true;
-  }
-  return next();
+  return true;
 };
 
-/**
- * Checks if the request's sender is logged in
- * and has the authorization level of at least an organizer
- * @param req The request
- * @param res The response
- * @param next The next handler
- */
+export const checkIsAttendee = (req: Request, res: Response, next: NextFunction): void => {
+  if (checkAuthLevel(req, res, req.user as RequestUser, AuthLevels.Attendee)) {
+    res.locals.isAttendee = true;
+    return next();
+  }
+};
+
 export const checkIsOrganizer = (req: Request, res: Response, next: NextFunction): void => {
-  if (!req.user || (req.user as User).authLevel < AuthLevels.Organizer) {
-    req.session.redirectTo = req.originalUrl;
-    return res.redirect("/login");
+  if (checkAuthLevel(req, res, req.user as RequestUser, AuthLevels.Organizer)) {
+    res.locals.isOrganizer = true;
+    res.locals.isVolunteer = true;
+    return next();
   }
-  res.locals.isVolunteer = true;
-  res.locals.isOrganizer = true;
-  return next();
+};
+
+export const checkIsVolunteer = (req: Request, res: Response, next: NextFunction): void => {
+  if (checkAuthLevel(req, res, req.user as RequestUser, AuthLevels.Volunteer)) {
+    res.locals.isVolunteer = true;
+    return next();
+  }
 };

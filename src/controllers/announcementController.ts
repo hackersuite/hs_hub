@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { NextFunction } from "connect";
 import { ApiError, HttpResponseCode } from "../util/errorHandling";
-import { Announcement } from "../db/entity/hub";
+import { Announcement, User } from "../db/entity/hub";
 import { sendOneSignalNotification } from "../util/announcement";
 import { AnnouncementService } from "../services/announcement/announcementService";
 import { UserService } from "../services/users";
@@ -70,7 +70,7 @@ export class AnnouncementController {
   public pushNotificationRegister = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const playerID: string = req.body.data;
-      await this.userService.addPushIDToUser(req.user, playerID);
+      await this.userService.addPushIDToUser(req.user as User, playerID);
       res.status(200).send(`Updated with player ID: ${playerID}`);
     } catch (error) {
       return next(error);

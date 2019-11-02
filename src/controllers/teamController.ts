@@ -22,9 +22,10 @@ export class TeamController {
    * Creates a new team, returning a custom team code
    */
   public create = async (req: Request, res: Response, next: Function): Promise<void> => {
+    const requestUser: User = req.user as User;
     const createdTeam: Team = await this.teamService.createTeam();
     if (createdTeam) {
-      if (await this.teamService.joinTeam(req.user.id, createdTeam.teamCode)) {
+      if (await this.teamService.joinTeam(requestUser.id, createdTeam.teamCode)) {
         res.send("Created new team");
         return;
       }
@@ -36,7 +37,8 @@ export class TeamController {
    * Leaves the users current team
    */
   public leave = async (req: Request, res: Response, next: Function): Promise<void> => {
-    if (await this.teamService.leaveTeam(req.user.id, req.user.team)) {
+    const requestUser: User = req.user as User;
+    if (await this.teamService.leaveTeam(requestUser.id, requestUser.team)) {
       res.send("Left the team successfully.");
       return;
     }
@@ -47,7 +49,8 @@ export class TeamController {
    * Joins the team specified by the teamcode
    */
   public join = async (req: Request, res: Response, next: Function): Promise<void> => {
-    if (req.body.hasOwnProperty("team") && await this.teamService.joinTeam(req.user.id, req.body.team)) {
+    const requestUser: User = req.user as User;
+    if (req.body.hasOwnProperty("team") && await this.teamService.joinTeam(requestUser.id, req.body.team)) {
       res.send("Joined team successfully.");
       return;
     }
@@ -84,9 +87,10 @@ export class TeamController {
    * Creates JSON format of the currently logged in users team
    */
   public getTeam = async (req: Request, res: Response, next: Function): Promise<void> => {
-    if (!req.user.team)  return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Team not found"));
+    const requestUser: User = req.user as User;
+    if (!requestUser.team)  return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Team not found"));
 
-    const userTeam: User[] = await this.userService.getUsersTeamMembers(req.user.team);
+    const userTeam: User[] = await this.userService.getUsersTeamMembers(String(requestUser.team));
 
     const team: Array<Object> = [];
     userTeam.forEach((user: User) => {
@@ -100,27 +104,30 @@ export class TeamController {
   };
 
   public updateRepo = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    if (!req.user.team) return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Team not found"));
+    const requestUser: User = req.user as User;
+    if (!requestUser.team) return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Team not found"));
 
-    if (await this.teamService.updateTeamRepository(req.user.team, req.body.repo))
+    if (await this.teamService.updateTeamRepository(String(requestUser.team), req.body.repo))
       res.send("Updated the teams git repository!");
     else
       return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Failed to update the team repository."));
   };
 
   public updateTable = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    if (!req.user.team || !req.body.tableNumber) return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Failed to update the team table number."));
+    const requestUser: User = req.user as User;
+    if (!requestUser.team || !req.body.tableNumber) return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Failed to update the team table number."));
 
-    if (await this.teamService.updateTeamTableNumber(req.user.team, req.body.tableNumber))
+    if (await this.teamService.updateTeamTableNumber(String(requestUser.team), req.body.tableNumber))
       res.send("Updated the teams table number!");
     else
       return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Failed to update the team table number."));
   };
 
   public updateName = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    if (!req.user.team) return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Team not found"));
+    const requestUser: User = req.user as User;
+    if (!requestUser.team) return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Team not found"));
 
-    if (await this.teamService.updateTeamName(req.user.team, req.body.name))
+    if (await this.teamService.updateTeamName(String(requestUser.team), req.body.name))
       res.send("Updated the teams name!");
     else
       return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Team name may already be taken"));
