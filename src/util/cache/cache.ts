@@ -1,9 +1,9 @@
 import { Cacheable } from "./";
-
+import { CacheInterface } from "./cacheInterface";
 /**
  * Class for a memory cache that stores objects with interface Cacheable
  */
-export class Cache {
+export class Cache implements CacheInterface {
   /**
    * The container for all items in the cache.
    * The 1st level key is the name of the class of the stored object.
