@@ -1,6 +1,11 @@
 import { Repository } from "typeorm";
+import * as request from "request-promise-native";
+import { json } from "body-parser";
+import { doesNotReject } from "assert";
+
 import { Team, User } from "../../db/entity/hub";
 import { UserService } from "../users";
+import { RequestTeam, RequestTeamObject, RequestUser, TeamMembers, NewTeamObject } from "../../types";
 
 export class TeamService {
   private teamRepository: Repository<Team>;
@@ -13,13 +18,18 @@ export class TeamService {
 
   /**
    * Creates a new team in the database
-   * @returns Team defined if the team was created, undefined otherwise
+   * @returns Name of team created, which can be used to query the team in auth and join it
+   * , undefined otherwise
    */
-  public createTeam = async (): Promise<Team> => {
-    const newTeam: Team = new Team();
+  public createTeam = async (): Promise<String> => {
     try {
-      await this.teamRepository.save(newTeam);
-      return newTeam;
+      request.post(`${process.env.HUB_URL}/api/v1/teams`, {
+        headers: {
+          Authorization: `${request.cookies["Authorization"]}`
+        },
+        body: request.body.name
+      });
+      return request.body.name;
     } catch (err) {
       throw new Error(`Failed to create the team, ${err}`);
     }
@@ -48,82 +58,97 @@ export class TeamService {
   /**
    * Makes the user join the team based on the team code
    * @param userID The user to make leave the team
-   * @param userTeam The team which the user is to join
+   * @param teamCode The teamcode for the team which the user is to join
    * @returns true if the team was joined, false otherwise
    */
-  public joinTeam = async (userID: number, userTeam: string | Team): Promise<boolean> => {
-    if (userID === undefined || userTeam === undefined) return false;
+  public joinTeam = async (userID: number, teamCode: string | Team): Promise<boolean> => {
+    if (userID === undefined || teamCode === undefined) return false;
 
-    // Get the team object from the team code and ensure type safety
-    let teamToJoin: Team;
-    if (typeof userTeam === "string") {
-      teamToJoin = await this.getTeam(userTeam);
-    } else if (typeof userTeam === "object") {
-      teamToJoin = userTeam as Team;
-    }
-    // Perform the request to join the team
     try {
-      await this.userService.setUserTeam(userID, teamToJoin);
+      request.post(`${process.env.HUB_URL}/api/v1/teams/${teamCode}/join`, {
+        headers: {
+          Authorization: `${request.cookies["Authorization"]}`
+        },
+        body: userID
+      });
       return true;
     } catch (err) {
       return false;
     }
+
+
+    // // Get the team object from the team code and ensure type safety
+    // let teamToJoin: Team;
+    // if (typeof userTeam === "string") {
+    //   teamToJoin = await this.getTeam(userTeam);
+    // } else if (typeof userTeam === "object") {
+    //   teamToJoin = userTeam as Team;
+    // }
+    // // Perform the request to join the team
+    // try {
+      // await this.userService.setUserTeam(userID, teamToJoin);
+    //   return true;
+    // } catch (err) {
+    //   return false;
+    // }
   };
 
-  /**
-   * Given a team code, it will update the git repository of the team
-   * Will be used for checking the git repo of the team
-   * @param teamCode The team code of the team to update
-   * @param newTeamRepo The new repo link
-   */
-  public updateTeamRepository = async (teamCode: string, newTeamRepo: string): Promise<boolean> => {
-    const foundTeam: Team = await this.getTeam(teamCode);
-    if (!foundTeam) return false;
+  // /**
+  //  * Given a team code, it will update the git repository of the team
+  //  * Will be used for checking the git repo of the team
+  //  * @param teamCode The team code of the team to update
+  //  * @param newTeamRepo The new repo link
+  //  */
+  // public updateTeamRepository = async (teamCode: string, newTeamRepo: string): Promise<boolean> => {
+  //   const foundTeam: Team = await this.getTeam(teamCode);
+  //   if (!foundTeam) return false;
 
-    try {
-      foundTeam.repo = newTeamRepo;
-      await this.teamRepository.save(foundTeam);
-      return true;
-    } catch (err) {
-      throw new Error(`Lost connection to database (hub)! ${err}`);
-    }
-  };
+  //   try {
+  //     foundTeam.repo = newTeamRepo;
+  //     await this.teamRepository.save(foundTeam);
+  //     return true;
+  //   } catch (err) {
+  //     throw new Error(`Lost connection to database (hub)! ${err}`);
+  //   }
+  // };
 
-  /**
-   * Updates the user team table number
-   * @param teamCode
-   * @param newTeamTable
-   */
-  public updateTeamTableNumber = async (teamCode: string, newTeamTable: number): Promise<boolean> => {
-    const foundTeam: Team = await this.getTeam(teamCode);
-    if (!foundTeam) return false;
+  // /**
+  //  * Updates the user team table number
+  //  * @param teamCode
+  //  * @param newTeamTable
+  //  */
+  // public updateTeamTableNumber = async (teamCode: string, newTeamTable: number): Promise<boolean> => {
+  //   const foundTeam: NewTeamObject = await this.getTeam(teamCode);
+  //   if (!foundTeam) return false;
 
-    try {
-      foundTeam.tableNumber = newTeamTable;
-      await this.teamRepository.save(foundTeam);
-    } catch (err) {
-      throw new Error(`Lost connection to database (hub)! ${err}`);
-    }
-    return true;
-  };
+  //   try {
+  //     foundTeam.tableNumber = newTeamTable;
+  //     await this.teamRepository.save(foundTeam);
+  //   } catch (err) {
+  //     throw new Error(`Lost connection to database (hub)! ${err}`);
+  //   }
+  //   return true;
+  // };
 
-  /**
-   * Updates the team name
-   * @param teamCode
-   * @param newTeamName
-   */
-  public updateTeamName = async (teamCode: string, newTeamName: string): Promise<boolean> => {
-    const foundTeam: Team = await this.getTeam(teamCode);
-    if (foundTeam === undefined) return false;
+  // /**
+  //  * Updates the team name
+  //  * @param teamCode
+  //  * @param newTeamName
+  //  */
+  // public updateTeamName = async (teamCode: string, newTeamName: string): Promise<boolean> => {
+  //   const foundTeam: Team = await this.getTeam(teamCode);
+  //   if (foundTeam === undefined) return false;
 
-    try {
-      foundTeam.name = newTeamName;
-      await this.teamRepository.save(foundTeam);
-    } catch (err) {
-      return false;
-    }
-    return true;
-  };
+  //   if (this.checkTeamExists(teamCode)) {
+  //     try {
+  //         request
+  //     } catch (err) {
+  //       return false;
+  //     }
+  //     return true;
+  //   } else return false;
+
+  // };
 
   /**
    * Checks that the team exists given a team code
@@ -132,7 +157,7 @@ export class TeamService {
    */
   public checkTeamExists = async (teamCode: string): Promise<boolean> => {
     try {
-      const team: Team = await this.getTeam(teamCode);
+      const team: NewTeamObject = await this.getTeam(teamCode);
       return team ? true : false;
     } catch (err) {
       throw new Error(`Lost connection to database (hub)! ${err}`);
@@ -144,38 +169,82 @@ export class TeamService {
    * @param teamCode The unique code for a specific team
    * @returns The Team object if found in the database, undefined otherwise
    */
-  public getTeam = async (teamCode: string): Promise<Team> => {
-    try {
-      let team: Team = await this.teamRepository.findOne(teamCode);
-      // The given code wasn't found as an id, check if its the team name
-      if (team === undefined)
-        team = await this.teamRepository.findOne({ name: teamCode });
+  // public getTeam = async (teamCode: string): Promise<Team> => {
+  //   try {
+  //     let team: Team = await this.teamRepository.findOne(teamCode);
+  //     // The given code wasn't found as an id, check if its the team name
+  //     if (team === undefined)
+  //       team = await this.teamRepository.findOne({ name: teamCode });
 
-      return team;
+  //     return team;
+  //   } catch (err) {
+  //     throw new Error(`Lost connection to database (hub)! ${err}`);
+  //   }
+  // };
+  public getTeam = async (teamCode: string): Promise<NewTeamObject> => {
+    let apiresult: string;
+    try {
+      apiresult = request.get(`${process.env.HUB_URL}/api/v1/teams`, {
+        headers: {
+          Authorization: `${request.cookies["Authorization"]}`
+        }
+      });
+
     } catch (err) {
-      throw new Error(`Lost connection to database (hub)! ${err}`);
+      console.log(err);
+    }
+    if (apiresult) {
+      const result: RequestTeamObject = JSON.parse(apiresult);
+      const team: RequestTeam = result.teams.filter( team => team.teamID == teamCode)[0];
+      // if not any yells about: 'Type 'Promise<RequestUser[]>' is missing the following properties from type 'RequestUser[]': length, pop, push, concat, and 26 more.'
+      const teamMembers: any = this.getUsersTeamMembers(teamCode);
+
+      // form new teamObject based on given data, set unknown attributes to undefined
+      const returnValue: NewTeamObject = {
+        teamID: team.teamID,
+        teamName: team.teamName,
+        repo: undefined,
+        tableNumber: undefined,
+        users: teamMembers
+      };
+      return returnValue;
+    } else {
+      return undefined;
     }
   };
 
   /**
    * Gets all the members for a specific team
    */
-  public getUsersTeamMembers = async (teamCode: string): Promise<User[]> => {
-    return this.userService.getUsersTeamMembers(teamCode);
+  public getUsersTeamMembers = async (teamCode: string): Promise<RequestUser[]> => {
+    let apiresult: string;
+    try {
+      apiresult = request.get(`${process.env.HUB_URL}/api/v1/teams/${teamCode}/members`, {
+        headers: {
+          Authorization: `${request.cookies["Authorization"]}`
+        }
+      });
+    } catch (err) {
+      console.log(err);
+    }
+
+    if (apiresult) {
+      const result: TeamMembers = JSON.parse(apiresult);
+
+      return result.users;
+    }
   };
 
   /**
    * Checks that a users team table is set, this is required since a user cannot reserve hardware unless
    * the team table is set
    */
-  public checkTeamTableIsSet = async (team: string | Team): Promise<boolean> => {
+  public checkTeamTableIsSet = async (teamCode: string): Promise<boolean> => {
     try {
-      if (typeof team === "string") {
-        team = await this.getTeam(team);
-      }
+        const team: NewTeamObject = await this.getTeam(teamCode);
       return team && team.tableNumber ? true : false;
   } catch (err) {
-    throw new Error(`Lost connection to database (hub)! ${err}`);
+    console.log(err);
   }
   };
 }
