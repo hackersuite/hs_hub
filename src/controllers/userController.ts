@@ -73,7 +73,7 @@ export class UserController {
 
     let userTeam: User[] = undefined;
     let teamEntity: Team = undefined;
-
+    console.log(profile.team);
     if (profile.team) {
       userTeam = await this.teamService.getUsersTeamMembers(profile.team.teamCode);
       teamEntity = await this.teamService.getTeam(profile.team.teamCode);
