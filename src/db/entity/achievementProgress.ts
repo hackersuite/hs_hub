@@ -1,6 +1,6 @@
 import { Entity, ManyToOne, PrimaryColumn, Column } from "typeorm";
 import { User } from "./";
-import { Achievement } from "../../../util/achievements";
+import { Achievement } from "../../util/achievements";
 
 /**
  * A class to store a user's progress on a specific achievement

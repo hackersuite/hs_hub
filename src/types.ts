@@ -1,39 +1,34 @@
 export const TYPES = {
-    RequestAuthentication: Symbol.for("RequestAuthentication"),
-    Cache: Symbol.for("Cache")
+  Router: Symbol.for("Router"),
+
+  UserController: Symbol.for("UserController"),
+  TeamController: Symbol.for("TeamController"),
+  ScheduleController: Symbol.for("ScheduleController"),
+  HomeController: Symbol.for("HomeController"),
+  HardwareController: Symbol.for("HardwareController"),
+  ChallengeController: Symbol.for("ChallengeController"),
+  AnnouncementController: Symbol.for("AnnouncementController"),
+  AchievementsController: Symbol.for("AchievementsController"),
+
+  UserService: Symbol.for("UserService"),
+  TeamService: Symbol.for("TeamService"),
+  HardwareService: Symbol.for("HardwareService"),
+  ReservedHardwareService: Symbol.for("ReservedHardwareService"),
+  ChallengeService: Symbol.for("ChallengeService"),
+  AnnouncementService: Symbol.for("AnnouncementService"),
+  AchievementsService: Symbol.for("AchievementsService"),
+  AchievementsProgressService: Symbol.for("AchievementsProgressService"),
+  EventService: Symbol.for("EventService"),
+
+  UserRepository: Symbol.for("UserRepository"),
+  HardwareRepository: Symbol.for("HardwareRepository"),
+  ReservedHardwareRepository: Symbol.for("ReservedHardwareRepository"),
+  EventRepository: Symbol.for("EventRepository"),
+  ChallengeRepository: Symbol.for("ChallengeRepository"),
+  AnnouncementRepository: Symbol.for("AnnouncementRepository"),
+  LocalAchievementsRepository: Symbol.for("LocalAchievementsRepository"),
+  AchievementsProgressRepository: Symbol.for("AchievementsProgressRepository"),
+
+  RequestAuthentication: Symbol.for("RequestAuthentication"),
+  Cache: Symbol.for("Cache")
 };
-
-
-export interface RequestTeam {
-  teamID: string;
-  teamName: string;
-  teamCreator: string;
-}
-
-export interface NewTeamObject {
-  teamID: string;
-  teamName: string;
-  repo?: string;
-  tableNumber?: number;
-  users: RequestUser[];
-}
-
-export interface RequestTeamObject {
-  status: number;
-  error: string;
-  teams: RequestTeam[];
-}
-
-export interface RequestUser {
-  authId: string;
-  authLevel: number;
-  name: string;
-  email: string;
-  team: string;
-}
-
-export interface TeamMembers {
-  status: number;
-  error: string;
-  users: RequestUser[];
-}

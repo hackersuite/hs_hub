@@ -1,5 +1,7 @@
 import { Achievement, AchievementsRepository, AchievementOptions } from ".";
+import { injectable } from "inversify";
 
+@injectable()
 export class LocalAchievementsRepository implements AchievementsRepository {
   /**
    * The loaded achievements

@@ -1,37 +1,50 @@
 import { Router } from "express";
-import { Cache } from "../util/cache";
-import { checkIsOrganizer } from "../util/user";
+import { checkIsOrganizer, checkIsLoggedIn } from "../util/user";
 import { ScheduleController } from "../controllers";
-
+import { injectable, inject } from "inversify";
+import { RouterInterface } from ".";
+import { TYPES } from "../types";
 
 /**
- * A router for handling the sign in of a user
+ * A router for handling the schedule
  */
-export const scheduleRouter = (cache: Cache): Router => {
-  // Initializing the router
-  const router = Router();
+@injectable()
+export class ScheduleRouter implements RouterInterface {
+  private _scheduleController: ScheduleController;
 
-  const scheduleController = new ScheduleController(cache);
+  public constructor(@inject(TYPES.ScheduleController) scheduleController: ScheduleController) {
+    this._scheduleController = scheduleController;
+  }
 
-  /**
-   * POST /schedule/create
-   */
-  router.post("/create", checkIsOrganizer, scheduleController.createEvent);
+  public getPathRoot(): string {
+    return "/schedule";
+  }
 
-  /**
-   * POST /schedule/delete
-   */
-  router.delete("/delete", checkIsOrganizer, scheduleController.deleteEvent);
+  public register(): Router {
+    const router: Router = Router();
 
-  /**
-   * POST /schedule/update
-   */
-  router.put("/update", checkIsOrganizer, scheduleController.updateEvent);
+    router.use(checkIsLoggedIn);
 
-  /**
-   * GET /schedule/
-   */
-  router.get("/", scheduleController.listEvents.bind(scheduleController));
+    /**
+     * POST /schedule/create
+     */
+    router.post("/create", checkIsOrganizer, this._scheduleController.createEvent);
 
-  return router;
+    /**
+     * POST /schedule/delete
+     */
+    router.delete("/delete", checkIsOrganizer, this._scheduleController.deleteEvent);
+
+    /**
+     * POST /schedule/update
+     */
+    router.put("/update", checkIsOrganizer, this._scheduleController.updateEvent);
+
+    /**
+     * GET /schedule/
+     */
+    router.get("/", this._scheduleController.listEvents);
+
+    return router;
+  }
 };

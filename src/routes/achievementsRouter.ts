@@ -1,81 +1,84 @@
 import { Router } from "express";
-import { AchievementsController } from "../controllers/";
 import { checkIsLoggedIn, checkIsOrganizer, checkIsVolunteer } from "../util/user";
-import { AchievementsService, AchievementsProgressService } from "../services/achievements";
-import { LocalAchievementsRepository } from "../util/achievements/localAchievementsRepository";
-import { localAchievements } from "../util/achievements/localAchievements";
-import { getConnection } from "typeorm";
-import { AchievementProgress, User } from "../db/entity/hub";
-import { UserService } from "../services/users";
+import { RouterInterface } from ".";
+import { injectable, inject } from "inversify";
+import { TYPES } from "../types";
+import { AchievementsController } from "../controllers";
 
-export const achievementsRouter = (): Router => {
-  const achievementsService: AchievementsService =
-    new AchievementsService(new LocalAchievementsRepository(localAchievements));
+@injectable()
+export class AchievementsRouter implements RouterInterface {
+  private _achievementsController: AchievementsController;
 
-  const achievementsProgressService: AchievementsProgressService =
-    new AchievementsProgressService(getConnection("hub").getRepository(AchievementProgress), achievementsService);
+  public constructor(@inject(TYPES.AchievementsController) achievementsController: AchievementsController) {
+    this._achievementsController = achievementsController;
+  }
 
-  const userService: UserService = new UserService(getConnection("hub").getRepository(User));
+  public getPathRoot(): string {
+    return "/achievements";
+  }
 
-  const router = Router();
-  const achievementsController = new AchievementsController(achievementsService, achievementsProgressService, userService);
+  public register(): Router {
+    const router: Router = Router();
 
-  /**
-   * GET /achievements
-   * Returns all implemented achievements
-   */
-  router.get("/", checkIsLoggedIn, achievementsController.getAchievementsPage);
+    router.use(checkIsLoggedIn);
+
+    /**
+     * GET /achievements
+     * Returns all implemented achievements
+     */
+    router.get("/", this._achievementsController.getAchievementsPage);
 
 
-  /**
-   * GET /achievements/volunteercontrols
-   * Returns all implemented achievements
-   */
-  router.get("/volunteercontrols",
-  checkIsVolunteer,
-  achievementsController.getVolunteersPage);
-
-  /**
-   * GET /achievements/progress
-   * Returns the user's progress on all achievements
-   */
-  router.get("/progress", checkIsLoggedIn, achievementsController.getProgressForAllAchievements);
-
-  /**
-   * GET /achievements/:id/progress
-   * Returns the user's progress on a specific achievement
-   */
-  router.get("/:id/progress", checkIsLoggedIn, achievementsController.getProgressForAchievement);
-
-  /**
-   * PUT /achievements/:id/complete
-   * Sets the user's progress on the achievement to completed
-   */
-  router.put("/:id/complete",
+    /**
+     * GET /achievements/volunteercontrols
+     * Returns all implemented achievements
+     */
+    router.get("/volunteercontrols",
     checkIsVolunteer,
-    achievementsController.completeAchievementForUser);
+    this._achievementsController.getVolunteersPage);
 
-  /**
-   * GET /achievements/:id/step/:step?token=:token
-   * Increments the user's progress on a specific achievement
-   */
-  router.get("/:id/step/:step", checkIsLoggedIn, achievementsController.completeAchievementStep);
+    /**
+     * GET /achievements/progress
+     * Returns the user's progress on all achievements
+     */
+    router.get("/progress", this._achievementsController.getProgressForAllAchievements);
 
-  /**
-   * PUT /achievements/:id/complete
-   * Sets the user's prizeClaimed on the achievement to true
-   */
-  router.put("/:id/giveprize",
-    checkIsVolunteer,
-    achievementsController.givePrizeToUser);
+    /**
+     * GET /achievements/:id/progress
+     * Returns the user's progress on a specific achievement
+     */
+    router.get("/:id/progress", this._achievementsController.getProgressForAchievement);
 
-  /**
-   * PUT /achievements/:id/complete
-   * Sets the user's prizeClaimed on the achievement to true
-   */
-  router.get("/token/:id/:step",
-    checkIsOrganizer,
-    achievementsController.getAchievementToken);
+    /**
+     * PUT /achievements/:id/complete
+     * Sets the user's progress on the achievement to completed
+     */
+    router.put("/:id/complete",
+      checkIsVolunteer,
+      this._achievementsController.completeAchievementForUser);
 
-  return router;
+    /**
+     * GET /achievements/:id/step/:step?token=:token
+     * Increments the user's progress on a specific achievement
+     */
+    router.get("/:id/step/:step", this._achievementsController.completeAchievementStep);
+
+    /**
+     * PUT /achievements/:id/complete
+     * Sets the user's prizeClaimed on the achievement to true
+     */
+    router.put("/:id/giveprize",
+      checkIsVolunteer,
+      this._achievementsController.givePrizeToUser);
+
+    /**
+     * PUT /achievements/:id/complete
+     * Sets the user's prizeClaimed on the achievement to true
+     */
+    router.get("/token/:id/:step",
+      checkIsOrganizer,
+      this._achievementsController.getAchievementToken);
+
+    return router;
+  }
 };

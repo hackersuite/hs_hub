@@ -1,12 +1,29 @@
 import { Repository, EntityManager, DeleteResult } from "typeorm";
-import { ReservedHardwareItem, HardwareItem } from "../../db/entity/hub";
+import { ReservedHardwareItem, HardwareItem } from "../../db/entity";
 import { ApiError, HttpResponseCode } from "../../util/errorHandling";
+import { injectable, inject } from "inversify";
+import { ReservedHardwareRepository } from "../../repositories";
+import { TYPES } from "../../types";
 
-export class ReservedHardwareService {
+export interface ReservedHardwareServiceInterface {
+  getAll: () => Promise<ReservedHardwareItem[]>
+  getReservation: (token: string) => Promise<ReservedHardwareItem>;
+  cancelReservation: (token: string, userId: string) => Promise<void>;
+  deleteReservation: (tokenToDelete: string, reservation?: ReservedHardwareItem) => Promise<void>;
+  removeReservation: (tokenToRemove: string, transaction?: EntityManager) => Promise<DeleteResult>;
+  doesReservationExist: (userID: string, hardwareItemID: number) => Promise<boolean>;
+  getReservationFromToken: (resToken: string, transaction?: EntityManager) => Promise<ReservedHardwareItem>;
+  isReservationValid: (expiryDate: Date) => boolean;
+}
+
+@injectable()
+export class ReservedHardwareService implements ReservedHardwareServiceInterface {
   private reservedHardwareRepository: Repository<ReservedHardwareItem>;
 
-  constructor(_reservedHardwareRepository: Repository<ReservedHardwareItem>) {
-    this.reservedHardwareRepository = _reservedHardwareRepository;
+  constructor(
+    @inject(TYPES.ReservedHardwareRepository)_reservedHardwareRepository: ReservedHardwareRepository
+  ) {
+    this.reservedHardwareRepository = _reservedHardwareRepository.getRepository();
   }
 
   /**
@@ -72,7 +89,7 @@ export class ReservedHardwareService {
    * @param token The token of the reservation
    * @param userId The user id of the user performing the cancellation
    */
-  public cancelReservation = async (token: string, userId: number): Promise<void> => {
+  public cancelReservation = async (token: string, userId: string): Promise<void> => {
     const reservation: ReservedHardwareItem = await this.reservedHardwareRepository
       .createQueryBuilder("reservation")
       .innerJoinAndSelect("reservation.hardwareItem", "item")
@@ -142,7 +159,7 @@ export class ReservedHardwareService {
       .execute();
   };
 
-  public doesReservationExist = async (userID: number, hardwareItemID: number): Promise<boolean> => {
+  public doesReservationExist = async (userID: string, hardwareItemID: number): Promise<boolean> => {
     const numberOfReservations: number = await this.reservedHardwareRepository
       .createQueryBuilder("reservation")
       .innerJoinAndSelect("reservation.hardwareItem", "item")

@@ -1,8 +1,8 @@
 import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
-import { Cacheable } from "../../../util/cache";
+import { Cacheable } from "../../util/cache";
 import { IsDefined, MaxLength } from "class-validator";
 
-@Entity ()
+@Entity()
 export class Challenge implements Cacheable {
   @PrimaryGeneratedColumn()
   id: number;

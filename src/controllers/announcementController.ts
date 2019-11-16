@@ -1,22 +1,34 @@
 import { Request, Response } from "express";
 import { NextFunction } from "connect";
 import { ApiError, HttpResponseCode } from "../util/errorHandling";
-import { Announcement, User } from "../db/entity/hub";
+import { Announcement, User } from "../db/entity";
 import { sendOneSignalNotification } from "../util/announcement";
 import { AnnouncementService } from "../services/announcement/announcementService";
 import { UserService } from "../services/users";
+import { injectable, inject } from "inversify";
+import { TYPES } from "../types";
+
+export interface AnnouncementControllerInterface {
+  announce: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+  pushNotification: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+  pushNotificationRegister: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+}
 
 /**
  * A controller for the announcement methods
  */
-export class AnnouncementController {
+@injectable()
+export class AnnouncementController implements AnnouncementControllerInterface {
 
-  private announcementService: AnnouncementService;
-  private userService: UserService;
+  private _announcementService: AnnouncementService;
+  private _userService: UserService;
 
-  constructor(_announcementService: AnnouncementService, _userService: UserService) {
-    this.announcementService = _announcementService;
-    this.userService = _userService;
+  constructor(
+    @inject(TYPES.AnnouncementService) announcementService: AnnouncementService,
+    @inject(TYPES.UserService) userService: UserService
+  ) {
+    this._announcementService = announcementService;
+    this._userService = userService;
   }
 
   public announce = async (req: Request, res: Response, next: NextFunction) => {
@@ -28,10 +40,10 @@ export class AnnouncementController {
         throw new ApiError(HttpResponseCode.BAD_REQUEST, "Message too long!");
       }
       const announcement = new Announcement(message);
-      await this.announcementService.createAnnouncement(announcement);
+      await this._announcementService.createAnnouncement(announcement);
       res.send(announcement);
     } catch (error) {
-      return next(error);
+      next(error);
     }
   };
 
@@ -63,17 +75,17 @@ export class AnnouncementController {
       else
         res.status(HttpResponseCode.INTERNAL_ERROR).send(`Failed to send the push notification!. ${JSON.stringify(result)}`);
     } catch (error) {
-      return next(error);
+      next(error);
     }
   };
 
   public pushNotificationRegister = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const playerID: string = req.body.data;
-      await this.userService.addPushIDToUser(req.user as User, playerID);
+      await this._userService.addPushIDToUser(req.user as User, playerID);
       res.status(200).send(`Updated with player ID: ${playerID}`);
     } catch (error) {
-      return next(error);
+      next(error);
     }
   };
 }

@@ -1,33 +1,20 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany, OneToOne, JoinColumn, ManyToOne } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from "typeorm";
 import { AchievementProgress } from "./achievementProgress";
 import { ReservedHardwareItem } from "./reservedHardwareItem";
-import { Team } from "./";
 
 /**
  * A class to store the user entity in the database
  */
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
-  @Column("varchar", { length: 128 })
+  @Column("varchar")
   name: string;
 
-  @Column("varchar", { length: 255, unique: true })
-  email: string;
-
-  @Column("varchar", { length: 255, select: false })
-  password: string;
-
-  @Column()
-  authLevel: number;
-
-  /**
-   * Each user can only be in one team at a time, they are allowed to be in no team
-   */
-  @ManyToOne(() => Team, team => team.users, { nullable: true })
-  team: Team;
+  @Column("varchar", { unique: true })
+  authId: string;
 
   @Column("simple-array", { nullable: true })
   push_id: string[];
@@ -43,10 +30,6 @@ export class User {
    */
   @OneToMany(() => ReservedHardwareItem, reservedHardwareItem => reservedHardwareItem.user)
   hardwareItems: ReservedHardwareItem[];
-
-  public getId() {
-    return this.id;
-  }
 
   public getName() {
     return this.name;

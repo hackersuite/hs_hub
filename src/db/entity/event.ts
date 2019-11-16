@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
-import { Cacheable } from "../../../util/cache";
+import { Cacheable } from "../../util/cache";
 import { IsDefined, MaxLength, IsDate } from "class-validator";
 
 @Entity()

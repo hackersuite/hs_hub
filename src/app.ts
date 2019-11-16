@@ -3,17 +3,13 @@ import * as express from "express";
 import * as dotenv from "dotenv";
 import * as path from "path";
 import * as morgan from "morgan";
-import * as passport from "passport";
 import * as expressSession from "express-session";
 import * as cookieParser from "cookie-parser";
-import { passportLocalStrategy } from "./util/user/passportLocalStrategy";
 import { RequestAuthentication } from "./util/hs_auth";
 import { Express, Request, Response, NextFunction } from "express";
-import { Connection, createConnections, ConnectionOptions, getConnection } from "typeorm";
+import { Connection, createConnections, ConnectionOptions } from "typeorm";
 import { errorHandler, error404Handler } from "./util/errorHandling";
-import { mainRouter } from "./routes";
-import { QueryLogger } from "./util/logging/QueryLogger";
-import { UserService } from "./services/users";
+import { RouterInterface } from "./routes";
 import { TYPES } from "./types";
 import container from "./inversify.config";
 
@@ -27,7 +23,9 @@ export function buildApp(callback: (app: Express, err?: Error) => void, connecti
 
   middlewareSetup(app);
 
-  devMiddlewareSetup(app);
+  if (app.get("env") === "dev") {
+    devMiddlewareSetup(app);
+  }
 
   // Connecting to database
   const databaseConnectionSettings: ConnectionOptions[] = connectionOptions ?
@@ -38,11 +36,17 @@ export function buildApp(callback: (app: Express, err?: Error) => void, connecti
       console.log("  Connection to database (" + element.name + ") established.");
     });
 
+    // Set up passport for authentication
+    // Also add the logout route
     const requestAuth: RequestAuthentication = container.get(TYPES.RequestAuthentication);
     requestAuth.passportSetup(app);
 
-    // Routes set up
-    app.use("/", mainRouter());
+    // Routes set up for express, resolving dependencies
+    // This is performed after successful DB connection since some routers use TypeORM repositories in their DI
+    const routers: RouterInterface[] = container.getAll(TYPES.Router);
+    routers.forEach(router => {
+      app.use(router.getPathRoot(), router.register());
+    });
 
     // Setting up error handlers
     app.use(error404Handler);
@@ -82,6 +86,14 @@ const expressSetup = (): Express => {
  * @param app The app to set up the middleware for
  */
 const middlewareSetup = (app: Express): void => {
+  app.use((req, res, next) => {
+    if (req.get("X-Forwarded-Proto") !== "https" && process.env.USE_SSL) {
+      res.redirect("https://" + req.headers.host + req.url);
+    } else {
+      return next();
+    }
+  });
+
   app.use(
     express.static(path.join(__dirname, "public"),
       { maxAge: 31557600000 })
@@ -99,29 +111,28 @@ const middlewareSetup = (app: Express): void => {
  */
 const devMiddlewareSetup = (app: Express): void => {
   // Development environment set up
-  if (app.get("env") === "dev") {
-    // Request logging
-    app.use(morgan("dev"));
-    // Disable browser caching
-    app.use((req: Request, res: Response, next: NextFunction) => {
-      res.header("Cache-Control", "private, no-cache, no-store, must-revalidate");
-      res.header("Expires", "-1");
-      res.header("Pragma", "no-cache");
-      next();
-    });
-  }
+
+  // Request logging
+  app.use(morgan("dev"));
+  // Disable browser caching
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    res.header("Cache-Control", "private, no-cache, no-store, must-revalidate");
+    res.header("Expires", "-1");
+    res.header("Pragma", "no-cache");
+    next();
+  });
 };
 
 /**
  * Creates the passport middleware for handling user authentication
  * @param app The app to set up the middleware for
  */
-const passportSetup = (app: Express, userService: UserService): void => {
-  // Passport configuration
-  app.use(passport.initialize());
-  app.use(passport.session());
-  passport.use(passportLocalStrategy(userService));
-};
+// const passportSetup = (app: Express, userService: UserService): void => {
+//   // Passport configuration
+//   app.use(passport.initialize());
+//   app.use(passport.session());
+//   // passport.use(passportLocalStrategy(userService));
+// };
 
 const getSessionOptions = (app: Express): any => {
   return {
@@ -145,10 +156,10 @@ const createDatabaseSettings = (): ConnectionOptions[] => {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE,
     entities: [
-      __dirname + "/db/entity/hub/*{.js,.ts}"
+      __dirname + "/db/entity/*{.js,.ts}"
     ],
-    synchronize: true,
+    synchronize: true
     // If we want full query logging, uncomment the line below, and set logging = true
-    logger: new QueryLogger()
+    // logger: new QueryLogger()
   }];
 };

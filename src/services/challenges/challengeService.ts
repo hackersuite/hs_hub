@@ -1,12 +1,23 @@
 import { Repository } from "typeorm";
-import { Challenge } from "../../db/entity/hub";
+import { Challenge } from "../../db/entity";
 import { ApiError, HttpResponseCode } from "../../util/errorHandling";
+import { inject, injectable } from "inversify";
+import { ChallengeRepository } from "../../repositories";
+import { TYPES } from "../../types";
 
-export class ChallengeService {
+export interface ChallengeServiceInterface {
+  getAll: () => Promise<Challenge[]>;
+  findByID: (challengeID: number) => Promise<Challenge>;
+  saveChallenge: (challenge: Challenge) => Promise<void>;
+  deleteChallengeByID: (id: number) => Promise<void>;
+}
+
+@injectable()
+export class ChallengeService implements ChallengeServiceInterface {
   private challengeRepository: Repository<Challenge>;
 
-  constructor(_challengeRepository: Repository<Challenge>) {
-    this.challengeRepository = _challengeRepository;
+  constructor(@inject(TYPES.ChallengeRepository) _challengeRepository: ChallengeRepository) {
+    this.challengeRepository = _challengeRepository.getRepository();
   }
 
   public getAll = async (): Promise<Challenge[]> => {
