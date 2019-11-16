@@ -98,7 +98,6 @@ export class TeamService implements TeamServiceInterface {
   public checkTeamTableIsSet = async (authToken: string, teamCode: string): Promise<boolean> => {
     try {
       const team: Team = await this.getTeam(authToken, teamCode);
-      console.log(team);
       return team && team.tableNumber ? true : false;
     } catch (err) {
       console.log(err);
