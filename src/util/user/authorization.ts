@@ -52,7 +52,6 @@ export const checkIsAttendee = (req: Request, res: Response, next: NextFunction)
 };
 
 export const checkIsOrganizer = (req: Request, res: Response, next: NextFunction): void => {
-  console.log(req.user);
   if (checkAuthLevel(req, res, req.user as RequestUser, AuthLevels.Organizer)) {
     res.locals.isOrganizer = true;
     res.locals.isVolunteer = true;
