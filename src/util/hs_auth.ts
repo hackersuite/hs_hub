@@ -63,7 +63,7 @@ export class RequestAuthentication {
     let logoutCookieOptions: CookieOptions = undefined;
     if (app.get("env") === "production") {
       logoutCookieOptions = {
-        domain: app.locals.settings.rootDomain,
+        domain: "greatunihack.com",
         secure: true,
         httpOnly: true
       };
