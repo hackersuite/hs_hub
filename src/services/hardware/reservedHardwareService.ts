@@ -134,7 +134,7 @@ export class ReservedHardwareService implements ReservedHardwareServiceInterface
         const itemID: number = itemReservation.hardwareItem.id,
           itemQuantity: number = itemReservation.reservationQuantity;
 
-        await this.removeReservation(tokenToDelete, transaction);
+        await this.removeReservation(itemReservation.reservationToken, transaction);
 
         // Decrement the reservation count for the hardware item
         await transaction
