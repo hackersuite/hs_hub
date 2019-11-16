@@ -1,17 +1,40 @@
-import { HardwareItem, ReservedHardwareItem, User } from "../../db/entity/hub";
+import { HardwareItem, ReservedHardwareItem, User } from "../../db/entity";
 import { Repository } from "typeorm";
 import { ApiError, HttpResponseCode } from "../../util/errorHandling";
 import { LoggerLevels, QueryLogger } from "../../util/logging";
 import { HardwareObject } from "./hardwareObjectOptions";
 import { ReservedHardwareService } from ".";
 import { createToken } from "../../util/crypto";
+import { TYPES } from "../../types";
+import { inject, injectable } from "inversify";
+import { HardwareRepository } from "../../repositories";
 
-export class HardwareService {
+export interface HardwareServiceInterface {
+  reserveItem: (user: User, itemToReserve: string, requestedQuantity?: number) => Promise<string>;
+  getHardwareItemByID: (hardwareItemID: number) => Promise<HardwareItem>;
+  reserveItemQuery: (user: User, hardwareItem: HardwareItem, requestedQuantity: number) => Promise<string>;
+  isItemReservable: (user: User, hardwareItem: HardwareItem, requestedQuantity: number) => Promise<boolean>;
+  takeItem: (token: string) => Promise<boolean>;
+  returnItem: (token: string) => Promise<boolean>;
+  itemToBeTakenFromLibrary: (userID: string, hardwareItemID: number, itemQuantity: number) => Promise<void>;
+  itemToBeReturnedToLibrary: (userID: string, hardwareItemID: number, token: string, itemQuantity: number) => Promise<void>;
+  getAllHardwareItemsWithReservations: () => Promise<HardwareItem[]>;
+  getAllHardwareItems: () => Promise<HardwareItem[]>;
+  addAllHardwareItems: (items: HardwareObject[]) => Promise<void>;
+  deleteHardwareItem: (id: number) => Promise<void>;
+  updateHardwareItem: (itemToUpdate: HardwareItem) => Promise<void>
+}
+
+@injectable()
+export class HardwareService implements HardwareServiceInterface {
   private hardwareRepository: Repository<HardwareItem>;
   private reservedHardwareService: ReservedHardwareService;
 
-  constructor(_hardwareRepository: Repository<HardwareItem>, _reservedHardwareService: ReservedHardwareService) {
-    this.hardwareRepository = _hardwareRepository;
+  constructor(
+    @inject(TYPES.HardwareRepository) _hardwareRepository: HardwareRepository,
+    @inject(TYPES.ReservedHardwareService) _reservedHardwareService: ReservedHardwareService
+  ) {
+    this.hardwareRepository = _hardwareRepository.getRepository();
     this.reservedHardwareService = _reservedHardwareService;
   }
 
@@ -104,7 +127,7 @@ export class HardwareService {
     const reservation: ReservedHardwareItem = await this.reservedHardwareService.getReservationFromToken(token);
     if (!reservation) return undefined;
 
-    const userID: number = reservation.user.id,
+    const userID: string = reservation.user.id,
       itemID: number = reservation.hardwareItem.id,
       isReserved: boolean = reservation.isReserved,
       itemQuantity: number = reservation.reservationQuantity;
@@ -133,7 +156,7 @@ export class HardwareService {
     const reservation: ReservedHardwareItem = await this.reservedHardwareService.getReservationFromToken(token);
     if (!reservation) return false;
 
-    const userID: number = reservation.user.id,
+    const userID: string = reservation.user.id,
       itemID: number = reservation.hardwareItem.id,
       isReserved: boolean = reservation.isReserved,
       itemQuantity: number = reservation.reservationQuantity;
@@ -147,7 +170,7 @@ export class HardwareService {
     return true;
   };
 
-  public itemToBeTakenFromLibrary = async (userID: number, hardwareItemID: number, itemQuantity: number): Promise<void> => {
+  public itemToBeTakenFromLibrary = async (userID: string, hardwareItemID: number, itemQuantity: number): Promise<void> => {
     // The item is reserved and we mark the item as taken
     try {
       await this.hardwareRepository.manager.transaction(async transaction => {
@@ -182,7 +205,7 @@ export class HardwareService {
    * @param hardwareItemID
    * @param token
    */
-  public itemToBeReturnedToLibrary = async (userID: number, hardwareItemID: number, token: string, itemQuantity: number): Promise<void> => {
+  public itemToBeReturnedToLibrary = async (userID: string, hardwareItemID: number, token: string, itemQuantity: number): Promise<void> => {
     // The item is being returned
     try {
       // Decrement the reservation count for the hardware item

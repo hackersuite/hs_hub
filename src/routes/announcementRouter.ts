@@ -1,44 +1,47 @@
 import { Router } from "express";
 import { checkIsOrganizer, checkIsLoggedIn } from "../util/user";
 import { AnnouncementController } from "../controllers";
-import { AnnouncementService } from "../services/announcement/announcementService";
-import { getConnection } from "typeorm";
-import { Announcement, User } from "../db/entity/hub";
-import { UserService } from "../services/users";
-import { Cache } from "../util/cache";
+import { RouterInterface } from ".";
+import { injectable, inject } from "inversify";
+import { TYPES } from "../types";
 
-export const announcementRouter = (cache: Cache): Router => {
-  const announcementService: AnnouncementService = new AnnouncementService(
-    getConnection("hub").getRepository(Announcement), cache
-  );
-  const userService: UserService = new UserService(
-    getConnection("hub").getRepository(User)
-  );
+@injectable()
+export class AnnouncementRouter implements RouterInterface {
+  private _announcementController: AnnouncementController;
 
-  // Initialize router
-  const router = Router();
-  const announcementController = new AnnouncementController(announcementService, userService);
+  public constructor(@inject(TYPES.AnnouncementController) announcementController: AnnouncementController) {
+    this._announcementController = announcementController;
+  }
 
-  /**
-   * POST /announcement/
-   */
-  router.post("/",
-    checkIsOrganizer,
-    announcementController.announce);
+  public getPathRoot(): string {
+    return "/announcement";
+  }
 
-  /**
-   * POST /announcement/push
-   */
-  router.post("/push",
-    checkIsOrganizer,
-    announcementController.pushNotification);
+  public register(): Router {
+    const router: Router = Router();
 
-  /**
-   * POST /announcement/push/register
-   */
-  router.post("/push/register",
-    checkIsLoggedIn,
-    announcementController.pushNotificationRegister);
+    router.use(checkIsLoggedIn);
 
-  return router;
+    /**
+     * POST /announcement/
+     */
+    router.post("/",
+      checkIsOrganizer,
+      this._announcementController.announce);
+
+    /**
+     * POST /announcement/push
+     */
+    router.post("/push",
+      checkIsOrganizer,
+      this._announcementController.pushNotification);
+
+    /**
+     * POST /announcement/push/register
+     */
+    router.post("/push/register",
+      this._announcementController.pushNotificationRegister);
+
+    return router;
+  }
 };

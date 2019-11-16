@@ -1,15 +1,32 @@
 import { Repository } from "typeorm";
-import { AchievementProgress, User } from "../../db/entity/hub";
+import { AchievementProgress, User } from "../../db/entity";
 import { AchievementsService } from ".";
 import { Achievement } from "../../util/achievements";
+import { injectable, inject } from "inversify";
+import { TYPES } from "../../types";
+import { AchievementProgressRepository } from "../../repositories";
 
+export interface AchievementsProgressServiceInterface {
+  getAchievementProgressForUser: (achievement: Achievement, user: User) => Promise<AchievementProgress>;
+  getAchievementsProgressForUser: (user: User) => Promise<AchievementProgress[]>;
+  getAchievementsProgressThatCanClaimPrize: () => Promise<AchievementProgress[]>;
+  setAchievementProgressForUser: (progress: number, achievement: Achievement, user: User) => Promise<AchievementProgress>;
+  setAchievementCompleteForUser: (achievement: Achievement, user: User) => Promise<AchievementProgress>;
+  giveAchievementPrizeToUser: (achievement: Achievement, user: User) => Promise<AchievementProgress>;
+  completeAchievementStepForUser: (step: number, token: string, achievement: Achievement, user: User) => Promise<AchievementProgress>;
+}
+
+@injectable()
 export class AchievementsProgressService {
-  private achievementsProgressRepository: Repository<AchievementProgress>;
-  private achievementsService: AchievementsService;
+  private _achievementsProgressRepository: Repository<AchievementProgress>;
+  private _achievementsService: AchievementsService;
 
-  constructor(achievementsProgressRepository: Repository<AchievementProgress>, achievementsService: AchievementsService) {
-    this.achievementsProgressRepository = achievementsProgressRepository;
-    this.achievementsService = achievementsService;
+  constructor(
+    @inject(TYPES.AchievementsProgressRepository) achievementsProgressRepository: AchievementProgressRepository,
+    @inject(TYPES.AchievementsService) achievementsService: AchievementsService
+  ) {
+    this._achievementsProgressRepository = achievementsProgressRepository.getRepository();
+    this._achievementsService = achievementsService;
   }
 
   /**
@@ -18,7 +35,7 @@ export class AchievementsProgressService {
    * @param user The user
    */
   public getAchievementProgressForUser = async (achievement: Achievement, user: User): Promise<AchievementProgress> => {
-    let achievementProgress: AchievementProgress = await this.achievementsProgressRepository
+    let achievementProgress: AchievementProgress = await this._achievementsProgressRepository
       .findOne({
         where: {
           achievementId: achievement.getId(),
@@ -43,14 +60,14 @@ export class AchievementsProgressService {
    * @param user The user
    */
   public getAchievementsProgressForUser = async (user: User): Promise<AchievementProgress[]> => {
-    const achievementsProgress: AchievementProgress[] = await this.achievementsProgressRepository
+    const achievementsProgress: AchievementProgress[] = await this._achievementsProgressRepository
       .find({
         where: {
           user
         }
       });
 
-    const achievements: Achievement[] = await this.achievementsService.getAchievements();
+    const achievements: Achievement[] = await this._achievementsService.getAchievements();
 
     // Mapping Achievement objects to the AchievementProgress objects
     achievements.forEach((achievement: Achievement) => {
@@ -73,14 +90,14 @@ export class AchievementsProgressService {
    * but has not yet claimed the prize
    */
   public getAchievementsProgressThatCanClaimPrize = async (): Promise<AchievementProgress[]> => {
-    let achievementsProgress: AchievementProgress[] = await this.achievementsProgressRepository
+    let achievementsProgress: AchievementProgress[] = await this._achievementsProgressRepository
       .find({
         where: {
           prizeClaimed: false
         }
       });
 
-    const achievements: Achievement[] = await this.achievementsService.getAchievements();
+    const achievements: Achievement[] = await this._achievementsService.getAchievements();
 
     // Storing the achievements in a hash table (key - id of the achievement)
     // as using an array in this method would be very inefficient
@@ -110,7 +127,7 @@ export class AchievementsProgressService {
     const achievementProgress: AchievementProgress = await this.getAchievementProgressForUser(achievement, user);
     achievementProgress.setProgress(progress);
 
-    await this.achievementsProgressRepository.save(achievementProgress);
+    await this._achievementsProgressRepository.save(achievementProgress);
 
     return achievementProgress;
   }
@@ -125,7 +142,7 @@ export class AchievementsProgressService {
 
     achievementProgress.setProgress(achievement.getMaxProgress());
 
-    await this.achievementsProgressRepository.save(achievementProgress);
+    await this._achievementsProgressRepository.save(achievementProgress);
 
     return achievementProgress;
   }
@@ -144,7 +161,7 @@ export class AchievementsProgressService {
 
     achievementProgress.setPrizeClaimed(true);
 
-    await this.achievementsProgressRepository.save(achievementProgress);
+    await this._achievementsProgressRepository.save(achievementProgress);
 
     return achievementProgress;
   }
@@ -175,7 +192,7 @@ export class AchievementsProgressService {
 
     achievementProgress.addCompletedStep(step);
 
-    await this.achievementsProgressRepository.save(achievementProgress);
+    await this._achievementsProgressRepository.save(achievementProgress);
 
     return achievementProgress;
   }

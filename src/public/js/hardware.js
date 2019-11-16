@@ -31,7 +31,7 @@ var takenItemUI = '<div><b>You have taken:</b>#reservedQuantity.</div>'
 
 var takeItemUI = '<div><span><b>Quantity to take:</b></span>'
                + '<input type="number" name="quantity" id="#itemId-reservation-quantity"'
-               + 'class="number-input" placeholder="quantity" value="1" min="1"></div>'
+               + 'class="form-control number-input" placeholder="quantity" value="1" min="1"></div>'
                + '<button type="button" class="btn btn-success btn-compact" data-dismiss="modal"'
                + 'onclick="reserve(#itemId)">TAKE</button>';
 

@@ -1,4 +1,4 @@
-import { User } from "../../db/entity/hub";
+import { User } from "../../db/entity";
 
 interface OneSignalData {
   app_id: string;

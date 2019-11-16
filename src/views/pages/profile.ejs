@@ -3,7 +3,7 @@
 
 <head>
   <% include ../partials/head.ejs %>
-  <title>SHVII Hub - Profile</title>
+  <title>GUH19 Hub - Profile</title>
   <link rel="stylesheet" href="/css/dashboard.css">
   <script src="/js/profile.js"></script>
 </head>
@@ -29,40 +29,18 @@
                 <div class="card-body">
                   <div class="form-group">
                     <label for="teamName">Team Name </label>
-                    <% if (restrict) { %>
                     <input type="text" class="form-control" id="teamName" placeholder="Hackathon Team" value="<%= teamEntity.name %>" disabled>
-                    <% } else { %>
-                    <input type="text" class="form-control" id="teamName" placeholder="Hackathon Team" value="<%= teamEntity.name %>">
-                    <button class="btn btn-success" onclick="updateName($('#teamName').val())">Save</button>
-                    <% } %>
-                  </div>
-                </div>
-                <% } %>
-
-                <% if (user.team) { %>
-                <div class="card-body">
-                  <div class="form-group">
-                    <label for="gitRepo">Team Git Repository</label>
-                    <% if (restrict) { %>
-                    <input type="url" class="form-control" id="gitRepo" placeholder="https://github.com/hackathon/project.git" value="<%= teamEntity.repo %>" disabled>
-                    <% } else { %>
-                    <input type="url" class="form-control" id="gitRepo" placeholder="https://github.com/hackathon/project.git" value="<%= teamEntity.repo %>">
-                    <button class="btn btn-success" onclick="updateRepository($('#gitRepo').val())">Save</button>
-                    <% } %>
                   </div>
                 </div>
                 <% } %>
 
                 <div class="card-body">
                   <div class="form-group">
-                    <% if (restrict && user.team) { %>
-                    <label for="tableNumber">Team Table Number</label>
-                    <input type="number" class="form-control" id="tableNumber" placeholder="42" value="<%= teamEntity.tableNumber %>" disabled>
-                    <% } else if (!restrict && !user.team) { %>
+                    <% if (!user.team) { %>
                     <label for="tableNumber">Team Table Number</label>
                     <input type="number" class="form-control" id="tableNumber" placeholder="42" disabled>
                     <small class="form-text text-muted text-danger">First, create a team and then the input above will become editable.</small>
-                    <% } else if (!restrict && user.team) { %>
+                    <% } else { %>
                     <label for="tableNumber">Team Table Number</label>
                     <input type="number" class="form-control" id="tableNumber" placeholder="42" value="<%= teamEntity.tableNumber %>" min="0">
                     <button class="btn btn-success" onclick="updateTableNumber($('#tableNumber').val())">Save</button>

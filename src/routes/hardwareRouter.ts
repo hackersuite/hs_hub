@@ -1,108 +1,102 @@
 import { Router } from "express";
 import { HardwareController } from "../controllers/hardwareController";
 import { checkIsLoggedIn, checkIsVolunteer, checkIsOrganizer } from "../util/user";
-import { HardwareService } from "../services/hardware/hardwareService";
-import { HardwareItem, ReservedHardwareItem, User, Team } from "../db/entity/hub";
-import { getConnection } from "typeorm";
-import { ReservedHardwareService } from "../services/hardware";
-import { TeamService } from "../services/teams/teamService";
-import { UserService } from "../services/users";
+import { inject, injectable } from "inversify";
+import { RouterInterface } from ".";
+import { TYPES } from "../types";
 
-export const hardwareRouter = (): Router => {
-  const reservedHardwareService: ReservedHardwareService = new ReservedHardwareService(
-    getConnection("hub").getRepository(ReservedHardwareItem)
-  );
+@injectable()
+export class HardwareRouter implements RouterInterface {
+  private _hardwareController: HardwareController;
 
-  const hardwareService: HardwareService = new HardwareService(
-    getConnection("hub").getRepository(HardwareItem),
-    reservedHardwareService
-  );
+  public constructor(@inject(TYPES.HardwareController) hardwareController: HardwareController) {
+    this._hardwareController = hardwareController;
+  }
 
-  const userService: UserService = new UserService(
-    getConnection("hub").getRepository(User)
-  );
+  public getPathRoot(): string {
+    return "/hardware";
+  }
 
-  const teamService: TeamService = new TeamService(
-    getConnection("hub").getRepository(Team), userService
-  );
+  public register(): Router {
+    const router: Router = Router();
 
-  const router = Router();
-  const hardwareController = new HardwareController(hardwareService, reservedHardwareService, teamService);
+    router.use(checkIsLoggedIn);
 
-  /**
-   * GET /hardware
-   */
-  router.get("/", checkIsLoggedIn, hardwareController.library);
+    /**
+     * GET /hardware
+     */
+    router.get("/", this._hardwareController.library);
 
-  /**
-   * POST /hardware
-   */
-  router.post("/", checkIsOrganizer, hardwareController.addItem);
+    /**
+     * POST /hardware
+     */
+    router.post("/", checkIsOrganizer, this._hardwareController.addItem);
 
-  /**
-   * GET /hardware/loancontrols
-   */
-  router.get("/loancontrols", checkIsVolunteer, hardwareController.loanControls);
+    /**
+     * GET /hardware/loancontrols
+     */
+    router.get("/loancontrols", checkIsVolunteer, this._hardwareController.loanControls);
 
-  /**
-   * GET /hardware/management
-   */
-  router.get("/management", checkIsOrganizer, hardwareController.management);
+    /**
+     * GET /hardware/management
+     */
+    router.get("/management", checkIsOrganizer, this._hardwareController.management);
 
-  /**
-   * GET /hardware/add
-   */
-  router.get("/add", checkIsOrganizer, hardwareController.addPage);
+    /**
+     * GET /hardware/add
+     */
+    router.get("/add", checkIsOrganizer, this._hardwareController.addPage);
 
-  /**
-   * POST /hardware/reserve
-   */
-  router.post("/reserve", checkIsLoggedIn, hardwareController.reserve);
+    /**
+     * POST /hardware/reserve
+     */
+    router.post("/reserve", this._hardwareController.reserve);
 
-  /**
-   * POST /hardware/cancelReservation
-   */
-  router.post("/cancelReservation", checkIsLoggedIn, hardwareController.cancelReservation);
+    /**
+     * POST /hardware/cancelReservation
+     */
+    router.post("/cancelReservation", this._hardwareController.cancelReservation);
 
-  /**
-   * POST /hardware/take
-   */
-  router.post("/take", checkIsVolunteer, hardwareController.take);
+    /**
+     * POST /hardware/take
+     */
+    router.post("/take", checkIsVolunteer, this._hardwareController.take);
 
-  /**
-   * POST /hardware/return
-   */
-  router.post("/return", checkIsVolunteer, hardwareController.return);
+    /**
+     * POST /hardware/return
+     */
+    router.post("/return", checkIsVolunteer, this._hardwareController.return);
 
-  /**
-   * POST /hardware/addItems
-   */
-  router.post("/addItems", checkIsOrganizer, hardwareController.addAllItems);
+    /**
+     * POST /hardware/addItems
+     */
+    router.post("/addItems", checkIsOrganizer, this._hardwareController.addAllItems);
 
-  /**
-   * GET /hardware/allItems
-   */
-  router.get("/allItems", hardwareController.getAllItems);
+    /**
+     * GET /hardware/allItems
+     */
+    router.get("/allItems", this._hardwareController.getAllItems);
 
-  /**
-   * GET /hardware/reservation
-   */
-  router.get("/reservation/:token", checkIsVolunteer, hardwareController.getReservation);
+    /**
+     * GET /hardware/reservation
+     */
+    router.get("/reservation/:token", checkIsVolunteer, this._hardwareController.getReservation);
 
-  /**
-   * GET /hardware/reservations
-   */
-  router.get("/reservations", checkIsVolunteer, hardwareController.getAllReservations);
+    /**
+     * GET /hardware/reservations
+     */
+    router.get("/reservations", checkIsVolunteer, this._hardwareController.getAllReservations);
 
-  /**
-   * PUT /hardware/:id
-   */
-  router.put("/:id", checkIsOrganizer, hardwareController.updateItem);
+    /**
+     * PUT /hardware/:id
+     */
+    router.put("/:id", checkIsOrganizer, this._hardwareController.updateItem);
 
-  /**
-   * DELETE /hardware/:id
-   */
-  router.delete("/:id", checkIsOrganizer, hardwareController.deleteItem);
+    /**
+     * DELETE /hardware/:id
+     */
+    router.delete("/:id", checkIsOrganizer, this._hardwareController.deleteItem);
 
-  return router;
+    return router;
+  }
 };

@@ -1,18 +1,30 @@
 import { Repository } from "typeorm";
-import { Announcement } from "../../db/entity/hub";
+import { Announcement } from "../../db/entity";
 import { Cache } from "../../util/cache";
+import { injectable, inject } from "inversify";
+import { TYPES } from "../../types";
+import { AnnouncementRepository } from "../../repositories";
 
+export interface AnnouncementServiceInterface {
+  createAnnouncement: (announcement: Announcement) => Promise<void>;
+  getMostRecentAnnouncements: (mostRecent: number) => Promise<Announcement[]>;
+}
+
+@injectable()
 export class AnnouncementService {
-  private announcementRepository: Repository<Announcement>;
-  private cache: Cache;
-  constructor(_announcementRepository: Repository<Announcement>, _cache: Cache) {
-    this.announcementRepository = _announcementRepository;
-    this.cache = _cache;
+  private _announcementRepository: Repository<Announcement>;
+  private _cache: Cache;
+
+  constructor(
+    @inject(TYPES.AnnouncementRepository) announcementRepository: AnnouncementRepository,
+    @inject(TYPES.Cache) cache: Cache) {
+    this._announcementRepository = announcementRepository.getRepository();
+    this._cache = cache;
   }
 
   public createAnnouncement = async (announcement: Announcement): Promise<void> => {
-    await this.announcementRepository.save(announcement);
-    this.cache.deleteAll(Announcement.name);
+    await this._announcementRepository.save(announcement);
+    this._cache.deleteAll(Announcement.name);
   };
 
   /**
@@ -22,12 +34,12 @@ export class AnnouncementService {
    */
   public getMostRecentAnnouncements = async (mostRecent: number): Promise<Announcement[]> => {
     let mostRecentAnnouncements: Announcement[] = undefined;
-    const cachedAnnouncements: Announcement[] = this.cache.getAll(Announcement.name);
+    const cachedAnnouncements: Announcement[] = this._cache.getAll(Announcement.name);
 
     // Either there are no announcements or the cache has expired
     if (cachedAnnouncements.length === 0) {
       try {
-        mostRecentAnnouncements = await this.announcementRepository
+        mostRecentAnnouncements = await this._announcementRepository
           .createQueryBuilder("announcement")
           .orderBy("announcement.createdAt", "DESC")
           .limit(mostRecent)
@@ -36,7 +48,7 @@ export class AnnouncementService {
         throw new Error(`Failed to get the most recent announcements: ${err}`);
       }
       if (mostRecentAnnouncements !== undefined) {
-        this.cache.setAll(Announcement.name, mostRecentAnnouncements);
+        this._cache.setAll(Announcement.name, mostRecentAnnouncements);
       }
       return mostRecentAnnouncements;
     } else {

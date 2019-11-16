@@ -2,14 +2,24 @@ import { Request, Response, NextFunction } from "express";
 import { ApiError } from "../util/errorHandling/apiError";
 import { HttpResponseCode } from "../util/errorHandling/httpResponseCode";
 import { getConnection } from "typeorm";
-import { Event } from "../db/entity/hub";
+import { Event } from "../db/entity";
 import { Cache } from "../util/cache";
 import { ValidationError, validate } from "class-validator";
+import { inject, injectable } from "inversify";
+import { TYPES } from "../types";
 
-export class ScheduleController {
+export interface ScheduleControllerInterface {
+  listEvents: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+  createEvent: (req: Request, res: Response, next: NextFunction) => Promise<Event>;
+  deleteEvent: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+  updateEvent: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+}
+
+@injectable()
+export class ScheduleController implements ScheduleControllerInterface {
   private cache: Cache;
 
-  constructor(_cache: Cache) {
+  constructor(@inject(TYPES.Cache) _cache: Cache) {
     this.cache = _cache;
   }
 
@@ -28,7 +38,7 @@ export class ScheduleController {
     }
   }
 
-  public createEvent = async (req: Request, res: Response, next: NextFunction) => {
+  public createEvent = async (req: Request, res: Response, next: NextFunction): Promise<Event> => {
     try {
       const { title, startTime, endTime, location } = req.body;
       const newEvent: Event = new Event(title, new Date(startTime), new Date(endTime), location);
@@ -36,8 +46,9 @@ export class ScheduleController {
       const errors: ValidationError[] = await validate(newEvent);
 
       if (errors.length > 0) {
-        return next(new ApiError(HttpResponseCode.BAD_REQUEST,
+        next(new ApiError(HttpResponseCode.BAD_REQUEST,
           `Could not create event: ${errors.join(",")}`));
+        return;
       }
 
       await getConnection("hub").getRepository(Event).save(newEvent);
@@ -47,7 +58,7 @@ export class ScheduleController {
       this.cache.deleteAll(Event.name);
       res.send(newEvent);
     } catch (err) {
-      return next(err);
+      next(err);
     }
   }
 
