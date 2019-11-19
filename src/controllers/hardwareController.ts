@@ -144,7 +144,7 @@ export class HardwareController implements HardwareControllerInterface {
       const { totalStock, name, itemURL  } = req.body;
       const id = req.params.id;
 
-      const itemToUpdate: HardwareItem = await this._hardwareService.getHardwareItemByID(id);
+      const itemToUpdate: HardwareItem = await this._hardwareService.getHardwareItemByID(parseInt(id));
 
       if (itemToUpdate === undefined) {
         req.session.notification = {
