@@ -103,7 +103,7 @@ export class RequestAuthentication {
           if (result.error && result.status === HttpResponseCode.UNAUTHORIZED) {
             // When there is an error message and the status code is 401
             return done(undefined, false);
-          } else if (result.status === 0) {
+          } else if (result.status === HttpResponseCode.OK) {
             // The request has been authorized
 
             // Check if the user exists in the hub...if not, then add them
