@@ -8,6 +8,7 @@ import { createToken } from "../../util/crypto";
 import { TYPES } from "../../types";
 import { inject, injectable } from "inversify";
 import { HardwareRepository } from "../../repositories";
+import { SubscriberStore } from "../../util/sse/SubscriberStore";
 
 export interface HardwareServiceInterface {
   reserveItem: (user: User, itemToReserve: string, requestedQuantity?: number) => Promise<string>;
@@ -27,7 +28,7 @@ export interface HardwareServiceInterface {
 
 @injectable()
 export class HardwareService implements HardwareServiceInterface {
-  private hardwareRepository: Repository<HardwareItem>;
+  private hardwareRepository: HardwareRepository;
   private reservedHardwareService: ReservedHardwareService;
 
   constructor(
@@ -35,6 +36,7 @@ export class HardwareService implements HardwareServiceInterface {
     @inject(TYPES.ReservedHardwareService) _reservedHardwareService: ReservedHardwareService
   ) {
     this.hardwareRepository = _hardwareRepository.getRepository();
+    this.hardwareRepository.subscribers = new SubscriberStore();
     this.reservedHardwareService = _reservedHardwareService;
   }
 

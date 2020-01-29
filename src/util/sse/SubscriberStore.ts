@@ -24,6 +24,7 @@ export class SubscriberStore {
      * @param data The message/string to send
      */
     broadcast(data: ISubscriberMessage | string) {
+        console.log("sending", data);
         if (typeof data !== "string") {
             data = Subscriber.serialiseMessage(data);
         }

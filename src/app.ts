@@ -158,6 +158,9 @@ const createDatabaseSettings = (): ConnectionOptions[] => {
     entities: [
       __dirname + "/db/entity/*{.js,.ts}"
     ],
+    subscribers: [
+      __dirname + "/db/subscribers/*{.js,.ts}"
+    ],
     synchronize: true
     // If we want full query logging, uncomment the line below, and set logging = true
     // logger: new QueryLogger()
