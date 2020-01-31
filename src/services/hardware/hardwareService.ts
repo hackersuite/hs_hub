@@ -212,8 +212,9 @@ export class HardwareService implements HardwareServiceInterface {
     // The item is being returned
     try {
       // Decrement the reservation count for the hardware item
-      await this.hardwareRepository
-        .decrement({ id: hardwareItemID }, "takenStock", itemQuantity);
+      const item = await this.hardwareRepository.findOneOrFail(hardwareItemID);
+      item.takenStock -= itemQuantity;
+      await this.hardwareRepository.save(item);
 
       // Delete the user reservation from the database
       await this.reservedHardwareService.removeReservation(token);
