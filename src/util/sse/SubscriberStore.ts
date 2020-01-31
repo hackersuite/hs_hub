@@ -1,9 +1,16 @@
 import { Subscriber, ISubscriberMessage } from "./Subscriber";
+import { injectable } from "inversify";
+
+export interface SubscriberStoreInterface {
+    addSubscriber: (subscriber: Subscriber) => void;
+    broadcast: (data: ISubscriberMessage | string) => void;
+}
 
 /**
  * Manages a collection of subscribers, automatically removing them once disconnected.
  */
-export class SubscriberStore {
+@injectable()
+export class SubscriberStore implements SubscriberStoreInterface {
     private _subscribers: Set<Subscriber>;
     
     constructor() {

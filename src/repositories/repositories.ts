@@ -11,7 +11,6 @@ export class UserRepository extends BaseRepository<User> {
   }
 }
 
-@injectable()
 @EntityRepository(HardwareItem)
 export class HardwareRepository extends Repository<HardwareItem> {
   public subscribers: SubscriberStore;

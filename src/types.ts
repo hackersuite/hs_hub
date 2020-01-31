@@ -30,5 +30,8 @@ export const TYPES = {
   AchievementsProgressRepository: Symbol.for("AchievementsProgressRepository"),
 
   RequestAuthentication: Symbol.for("RequestAuthentication"),
-  Cache: Symbol.for("Cache")
+  Cache: Symbol.for("Cache"),
+
+  SubscriberStore: Symbol.for("SubscriberStore"),
+  HardwareItemSubscriber: Symbol.for("HardwareItemSubscriber"),
 };

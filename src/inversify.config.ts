@@ -44,6 +44,10 @@ import { AchievementsService, AchievementsServiceInterface, AchievementsProgress
 import { EventService, EventServiceInterface } from "./services/events";
 import { UserRepository, HardwareRepository, ReservedHardwareRepository, EventRepository, AnnouncementRepository, AchievementProgressRepository, ChallengeRepository } from "./repositories";
 import { LocalAchievementsRepository, localAchievements } from "./util/achievements";
+import { SubscriberStore, SubscriberStoreInterface } from "./util/sse/SubscriberStore";
+import { HardwareItemSubscriber } from "./db/subscribers/HardwareItemSubscriber";
+import { HardwareItem } from "./db/entity";
+import { EntitySubscriberInterface } from "typeorm";
 
 const container = new Container();
 
@@ -105,5 +109,8 @@ container.bind<EventRepository>(TYPES.EventRepository).to(EventRepository);
 container.bind<RequestAuthenticationInterface>(TYPES.RequestAuthentication).to(RequestAuthentication);
 // Constants
 container.bind<CacheInterface>(TYPES.Cache).toConstantValue(new Cache());
+
+// SSE
+container.bind<SubscriberStoreInterface>(TYPES.SubscriberStore).toConstantValue(new SubscriberStore());
 
 export default container;
