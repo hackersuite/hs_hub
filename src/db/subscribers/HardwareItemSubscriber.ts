@@ -19,7 +19,9 @@ export class HardwareItemSubscriber implements EntitySubscriberInterface<Hardwar
     }
 
     afterUpdate(event: UpdateEvent<HardwareItem>) {
-        if (!event.entity) return;
+        if (!event.entity) {
+            return;
+        }
         this.store.broadcast({
             event: "ITEM_UPDATE",
             data: HardwareItemSubscriber.serialiseItem(event.entity),
@@ -27,7 +29,7 @@ export class HardwareItemSubscriber implements EntitySubscriberInterface<Hardwar
     }
 
     private static serialiseItem(item: HardwareItem): ILiveHardwareItem {
-        const itemsLeft = item.totalStock - (item.reservedStock + item.takenStock);
+        const itemsLeft = item.totalStock - (+item.reservedStock + +item.takenStock);
         return {
             itemID: item.id,
             itemName: item.name,

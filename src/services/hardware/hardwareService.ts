@@ -86,15 +86,16 @@ export class HardwareService implements HardwareServiceInterface {
       newItemReservation.reservationExpiry = new Date(new Date().getTime() + (1000 * 60 * 30));
 
       await this.hardwareRepository.manager.transaction(async transaction => {
-      // Insert the reservation into the database
-      await transaction
-        .getRepository(ReservedHardwareItem)
-        .save(newItemReservation);
+        // Insert the reservation into the database
+        await transaction
+          .getRepository(ReservedHardwareItem)
+          .save(newItemReservation);
 
-      // Increment the reservation count for the hardware item
-      await transaction
-        .getRepository(HardwareItem)
-        .increment({ id: hardwareItem.id }, "reservedStock", requestedQuantity);
+        // Increment the reservation count for the hardware item
+        const itemRepo = transaction.getRepository(HardwareItem);
+        const item = await itemRepo.findOneOrFail(hardwareItem.id);
+        item.reservedStock += requestedQuantity;
+        await itemRepo.save(item);
       });
 
       return newItemReservation.reservationToken;
