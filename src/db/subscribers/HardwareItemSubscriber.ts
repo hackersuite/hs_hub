@@ -1,4 +1,4 @@
-import { EventSubscriber, EntitySubscriberInterface, UpdateEvent } from "typeorm";
+import { EventSubscriber, EntitySubscriberInterface, UpdateEvent, InsertEvent } from "typeorm";
 import { HardwareItem } from "../../db/entity";
 import { SubscriberStore } from "../../util/sse/SubscriberStore";
 import { TYPES } from "../../types";
@@ -24,6 +24,16 @@ export class HardwareItemSubscriber implements EntitySubscriberInterface<Hardwar
         }
         this.store.broadcast({
             event: "ITEM_UPDATE",
+            data: HardwareItemSubscriber.serialiseItem(event.entity),
+        });
+    }
+
+    afterInsert(event: InsertEvent<HardwareItem>) {
+        if (!event.entity) {
+            return;
+        }
+        this.store.broadcast({
+            event: "ITEM_CREATE",
             data: HardwareItemSubscriber.serialiseItem(event.entity),
         });
     }
