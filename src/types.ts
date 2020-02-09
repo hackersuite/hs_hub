@@ -32,6 +32,6 @@ export const TYPES = {
   RequestAuthentication: Symbol.for("RequestAuthentication"),
   Cache: Symbol.for("Cache"),
 
-  SubscriberStore: Symbol.for("SubscriberStore"),
+  LiveServer: Symbol.for("LiveServer"),
   HardwareItemSubscriber: Symbol.for("HardwareItemSubscriber"),
 };

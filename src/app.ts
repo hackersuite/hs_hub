@@ -9,16 +9,17 @@ import { RequestAuthentication } from "./util/hs_auth";
 import { Express, Request, Response, NextFunction } from "express";
 import { Connection, createConnections, ConnectionOptions } from "typeorm";
 import { errorHandler, error404Handler } from "./util/errorHandling";
-import { RouterInterface } from "./routes";
+import { RouterInterface, HardwareRouter } from "./routes";
 import { TYPES } from "./types";
 import container from "./inversify.config";
+import { LiveServer } from "./util/live";
 
 // Load environment variables from .env file
 dotenv.config({ path: ".env" });
 
 
 // codebeat:disable[LOC]
-export function buildApp(callback: (app: Express, err?: Error) => void, connectionOptions?: ConnectionOptions[]): void {
+export function buildApp(callback: (app: Express, err?: Error) => SocketIO.Server, connectionOptions?: ConnectionOptions[]): void {
   const app: Express = expressSetup();
 
   middlewareSetup(app);
@@ -52,7 +53,11 @@ export function buildApp(callback: (app: Express, err?: Error) => void, connecti
     app.use(error404Handler);
     app.use(errorHandler);
 
-    return callback(app);
+    // Bind app to network, returns a SocketIO.Server
+    const server: SocketIO.Server = callback(app);
+
+    const liveServer: LiveServer = container.get(TYPES.LiveServer);
+    liveServer.attachServer(server);
   }).catch((err: any) => {
     console.error("  Could not connect to database");
     console.error(err);

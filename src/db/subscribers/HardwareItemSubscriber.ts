@@ -1,6 +1,6 @@
 import { EventSubscriber, EntitySubscriberInterface, UpdateEvent, InsertEvent } from "typeorm";
 import { HardwareItem } from "../../db/entity";
-import { SubscriberStore } from "../../util/sse/SubscriberStore";
+import { LiveServer } from "../../util/live/Server";
 import { TYPES } from "../../types";
 import container from "../../inversify.config";
 import { ILiveHardwareItem } from "../../util/hardware";
@@ -8,10 +8,10 @@ import { ILiveHardwareItem } from "../../util/hardware";
 @EventSubscriber()
 export class HardwareItemSubscriber implements EntitySubscriberInterface<HardwareItem> {
 
-    private readonly store: SubscriberStore;
+    private readonly liveServer: LiveServer;
 
     constructor() {
-        this.store = container.get(TYPES.SubscriberStore);
+        this.liveServer = container.get(TYPES.LiveServer);
     }
 
     listenTo() {
@@ -22,7 +22,7 @@ export class HardwareItemSubscriber implements EntitySubscriberInterface<Hardwar
         if (!event.entity) {
             return;
         }
-        this.store.broadcast({
+        this.liveServer.broadcast({
             event: "ITEM_UPDATE",
             data: HardwareItemSubscriber.serialiseItem(event.entity),
         });
@@ -32,7 +32,7 @@ export class HardwareItemSubscriber implements EntitySubscriberInterface<Hardwar
         if (!event.entity) {
             return;
         }
-        this.store.broadcast({
+        this.liveServer.broadcast({
             event: "ITEM_CREATE",
             data: HardwareItemSubscriber.serialiseItem(event.entity),
         });

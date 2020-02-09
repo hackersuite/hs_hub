@@ -9,7 +9,6 @@ import { TeamService } from "../services/teams/teamService";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../types";
 import { RequestUser } from "../util/hs_auth";
-import { Subscriber } from "../util/sse/Subscriber";
 
 export interface HardwareControllerInterface {
   library: (req: Request, res: Response, next: NextFunction) => Promise<void>;
@@ -374,8 +373,4 @@ export class HardwareController implements HardwareControllerInterface {
       next(new ApiError(err.statusCode || HttpResponseCode.INTERNAL_ERROR, err.message));
     }
   };
-
-  public liveStream = async(req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const sub = new Subscriber(req, res);
-  }
 }

@@ -8,8 +8,7 @@ import { createToken } from "../../util/crypto";
 import { TYPES } from "../../types";
 import { inject, injectable } from "inversify";
 import { HardwareRepository } from "../../repositories";
-import { SubscriberStore } from "../../util/sse/SubscriberStore";
-import { ISubscriberMessage } from "../../util/sse";
+import { LiveServer, LiveServerInterface } from "../../util/live/Server";
 
 export interface HardwareServiceInterface {
   reserveItem: (user: User, itemToReserve: string, requestedQuantity?: number) => Promise<string>;
@@ -29,17 +28,17 @@ export interface HardwareServiceInterface {
 
 @injectable()
 export class HardwareService implements HardwareServiceInterface {
-  private hardwareRepository: HardwareRepository;
+  private hardwareRepository: Repository<HardwareItem>;
   private reservedHardwareService: ReservedHardwareService;
-  private subscriberStore: SubscriberStore;
+  private liveServer: LiveServer;
 
   constructor(
     @inject(TYPES.HardwareRepository) _hardwareRepository: HardwareRepository,
     @inject(TYPES.ReservedHardwareService) _reservedHardwareService: ReservedHardwareService,
-    @inject(TYPES.SubscriberStore) _subscriberStore: SubscriberStore,
+    @inject(TYPES.LiveServer) _liveServer: LiveServer,
   ) {
     this.hardwareRepository = _hardwareRepository.getRepository();
-    this.subscriberStore = _subscriberStore;
+    this.liveServer = _liveServer;
     this.reservedHardwareService = _reservedHardwareService;
   }
 
@@ -297,12 +296,12 @@ export class HardwareService implements HardwareServiceInterface {
       throw new ApiError(HttpResponseCode.BAD_REQUEST, "Cannot delete an item that has reservations!");
     }
     await this.hardwareRepository.delete(itemId);
-    this.subscriberStore.broadcast({
+    this.liveServer.broadcast({
       event: "ITEM_DELETE",
       data: {
         id,
       }
-    } as ISubscriberMessage);
+    });
   };
 
   public updateHardwareItem = async (itemToUpdate: HardwareItem): Promise<void> => {

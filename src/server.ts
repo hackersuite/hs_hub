@@ -6,7 +6,7 @@ import * as socketIO from "socket.io";
 /**
  * Start Express server.
  */
-buildApp((app: Express, err: Error) => {
+buildApp((app: Express, err: Error) : socketIO.Server => {
   if (err) {
     console.error("Could not start server!");
   } else {
@@ -20,5 +20,6 @@ buildApp((app: Express, err: Error) => {
       );
       console.log("  Press CTRL-C to stop\n");
     });
+    return io;
   }
 });

@@ -2,7 +2,7 @@ import { User, HardwareItem, ReservedHardwareItem, Event as HubEvent, Challenge,
 import { BaseRepository } from "./baseRepository";
 import { injectable } from "inversify";
 import { Repository, EntityRepository, getConnectionManager, ConnectionManager } from "typeorm";
-import { SubscriberStore } from "../util/sse/SubscriberStore";
+import { LiveServer } from "../util/live/Server";
 
 @injectable()
 export class UserRepository extends BaseRepository<User> {
@@ -11,21 +11,10 @@ export class UserRepository extends BaseRepository<User> {
   }
 }
 
-@EntityRepository(HardwareItem)
-export class HardwareRepository extends Repository<HardwareItem> {
-  public subscribers: SubscriberStore;
-
-  setSubscriberStore(store: SubscriberStore) {
-    this.subscribers = store;
-  }
-
-  public getRepository(): HardwareRepository {
-    const connectionManager: ConnectionManager = getConnectionManager();
-    if (connectionManager.connections.length > 0) {
-      return connectionManager.get("hub").getCustomRepository(HardwareRepository);
-    } else {
-      throw "Connection to the database is not setup!";
-    }
+@injectable()
+export class HardwareRepository extends BaseRepository<HardwareItem> {
+  public getRepository(): Repository<HardwareItem> {
+    return super.connect(HardwareItem);
   }
 }
 

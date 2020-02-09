@@ -44,7 +44,7 @@ import { AchievementsService, AchievementsServiceInterface, AchievementsProgress
 import { EventService, EventServiceInterface } from "./services/events";
 import { UserRepository, HardwareRepository, ReservedHardwareRepository, EventRepository, AnnouncementRepository, AchievementProgressRepository, ChallengeRepository } from "./repositories";
 import { LocalAchievementsRepository, localAchievements } from "./util/achievements";
-import { SubscriberStore, SubscriberStoreInterface } from "./util/sse/SubscriberStore";
+import { LiveServerInterface, LiveServer } from "./util/live/Server";
 import { HardwareItemSubscriber } from "./db/subscribers/HardwareItemSubscriber";
 import { HardwareItem } from "./db/entity";
 import { EntitySubscriberInterface } from "typeorm";
@@ -111,6 +111,6 @@ container.bind<RequestAuthenticationInterface>(TYPES.RequestAuthentication).to(R
 container.bind<CacheInterface>(TYPES.Cache).toConstantValue(new Cache());
 
 // SSE
-container.bind<SubscriberStoreInterface>(TYPES.SubscriberStore).toConstantValue(new SubscriberStore());
+container.bind<LiveServerInterface>(TYPES.LiveServer).toConstantValue(new LiveServer());
 
 export default container;
