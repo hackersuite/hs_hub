@@ -1,5 +1,10 @@
 import { injectable } from "inversify";
 
+export interface LivePacket {
+    event: string,
+    data: Object,
+}
+
 export interface LiveServerInterface {
     attachServer: (server: SocketIO.Server) => void;
     // addSubscriber: (subscriber: Subscriber) => void;
@@ -13,16 +18,19 @@ export interface LiveServerInterface {
 export class LiveServer implements LiveServerInterface {
 
     private _socketIO: SocketIO.Server;
+    private _nsp: SocketIO.Namespace;
 
     constructor() {}
 
     public attachServer(server: SocketIO.Server) {
         if (this._socketIO) return;
         this._socketIO = server;
-        console.log("attached!");
+        this._nsp = server.of("/hardware/live");
+        console.log("  Attached socket.io server!");
     }
 
-    public broadcast(data: Object) {
-
+    public broadcast(packet: LivePacket) {
+        const { event, data } = packet;
+        this._nsp.emit(event, data);
     }
 }
