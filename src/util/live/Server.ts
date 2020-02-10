@@ -7,8 +7,7 @@ export interface LivePacket {
 
 export interface LiveServerInterface {
     attachServer: (server: SocketIO.Server) => void;
-    // addSubscriber: (subscriber: Subscriber) => void;
-    // broadcast: (data: ISubscriberMessage | string) => void;
+    broadcast: (data: LivePacket) => void;
 }
 
 /**
