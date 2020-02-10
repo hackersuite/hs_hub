@@ -51,31 +51,7 @@ export class HardwareController implements HardwareControllerInterface {
   public library = async (req: Request, res: Response, next: NextFunction) => {
     const requestUser: RequestUser = req.user as RequestUser;
     const userID: string = requestUser.authId;
-    // First get all the hardware reservations as the expired reservation are removed in the call
-    const allReservations: ReservedHardwareItem[] = await this._reservedHardwareService.getAll();
-    // Only then get the hardware items as the reservation count will be correctly updated
-    const hardwareItems: HardwareItem[] = await this._hardwareService.getAllHardwareItems();
-    const formattedData = [];
-    for (const item of hardwareItems) {
-      const remainingItemCount: number = item.totalStock - (item.reservedStock + item.takenStock);
-
-      const userReservation: ReservedHardwareItem = allReservations.find((reservation) => reservation.hardwareItem.name === item.name && reservation.user.authId === userID);
-
-      formattedData.push({
-        "itemID": item.id,
-        "itemName": item.name,
-        "itemURL": item.itemURL,
-        "itemStock": item.totalStock,
-        "itemsLeft": remainingItemCount,
-        "itemHasStock": remainingItemCount > 0,
-        "reserved": userReservation ? userReservation.isReserved : false,
-        "taken": userReservation ? !userReservation.isReserved : false,
-        "reservationQuantity": userReservation ? userReservation.reservationQuantity : 0,
-        "reservationToken": userReservation ? userReservation.reservationToken : "",
-        "expiresIn": userReservation ? Math.floor((userReservation.reservationExpiry.getTime() - Date.now()) / 60000) : 0
-      });
-    }
-    res.render("pages/hardware/index", { items: formattedData });
+    res.render("pages/hardware/index", { items: await this._hardwareService.generateHardwareItemsOverview(userID) });
   };
 
   /**
