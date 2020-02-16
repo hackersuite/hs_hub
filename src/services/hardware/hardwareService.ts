@@ -256,18 +256,18 @@ export class HardwareService implements HardwareServiceInterface {
     return hardwareItems;
   };
 
-  public generateHardwareItemsOverview = async(userID: string): Promise<Object[]> => {
+  public generateHardwareItemsOverview = async(userID: string): Promise<Object> => {
     // First get all the hardware reservations as the expired reservation are removed in the call
     const allReservations: ReservedHardwareItem[] = await this.reservedHardwareService.getAll();
     // Only then get the hardware items as the reservation count will be correctly updated
     const hardwareItems: HardwareItem[] = await this.getAllHardwareItems();
-    const formattedData = [];
+    const formattedData = {};
     for (const item of hardwareItems) {
       const remainingItemCount: number = item.totalStock - (item.reservedStock + item.takenStock);
 
       const userReservation: ReservedHardwareItem = allReservations.find((reservation) => reservation.hardwareItem.name === item.name && reservation.user.authId === userID);
 
-      formattedData.push({
+      formattedData[item.id] = {
         "itemID": item.id,
         "itemName": item.name,
         "itemURL": item.itemURL,
@@ -279,7 +279,7 @@ export class HardwareService implements HardwareServiceInterface {
         "reservationQuantity": userReservation ? userReservation.reservationQuantity : 0,
         "reservationToken": userReservation ? userReservation.reservationToken : "",
         "expiresIn": userReservation ? Math.floor((userReservation.reservationExpiry.getTime() - Date.now()) / 60000) : 0
-      });
+      };
     }
     return formattedData;
   }

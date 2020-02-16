@@ -65,6 +65,22 @@
       hardwareItems = data;
       renderItems();
     });
+    socket.on("ITEM_ADD", item => {
+      hardwareItems[item.itemID] = item;
+      renderItems();
+    });
+    socket.on("ITEM_DELETE", item => {
+      delete hardwareItems[item.id];
+      renderItems();
+    });
+    socket.on("ITEM_UPDATE", item => {
+      if (!hardwareItems[item.itemID]) {
+        hardwareItems[item.itemID] = item;
+      } else {
+        Object.assign(hardwareItems[item.itemID], item);
+      }
+      renderItems();
+    });
   </script>
 </body>
 

@@ -33,7 +33,7 @@ export class HardwareItemSubscriber implements EntitySubscriberInterface<Hardwar
             return;
         }
         this.liveServer.broadcast({
-            event: "ITEM_CREATE",
+            event: "ITEM_ADD",
             data: HardwareItemSubscriber.serialiseItem(event.entity),
         });
     }

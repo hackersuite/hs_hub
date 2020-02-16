@@ -37,7 +37,7 @@ var takeItemUI = '<div><span><b>Quantity to take:</b></span>'
 
 var outOfStockUI = '<div><b>Sorry. This item is currently out of stock!</b></div>';
 
-var hardwareItems = [];
+var hardwareItems = {};
 var filters = { all: "all", reserved: "reserved" };
 var currentFilter = filters.all;
 var currentSearchKey = "";
@@ -50,8 +50,8 @@ var headerClasses = {
 
 function renderItems() {
   $("#" + itemsContainerId).empty();
-  for (var index = 0; index < hardwareItems.length; index++) {
-    var item = hardwareItems[index];
+  for (id in hardwareItems) {
+    var item = hardwareItems[id];
     if (passesCurrentFilter(item) && containsCurrentSearchKey(item)) {
           renderItem(item);
     }
