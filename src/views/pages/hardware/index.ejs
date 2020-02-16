@@ -60,8 +60,9 @@
   <script src="/js/hardwareLoanControls.js"></script>
   <script>
     const socket = io("/hardware/live");
+    var hardwareItems;
     socket.on("sync", data => {
-      var hardwareItems = data;
+      hardwareItems = data;
       renderItems();
     });
   </script>
