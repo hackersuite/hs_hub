@@ -6,6 +6,7 @@
   <title>GUH19 Hub - Hardware</title>
   <link rel="stylesheet" href="/css/hardware.css">
   <script src="/js/hardware.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
 </head>
 
 <body>
@@ -58,8 +59,11 @@
 
   <script src="/js/hardwareLoanControls.js"></script>
   <script>
-    hardwareItems = <%- JSON.stringify(items) %>;
-    renderItems();
+    const socket = io("/hardware/live");
+    socket.on("sync", data => {
+      var hardwareItems = data;
+      renderItems();
+    });
   </script>
 </body>
 

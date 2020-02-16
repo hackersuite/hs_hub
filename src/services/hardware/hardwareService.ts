@@ -39,6 +39,7 @@ export class HardwareService implements HardwareServiceInterface {
   ) {
     this.hardwareRepository = _hardwareRepository.getRepository();
     this.liveServer = _liveServer;
+    this.liveServer.setHardwareService(this);
     this.reservedHardwareService = _reservedHardwareService;
   }
 
