@@ -116,9 +116,11 @@ export class ReservedHardwareService implements ReservedHardwareServiceInterface
         if (reservationForToken)
           throw new ApiError(HttpResponseCode.INTERNAL_ERROR, "Could not cancel reservation, please inform us that this error occured.");
       }
-      await transaction
-        .getRepository(HardwareItem)
-        .decrement({ id: reservation.hardwareItem.id }, "reservedStock", reservation.reservationQuantity);
+      const itemRepo = await transaction
+        .getRepository(HardwareItem);
+      const item = await itemRepo.findOneOrFail(reservation.hardwareItem.id);
+      item.reservedStock -= reservation.reservationQuantity;
+      itemRepo.save(item);
     });
   };
 
@@ -137,9 +139,10 @@ export class ReservedHardwareService implements ReservedHardwareServiceInterface
         await this.removeReservation(itemReservation.reservationToken, transaction);
 
         // Decrement the reservation count for the hardware item
-        await transaction
-          .getRepository(HardwareItem)
-          .decrement({ id: itemID }, "reservedStock", itemQuantity);
+        const itemRepo = await transaction.getRepository(HardwareItem);
+        const item = await itemRepo.findOneOrFail(itemID);
+        item.reservedStock -= itemQuantity;
+        itemRepo.save(item);
       });
 
     } catch (err) {
