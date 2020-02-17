@@ -23,6 +23,12 @@
                   <h1>
                     <span id="hours">24</span>:<span id="minutes">00</span>:<span id="seconds">00</span>
                   </h1>
+                  <% if (locals.isOrganizer) { %>
+                  <a href="/fullscreenTimer" class="btn btn-danger btn-sm pull-right" role="button" aria-pressed="true">
+                    <i class="fas fa-compress"></i>
+                    <!-- <p class="d-lg-none d-md-block">MakeTimerFullscreen</p> -->
+                  </a>
+                  <% } %>
                 </div>
               </div>
             </div>

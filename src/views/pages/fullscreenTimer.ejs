@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <% include ../partials/head.ejs %>
+  <title>GUH19 Hub - Fullscreen Timer</title>
+  <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+
+<body>
+    <div class="wrapper">
+            <div class="content">
+                <div class="container-fluid">
+                    <div class="jumbotron text-center">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h1 class="display-1">
+                                    <span id="hours">24</span>:<span id="minutes">00</span>:<span id="seconds">00</span>
+                                </h1>
+                            </div>
+                        </div>
+                    </div>
+                </div>  
+            </div>
+        </div>
+        <% include ../partials/footer.ejs %>
+    <script src="/js/timer.js"></script>
+</body>
+</html>

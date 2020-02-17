@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { HomeController } from "../controllers";
-import { checkIsLoggedIn } from "../util/user/authorization";
+import { checkIsLoggedIn, checkIsOrganizer } from "../util/user/authorization";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../types";
 import { RouterInterface } from ".";
@@ -31,6 +31,11 @@ export class HomeRouter implements RouterInterface {
     router.get("/",
       checkIsLoggedIn,
       this._homeController.dashboard);
+
+    router.get("/fullscreenTimer",
+    checkIsLoggedIn,
+    checkIsOrganizer,
+    this._homeController.fullscreenTimer);
 
     return router;
   }

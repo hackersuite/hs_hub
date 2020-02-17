@@ -11,6 +11,7 @@ export interface HomeControllerInterface {
   dashboard: (req: Request, res: Response, next: NextFunction) => Promise<void>;
   challenges: (req: Request, res: Response, next: NextFunction) => Promise<void>;
   contacts: (req: Request, res: Response, next: NextFunction) => void;
+  fullscreenTimer: (req: Request, res: Response, next: NextFunction) => void;
 }
 
 /**
@@ -53,5 +54,9 @@ export class HomeController implements HomeControllerInterface {
 
   public contacts = (req: Request, res: Response, next: NextFunction): void => {
     res.render("pages/contacts");
+  };
+
+  public fullscreenTimer = (req: Request, res: Response, next: NextFunction): void => {
+    res.render("pages/fullscreenTimer");
   };
 }
