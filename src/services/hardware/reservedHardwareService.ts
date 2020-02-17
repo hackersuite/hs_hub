@@ -153,6 +153,14 @@ export class ReservedHardwareService {
     return numberOfReservations > 0;
   };
 
+  public isTokenTaken = async (tokenToCheck: string): Promise<boolean> => {
+    const numberOfReservations: number = await this.reservedHardwareRepository
+      .createQueryBuilder("reservation")
+      .where("reservationToken = :token", { token: tokenToCheck })
+      .getCount();
+    return numberOfReservations > 0;
+  };
+
   /**
    * Gets the user and hardware item that the reservation token is linked to
    * @param resToken Unique reservation token for the user reserved hardware item

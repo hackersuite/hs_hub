@@ -53,7 +53,7 @@ export class HardwareService {
       const newItemReservation: ReservedHardwareItem = new ReservedHardwareItem();
       newItemReservation.user = user;
       newItemReservation.hardwareItem = hardwareItem;
-      newItemReservation.reservationToken = createToken();
+      newItemReservation.reservationToken = await createToken(this.reservedHardwareService);
       newItemReservation.isReserved = true;
       newItemReservation.reservationQuantity = requestedQuantity;
 
