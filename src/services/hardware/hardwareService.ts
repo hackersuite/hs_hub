@@ -76,7 +76,7 @@ export class HardwareService implements HardwareServiceInterface {
       const newItemReservation: ReservedHardwareItem = new ReservedHardwareItem();
       newItemReservation.user = user;
       newItemReservation.hardwareItem = hardwareItem;
-      newItemReservation.reservationToken = createToken();
+      newItemReservation.reservationToken = createToken(this.reservedHardwareService);
       newItemReservation.isReserved = true;
       newItemReservation.reservationQuantity = requestedQuantity;
 
