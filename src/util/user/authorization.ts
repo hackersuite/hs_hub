@@ -33,7 +33,7 @@ export const checkIsLoggedIn = (req: Request, res: Response, next: NextFunction)
       const state = Buffer.from(`${user.authId}:${genHmac(user.authId)}`).toString('base64');
       res.locals.discordAuthURL =
         `https://discordapp.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT_ID}` +
-        `&redirect_uri=${encodeURIComponent(`${process.env.HUB_URL}/user/discord_authentication`)}` +
+        `&redirect_uri=${encodeURIComponent(`${process.env.DISCORD_REDIRECT_URI}`)}` +
         `&response_type=code&scope=identify%20guilds.join&state=${state}`;
       res.locals.authLevel = user.authLevel;
       return next();
