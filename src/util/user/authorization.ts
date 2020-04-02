@@ -4,6 +4,7 @@ import * as querystring from "querystring";
 
 import { AuthLevels } from "./authLevels";
 import { RequestUser } from "../hs_auth";
+import { genHmac } from "../crypto";
 
 export const checkIsLoggedIn = (req: Request, res: Response, next: NextFunction): void => {
   passport.authenticate(
@@ -29,6 +30,8 @@ export const checkIsLoggedIn = (req: Request, res: Response, next: NextFunction)
       if (user.authLevel >= AuthLevels.Organizer)
         res.locals.isOrganizer = true;
 
+      const state = Buffer.from(`${user.authId}:${genHmac(user.authId)}`).toString('base64');
+      res.locals.discordAuthURL = `https://discordapp.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(process.env.DISCORD_REDIRECT_URI)}&response_type=code&scope=identify%20guilds.join&state=${state}`;
       res.locals.authLevel = user.authLevel;
       return next();
     }

@@ -5,6 +5,7 @@ import { injectable, inject } from "inversify";
 import { RequestUser, RequestTeam, RequestTeamMembers, Team } from "../util/hs_auth";
 import { TYPES } from "../types";
 import { UserService } from "../services/users";
+import axios from "axios";
 
 export interface UserControllerInterface {
   profile: (req: Request, res: Response, next: NextFunction) => void;
@@ -84,5 +85,16 @@ export class UserController implements UserControllerInterface {
     // console.log(teamInfo);
 
     // res.render("pages/profile", { user: reqUser, teamMembers: teamInfo.users, teamInfo: teamInfo });
+  };
+
+  public discordAuth = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      await axios.get("http://localhost:8082/api/v1/discord", {
+        params: req.query
+      });
+      res.render("pages/discord", { error: false });
+    } catch(err) {
+      res.render("pages/discord", { error: true }); 
+    }
   };
 }

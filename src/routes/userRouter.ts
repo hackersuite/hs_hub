@@ -28,6 +28,8 @@ export class UserRouter implements RouterInterface {
      */
     router.get("/profile", checkIsLoggedIn, this._userController.profile);
 
+    router.get("/discord_authentication", checkIsLoggedIn, this._userController.discordAuth);
+
     return router;
   }
 };

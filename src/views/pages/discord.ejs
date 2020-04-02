@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <% include ../partials/head.ejs %>
+  <title>GUH19 Hub - Discord Authentication</title>
+</head>
+
+<body>
+  <div class="wrapper">
+    <% include ../partials/navbar.ejs %>
+
+    <div class="main-panel">
+      <div class="content">
+        <div class="container">
+          <% if (!error) { %>
+          <h3>Success! Your account is now linked!</h3>
+          <p><a href="https://discordapp.com/" target="_blank">Open Discord</a> to access the Hackathon server!</p>
+          <% } else { %>
+          <h3>Something went wrong! :(</h3>
+          <p>Try again in a few seconds.</p>
+          <% } %>
+        </div>
+      </div>
+      <% include ../partials/footer.ejs %>
+    </div>
+  </div>
+</body>
+
+</html>
