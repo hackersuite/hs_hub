@@ -6,6 +6,7 @@ import { RequestUser, RequestTeam, RequestTeamMembers, Team } from "../util/hs_a
 import { TYPES } from "../types";
 import { UserService } from "../services/users";
 import axios from "axios";
+import { genHmac } from "../util/crypto";
 
 export interface UserControllerInterface {
   profile: (req: Request, res: Response, next: NextFunction) => void;
@@ -85,6 +86,15 @@ export class UserController implements UserControllerInterface {
     // console.log(teamInfo);
 
     // res.render("pages/profile", { user: reqUser, teamMembers: teamInfo.users, teamInfo: teamInfo });
+  };
+
+  public discordJoin = async (req: Request, res: Response, next: NextFunction) => {
+    const state = Buffer.from(`${req.user.authId}:${genHmac(req.user.authId)}`).toString('base64');
+    const discordURL =
+      `https://discordapp.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT_ID}` +
+      `&redirect_uri=${encodeURIComponent(`${process.env.DISCORD_REDIRECT_URI}`)}` +
+      `&response_type=code&scope=identify%20guilds.join&state=${state}`;
+    res.redirect(discordURL, 302);
   };
 
   public discordAuth = async (req: Request, res: Response, next: NextFunction) => {
