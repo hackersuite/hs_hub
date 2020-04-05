@@ -30,6 +30,7 @@ networks:
   # internal network for hs_hub services
   internal:
     driver: bridge
+    name: internal
   # external network for consumer-facing hacker suite services
   hacker_suite:
     external:
