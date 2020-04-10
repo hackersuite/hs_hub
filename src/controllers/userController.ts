@@ -99,7 +99,7 @@ export class UserController implements UserControllerInterface {
 
   public discordAuth = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await axios.get(`${process.env.DISCORD_HS_API_BASE}/api/v1/discord`, {
+      await axios.get(`${process.env.DISCORD_HS_API_BASE}/api/v1/discord/verify`, {
         params: req.query
       });
       res.render("pages/discord", { error: false });

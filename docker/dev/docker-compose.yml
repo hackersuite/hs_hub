@@ -27,7 +27,7 @@ volumes:
 
 # The network allows multiple containers to connect together
 networks:
-  # internal network for hs_hub services
+  # internal network for HackerSuite services
   internal:
     driver: bridge
     name: internal
