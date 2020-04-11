@@ -6,7 +6,7 @@ import { RequestUser, RequestTeam, RequestTeamMembers, Team } from "../util/hs_a
 import { TYPES } from "../types";
 import { UserService } from "../services/users";
 import axios from "axios";
-import { genHmac } from "../util/crypto";
+import { createVerificationHmac, linkAccount } from "@unicsmcr/hs_discord_bot_api_client";
 
 export interface UserControllerInterface {
   profile: (req: Request, res: Response, next: NextFunction) => void;
@@ -89,19 +89,17 @@ export class UserController implements UserControllerInterface {
   };
 
   public discordJoin = async (req: Request, res: Response, next: NextFunction) => {
-    const state = Buffer.from(`${req.user.authId}:${genHmac(req.user.authId)}`).toString('base64');
+    const state = createVerificationHmac(req.user.authId, process.env.DISCORD_HMAC_KEY);
     const discordURL =
       `https://discordapp.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT_ID}` +
       `&redirect_uri=${encodeURIComponent(`${process.env.DISCORD_REDIRECT_URI}`)}` +
       `&response_type=code&scope=identify%20guilds.join&state=${state}`;
-    res.redirect(discordURL, 302);
+    res.redirect(302, discordURL);
   };
 
   public discordAuth = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await axios.get(`${process.env.DISCORD_HS_API_BASE}/api/v1/discord/verify`, {
-        params: req.query
-      });
+      await linkAccount(req.user.authId, req.query.code, req.query.state);
       res.render("pages/discord", { error: false });
     } catch(err) {
       res.render("pages/discord", { error: true }); 
