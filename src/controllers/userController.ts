@@ -5,7 +5,6 @@ import { injectable, inject } from "inversify";
 import { RequestUser, RequestTeam, RequestTeamMembers, Team } from "../util/hs_auth";
 import { TYPES } from "../types";
 import { UserService } from "../services/users";
-import axios from "axios";
 import { createVerificationHmac, linkAccount } from "@unicsmcr/hs_discord_bot_api_client";
 
 export interface UserControllerInterface {
