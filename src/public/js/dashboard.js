@@ -8,7 +8,11 @@ $(document).ready(function () {
 
   // Add countries to modal select
   for (const country of countries) {
-    $("#countrySelect").append(new Option(country.name, country["alpha-2"]));
+    if (country["alpha-2"] == "GB") {
+      $("#countrySelect").append(new Option(country.name, country["alpha-2"], true, true));
+    } else {
+      $("#countrySelect").append(new Option(country.name, country["alpha-2"]));
+    }
   }
 });
 
@@ -29,6 +33,12 @@ function updateTwitchStatus(isOnline) {
   $("#twitch-status-container")
     .empty()
     .append(isOnline ? onlineTemplate : offlineTemplate);
+
+  if (isOnline) {
+    $("#twitch-player").show(500);
+  } else {
+    $("#twitch-player").hide(500);
+  }
 }
 
 function sendUserIntroForm() {
@@ -40,9 +50,8 @@ function sendUserIntroForm() {
   $.post({
     url: "/user/intro",
     data: formData
-  }).always(function () {
-    $("#introModal").modal("hide");
   });
+  $("#introModal").modal("hide");
 }
 
 let countries = [
@@ -280,7 +289,7 @@ let countries = [
   { name: "Uganda", "alpha-2": "UG", "country-code": "800" },
   { name: "Ukraine", "alpha-2": "UA", "country-code": "804" },
   { name: "United Arab Emirates", "alpha-2": "AE", "country-code": "784" },
-  { name: "United Kingdom of Great Britain and Northern Ireland", "alpha-2": "GB", "country-code": "826" },
+  { name: "United Kingdom", "alpha-2": "GB", "country-code": "826" },
   { name: "United States of America", "alpha-2": "US", "country-code": "840" },
   { name: "United States Minor Outlying Islands", "alpha-2": "UM", "country-code": "581" },
   { name: "Uruguay", "alpha-2": "UY", "country-code": "858" },
