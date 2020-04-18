@@ -16,7 +16,6 @@ import container from "./inversify.config";
 // Load environment variables from .env file
 dotenv.config({ path: ".env" });
 
-
 // codebeat:disable[LOC]
 export function buildApp(callback: (app: Express, err?: Error) => void, connectionOptions?: ConnectionOptions[]): void {
   const app: Express = expressSetup();
@@ -28,36 +27,39 @@ export function buildApp(callback: (app: Express, err?: Error) => void, connecti
   }
 
   // Connecting to database
-  const databaseConnectionSettings: ConnectionOptions[] = connectionOptions ?
-  connectionOptions : createDatabaseSettings();
+  const databaseConnectionSettings: ConnectionOptions[] = connectionOptions
+    ? connectionOptions
+    : createDatabaseSettings();
 
-  createConnections(databaseConnectionSettings).then((connections: Connection[]) => {
-    connections.forEach(element => {
-      console.log("  Connection to database (" + element.name + ") established.");
+  createConnections(databaseConnectionSettings)
+    .then((connections: Connection[]) => {
+      connections.forEach((element) => {
+        console.log("  Connection to database (" + element.name + ") established.");
+      });
+
+      // Set up passport for authentication
+      // Also add the logout route
+      const requestAuth: RequestAuthentication = container.get(TYPES.RequestAuthentication);
+      requestAuth.passportSetup(app);
+      app.use(morgan("dev"));
+      // Routes set up for express, resolving dependencies
+      // This is performed after successful DB connection since some routers use TypeORM repositories in their DI
+      const routers: RouterInterface[] = container.getAll(TYPES.Router);
+      routers.forEach((router) => {
+        app.use(router.getPathRoot(), router.register());
+      });
+
+      // Setting up error handlers
+      app.use(error404Handler);
+      app.use(errorHandler);
+
+      return callback(app);
+    })
+    .catch((err: any) => {
+      console.error("  Could not connect to database");
+      console.error(err);
+      return callback(app, err);
     });
-
-    // Set up passport for authentication
-    // Also add the logout route
-    const requestAuth: RequestAuthentication = container.get(TYPES.RequestAuthentication);
-    requestAuth.passportSetup(app);
-
-    // Routes set up for express, resolving dependencies
-    // This is performed after successful DB connection since some routers use TypeORM repositories in their DI
-    const routers: RouterInterface[] = container.getAll(TYPES.Router);
-    routers.forEach(router => {
-      app.use(router.getPathRoot(), router.register());
-    });
-
-    // Setting up error handlers
-    app.use(error404Handler);
-    app.use(errorHandler);
-
-    return callback(app);
-  }).catch((err: any) => {
-    console.error("  Could not connect to database");
-    console.error(err);
-    return callback(app, err);
-  });
 }
 
 /**
@@ -94,10 +96,7 @@ const middlewareSetup = (app: Express): void => {
     }
   });
 
-  app.use(
-    express.static(path.join(__dirname, "public"),
-      { maxAge: 31557600000 })
-  );
+  app.use(express.static(path.join(__dirname, "public"), { maxAge: 31557600000 }));
 
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
@@ -139,27 +138,28 @@ const getSessionOptions = (app: Express): any => {
     saveUninitialized: true, // Saved new sessions
     resave: false, // Do not automatically write to the session store
     secret: process.env.SESSION_SECRET,
-    cookie: { // Configure when sessions expires
-      secure: (app.get("env") === "dev" ? false : true),
+    cookie: {
+      // Configure when sessions expires
+      secure: app.get("env") === "dev" ? false : true,
       maxAge: 2419200000
     }
   };
 };
 
 const createDatabaseSettings = (): ConnectionOptions[] => {
-  return [{
-    name: "hub",
-    type: "mysql",
-    host: process.env.DB_HOST,
-    port: Number(process.env.DB_PORT),
-    username: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_DATABASE,
-    entities: [
-      __dirname + "/db/entity/*{.js,.ts}"
-    ],
-    synchronize: true
-    // If we want full query logging, uncomment the line below, and set logging = true
-    // logger: new QueryLogger()
-  }];
+  return [
+    {
+      name: "hub",
+      type: "mysql",
+      host: process.env.DB_HOST,
+      port: Number(process.env.DB_PORT),
+      username: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_DATABASE,
+      entities: [__dirname + "/db/entity/*{.js,.ts}"],
+      synchronize: true
+      // If we want full query logging, uncomment the line below, and set logging = true
+      // logger: new QueryLogger()
+    }
+  ];
 };

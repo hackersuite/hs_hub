@@ -75,7 +75,7 @@ export class UserController implements UserControllerInterface {
     let profileCookieOptions: CookieOptions = undefined;
     if (req.app.get("env") === "production") {
       profileCookieOptions = {
-        domain: "greatunihack.com",
+        domain: "studenthack2020.com",
         secure: true,
         httpOnly: true
       };
@@ -111,6 +111,7 @@ export class UserController implements UserControllerInterface {
       await linkAccount(req.user.authId, req.query.code, req.query.state);
       res.render("pages/discord", { error: false });
     } catch (err) {
+      console.log(err);
       res.render("pages/discord", { error: true });
     }
   };

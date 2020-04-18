@@ -59,7 +59,7 @@ export class RequestAuthentication {
     let logoutCookieOptions: CookieOptions = undefined;
     if (app.get("env") === "production") {
       logoutCookieOptions = {
-        domain: "greatunihack.com",
+        domain: "studenthack2020.com",
         secure: true,
         httpOnly: true
       };

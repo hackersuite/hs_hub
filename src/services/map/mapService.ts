@@ -7,7 +7,7 @@ import axios from "axios";
 
 export interface MapServiceInterface {
   getAll: () => Promise<MapLocation[]>;
-  add: () => Promise<void>;
+  add: (city: string, country: string) => Promise<void>;
 }
 
 @injectable()
@@ -41,10 +41,10 @@ export class MapService {
       try {
         await this.mapRepository.save(newLocation);
       } catch (err) {
-        return "Failed to save location";
+        return;
       }
     } else {
-      return "Failed geocoding";
+      return;
     }
   };
 }
