@@ -22,14 +22,17 @@ export class User {
   /**
    * Every user is able to have many different achievements so create a typeorm relationship
    */
-  @OneToMany(type => AchievementProgress, aProgress => aProgress.user)
+  @OneToMany((type) => AchievementProgress, (aProgress) => aProgress.user)
   achievementsProgress: AchievementProgress;
 
   /**
    * Also, users are able to reserve many different hardware items
    */
-  @OneToMany(() => ReservedHardwareItem, reservedHardwareItem => reservedHardwareItem.user)
+  @OneToMany(() => ReservedHardwareItem, (reservedHardwareItem) => reservedHardwareItem.user)
   hardwareItems: ReservedHardwareItem[];
+
+  @Column("boolean", { default: false })
+  completed_intro: boolean;
 
   public getId() {
     return this.id;

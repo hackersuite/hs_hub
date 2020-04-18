@@ -2,7 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
 import { Cacheable } from "../../util/cache";
 import { MaxLength, IsDefined } from "class-validator";
 
-@Entity ()
+@Entity()
 export class Announcement implements Cacheable {
   @PrimaryGeneratedColumn()
   id: number;

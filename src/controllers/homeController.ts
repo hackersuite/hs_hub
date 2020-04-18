@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { Cache } from "../util/cache";
-import { Announcement, Event, Challenge } from "../db/entity";
+import { Announcement, Event, Challenge, User } from "../db/entity";
 import { AnnouncementService } from "../services/announcement";
 import { EventService } from "../services/events";
 import { ChallengeService } from "../services/challenges";
@@ -43,13 +43,15 @@ export class HomeController implements HomeControllerInterface {
     }
     const announcements: Announcement[] = await this._announcementService.getMostRecentAnnouncements(5);
 
-    res.render("pages/dashboard", { events, announcements });
+    const shouldShowIntro: boolean = !(req.user.hubUser as User).completed_intro;
+
+    res.render("pages/dashboard", { events, announcements, shouldShowIntro });
   };
 
-  public challenges = async(req: Request, res: Response, next: NextFunction) => {
+  public challenges = async (req: Request, res: Response, next: NextFunction) => {
     const challenges: Challenge[] = await this._challengeService.getAll();
     res.render("pages/challenges", { challenges: challenges });
-  }
+  };
 
   public contacts = (req: Request, res: Response, next: NextFunction): void => {
     res.render("pages/contacts");

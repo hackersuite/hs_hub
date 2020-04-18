@@ -10,14 +10,14 @@ export interface UserServiceInterface {
   getUserByIDFromHub: (submittedID: string) => Promise<User>;
   getPushIDFromUserID: (userIDs: number[]) => Promise<string[]>;
   addPushIDToUser: (user: User, pushID: string) => Promise<void>;
-  insertNewHubUserToDatabase: (hubUser: User) => Promise<User>;
+  save: (hubUser: User) => Promise<User>;
 }
 
 @injectable()
 export class UserService {
   private userRepository: Repository<User>;
 
-  constructor(@inject(TYPES.UserRepository)_userRepository: UserRepository) {
+  constructor(@inject(TYPES.UserRepository) _userRepository: UserRepository) {
     this.userRepository = _userRepository.getRepository();
   }
 
@@ -39,12 +39,11 @@ export class UserService {
       .where("id = :id", { id: submittedID })
       .getOne();
 
-    if (!user)
-      throw new ApiError(HttpResponseCode.BAD_REQUEST, `User does not exist with id ${submittedID}`);
+    if (!user) throw new ApiError(HttpResponseCode.BAD_REQUEST, `User does not exist with id ${submittedID}`);
     return user;
   };
 
-    /**
+  /**
    * Gets the whole user object if it exists based on the user id
    * @param authID
    * @return Promise of a user
@@ -55,8 +54,7 @@ export class UserService {
       .where("authId = :id", { id: authID })
       .getOne();
 
-    if (!user)
-      throw new ApiError(HttpResponseCode.BAD_REQUEST, `User does not exist with auth id ${authID}`);
+    if (!user) throw new ApiError(HttpResponseCode.BAD_REQUEST, `User does not exist with auth id ${authID}`);
     return user;
   };
 
@@ -65,8 +63,7 @@ export class UserService {
    * @param userIDs An array of all users to who the notificaiton will be sent
    */
   public getPushIDFromUserID = async (userIDs: number[]): Promise<string[]> => {
-    const allUsers: User[] = await this.userRepository
-      .findByIds(userIDs);
+    const allUsers: User[] = await this.userRepository.findByIds(userIDs);
 
     // Users can have multiple push ids since they can login on different devices
     // For every user we want to send the push notifications to, add the push ids to the list
@@ -83,10 +80,8 @@ export class UserService {
 
   public addPushIDToUser = async (user: User, pushID: string): Promise<void> => {
     try {
-      if (!user.push_id)
-        user.push_id = [pushID];
-      else
-        user.push_id.push(pushID);
+      if (!user.push_id) user.push_id = [pushID];
+      else user.push_id.push(pushID);
 
       await this.userRepository.save(user);
     } catch (err) {
@@ -98,7 +93,7 @@ export class UserService {
    * Inserts the new hub user into the database, then check the insert worked
    * @param hubUser the new user to insert into the hub database
    */
-  public insertNewHubUserToDatabase = async (hubUser: User): Promise<User> => {
+  public save = async (hubUser: User): Promise<User> => {
     try {
       // Insert the user to the database
       return await this.userRepository.save(hubUser);

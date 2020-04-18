@@ -1,4 +1,11 @@
 .floor-plan {
   max-width: 100%;
-  
+}
+
+#hackermap {
+  height: 30vh;
+}
+
+.jvectormap-zoomout {
+  touch-action: none;
 }

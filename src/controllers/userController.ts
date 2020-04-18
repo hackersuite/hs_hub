@@ -6,6 +6,11 @@ import { RequestUser, RequestTeam, RequestTeamMembers, Team } from "../util/hs_a
 import { TYPES } from "../types";
 import { UserService } from "../services/users";
 import { createVerificationHmac, linkAccount } from "@unicsmcr/hs_discord_bot_api_client";
+import axios from "axios";
+import { Cache, Cacheable } from "../util/cache";
+import { HttpResponseCode } from "../util/errorHandling";
+import { User } from "../db/entity";
+import { MapService } from "../services/map";
 
 export interface UserControllerInterface {
   profile: (req: Request, res: Response, next: NextFunction) => void;
@@ -16,12 +21,18 @@ export interface UserControllerInterface {
  */
 @injectable()
 export class UserController implements UserControllerInterface {
-  private _teamService: TeamService;
+  private _userService: UserService;
+  private _mapService: MapService;
+  private _cache: Cache;
 
   constructor(
-    @inject(TYPES.TeamService) teamService: TeamService
+    @inject(TYPES.Cache) cache: Cache,
+    @inject(TYPES.UserService) userService: UserService,
+    @inject(TYPES.MapService) mapService: MapService
   ) {
-    this._teamService = teamService;
+    this._userService = userService;
+    this._mapService = mapService;
+    this._cache = cache;
   }
 
   /**
@@ -70,8 +81,7 @@ export class UserController implements UserControllerInterface {
       };
     }
 
-    res.cookie("ReturnTo", process.env.HUB_URL, profileCookieOptions)
-      .redirect(process.env.AUTH_URL);
+    res.cookie("ReturnTo", process.env.HUB_URL, profileCookieOptions).redirect(process.env.AUTH_URL);
     // let reqUser: RequestUser = req.user as RequestUser;
     // let teamInfo: Team = undefined;
     // if (reqUser.team) {
@@ -100,8 +110,61 @@ export class UserController implements UserControllerInterface {
     try {
       await linkAccount(req.user.authId, req.query.code, req.query.state);
       res.render("pages/discord", { error: false });
-    } catch(err) {
-      res.render("pages/discord", { error: true }); 
+    } catch (err) {
+      res.render("pages/discord", { error: true });
     }
+  };
+
+  public twitchStatus = async (req: Request, res: Response) => {
+    const twitchCache = "twitch_status";
+    const twitchStatus = this._cache.getAll(twitchCache);
+
+    // Use the stream status from cache
+    if (twitchStatus && twitchStatus.length > 0) {
+      res.send(twitchStatus[0]["isOnline"]);
+      return;
+    } else {
+      // Get the most up to date stream status
+      let response;
+      try {
+        response = await axios.get("https://api.twitch.tv/helix/streams", {
+          headers: {
+            "Client-ID": process.env.TWITCH_CLIENT_ID
+          },
+          params: {
+            user_login: "studenthack"
+          }
+        });
+      } catch (err) {
+        res.status(HttpResponseCode.INTERNAL_ERROR).send("Failed to get twitch status");
+        return;
+      }
+      const obj: Cacheable = {
+        id: 1,
+        expiresIn: 1000 * 60
+      };
+
+      const streamOnline = response.data && response.data.data.length > 0;
+      obj["isOnline"] = streamOnline;
+      this._cache.set(twitchCache, obj);
+
+      res.send(streamOnline);
+    }
+  };
+
+  public intro = async (req: Request, res: Response) => {
+    const currentUser = req.user.hubUser as User;
+    currentUser.completed_intro = true;
+
+    try {
+      const updateUserPromise = this._userService.save(currentUser);
+      const addMapLocationPromise = this._mapService.add(req.body.city, req.body.country);
+
+      await Promise.all([updateUserPromise, addMapLocationPromise]);
+    } catch (err) {
+      res.status(HttpResponseCode.INTERNAL_ERROR).send("Failed");
+      return;
+    }
+    res.send("Done");
   };
 }

@@ -3,16 +3,60 @@
 
 <head>
   <% include ../partials/head.ejs %>
-  <title>GUH19 Hub - Dashboard</title>
+  <title>SH2020 Hub - Dashboard</title>
   <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jvectormap/2.0.5/jquery-jvectormap.min.css"
+    integrity="sha256-iNez126P4WKiZigolYleAWMkO7xVsmNDnNSYc9Tdacc=" crossorigin="anonymous" />
 </head>
 
 <body>
   <div class="wrapper">
     <% include ../partials/navbar.ejs %>
     <div class="main-panel">
-
       <div class="content">
+
+        <!-- Model for website introduction -->
+        <div id="introModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+          aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Welcome to the StudentHack 2020 Hub!</h5>
+              </div>
+              <div class="modal-body">
+                <form class="form" method="" action="">
+                  <div class="card-body">
+                    To get started, please let us know where you are joining from!
+                    <div class="form-group bmd-form-group">
+                      <div class="input-group">
+                        <div class="input-group-prepend">
+                          <!--<div class="input-group-text"><i class="material-icons">face</i></div>-->
+                        </div>
+                        <input type="text" name="city" class="form-control" placeholder="City">
+                      </div>
+                    </div>
+
+                    <div class="form-group bmd-form-group">
+                      <div class="input-group">
+                        <div class="input-group-prepend">
+                          <!--<div class="input-group-text"><i class="material-icons">email</i></div>-->
+                        </div>
+                        <select id="countrySelect" name="country" class="form-control">
+                        </select>
+                      </div>
+                    </div>
+
+                  </div>
+                </form>
+              </div>
+
+              <div class="modal-footer justify-content-center">
+                <a href="javascript:sendUserIntroForm()" class="btn btn-primary btn-link btn-wd btn-lg">Get Started</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="container-fluid">
           <div class="row">
             <!-- TIMER -->
@@ -28,23 +72,26 @@
             </div>
             <!-- USEFUL LINKS -->
             <div class="col-xl-3 col-lg-4 col-sm-6">
-              <a href="https://join.slack.com/t/guh2019/shared_invite/enQtODEwOTExMDcyMzg4LTU1MDlmMDMzYTU3NTJiODE4MWFkZDlkYWUxMzM1OTYyNjYwMmZjNjA3NmE0NGMzZjhiYjI0ZjRlODIzOTY1ZjA" target="_blank" rel="noopener noreferrer">
+              <a href="https://twitch.com/studenthack" target="_blank" rel="noopener noreferrer">
                 <div class="card card-stats">
-                  <div class="card-header card-header-success card-header-icon">
+                  <div class="card-header card-header-primary card-header-icon">
                     <div class="card-icon">
-                      <i class="fab fa-slack"></i>
+                      <i class="fab fa-twitch"></i>
                     </div>
-                    <p class="card-category">Communication</p>
-                    <h3 class="card-title">Slack
+                    <p class="card-category">Ceremonies</p>
+                    <h3 class="card-title">Twitch
                     </h3>
                   </div>
                   <div class="card-footer">
+                    <div id="twitch-status-container" class="twitch-status">
+                    </div>
                   </div>
                 </div>
               </a>
             </div>
+
             <div class="col-xl-3 col-lg-4 col-sm-6">
-              <a href="https://greatunihack19.devpost.com/" target="_blank" rel="noopener noreferrer">
+              <a href="https://studenthackvii.devpost.com/" target="_blank" rel="noopener noreferrer">
                 <div class="card card-stats">
                   <div class="card-header card-header-warning card-header-icon">
                     <div class="card-icon">
@@ -55,22 +102,29 @@
                     </h3>
                   </div>
                   <div class="card-footer">
+                    <div class="stats">
+                      Submit your hack!
+                    </div>
                   </div>
                 </div>
               </a>
             </div>
             <div class="col-xl-3 col-lg-4 col-sm-6">
-              <a href="https://drive.google.com/open?id=1eM-eOYCESmGml0ro-o8xmK0Tv6M0b8W_na7J5Mwe8g0" target="_blank" rel="noopener noreferrer">
+              <a href="https://drive.google.com/open?id=1eM-eOYCESmGml0ro-o8xmK0Tv6M0b8W_na7J5Mwe8g0" target="_blank"
+                rel="noopener noreferrer">
                 <div class="card card-stats">
                   <div class="card-header card-header-danger card-header-icon">
                     <div class="card-icon">
                       <i class="fas fa-file-alt"></i>
                     </div>
                     <p class="card-category"><br></p>
-                    <h3 class="card-title">Code of Conduct
+                    <h3 class="card-title">Code Of Conduct
                     </h3>
                   </div>
                   <div class="card-footer">
+                    <div class="stats">
+                      Please read the rules!
+                    </div>
                   </div>
                 </div>
               </a>
@@ -202,44 +256,23 @@
               <div class="row">
                 <!-- FLOOR PLAN -->
                 <div class="col-lg-12">
-                  <div class="card">
-                    <div class="card-header card-header-tabs card-header-danger">
-                      <div class="nav-tabs-navigation">
-                        <div class="nav-tabs-wrapper">
-                          <span class="nav-tabs-title">Floor Plan:</span>
-                          <ul class="nav nav-tabs" data-tabs="tabs">
-                            <li class="nav-item">
-                              <a class="nav-link active" href="#ground-floor" data-toggle="tab">
-                                Ground Floor
-                                <div class="ripple-container"></div>
-                              </a>
-                            </li>
-                            <li class="nav-item">
-                              <a class="nav-link" href="#first-floor" data-toggle="tab">
-                                First Floor
-                                <div class="ripple-container"></div>
-                              </a>
-                            </li>
-                          </ul>
-                        </div>
+                  <div class="card card-stats">
+                    <div class="card-header card-header-success card-header-icon">
+                      <div class="card-icon">
+                        <i class="fas fa-map-marked-alt"></i>
                       </div>
+                      <h3 class="card-title">Hacker Map
+                      </h3>
                     </div>
                     <div class="card-body">
-                      <div class="tab-content">
-                        <div class="tab-pane active" id="ground-floor">
-                          <img src="/img/floorplan/GroundFloor.jpg" class="floor-plan">
-                        </div>
-                        <div class="tab-pane" id="first-floor">
-                          <img src="/img/floorplan/FirstFloor.jpg" class="floor-plan">
-                        </div>
+                      <div id="hackermap">
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <!-- TODO list -->
-            <!-- <div class="col-lg-3 col-md-12">
+              <!-- TODO list -->
+              <!-- <div class="col-lg-3 col-md-12">
               <div class="card">
                 <div class="card-header card-header-tabs card-header-danger">
                   <div class="nav-tabs-navigation">
@@ -285,12 +318,25 @@
                 </div>
               </div>
             </div> -->
+            </div>
           </div>
+          <% include ../partials/footer.ejs %>
         </div>
-        <% include ../partials/footer.ejs %>
       </div>
-    </div>
-    <script src="/js/timer.js"></script>
+      <script src="/js/timer.js"></script>
+      <script src="/js/dashboard.js"></script>
+      <script src="/js/plugins/jvectormap.min.js"></script>
+      <script src="https://jvectormap.com/js/jquery-jvectormap-world-mill.js"></script>
+      <script src="/js/locationmap.js"></script>
+      <script>
+        var needIntro = <%- shouldShowIntro %>;
+        if (needIntro) {
+          $('#introModal').modal({
+            backdrop: 'static',
+            keyboard: false
+          });
+        }
+      </script>
 </body>
 
 </html>

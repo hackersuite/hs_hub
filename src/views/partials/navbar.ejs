@@ -2,30 +2,30 @@
 <div class="sidebar" data-color="azure" data-background-color="black" data-image="/img/sidebar.jpg">
   <div class="logo">
     <a href="http://www.greatunihack.com" class="simple-text logo-normal">
-      GUH19 Hub
+      SH2020 Hub
     </a>
   </div>
   <div class="sidebar-wrapper">
     <ul class="nav">
-        <%if (locals.isOrganizer || locals.isVolunteer) { %>
-          <li class="nav-item">
-            <a class="nav-link" href="/hardware/loancontrols">
-              <p>Hardware library - loan controls</p>
-            </a>
-          </li>
-          <%if (locals.isOrganizer) { %>
-            <li class="nav-item">
-              <a class="nav-link" href="/hardware/management">
-                <p>Hardware library - management</p>
-              </a>
-            </li>
-          <% } %>
-          <li class="nav-item">
-            <a class="nav-link" href="/achievements/volunteercontrols">
-              <p>Achievements - volunteer controls</p>
-            </a>
-          </li>
-        <% } %>
+      <%if (locals.isOrganizer || locals.isVolunteer) { %>
+      <li class="nav-item">
+        <a class="nav-link" href="/hardware/loancontrols">
+          <p>Hardware library - loan controls</p>
+        </a>
+      </li>
+      <%if (locals.isOrganizer) { %>
+      <li class="nav-item">
+        <a class="nav-link" href="/hardware/management">
+          <p>Hardware library - management</p>
+        </a>
+      </li>
+      <% } %>
+      <li class="nav-item">
+        <a class="nav-link" href="/achievements/volunteercontrols">
+          <p>Achievements - volunteer controls</p>
+        </a>
+      </li>
+      <% } %>
       <li class="nav-item">
         <a class="nav-link" href="/user/profile">
           <i class="material-icons">person</i>
@@ -50,12 +50,12 @@
           <p>Achievements</p>
         </a>
       </li>
-      <li class="nav-item">
+      <!-- <li class="nav-item">
         <a class="nav-link" href="/hardware">
           <i class="material-icons">usb</i>
           <p>Hardware</p>
         </a>
-      </li>
+      </li> -->
       <li class="nav-item">
         <a class="nav-link" href="/contacts">
           <i class="material-icons">contacts</i>
@@ -76,66 +76,68 @@
   <div class="container-fluid">
     <div class="navbar-wrapper">
     </div>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" aria-controls="navigation-index" aria-expanded="false"
-      aria-label="Toggle navigation" data-target="#navigation-example">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" aria-controls="navigation-index"
+      aria-expanded="false" aria-label="Toggle navigation" data-target="#navigation-example">
       <span class="sr-only">Toggle navigation</span>
       <span class="navbar-toggler-icon icon-bar"></span>
       <span class="navbar-toggler-icon icon-bar"></span>
       <span class="navbar-toggler-icon icon-bar"></span>
     </button>
     <div class="collapse navbar-collapse justify-content-end">
-        <ul class="navbar-nav">
-          <%if (locals.isOrganizer) { %>
-          <li class="nav-item">
-            <a class="nav-link" href="javascript:showPushNotificationDialog()">
-              <i class="fas fa-bullhorn fa-3x"></i>
-              <p class="d-lg-none d-md-block">
-                Push Notification
-              </p>
-            </a>
-          </li>
-          <% } %>
-          <li class="nav-item">
-            <a class="nav-link" href="javascript:startScanner()">
-              <i class="fas fa-qrcode fa-3x"></i>
-              <p class="d-lg-none d-md-block">
-                QR Scanner
-              </p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/logout">
-              <i class="fas fa-sign-out-alt fa-3x"></i>
-              <p class="d-lg-none d-md-block">
-                Logout
-              </p>
-            </a>
-          </li>
-        </ul>
-      </div>
+      <ul class="navbar-nav">
+        <%if (locals.isOrganizer) { %>
+        <li class="nav-item">
+          <a class="nav-link" href="javascript:showPushNotificationDialog()">
+            <i class="fas fa-bullhorn fa-3x"></i>
+            <p class="d-lg-none d-md-block">
+              Push Notification
+            </p>
+          </a>
+        </li>
+        <% } %>
+        <li class="nav-item">
+          <a class="nav-link" href="javascript:startScanner()">
+            <i class="fas fa-qrcode fa-3x"></i>
+            <p class="d-lg-none d-md-block">
+              QR Scanner
+            </p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/logout">
+            <i class="fas fa-sign-out-alt fa-3x"></i>
+            <p class="d-lg-none d-md-block">
+              Logout
+            </p>
+          </a>
+        </li>
+      </ul>
+    </div>
   </div>
 </nav>
 <!-- Push notification Modal -->
-<div class="modal fade" id="notificaitonModal" tabindex="-1" role="dialog" aria-labelledby="notificationModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="notificationModalLabel">Push notification</h5>
-        </div>
-        <div class="modal-body">
-          <div id="notificationModalBody">
-            <div class="input-group-prepend">
-              <p>Enter your message here:</p>
-            </div>
-            <textarea id="notification-textarea" class="form-control" aria-label="Push notification message"></textarea>
+<div class="modal fade" id="notificaitonModal" tabindex="-1" role="dialog" aria-labelledby="notificationModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="notificationModalLabel">Push notification</h5>
+      </div>
+      <div class="modal-body">
+        <div id="notificationModalBody">
+          <div class="input-group-prepend">
+            <p>Enter your message here:</p>
           </div>
-        </div>
-        <div class="modal-footer">
-          <button id="modal-notification-button" type="button" class="btn btn-success" data-dismiss="modal">Confirm</button>
-          <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+          <textarea id="notification-textarea" class="form-control" aria-label="Push notification message"></textarea>
         </div>
       </div>
+      <div class="modal-footer">
+        <button id="modal-notification-button" type="button" class="btn btn-success"
+          data-dismiss="modal">Confirm</button>
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+      </div>
     </div>
+  </div>
 </div>
 <script src="/js/pushNotification.js"></script>
 <script src="/js/qrInterface.js"></script>

@@ -3,6 +3,8 @@ dev_docker_compose_file=./docker/dev/docker-compose.yml
 
 prod_docker_file=./docker/prod/Dockerfile
 
+NODE_MODULES_DIR = './node_modules'
+
 default: build test
 
 # builds the project into the dist folder
@@ -35,7 +37,12 @@ up-dev: export DB_HOST=localhost
 up-dev: setup-network
 	@echo "=============starting hs_hub (dev)============="
 	docker-compose -f $(dev_docker_compose_file) up -d
-	npm i && npm run start:watch
+	if [ ! -d $(NODE_MODULES_DIR) ]; then \
+		@echo "node_modules does not exist, installing dependencies..."; \
+		npm i; \
+	else \
+			npm run start:watch; \
+	fi
 
 # prints the logs from all containers
 logs:

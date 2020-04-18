@@ -7,43 +7,67 @@ import { CacheInterface, Cache } from "./util/cache";
 import { RouterInterface, HomeRouter } from "./routes";
 
 // Users
-import { UserRouter } from "./routes"
-import { UserController, UserControllerInterface, HomeControllerInterface, HomeController } from "./controllers"
+import { UserRouter } from "./routes";
+import { UserController, UserControllerInterface, HomeControllerInterface, HomeController } from "./controllers";
 import { UserService, UserServiceInterface } from "./services/users";
 
 // Teams
-import { TeamRouter } from "./routes"
-import { TeamController, TeamControllerInterface } from "./controllers"
+import { TeamRouter } from "./routes";
+import { TeamController, TeamControllerInterface } from "./controllers";
 import { TeamService, TeamServiceInterface } from "./services/teams";
 
 // Schedule
-import { ScheduleRouter } from "./routes"
-import { ScheduleController, ScheduleControllerInterface } from "./controllers"
+import { ScheduleRouter } from "./routes";
+import { ScheduleController, ScheduleControllerInterface } from "./controllers";
 
 // Hardware
-import { HardwareRouter } from "./routes"
-import { HardwareController, HardwareControllerInterface } from "./controllers"
-import { HardwareService, ReservedHardwareService, HardwareServiceInterface, ReservedHardwareServiceInterface } from "./services/hardware";
+import { HardwareRouter } from "./routes";
+import { HardwareController, HardwareControllerInterface } from "./controllers";
+import {
+  HardwareService,
+  ReservedHardwareService,
+  HardwareServiceInterface,
+  ReservedHardwareServiceInterface
+} from "./services/hardware";
 
 // Challenges
-import { ChallengeRouter } from "./routes"
-import { ChallengeController, ChallengeControllerInterface } from "./controllers"
+import { ChallengeRouter } from "./routes";
+import { ChallengeController, ChallengeControllerInterface } from "./controllers";
 import { ChallengeService, ChallengeServiceInterface } from "./services/challenges";
 
 // Announcements
-import { AnnouncementRouter } from "./routes"
-import { AnnouncementController, AnnouncementControllerInterface } from "./controllers"
+import { AnnouncementRouter } from "./routes";
+import { AnnouncementController, AnnouncementControllerInterface } from "./controllers";
 import { AnnouncementService, AnnouncementServiceInterface } from "./services/announcement";
 
 // Achievements
-import { AchievementsRouter } from "./routes"
-import { AchievementsController, AchievementsControllerInterface } from "./controllers"
-import { AchievementsService, AchievementsServiceInterface, AchievementsProgressService, AchievementsProgressServiceInterface } from "./services/achievements";
+import { AchievementsRouter } from "./routes";
+import { AchievementsController, AchievementsControllerInterface } from "./controllers";
+import {
+  AchievementsService,
+  AchievementsServiceInterface,
+  AchievementsProgressService,
+  AchievementsProgressServiceInterface
+} from "./services/achievements";
 
 // Events
 import { EventService, EventServiceInterface } from "./services/events";
-import { UserRepository, HardwareRepository, ReservedHardwareRepository, EventRepository, AnnouncementRepository, AchievementProgressRepository, ChallengeRepository } from "./repositories";
+import {
+  UserRepository,
+  HardwareRepository,
+  ReservedHardwareRepository,
+  EventRepository,
+  AnnouncementRepository,
+  AchievementProgressRepository,
+  ChallengeRepository,
+  MapRepository
+} from "./repositories";
 import { LocalAchievementsRepository, localAchievements } from "./util/achievements";
+
+//Map
+import { MapController, MapControllerInterface } from "./controllers/mapController";
+import { MapRouter } from "./routes/mapRouter";
+import { MapService, MapServiceInterface } from "./services/map";
 
 const container = new Container();
 
@@ -56,6 +80,7 @@ container.bind<RouterInterface>(TYPES.Router).to(HardwareRouter);
 container.bind<RouterInterface>(TYPES.Router).to(ChallengeRouter);
 container.bind<RouterInterface>(TYPES.Router).to(AnnouncementRouter);
 container.bind<RouterInterface>(TYPES.Router).to(AchievementsRouter);
+container.bind<RouterInterface>(TYPES.Router).to(MapRouter);
 
 // Home
 container.bind<HomeControllerInterface>(TYPES.HomeController).to(HomeController);
@@ -84,7 +109,6 @@ container.bind<ChallengeControllerInterface>(TYPES.ChallengeController).to(Chall
 container.bind<ChallengeServiceInterface>(TYPES.ChallengeService).to(ChallengeService);
 container.bind<ChallengeRepository>(TYPES.ChallengeRepository).to(ChallengeRepository);
 
-
 // Announcements
 container.bind<AnnouncementControllerInterface>(TYPES.AnnouncementController).to(AnnouncementController);
 container.bind<AnnouncementServiceInterface>(TYPES.AnnouncementService).to(AnnouncementService);
@@ -94,12 +118,19 @@ container.bind<AnnouncementRepository>(TYPES.AnnouncementRepository).to(Announce
 container.bind<AchievementsControllerInterface>(TYPES.AchievementsController).to(AchievementsController);
 container.bind<AchievementsServiceInterface>(TYPES.AchievementsService).to(AchievementsService);
 container.bind<AchievementsProgressServiceInterface>(TYPES.AchievementsProgressService).to(AchievementsProgressService);
-container.bind<LocalAchievementsRepository>(TYPES.LocalAchievementsRepository).toConstantValue(new LocalAchievementsRepository(localAchievements));
+container
+  .bind<LocalAchievementsRepository>(TYPES.LocalAchievementsRepository)
+  .toConstantValue(new LocalAchievementsRepository(localAchievements));
 container.bind<AchievementProgressRepository>(TYPES.AchievementsProgressRepository).to(AchievementProgressRepository);
 
 // Events
 container.bind<EventServiceInterface>(TYPES.EventService).to(EventService);
 container.bind<EventRepository>(TYPES.EventRepository).to(EventRepository);
+
+// Map
+container.bind<MapServiceInterface>(TYPES.MapService).to(MapService);
+container.bind<MapControllerInterface>(TYPES.MapController).to(MapController);
+container.bind<MapRepository>(TYPES.MapRepository).to(MapRepository);
 
 // Request Authentication
 container.bind<RequestAuthenticationInterface>(TYPES.RequestAuthentication).to(RequestAuthentication);

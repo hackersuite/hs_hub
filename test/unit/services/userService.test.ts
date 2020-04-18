@@ -1,6 +1,11 @@
 import { User, AchievementProgress, ReservedHardwareItem, HardwareItem, Team } from "../../../src/db/entity/hub";
 import { UserService } from "../../../src/services/users";
-import { createTestDatabaseConnection, closeTestDatabaseConnection, reloadTestDatabaseConnection, initEnv } from "../../util/testUtils";
+import {
+  createTestDatabaseConnection,
+  closeTestDatabaseConnection,
+  reloadTestDatabaseConnection,
+  initEnv
+} from "../../util/testUtils";
 import { getRepository, Repository } from "typeorm";
 import { HttpResponseCode } from "../../../src/util/errorHandling";
 
@@ -13,21 +18,25 @@ testHubUser.push_id = ["a64a87ad-df62-47c7-9592-85d71291abf2"];
 
 let userService: UserService;
 
-beforeAll(async (done: jest.DoneCallback): Promise<void> => {
-  // Setup env variables for password generation
-  initEnv();
+beforeAll(
+  async (done: jest.DoneCallback): Promise<void> => {
+    // Setup env variables for password generation
+    initEnv();
 
-  await createTestDatabaseConnection([ User, Team, AchievementProgress, ReservedHardwareItem, HardwareItem ]);
-  userService = new UserService(getRepository(User));
+    await createTestDatabaseConnection([User, Team, AchievementProgress, ReservedHardwareItem, HardwareItem]);
+    userService = new UserService(getRepository(User));
 
-  done();
-});
+    done();
+  }
+);
 
-beforeEach(async (done: jest.DoneCallback): Promise<void> => {
-  await reloadTestDatabaseConnection();
+beforeEach(
+  async (done: jest.DoneCallback): Promise<void> => {
+    await reloadTestDatabaseConnection();
 
-  done();
-});
+    done();
+  }
+);
 
 /**
  * User validation tests
@@ -57,7 +66,7 @@ describe("User service tests", (): void => {
 
       // Add test users to the database
       for (let i = 1; i <= TOTAL_USERS; i++) {
-        await userRepository.insert({...testHubUser, id: i, email: `test${i}@test.com`});
+        await userRepository.insert({ ...testHubUser, id: i, email: `test${i}@test.com` });
       }
 
       const allUsers: User[] = await userService.getAllUsers();
@@ -73,7 +82,7 @@ describe("User service tests", (): void => {
       // Insert the test user into the database, along with a random user
       const userRepository: Repository<User> = getRepository(User);
       await userRepository.save(testHubUser);
-      await userRepository.save({...testHubUser, id: testHubUser.id + 1, email: "another@random.com"});
+      await userRepository.save({ ...testHubUser, id: testHubUser.id + 1, email: "another@random.com" });
 
       // Get the user from the hub using the user service and check it found the correct user
       const hubUser: User = await userService.getUserByEmailFromHub(testHubUser.email);
@@ -86,7 +95,7 @@ describe("User service tests", (): void => {
       // Insert the test user into the database, along with a random user
       const userRepository: Repository<User> = getRepository(User);
       await userRepository.save(testHubUser);
-      await userRepository.save({...testHubUser, id: testHubUser.id + 1, email: "another@random.com"});
+      await userRepository.save({ ...testHubUser, id: testHubUser.id + 1, email: "another@random.com" });
 
       // Get the user from the hub using the user service and check it found the correct user
       const hubUser: User = await userService.getUserByIDFromHub(testHubUser.id);
@@ -112,7 +121,7 @@ describe("User service tests", (): void => {
     test("Should ensure that a user can be verified", async (): Promise<void> => {
       const userRepository: Repository<User> = getRepository(User);
       await userRepository.save(testHubUser);
-      await userRepository.save({...testHubUser, id: testHubUser.id + 1, email: "another@random.com"});
+      await userRepository.save({ ...testHubUser, id: testHubUser.id + 1, email: "another@random.com" });
 
       const hubUser: User = await userService.validateUser(testHubUser.email, "password123");
       expect(hubUser).toBeTruthy();
@@ -167,15 +176,14 @@ describe("User service tests", (): void => {
     });
   });
 
-
   /**
    * Should test that new users can be saved
    */
-  describe("Test insertNewHubUserToDatabase", (): void => {
+  describe("Test save", (): void => {
     test("Test that a user can be added to the database", async (): Promise<void> => {
       const userRepository: Repository<User> = getRepository(User);
 
-      await userService.insertNewHubUserToDatabase(testHubUser);
+      await userService.save(testHubUser);
       const testUser: User = await userRepository.findOne({ id: testHubUser.id });
 
       expect(testUser).toBeDefined();
@@ -251,7 +259,7 @@ describe("User service tests", (): void => {
       testHubUser.team = newTeam;
 
       await userRepository.save(testHubUser);
-      await userRepository.save({...testHubUser, id: testHubUser.id + 1, email: "test@test.com"});
+      await userRepository.save({ ...testHubUser, id: testHubUser.id + 1, email: "test@test.com" });
 
       const teamMembers: User[] = await userService.getUsersTeamMembers(testHubUser.team.teamCode);
       expect(teamMembers).toBeDefined();
@@ -271,8 +279,8 @@ describe("User service tests", (): void => {
       testHubUser.team = newTeam;
       await userRepository.save(testHubUser);
 
-      await userRepository.save({...testHubUser, id: testHubUser.id + 1, email: "test@test.com", team: undefined});
-      await userRepository.save({...testHubUser, id: testHubUser.id + 2, email: "test1@test.com"});
+      await userRepository.save({ ...testHubUser, id: testHubUser.id + 1, email: "test@test.com", team: undefined });
+      await userRepository.save({ ...testHubUser, id: testHubUser.id + 2, email: "test1@test.com" });
 
       const allUsersInTeams: User[] = await userService.getAllUsersInTeams();
       expect(allUsersInTeams).toBeDefined();
@@ -281,7 +289,9 @@ describe("User service tests", (): void => {
   });
 });
 
-afterAll(async (done: jest.DoneCallback): Promise<void> => {
-  await closeTestDatabaseConnection();
-  done();
-});
+afterAll(
+  async (done: jest.DoneCallback): Promise<void> => {
+    await closeTestDatabaseConnection();
+    done();
+  }
+);

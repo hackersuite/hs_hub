@@ -47,14 +47,10 @@ export interface RequestTeamMembers {
 
 @injectable()
 export class RequestAuthentication {
-
   private _cache: Cache;
   private _userService: UserService;
 
-  public constructor(
-    @inject(TYPES.Cache) cache: Cache,
-    @inject(TYPES.UserService) userService: UserService
-  ) {
+  public constructor(@inject(TYPES.Cache) cache: Cache, @inject(TYPES.UserService) userService: UserService) {
     this._cache = cache;
     this._userService = userService;
   }
@@ -69,7 +65,7 @@ export class RequestAuthentication {
       };
     }
 
-    app.get("/logout", function(req: Request, res: Response) {
+    app.get("/logout", function (req: Request, res: Response) {
       res.cookie("Authorization", "", logoutCookieOptions);
       return res.redirect("/");
     });
@@ -111,13 +107,13 @@ export class RequestAuthentication {
             let authId: string = result.user._id;
             let name: string = result.user.name;
             try {
-              user = await this._userService.getUserByAuthIDFromHub(result.user._id)
+              user = await this._userService.getUserByAuthIDFromHub(result.user._id);
             } catch (err) {
               // The user does not exist yet in the Hub so add them!
               user = new User();
               user.authId = authId;
               user.name = name;
-              user = await this._userService.insertNewHubUserToDatabase(user);
+              user = await this._userService.save(user);
             }
 
             (req.user as RequestUser) = {
@@ -136,4 +132,3 @@ export class RequestAuthentication {
     );
   };
 }
-

@@ -29,9 +29,13 @@ export class UserRouter implements RouterInterface {
     router.get("/profile", checkIsLoggedIn, this._userController.profile);
 
     router.get("/join_discord", checkIsLoggedIn, this._userController.discordJoin);
-  
+
     router.get("/discord_authentication", checkIsLoggedIn, this._userController.discordAuth);
+
+    router.get("/twitch", checkIsLoggedIn, this._userController.twitchStatus);
+
+    router.post("/intro", checkIsLoggedIn, this._userController.intro);
 
     return router;
   }
-};
+}
