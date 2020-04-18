@@ -51,6 +51,7 @@
     "pbkdf2": "^3.0.17",
     "pg": "^7.10.0",
     "reflect-metadata": "^0.1.13",
+    "request-promise-native": "^1.0.8",
     "ts-node": "^7.0.1",
     "typeorm": "^0.2.16",
     "typescript": "^3.4.5",
