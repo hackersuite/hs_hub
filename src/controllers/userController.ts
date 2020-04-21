@@ -108,11 +108,10 @@ export class UserController implements UserControllerInterface {
 
   public discordAuth = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await linkAccount(req.user.authId, req.query.code, req.query.state);
-      res.render("pages/discord", { error: false });
-    } catch (err) {
-      console.log(err);
-      res.render("pages/discord", { error: true });
+      const response = await linkAccount(req.user.authId, req.query.code, req.query.state);
+      res.render("pages/discord", { error: false, discordUrl: response.url });
+    } catch (error) {
+      res.render("pages/discord", { error: error.response?.data?.message || error.message });
     }
   };
 

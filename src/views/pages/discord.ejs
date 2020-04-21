@@ -15,9 +15,10 @@
         <div class="container">
           <% if (!error) { %>
           <h3>Success! Your account is now linked!</h3>
-          <p><a href="https://discordapp.com/" target="_blank">Open Discord</a> to access the Hackathon server!</p>
+          <p><a href="<%= discordUrl %>" target="_blank">Open Discord</a> to access the Hackathon server!</p>
           <% } else { %>
-          <h3>Something went wrong! :(</h3>
+          <h3>An error occurred.</h3>
+          <p><%= error %></p>
           <p>Try again in a few seconds.</p>
           <% } %>
         </div>
