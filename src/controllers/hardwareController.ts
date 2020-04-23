@@ -36,7 +36,7 @@ export class HardwareController implements HardwareControllerInterface {
   private _reservedHardwareService: ReservedHardwareService;
   private _teamService: TeamService;
   constructor(
-    @inject(TYPES.HardwareService) hardwareService: HardwareService, 
+    @inject(TYPES.HardwareService) hardwareService: HardwareService,
     @inject(TYPES.ReservedHardwareService) reservedHardwareService: ReservedHardwareService,
     @inject(TYPES.TeamService) teamService: TeamService
   ) {
@@ -59,20 +59,22 @@ export class HardwareController implements HardwareControllerInterface {
     for (const item of hardwareItems) {
       const remainingItemCount: number = item.totalStock - (item.reservedStock + item.takenStock);
 
-      const userReservation: ReservedHardwareItem = allReservations.find((reservation) => reservation.hardwareItem.name === item.name && reservation.user.authId === userID);
+      const userReservation: ReservedHardwareItem = allReservations.find(
+        (reservation) => reservation.hardwareItem.name === item.name && reservation.user.authId === userID
+      );
 
       formattedData.push({
-        "itemID": item.id,
-        "itemName": item.name,
-        "itemURL": item.itemURL,
-        "itemStock": item.totalStock,
-        "itemsLeft": remainingItemCount,
-        "itemHasStock": remainingItemCount > 0,
-        "reserved": userReservation ? userReservation.isReserved : false,
-        "taken": userReservation ? !userReservation.isReserved : false,
-        "reservationQuantity": userReservation ? userReservation.reservationQuantity : 0,
-        "reservationToken": userReservation ? userReservation.reservationToken : "",
-        "expiresIn": userReservation ? Math.floor((userReservation.reservationExpiry.getTime() - Date.now()) / 60000) : 0
+        itemID: item.id,
+        itemName: item.name,
+        itemURL: item.itemURL,
+        itemStock: item.totalStock,
+        itemsLeft: remainingItemCount,
+        itemHasStock: remainingItemCount > 0,
+        reserved: userReservation ? userReservation.isReserved : false,
+        taken: userReservation ? !userReservation.isReserved : false,
+        reservationQuantity: userReservation ? userReservation.reservationQuantity : 0,
+        reservationToken: userReservation ? userReservation.reservationToken : "",
+        expiresIn: userReservation ? Math.floor((userReservation.reservationExpiry.getTime() - Date.now()) / 60000) : 0
       });
     }
     res.render("pages/hardware/index", { items: formattedData });
@@ -85,7 +87,10 @@ export class HardwareController implements HardwareControllerInterface {
     const requestUser: RequestUser = req.user as RequestUser;
     try {
       const reservations = await this._reservedHardwareService.getAll();
-      res.render("pages/hardware/loanControls", { reservations: reservations || [], userIsOrganiser: (requestUser.authLevel === AuthLevels.Organizer) });
+      res.render("pages/hardware/loanControls", {
+        reservations: reservations || [],
+        isOrganizer: requestUser.authLevel === AuthLevels.Organizer
+      });
     } catch (err) {
       return next(err);
     }
@@ -106,7 +111,7 @@ export class HardwareController implements HardwareControllerInterface {
 
   public addItem = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { totalStock, name, itemURL  } = req.body;
+      const { totalStock, name, itemURL } = req.body;
 
       const newItem: HardwareItem = new HardwareItem();
       newItem.name = name;
@@ -122,7 +127,7 @@ export class HardwareController implements HardwareControllerInterface {
         };
         res.status(HttpResponseCode.BAD_REQUEST).send({
           error: true,
-          message: `Could not create item: ${errors.join(",")}`,
+          message: `Could not create item: ${errors.join(",")}`
         });
         return;
       }
@@ -141,7 +146,7 @@ export class HardwareController implements HardwareControllerInterface {
   public updateItem = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const requestUser: RequestUser = req.user as RequestUser;
-      const { totalStock, name, itemURL  } = req.body;
+      const { totalStock, name, itemURL } = req.body;
       const id = req.params.id;
 
       const itemToUpdate: HardwareItem = await this._hardwareService.getHardwareItemByID(id);
@@ -201,11 +206,18 @@ export class HardwareController implements HardwareControllerInterface {
       const reqUser: RequestUser = req.user as RequestUser;
       // First check that the team table number is set
       // Check if the team is undefined, use == instead of === since typeorm returns null for relations that are not defined
-      if (reqUser.team == undefined || !(await this._teamService.checkTeamTableIsSet(reqUser.authToken, reqUser.team))) {
-        next(new ApiError(HttpResponseCode.BAD_REQUEST, "You need to create a team and set your table number in the profile page first."));
+      if (
+        reqUser.team == undefined ||
+        !(await this._teamService.checkTeamTableIsSet(reqUser.authToken, reqUser.team))
+      ) {
+        next(
+          new ApiError(
+            HttpResponseCode.BAD_REQUEST,
+            "You need to create a team and set your table number in the profile page first."
+          )
+        );
         return;
       }
-
 
       const { item, quantity } = req.body;
       if (isNaN(quantity) || Number(quantity) < 1) {
@@ -215,9 +227,9 @@ export class HardwareController implements HardwareControllerInterface {
       const token: string = await this._hardwareService.reserveItem(reqUser.hubUser, item, quantity);
       if (token) {
         res.send({
-          "message": `Item${quantity > 1 ? "(s)" : ""} reserved!`,
-          "token": token,
-          "quantity": quantity || 1
+          message: `Item${quantity > 1 ? "(s)" : ""} reserved!`,
+          token: token,
+          quantity: quantity || 1
         });
       } else {
         next(new ApiError(HttpResponseCode.BAD_REQUEST, "Item cannot be reserved!"));
@@ -233,7 +245,7 @@ export class HardwareController implements HardwareControllerInterface {
    */
   public take = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const takenItem: boolean  = await this._hardwareService.takeItem(req.body.token);
+      const takenItem: boolean = await this._hardwareService.takeItem(req.body.token);
       if (takenItem !== undefined) {
         res.send({
           message: "Item has been taken from the library"
@@ -248,7 +260,7 @@ export class HardwareController implements HardwareControllerInterface {
 
   public return = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const returnedItem: boolean  = await this._hardwareService.returnItem(req.body.token);
+      const returnedItem: boolean = await this._hardwareService.returnItem(req.body.token);
       if (returnedItem !== false) {
         res.send({
           message: "Item has been returned to the library"
@@ -296,7 +308,7 @@ export class HardwareController implements HardwareControllerInterface {
   public addAllItems = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       await this._hardwareService.addAllHardwareItems(JSON.parse(req.body.items));
-      res.send({"message": "Added all items"});
+      res.send({ message: "Added all items" });
     } catch (err) {
       next(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.message));
     }

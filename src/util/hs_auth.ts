@@ -9,7 +9,7 @@ import { Cache } from "./cache";
 import { TYPES } from "../types";
 import { UserService } from "../services/users";
 import { User } from "../db/entity";
-import { AuthLevels } from "./user";
+import { getCurrentUser } from "@unicsmcr/hs_auth_client";
 
 // The done function has the parameters (error, user, info)
 
@@ -24,7 +24,7 @@ export type RequestUser = {
   authLevel: number;
   name: string;
   email: string;
-  team: string;
+  team?: string;
 };
 
 export interface Team extends RequestTeamMembers {
@@ -82,51 +82,39 @@ export class RequestAuthentication {
           passReqToCallback: true
         },
         async (req: Request, token: string, done: (error: string, user?: any) => void): Promise<void> => {
-          let apiResult: string;
+          let authUser: RequestUser;
           try {
-            apiResult = await request.get(`${process.env.AUTH_URL}/api/v1/users/me`, {
-              headers: {
-                Authorization: `${token}`,
-                Referer: req.originalUrl
-              }
-            });
+            authUser = await getCurrentUser(token, req.originalUrl);
           } catch (err) {
-            // Some internal error has occured
-            return done(err);
-          }
-          // We expect the result to be returned as JSON, parse it
-          const result = JSON.parse(apiResult);
-          if (result.error && result.status === HttpResponseCode.UNAUTHORIZED) {
             // When there is an error message and the status code is 401
             return done(undefined, false);
-          } else if (result.status === HttpResponseCode.OK) {
-            // The request has been authorized
-
-            // Check if the user exists in the hub...if not, then add them
-            let user: User = undefined;
-            let authId: string = result.user._id;
-            let name: string = result.user.name;
-            try {
-              user = await this._userService.getUserByAuthIDFromHub(result.user._id);
-            } catch (err) {
-              // The user does not exist yet in the Hub so add them!
-              user = new User();
-              user.authId = authId;
-              user.name = name;
-              user = await this._userService.save(user);
-            }
-
-            (req.user as RequestUser) = {
-              hubUser: user,
-              authToken: token,
-              authId: authId,
-              authLevel: result.user.auth_level,
-              name: name,
-              email: result.user.email,
-              team: result.user.team
-            };
-            return done(undefined, req.user);
           }
+          // The request has been authorized
+
+          // Check if the user exists in the hub...if not, then add them
+          let authId: string = authUser.authId;
+          let name: string = authUser.name;
+          let user: User;
+          try {
+            user = await this._userService.getUserByAuthIDFromHub(authId);
+          } catch (err) {
+            // The user does not exist yet in the Hub so add them!
+            user = new User();
+            user.authId = authId;
+            user.name = name;
+            user = await this._userService.save(user);
+          }
+
+          (req.user as RequestUser) = {
+            hubUser: user,
+            authToken: token,
+            authId: authId,
+            authLevel: authUser.authLevel,
+            name: name,
+            email: authUser.email,
+            team: authUser.team
+          };
+          return done(undefined, req.user);
         }
       )
     );

@@ -32,6 +32,7 @@
     "@types/pbkdf2": "^3.0.0",
     "@types/request": "^2.48.1",
     "@types/uuid": "^3.4.4",
+    "@unicsmcr/hs_auth_client": "^1.2.3",
     "@unicsmcr/hs_discord_bot_api_client": "^0.0.3",
     "axios": "^0.19.2",
     "body-parser": "^1.19.0",

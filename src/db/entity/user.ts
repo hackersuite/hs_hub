@@ -34,10 +34,10 @@ export class User {
   @Column("boolean", { default: false })
   completed_intro: boolean;
 
-  @Column("varchar")
+  @Column("varchar", { nullable: true })
   phone: string;
 
-  @Column("varchar")
+  @Column("varchar", { nullable: true })
   university: string;
 
   public getId() {

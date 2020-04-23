@@ -24,10 +24,9 @@ export const checkIsLoggedIn = (req: Request, res: Response, next: NextFunction)
         res.redirect(`${process.env.AUTH_URL}/login?${queryParam}`);
         return;
       }
-      if (user.authLevel >= AuthLevels.Volunteer)
-        res.locals.isVolunteer = true;
-      if (user.authLevel >= AuthLevels.Organizer)
-        res.locals.isOrganizer = true;
+
+      if (user.authLevel >= AuthLevels.Volunteer) res.locals.isVolunteer = true;
+      if (user.authLevel >= AuthLevels.Organizer) res.locals.isOrganizer = true;
 
       res.locals.authLevel = user.authLevel;
       return next();

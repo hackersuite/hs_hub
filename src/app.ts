@@ -41,7 +41,9 @@ export function buildApp(callback: (app: Express, err?: Error) => void, connecti
       // Also add the logout route
       const requestAuth: RequestAuthentication = container.get(TYPES.RequestAuthentication);
       requestAuth.passportSetup(app);
-      app.use(morgan("dev"));
+
+      // app.use(morgan("dev"));
+
       // Routes set up for express, resolving dependencies
       // This is performed after successful DB connection since some routers use TypeORM repositories in their DI
       const routers: RouterInterface[] = container.getAll(TYPES.Router);

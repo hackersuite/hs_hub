@@ -3,12 +3,19 @@
  */
 export enum AuthLevels {
   // NOTE: the auth levels must be ordered in ascending order
+  Unverified,
+  Applicant,
   Attendee,
   Volunteer,
   Organizer
 }
 
-export function getAuthLevel(isOrganizer: boolean, isVolunteer: boolean, isDirector: boolean, isAdmin: boolean): number {
+export function getAuthLevel(
+  isOrganizer: boolean,
+  isVolunteer: boolean,
+  isDirector: boolean,
+  isAdmin: boolean
+): number {
   if (isOrganizer || isDirector || isAdmin) return AuthLevels.Organizer;
   else if (isVolunteer) return AuthLevels.Volunteer;
   else return AuthLevels.Attendee;
