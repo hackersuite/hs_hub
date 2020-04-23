@@ -159,7 +159,8 @@ const createDatabaseSettings = (): ConnectionOptions[] => {
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      entities: [__dirname + "/db/entity/*{.js,.ts}"]
+      entities: [__dirname + "/db/entity/*{.js,.ts}"],
+      synchronize: true
       // If we want full query logging, uncomment the line below, and set logging = true
       // logger: new QueryLogger()
     }
