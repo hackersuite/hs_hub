@@ -1,6 +1,7 @@
 import "reflect-metadata";
-import * as express from "express";
 import * as dotenv from "dotenv";
+dotenv.config({ path: ".env" });
+import * as express from "express";
 import * as path from "path";
 import * as morgan from "morgan";
 import * as expressSession from "express-session";
