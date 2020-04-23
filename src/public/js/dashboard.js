@@ -14,6 +14,8 @@ $(document).ready(function () {
       $("#countrySelect").append(new Option(country.name, country["alpha-2"]));
     }
   }
+
+  makeUniversityDropDown();
 });
 
 function checkTwitchStatus() {
@@ -42,16 +44,43 @@ function updateTwitchStatus(isOnline) {
 }
 
 function sendUserIntroForm() {
+  $("#error-msg").hide();
+  if (!checkFormStageInputs()) {
+    $("#error-msg").show(100);
+    return;
+  }
   let formData = {};
   $("#introModal form .form-control").each(function (index) {
     formData[$(this)[0].name] = $(this)[0].value;
   });
-
   $.post({
     url: "/user/intro",
     data: formData
   });
   $("#introModal").modal("hide");
+}
+
+function makeUniversityDropDown() {
+  $.get({
+    url: "/js/universities.json"
+  }).done(function (data) {
+    let universityDatalist = $("#universities");
+    for (const uni of data) {
+      universityDatalist.append(new Option("", uni));
+    }
+  });
+}
+
+function checkFormStageInputs() {
+  var isValid = true;
+  $("#beforestartform")
+    .find(":input[required]")
+    .each(function () {
+      if (!$(this)[0].checkValidity()) {
+        isValid = false;
+      }
+    });
+  return isValid;
 }
 
 let countries = [

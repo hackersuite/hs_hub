@@ -34,6 +34,12 @@ export class User {
   @Column("boolean", { default: false })
   completed_intro: boolean;
 
+  @Column("varchar")
+  phone: string;
+
+  @Column("varchar")
+  university: string;
+
   public getId() {
     return this.id;
   }

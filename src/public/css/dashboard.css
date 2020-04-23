@@ -9,3 +9,51 @@
 .jvectormap-zoomout {
   touch-action: none;
 }
+
+/*headings*/
+.fs-title {
+  font-size: 18px;
+  text-transform: uppercase;
+  color: #2C3E50;
+  margin-bottom: 10px;
+  letter-spacing: 2px;
+  font-weight: bold;
+}
+
+.fs-subtitle {
+  font-weight: normal;
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+/* Override the default colour styling for bootstrap dropdown - on show we make the text white*/
+.show>.btn.dropdown-toggle {
+  color: white !important;
+}
+
+.label-req {
+  color: red;
+}
+
+span.twitter-typeahead {
+  width: 100%
+}
+
+.form-checkbox {
+  margin: 3px 0.5ex;
+}
+
+label {
+  width: 100%;
+  word-wrap:break-word;
+  line-height: 20px !important;
+}
+
+label,input{
+    display: inline-block;
+}
+
+.red {
+  color: red;
+}
