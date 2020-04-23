@@ -1,4 +1,4 @@
-var countDownDate = new Date("Nov 17, 2019 12:00:00").getTime();
+var countDownDate = new Date("Apr 26, 2020 12:00:00").getTime();
 
 var timerInterval = setInterval(updateTime, 1000);
 updateTime();
@@ -11,7 +11,7 @@ function updateTime() {
   var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
   var seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-  if (distance - (1000 * 60 * 60 * 24) > 0) {
+  if (distance - 1000 * 60 * 60 * 24 > 0) {
     $("#hours").html("24");
     $("#minutes").html("00");
     $("#seconds").html("00");
