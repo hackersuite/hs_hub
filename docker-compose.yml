@@ -2,9 +2,6 @@ version: '2.1'
 services:
   hs_hub:
     image: hs_hub:latest
-    depends_on:
-      mysql_db:
-        condition: service_healthy
     volumes:
       - .:/home/node/app/
       - /home/node/app/node_modules
@@ -13,25 +10,7 @@ services:
     networks:
       - internal
       - hacker_suite
-
-  mysql_db:
-    container_name: mysql_db
-    image: mysql:5.7
-    command: --default-authentication-plugin=mysql_native_password --log_error_verbosity=1
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: hs_hub
-    ports:
-      - "${DB_PORT}:${DB_PORT}"
-    # The healthcheck is used to ensure the database is running before the hub starts
-    healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost --silent"]
-      timeout: 5s
-      retries: 10
-    networks:
-      - internal
-    volumes:
-      - db_store:/var/lib/mysql
+    env_file: .env
 
 # The volume for the database is persistent across launches
 volumes:
