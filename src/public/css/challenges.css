@@ -1,5 +1,6 @@
 .item-content {
-  min-height: 200px;
+  max-height: 20vh;
+  overflow-y: scroll;
 }
 
 .track-sponsor {

@@ -19,19 +19,19 @@
             </div>
           <div class="row">
             <% challenges.forEach(challenge => { %>
-            <div class="col-md-6 col-lg-6 col-xl-6">
-              <div class="card h-75">
+            <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4">
+              <div class="card">
                 <div class="card-header card-header-success">
                   <h4 class="card-title text-center">
-                    <%- challenge.title %>
+                    <b><%- challenge.title %></b>
                   </h4>
                 </div>
-                <div class="card-body challenge-card-content item-content">
+                <div class="card-body challenge-card-content">
                   <ul class="list-group list-group-flush">
                     <li class="list-group-item">
-                      <div class="card-text text-center">
+                      <div class="card-text text-center item-content">
                         <h5>
-                          <%- challenge.description %>
+                          <%- challenge.description -%>
                         </h5>
                       </div>
                     </li>
@@ -39,9 +39,7 @@
                 </div>
                 <div class="card-footer">
                   <div class="card-text text-center">
-                    <h5><b>Prizes:</b>
-                      <%- challenge.prizes %>
-                    </h5>
+                    <h5><b>Prize:</b> <%- challenge.prizes %></h5>
                   </div>
                 </div>
               </div>

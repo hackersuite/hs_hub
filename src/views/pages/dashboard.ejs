@@ -209,15 +209,15 @@
                         <thead class="text-warning">
                           <th>Time</th>
                           <th>Event</th>
-                          <th>Location</th>
+                          <th>Channel</th>
                         </thead>
                         <tbody>
                           <% events.forEach(event => { %>
+                          
                           <% if (event.startTime.getDay() == 6) { %>
                           <tr>
                             <td>
-                              <%- event.startTime.getHours() %>:
-                              <%- event.startTime.getMinutes() < 10 ? "0" + event.startTime.getMinutes() : event.startTime.getMinutes() %>
+                              <%- event.startTime.getHours() %>:<%- event.startTime.getMinutes() < 10 ? "0" + event.startTime.getMinutes() : event.startTime.getMinutes() %>
                             </td>
                             <td>
                               <%- event.title %>
