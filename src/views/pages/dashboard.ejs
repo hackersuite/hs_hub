@@ -207,7 +207,7 @@
                     <div class="tab-pane active" id="saturday">
                       <table class="table">
                         <thead class="text-warning">
-                          <th>Time</th>
+                          <th>Time (BST)</th>
                           <th>Event</th>
                           <th>Channel</th>
                         </thead>
@@ -234,7 +234,7 @@
                     <div class="tab-pane" id="sunday">
                       <table class="table">
                         <thead class="text-warning">
-                          <th>Time</th>
+                          <th>Time (BST)</th>
                           <th>Event</th>
                           <th>Location</th>
                         </thead>
@@ -243,8 +243,7 @@
                           <% if (event.startTime.getDay() == 0) { %>
                           <tr>
                             <td>
-                              <%- event.startTime.getHours() %>:
-                              <%- event.startTime.getMinutes() < 10 ?  "0" + event.startTime.getMinutes() : event.startTime.getMinutes() %>
+                              <%- event.startTime.getHours() %>:<%- event.startTime.getMinutes() < 10 ?  "0" + event.startTime.getMinutes():event.startTime.getMinutes() %>
                             </td>
                             <td>
                               <%- event.title %>
@@ -372,6 +371,8 @@
           <% include ../partials/footer.ejs %>
         </div>
       </div>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js" integrity="sha256-AdQN98MVZs44Eq2yTwtoKufhnU+uZ7v2kXnD5vqzZVo=" crossorigin="anonymous"></script>
+      <script src="/js/plugins/moment.min.js"></script>
       <script src="/js/timer.js"></script>
       <script src="/js/dashboard.js"></script>
       <script src="/js/plugins/jvectormap.min.js"></script>

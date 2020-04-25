@@ -1,11 +1,14 @@
-var countDownDate = new Date("Apr 26, 2020 12:00:00").getTime();
+var countDownDate = moment.tz("26/04/2020 12:00:00 PM", "DD-MM-YYYY hh:mm:ss A", "Europe/London");
+
+// var clientTimeZone = moment.tz.guess();
+var clientTime = countDownDate.clone().local().valueOf();
 
 var timerInterval = setInterval(updateTime, 1000);
 updateTime();
 
 function updateTime() {
-  var now = new Date().getTime();
-  var distance = countDownDate - now;
+  var now = moment().valueOf();
+  var distance = clientTime - now;
 
   var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
