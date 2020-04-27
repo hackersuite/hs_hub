@@ -11,6 +11,7 @@ import { Cache, Cacheable } from "../util/cache";
 import { HttpResponseCode } from "../util/errorHandling";
 import { User } from "../db/entity";
 import { MapService } from "../services/map";
+import { getAllUsers } from "@unicsmcr/hs_auth_client";
 
 export interface UserControllerInterface {
   profile: (req: Request, res: Response, next: NextFunction) => void;
@@ -169,5 +170,36 @@ export class UserController implements UserControllerInterface {
       return;
     }
     res.send("Done");
+  };
+
+  public tempMLH = async (req: Request, res: Response) => {
+    const auth_users: RequestUser[] = await getAllUsers(req.user.authToken);
+    const users: User[] = await this._userService.getAllUsers();
+
+    const joinedUsers = [];
+    for (const hubUser of users) {
+      let foundUser: RequestUser = undefined;
+      for (const authUser of auth_users) {
+        if (authUser.authId === hubUser.authId) {
+          foundUser = authUser;
+          break;
+        }
+      }
+
+      if (foundUser) {
+        joinedUsers.push({
+          name: foundUser.name,
+          email: foundUser.email,
+          university: hubUser.university
+        });
+      }
+    }
+
+    let data = JSON.stringify(joinedUsers);
+    res.setHeader("Content-disposition", "attachment; filename= sh_users.json");
+    res.setHeader("Content-type", "application/json");
+    res.write(data, function (err) {
+      res.end();
+    });
   };
 }

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { UserController } from "../controllers/userController";
-import { checkIsLoggedIn } from "../util/user";
+import { checkIsLoggedIn, checkIsOrganizer } from "../util/user";
 import { RouterInterface } from ".";
 import { injectable, inject } from "inversify";
 import { TYPES } from "../types";
@@ -35,6 +35,8 @@ export class UserRouter implements RouterInterface {
     router.get("/twitch", checkIsLoggedIn, this._userController.twitchStatus);
 
     router.post("/intro", checkIsLoggedIn, this._userController.intro);
+
+    router.get("/tempMLH", checkIsLoggedIn, checkIsOrganizer, this._userController.tempMLH);
 
     return router;
   }
