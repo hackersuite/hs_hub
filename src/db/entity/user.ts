@@ -40,6 +40,27 @@ export class User {
   @Column("varchar", { nullable: true })
   university: string;
 
+  @Column("varchar", { nullable: true })
+  addr1: string;
+
+  @Column("varchar", { nullable: true })
+  addr2: string;
+
+  @Column("varchar", { nullable: true })
+  addr3: string;
+
+  @Column("varchar", { nullable: true })
+  country: string;
+
+  @Column("varchar", { nullable: true })
+  spr: string;
+
+  @Column("varchar", { nullable: true })
+  city: string;
+
+  @Column("varchar", { nullable: true })
+  zip: string;
+
   public getId() {
     return this.id;
   }

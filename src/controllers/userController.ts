@@ -157,14 +157,16 @@ export class UserController implements UserControllerInterface {
     const currentUser = req.user.hubUser as User;
     currentUser.completed_intro = true;
 
-    currentUser.phone = req.body.phonenum;
-    currentUser.university = req.body.university;
+    currentUser.addr1 = req.body.addrline1;
+    currentUser.addr2 = req.body.addrline2;
+    currentUser.addr3 = req.body.addrline3;
+    currentUser.city = req.body.city;
+    currentUser.spr = req.body.spr;
+    currentUser.zip = req.body.zip;
+    currentUser.country = req.body.country;
 
     try {
-      const updateUserPromise = this._userService.save(currentUser);
-      const addMapLocationPromise = this._mapService.add(req.body.city, req.body.country);
-
-      await Promise.all([updateUserPromise, addMapLocationPromise]);
+      await this._userService.save(currentUser);
     } catch (err) {
       res.status(HttpResponseCode.INTERNAL_ERROR).send("Failed");
       return;

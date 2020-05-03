@@ -21,83 +21,72 @@
           <div class="modal-dialog modal-lg">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title">Welcome to the StudentHack 2020 Hub!</h5>
+                <h5 class="modal-title">Participant Address</h5>
               </div>
               <div class="modal-body">
                 <form id="beforestartform" class="form" method="" action="">
                   <div class="card-body">
-                    To get started, please help by telling us more about yourself!
-                    <!-- <div class="form-group bmd-form-group">
-                      <div class="input-group">
-                        <div class="input-group-prepend">
-                        </div>
-                        <input type="text" name="phonenum" class="form-control" placeholder="Phone Number" required>
-                      </div>
-                    </div> -->
+                    Please enter your address so we can send you prizes!
 
                     <div class="form-group bmd-form-group">
                       <div class="input-group">
-                        <div class="input-group-prepend">
-                          <!--<div class="input-group-text"><i class="material-icons">face</i></div>-->
-                        </div>
-                        <input class="form-control" list="universities" id="university" name="university" placeholder="Choose your university..." required>
-
-                        <datalist id="universities">
-                        </datalist>
-                      </div>
-                    </div>
-                    
-                    <div class="form-group bmd-form-group">
-                      <div class="input-group">
-                        <div class="input-group-prepend">
-                          <!--<div class="input-group-text"><i class="material-icons">face</i></div>-->
-                        </div>
-                        <input type="text" name="city" class="form-control" placeholder="City" required>
+                        <label class="form-check-label" for="addrline1">Address line 1: <span class="red">*</span></label>
+                        <input id="addrline1" type="text" name="addrline1" class="form-control" placeholder="" required>
                       </div>
                     </div>
 
                     <div class="form-group bmd-form-group">
                       <div class="input-group">
+                        <label class="form-check-label" for="addrline1">Address line 2: </label>
+                        <input id="addrline2" type="text" name="addrline2" class="form-control" placeholder="">
+                      </div>
+                    </div>
+
+                    <div class="form-group bmd-form-group">
+                      <div class="input-group">
+                        <label class="form-check-label" for="addrline1">Address line 3: </label>
+                        <input id="addrline3" type="text" name="addrline3" class="form-control" placeholder="">
+                      </div>
+                    </div>
+
+                    <div class="form-group bmd-form-group">
+                      <div class="input-group">
+                        <label class="form-check-label" for="city">City / Town: <span class="red">*</span></label>
+                        <input type="text" name="city" class="form-control" placeholder="" required>
+                      </div>
+                    </div>
+
+                    <div class="form-group bmd-form-group">
+                      <div class="input-group">
+                        <label class="form-check-label" for="spr">State / Province / Region: </label>
+                        <input type="text" name="spr" class="form-control" placeholder="">
+                      </div>
+                    </div>
+
+                    <div class="form-group bmd-form-group">
+                      <div class="input-group">
+                        <label class="form-check-label" for="zip">ZIP / Postal Code: <span class="red">*</span></label>
+                        <input type="text" name="zip" class="form-control" placeholder="" required>
+                      </div>
+                    </div>
+
+                    <div class="form-group bmd-form-group">
+                      <div class="input-group">
                         <div class="input-group-prepend">
-                          <!--<div class="input-group-text"><i class="material-icons">email</i></div>-->
                         </div>
                         <select id="countrySelect" name="country" class="form-control" required>
                         </select>
                       </div>
                     </div>
 
-                    <div class="form-group bmd-form-group">
-                      <div class="input-group form-check">
-                      <label for="mlhcodeofconduct">
-                        <input id="mlhcodeofconduct" class="form-checkbox" type="checkbox" name="mlhcodeofconduct" required>
-                        I have read and agree to the <a href="https://static.mlh.io/docs/mlh-code-of-conduct.pdf" target="_blank" rel="noopener noreferrer">MLH Code of Conduct</a>. I further agree to the terms of both the <a href="https://raw.githubusercontent.com/MLH/mlh-policies/master/prize-terms-and-conditions/contest-terms.md" target="_blank" rel="noopener noreferrer">MLH Contest Terms and Conditions</a> and the <a href="https://mlh.io/privacy" target="_blank" rel="noopener noreferrer">MLH Privacy Policy</a>.
-                        </label>
-                      </div>
-                    </div>
-
-                    <div class="form-group bmd-form-group">
-                      <div class="input-group form-check">
-                      <label for="mlhconsent">
-                        <input id="mlhconsent" class="form-checkbox" type="checkbox" name="mlhconsent" required>
-                        I authorize you to share my application/registration information with Major League Hacking for event administration, ranking, and MLH administration in-line with the <a href="https://mlh.io/privacy" target="_blank" rel="noopener noreferrer">MLH Privacy Policy</a>.</label>
-                      </div>
-                    </div>
-
-                    <div class="form-group bmd-form-group">
-                      <div class="input-group form-check">
-                      <label for="mlhconsent1">
-                        <input id="mlhconsent1" class="form-checkbox" type="checkbox" name="mlhconsent1" required>
-                        I authorize Major League Hacking to send me occasional messages about hackathons including pre- and post-event informational emails.</label>
-                      </div>
-                    </div>
-
+                    
                   </div>
                   <p id="error-msg" class="red" style="display: none;">Please fill in all the fields</p>
                 </form>
               </div>
 
               <div class="modal-footer justify-content-center">
-                <a href="javascript:sendUserIntroForm()" class="btn btn-primary btn-link btn-wd btn-lg">Get Started</a>
+                <a href="javascript:sendUserIntroForm()" class="btn btn-primary btn-link btn-wd btn-lg">Submit</a>
               </div>
             </div>
           </div>

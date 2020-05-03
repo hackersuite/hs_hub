@@ -1,21 +1,19 @@
 $(document).ready(function () {
   // Check every 20 seconds
-  setInterval(function () {
-    checkTwitchStatus();
-  }, 1000 * 20);
+  // setInterval(function () {
+  //   checkTwitchStatus();
+  // }, 1000 * 20);
   // Perform first update
-  checkTwitchStatus();
-
+  // checkTwitchStatus();
   // Add countries to modal select
   for (const country of countries) {
     if (country["alpha-2"] == "GB") {
-      $("#countrySelect").append(new Option(country.name, country["alpha-2"], true, true));
+      $("#countrySelect").append(new Option(country.name, country.name, true, true));
     } else {
       $("#countrySelect").append(new Option(country.name, country["alpha-2"]));
     }
   }
-
-  makeUniversityDropDown();
+  // makeUniversityDropDown();
 });
 
 function checkTwitchStatus() {
