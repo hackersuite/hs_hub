@@ -10,7 +10,7 @@ $(document).ready(function () {
     if (country["alpha-2"] == "GB") {
       $("#countrySelect").append(new Option(country.name, country.name, true, true));
     } else {
-      $("#countrySelect").append(new Option(country.name, country["alpha-2"]));
+      $("#countrySelect").append(new Option(country.name, country.name));
     }
   }
   // makeUniversityDropDown();
