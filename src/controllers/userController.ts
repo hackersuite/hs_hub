@@ -157,6 +157,7 @@ export class UserController implements UserControllerInterface {
     const currentUser = req.user.hubUser as User;
     currentUser.completed_intro = true;
 
+    currentUser.phone = req.body.phone;
     currentUser.addr1 = req.body.addrline1;
     currentUser.addr2 = req.body.addrline2;
     currentUser.addr3 = req.body.addrline3;
