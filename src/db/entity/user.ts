@@ -61,6 +61,12 @@ export class User {
   @Column("varchar", { nullable: true })
   zip: string;
 
+  @Column("varchar", { nullable: true })
+  tshirt: string;
+
+  @Column("varchar", { nullable: true })
+  sex: string;
+
   public getId() {
     return this.id;
   }

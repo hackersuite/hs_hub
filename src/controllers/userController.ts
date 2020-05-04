@@ -164,6 +164,8 @@ export class UserController implements UserControllerInterface {
     currentUser.spr = req.body.spr;
     currentUser.zip = req.body.zip;
     currentUser.country = req.body.country;
+    currentUser.tshirt = req.body.tshirt;
+    currentUser.sex = req.body.sex;
 
     try {
       await this._userService.save(currentUser);
