@@ -36,8 +36,8 @@ export class ReservedHardwareService implements ReservedHardwareServiceInterface
   };
 
   private getAllReservationsRemoveExpired = async (): Promise<ReservedHardwareItem[]> => {
-    let allReservations: ReservedHardwareItem[] = await this.getAllReservations();
-    allReservations = await Promise.all(allReservations.map(async reservation => {
+    const allReservations: ReservedHardwareItem[] = await this.getAllReservations();
+    const output = await Promise.all(allReservations.map(async reservation => {
       if (reservation.isReserved && !this.isReservationValid(reservation.reservationExpiry)) {
         try {
           await this.deleteReservation(undefined, reservation);
@@ -48,7 +48,7 @@ export class ReservedHardwareService implements ReservedHardwareServiceInterface
       }
       return Promise.resolve(reservation);
     }));
-    return allReservations.filter((reservation) => reservation !== undefined);
+    return output.filter(reservation => reservation !== undefined) as ReservedHardwareItem[];
   };
 
   private getAllReservations = async (): Promise<ReservedHardwareItem[]> => {
@@ -68,12 +68,13 @@ export class ReservedHardwareService implements ReservedHardwareServiceInterface
 
   public getReservation = async (token: string): Promise<ReservedHardwareItem> => {
     try {
-      const reservation: ReservedHardwareItem = await this.reservedHardwareRepository
+      const reservation = await this.reservedHardwareRepository
         .createQueryBuilder("reservation")
         .innerJoinAndSelect("reservation.hardwareItem", "item")
         .innerJoinAndSelect("reservation.user", "user")
         .where("reservation.reservationToken = :token", { token })
         .getOne();
+      if (!reservation) throw new Error("Could not get reservation with specified token!");
       return reservation;
     } catch (err) {
       throw new Error(`Lost connection to database (hub)! ${err}`);
@@ -90,7 +91,7 @@ export class ReservedHardwareService implements ReservedHardwareServiceInterface
    * @param userId The user id of the user performing the cancellation
    */
   public cancelReservation = async (token: string, userId: string): Promise<void> => {
-    const reservation: ReservedHardwareItem = await this.reservedHardwareRepository
+    const reservation = await this.reservedHardwareRepository
       .createQueryBuilder("reservation")
       .innerJoinAndSelect("reservation.hardwareItem", "item")
       .innerJoinAndSelect("reservation.user", "user")
@@ -108,7 +109,7 @@ export class ReservedHardwareService implements ReservedHardwareServiceInterface
 
       if (response.raw.affectedRows != 1) {
         // The delete result isn't defined, so manually check the deletion
-        const reservationForToken: ReservedHardwareItem = await transaction
+        const reservationForToken = await transaction
           .getRepository(ReservedHardwareItem)
           .createQueryBuilder("reservation")
           .where("reservation.reservationToken = :token", { token })
@@ -127,7 +128,7 @@ export class ReservedHardwareService implements ReservedHardwareServiceInterface
    * @param tokenToDelete The token is used to find the item reservation
    * @param reservation If defined, then the reservation object is used instead of the token
    */
-  public deleteReservation = async (tokenToDelete: string, reservation?: ReservedHardwareItem): Promise<void> => {
+  public deleteReservation = async (tokenToDelete?: string, reservation?: ReservedHardwareItem): Promise<void> => {
     try {
       await this.reservedHardwareRepository.manager.transaction(async transaction => {
         const itemReservation: ReservedHardwareItem = reservation || await this.getReservationFromToken(tokenToDelete, transaction);
@@ -174,10 +175,9 @@ export class ReservedHardwareService implements ReservedHardwareServiceInterface
    * Gets the user and hardware item that the reservation token is linked to
    * @param resToken Unique reservation token for the user reserved hardware item
    */
-  public getReservationFromToken = async (resToken: string, transaction?: EntityManager): Promise<ReservedHardwareItem> => {
-    let reservation: ReservedHardwareItem = undefined;
+  public getReservationFromToken = async (resToken?: string, transaction?: EntityManager): Promise<ReservedHardwareItem> => {
     try {
-      reservation = await (transaction ? transaction : this.reservedHardwareRepository.manager)
+      const reservation = await (transaction ?? this.reservedHardwareRepository.manager)
       .getRepository(ReservedHardwareItem)
       .createQueryBuilder("reservation")
       .innerJoin("reservation.user", "user")
@@ -185,11 +185,11 @@ export class ReservedHardwareService implements ReservedHardwareServiceInterface
       .select(["user.id", "item.id", "reservation.isReserved", "reservation.reservationExpiry", "reservation.reservationQuantity"])
       .where("reservation.reservationToken = :token", { token: resToken })
       .getOne();
-
+      if (!reservation) throw new Error('Could not find reservation from token!');
+      return reservation;
     } catch (err) {
       throw new Error(`Lost connection to database (hub)! ${err}`);
     }
-    return reservation;
   };
 
   /**
