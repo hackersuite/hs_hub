@@ -31,38 +31,29 @@ export class TeamService implements TeamServiceInterface {
    * Gets the team data for a given team code
    * @param authToken The authentication token for the hs_auth platform
    * @param teamCode The unique code for a specific team
-   * @returns The Team object if found in the database, undefined otherwise
+   * @returns The Team object if found in the database
    */
   public getTeam = async (authToken: string, teamCode: string): Promise<Team> => {
-    let apiresult: string;
-    try {
-      apiresult = await request.get(`${process.env.AUTH_URL}/api/v1/teams/${teamCode}`, {
+    const apiResult = await request.get(`${process.env.AUTH_URL}/api/v1/teams/${teamCode}`, {
         headers: {
           Authorization: authToken
         }
-      });
-    } catch (err) {
-      console.log(err);
-    }
+    });
 
-    if (apiresult) {
-      const team: RequestTeam = JSON.parse(apiresult).team;
+    const team: RequestTeam = JSON.parse(apiResult).team;
 
-      const teamMembers: any = await this.getUsersTeamMembers(authToken, teamCode);
+    const teamMembers: any = await this.getUsersTeamMembers(authToken, teamCode);
 
-      // Form new team object
-      const returnValue: Team = {
-        id: team._id,
-        name: team.name,
-        creator: team.creator,
-        tableNumber: team.table_no,
-        users: teamMembers
-      };
+    // Form new team object
+    const returnValue: Team = {
+      id: team._id,
+      name: team.name,
+      creator: team.creator,
+      tableNumber: team.table_no,
+      users: teamMembers
+    };
 
-      return returnValue;
-    } else {
-      return undefined;
-    }
+    return returnValue;
   };
 
   /**
@@ -71,22 +62,13 @@ export class TeamService implements TeamServiceInterface {
    * @param teamCode Team code for the team that we want to find
    */
   public getUsersTeamMembers = async (authToken: string, teamCode: string): Promise<RequestTeamMembers> => {
-    let apiresult: string;
-    try {
-      apiresult = await request.get(`${process.env.AUTH_URL}/api/v1/teams/${teamCode}/members`, {
+    const apiResult: string = await request.get(`${process.env.AUTH_URL}/api/v1/teams/${teamCode}/members`, {
         headers: {
           Authorization: authToken
         }
       });
-    } catch (err) {
-      console.log(err);
-    }
-
-    if (apiresult) {
-      return JSON.parse(apiresult).users;
-    } else {
-      return undefined;
-    }
+    
+    return JSON.parse(apiResult).users;
   };
 
   /**
@@ -96,11 +78,7 @@ export class TeamService implements TeamServiceInterface {
    * @param teamCode The team code that we want to check if the table number is set
    */
   public checkTeamTableIsSet = async (authToken: string, teamCode: string): Promise<boolean> => {
-    try {
-      const team: Team = await this.getTeam(authToken, teamCode);
-      return team && team.tableNumber ? true : false;
-    } catch (err) {
-      console.log(err);
-    }
+    const team: Team = await this.getTeam(authToken, teamCode);
+    return Boolean(team.tableNumber);
   };
 }
