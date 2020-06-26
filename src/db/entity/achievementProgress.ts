@@ -11,7 +11,7 @@ export class AchievementProgress {
    * The id of the achievement
    */
   @PrimaryColumn()
-  achievementId: number;
+  achievementId!: number;
 
   /**
    * The user
@@ -20,7 +20,7 @@ export class AchievementProgress {
     eager: true,
     primary: true
   })
-  user: User;
+  user!: User;
 
   /**
    * The progress that has been made
@@ -28,7 +28,7 @@ export class AchievementProgress {
   @Column({
     nullable: false
   })
-  progress: number;
+  progress!: number;
 
   /**
    * All completed steps stored in a JSON array as a string
@@ -37,18 +37,18 @@ export class AchievementProgress {
     nullable: false,
     type: "simple-json"
   })
-  completedSteps: number[];
+  completedSteps!: number[];
 
   /**
    * Wether or not the user has claimed their prize for the achievement
    */
   @Column()
-  prizeClaimed: boolean;
+  prizeClaimed!: boolean;
 
   /**
    * The achievement (not stored on the database)
    */
-  achievement: Achievement;
+  achievement!: Achievement;
 
   /**
    *
@@ -59,7 +59,7 @@ export class AchievementProgress {
    * @param prizeClaimed (optional) Wether or not the user has claimed their prize for the achievement
    */
   constructor(achievement: Achievement, user: User, progress?: number, stepsCompleted?: number[], prizeClaimed?: boolean) {
-    this.achievementId = achievement ? achievement.getId() : undefined;
+    this.achievementId = achievement.getId();
     this.user = user;
     this.progress = progress || 0;
     this.completedSteps = stepsCompleted || [];

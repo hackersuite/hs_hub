@@ -5,26 +5,26 @@ import { IsDefined, MaxLength } from "class-validator";
 @Entity()
 export class Challenge implements Cacheable {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @IsDefined({ message: "The title must be defined" })
   @MaxLength(128)
   @Column("varchar", { length: 128 })
-  title: string;
+  title!: string;
 
   @IsDefined({ message: "The description must be defined" })
   @MaxLength(500)
   @Column("varchar", { length: 500 })
-  description: string;
+  description!: string;
 
   @IsDefined({ message: "The company must be defined" })
   @MaxLength(128)
   @Column("varchar", { length: 128 })
-  company: string;
+  company!: string;
 
   @MaxLength(255)
   @Column("varchar", { length: 255 })
-  prizes: string;
+  prizes!: string;
 
   // Expires in one minute
   expiresIn: number = 60000;
