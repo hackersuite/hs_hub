@@ -60,7 +60,7 @@ export class RequestAuthentication {
   }
 
   private logout = (app: Express): void => {
-    let logoutCookieOptions: CookieOptions = undefined;
+    let logoutCookieOptions: CookieOptions;
     if (app.get("env") === "production") {
       logoutCookieOptions = {
         domain: "greatunihack.com",
@@ -85,7 +85,7 @@ export class RequestAuthentication {
           cookieName: "Authorization",
           passReqToCallback: true
         },
-        async (req: Request, token: string, done: (error: string, user?: any) => void): Promise<void> => {
+        async (req: Request, token: string, done: (error?: string, user?: any) => void): Promise<void> => {
           let apiResult: string;
           try {
             apiResult = await request.get(`${process.env.AUTH_URL}/api/v1/users/me`, {
@@ -107,7 +107,7 @@ export class RequestAuthentication {
             // The request has been authorized
 
             // Check if the user exists in the hub...if not, then add them
-            let user: User = undefined;
+            let user: User;
             let authId: string = result.user._id;
             let name: string = result.user.name;
             try {
@@ -136,4 +136,3 @@ export class RequestAuthentication {
     );
   };
 }
-
