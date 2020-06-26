@@ -1,5 +1,5 @@
 import * as request from "request-promise-native";
-import { Express, Request, Response, Application, CookieOptions } from "express";
+import { Express, Request, Response, CookieOptions } from "express";
 import passport = require("passport");
 import { injectable, inject } from "inversify";
 import * as CookieStrategy from "passport-cookie";
@@ -14,7 +14,7 @@ import { AuthLevels } from "./user";
 // The done function has the parameters (error, user, info)
 
 export interface RequestAuthenticationInterface {
-  passportSetup: (app: Application) => void;
+  passportSetup: (app: Express) => void;
 }
 
 export type RequestUser = {
