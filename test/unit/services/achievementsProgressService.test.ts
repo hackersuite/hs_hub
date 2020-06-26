@@ -2,7 +2,7 @@ import { Repository } from "typeorm";
 import { AchievementsService, AchievementsProgressService } from "../../../src/services/achievements";
 import { Achievement } from "../../../src/util/achievements";
 import { mock, instance, when, verify, deepEqual, reset, anything } from "ts-mockito";
-import { AchievementProgress, User } from "../../../src/db/entity/hub";
+import { AchievementProgress, User } from "../../../src/db/entity";
 
 let mockAchievementsService: AchievementsService;
 let mockAchievementsProgressRepository: Repository<AchievementProgress>;
