@@ -1,10 +1,10 @@
 import "reflect-metadata";
-import * as express from "express";
-import * as dotenv from "dotenv";
-import * as path from "path";
-import * as morgan from "morgan";
-import * as expressSession from "express-session";
-import * as cookieParser from "cookie-parser";
+import express from "express";
+import dotenv from "dotenv";
+import path from "path";
+import morgan from "morgan";
+import expressSession from "express-session";
+import cookieParser from "cookie-parser";
 import { RequestAuthentication } from "./util/hs_auth";
 import { Express, Request, Response, NextFunction } from "express";
 import { Connection, createConnections, ConnectionOptions } from "typeorm";

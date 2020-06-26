@@ -1,4 +1,4 @@
-import * as request from "request-promise-native";
+import request from "request-promise-native";
 import { Team, RequestTeam, RequestTeamMembers } from "../../util/hs_auth";
 import { injectable } from "inversify";
 import { AdvancedConsoleLogger } from "typeorm";

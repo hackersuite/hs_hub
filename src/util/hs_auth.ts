@@ -1,8 +1,8 @@
-import * as request from "request-promise-native";
+import request from "request-promise-native";
 import { Express, Request, Response, CookieOptions } from "express";
 import passport = require("passport");
 import { injectable, inject } from "inversify";
-import * as CookieStrategy from "passport-cookie";
+import CookieStrategy from "passport-cookie";
 
 import { HttpResponseCode } from "./errorHandling";
 import { Cache } from "./cache";

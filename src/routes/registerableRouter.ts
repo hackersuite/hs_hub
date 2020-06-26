@@ -1,4 +1,4 @@
-import * as express from "express";
+import express from "express";
 
 /**
  * In order to add a new route for requests, make sure you have done the following:

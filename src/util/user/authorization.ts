@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import * as passport from "passport";
-import * as querystring from "querystring";
+import passport from "passport";
+import querystring from "querystring";
 
 import { AuthLevels } from "./authLevels";
 import { RequestUser } from "../hs_auth";

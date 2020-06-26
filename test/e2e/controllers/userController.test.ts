@@ -2,7 +2,7 @@ import { Express } from "express";
 import { buildApp } from "../../../src/app";
 import { User } from "../../../src/db/entity/hub";
 import { getConnection } from "typeorm";
-import * as request from "supertest";
+import request from "supertest";
 import { HttpResponseCode } from "../../../src/util/errorHandling";
 import { getTestDatabaseOptions, reloadTestDatabaseConnection, closeTestDatabaseConnection, initEnv } from "../../util/testUtils";
 import { AuthLevels } from "../../../src/util/user";

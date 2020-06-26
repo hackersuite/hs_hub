@@ -1,4 +1,4 @@
-import * as sgMail from "@sendgrid/mail";
+import sgMail from "@sendgrid/mail";
 
 // Sends an email to specified recipient with specified sender credentials and specified content
 export const sendEmail = (sender, recipient, subject, content) => {
