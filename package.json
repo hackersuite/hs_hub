@@ -13,7 +13,9 @@
     "test:watch": "npx jest --watch",
     "test:coverage": "npx jest --coverage",
     "start": "ts-node src/server.ts",
-    "start:watch": "node ./node_modules/nodemon/bin/nodemon.js"
+    "start:watch": "node ./node_modules/nodemon/bin/nodemon.js",
+    "lint": "eslint src test --ignore-pattern \"src/public/**/*\" --ext .ts",
+    "lint:fix": "eslint src test --ignore-pattern \"src/public/**/*\" --ext .ts --fix"
   },
   "repository": {
     "type": "GitHub",
@@ -59,7 +61,11 @@
     "@types/errorhandler": "0.0.32",
     "@types/jest": "^23.3.14",
     "@types/supertest": "^2.0.7",
+    "@typescript-eslint/eslint-plugin": "^3.4.0",
+    "@typescript-eslint/parser": "^3.4.0",
+    "@unicsmcr/eslint-config": "0.0.2",
     "errorhandler": "^1.5.0",
+    "eslint": "^7.3.1",
     "gulp": "^4.0.2",
     "gulp-clean-css": "^4.2.0",
     "gulp-rename": "^1.4.0",
