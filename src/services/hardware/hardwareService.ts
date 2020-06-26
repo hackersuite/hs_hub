@@ -48,17 +48,19 @@ export class HardwareService implements HardwareServiceInterface {
     const hardwareItem: HardwareItem = await this.getHardwareItemByID(Number(itemToReserve));
     if (await this.isItemReservable(user, hardwareItem, requestedQuantity)) {
       return await this.reserveItemQuery(user, hardwareItem, requestedQuantity);
+    } else {
+      throw new Error("This item is not reservable");
     }
-    return undefined;
   };
 
   public getHardwareItemByID = async (hardwareItemID: number): Promise<HardwareItem> => {
     try {
-      const item: HardwareItem = await this.hardwareRepository
+      const item = await this.hardwareRepository
         .findOne({ where: {
             id: hardwareItemID
           }
         });
+      if (!item) throw new Error("Item with given ID not found");
       return item;
     } catch (err) {
       throw new Error(`Lost connection to database (hub)! ${err}`);
@@ -124,8 +126,10 @@ export class HardwareService implements HardwareServiceInterface {
    * @param token token of the reservation
    */
   public takeItem = async (token: string): Promise<boolean> => {
-    const reservation: ReservedHardwareItem = await this.reservedHardwareService.getReservationFromToken(token);
-    if (!reservation) return undefined;
+    const reservation = await this.reservedHardwareService.getReservationFromToken(token);
+    if (!reservation) {
+      throw new Error("Reservation does not exist");
+    }
 
     const userID: string = reservation.user.id,
       itemID: number = reservation.hardwareItem.id,
@@ -259,9 +263,9 @@ export class HardwareService implements HardwareServiceInterface {
 
     items.forEach((item: HardwareObject) => {
       const newHardwareItem = new HardwareItem();
-      newHardwareItem.name = item.name;
-      newHardwareItem.itemURL = item.itemURL;
-      newHardwareItem.totalStock = item.totalStock;
+      newHardwareItem.name = item.name!;
+      newHardwareItem.itemURL = item.itemURL!;
+      newHardwareItem.totalStock = item.totalStock!;
       newHardwareItem.reservedStock = 0;
       newHardwareItem.takenStock = 0;
 
@@ -281,7 +285,7 @@ export class HardwareService implements HardwareServiceInterface {
    */
   public deleteHardwareItem = async(id: number): Promise<void> => {
     const itemId = id;
-    const item: HardwareItem = await this.hardwareRepository.findOne(itemId);
+    const item = await this.hardwareRepository.findOne(itemId);
 
     if (!item) {
       throw new ApiError(HttpResponseCode.BAD_REQUEST, "Could not find an item with the given id!");
