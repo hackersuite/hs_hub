@@ -33,24 +33,23 @@ export class AnnouncementService {
    * @returns An array of announcements from the database
    */
   public getMostRecentAnnouncements = async (mostRecent: number): Promise<Announcement[]> => {
-    let mostRecentAnnouncements: Announcement[] = undefined;
     const cachedAnnouncements: Announcement[] = this._cache.getAll(Announcement.name);
 
     // Either there are no announcements or the cache has expired
     if (cachedAnnouncements.length === 0) {
       try {
-        mostRecentAnnouncements = await this._announcementRepository
+        const mostRecentAnnouncements = await this._announcementRepository
           .createQueryBuilder("announcement")
           .orderBy("announcement.createdAt", "DESC")
           .limit(mostRecent)
           .getMany();
+        if (mostRecentAnnouncements !== undefined) {
+          this._cache.setAll(Announcement.name, mostRecentAnnouncements);
+        }
+        return mostRecentAnnouncements;
       } catch (err) {
         throw new Error(`Failed to get the most recent announcements: ${err}`);
       }
-      if (mostRecentAnnouncements !== undefined) {
-        this._cache.setAll(Announcement.name, mostRecentAnnouncements);
-      }
-      return mostRecentAnnouncements;
     } else {
       return cachedAnnouncements;
     }
