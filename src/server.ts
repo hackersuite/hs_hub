@@ -4,7 +4,7 @@ import { Express } from "express";
 /**
  * Start Express server.
  */
-buildApp((app: Express, err: Error) => {
+buildApp((app: Express, err?: Error) => {
   if (err) {
     console.error("Could not start server!");
   } else {
