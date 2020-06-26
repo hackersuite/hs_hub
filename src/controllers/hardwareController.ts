@@ -59,7 +59,7 @@ export class HardwareController implements HardwareControllerInterface {
     for (const item of hardwareItems) {
       const remainingItemCount: number = item.totalStock - (item.reservedStock + item.takenStock);
 
-      const userReservation: ReservedHardwareItem = allReservations.find((reservation) => reservation.hardwareItem.name === item.name && reservation.user.authId === userID);
+      const userReservation = allReservations.find((reservation) => reservation.hardwareItem.name === item.name && reservation.user.authId === userID);
 
       formattedData.push({
         "itemID": item.id,
@@ -116,10 +116,12 @@ export class HardwareController implements HardwareControllerInterface {
       const errors: ValidationError[] = await validate(newItem);
 
       if (errors.length > 0) {
-        req.session.notification = {
-          message: `Could not create item: ${errors.join(",")}`,
-          type: "danger"
-        };
+        if (req.session) {
+          req.session.notification = {
+            message: `Could not create item: ${errors.join(",")}`,
+            type: "danger"
+          };
+        }
         res.status(HttpResponseCode.BAD_REQUEST).send({
           error: true,
           message: `Could not create item: ${errors.join(",")}`,
@@ -128,10 +130,12 @@ export class HardwareController implements HardwareControllerInterface {
       }
       await this._hardwareService.addAllHardwareItems([newItem]);
 
-      req.session.notification = {
-        message: `Item ${newItem.name} created!`,
-        type: "success"
-      };
+      if (req.session) {
+          req.session.notification = {
+          message: `Item ${newItem.name} created!`,
+          type: "success"
+        };
+      }
       res.send({ message: "Item created" });
     } catch (err) {
       next(err);
@@ -147,10 +151,12 @@ export class HardwareController implements HardwareControllerInterface {
       const itemToUpdate: HardwareItem = await this._hardwareService.getHardwareItemByID(id);
 
       if (itemToUpdate === undefined) {
-        req.session.notification = {
-          message: `Could not update item: item ${id} does not exist!`,
-          type: "danger"
-        };
+        if (req.session) {
+          req.session.notification = {
+            message: `Could not update item: item ${id} does not exist!`,
+            type: "danger"
+          };
+        }
         res.status(HttpResponseCode.BAD_REQUEST).send({
           error: true,
           message: `Could not update item: item ${id} does not exist!`
@@ -165,10 +171,12 @@ export class HardwareController implements HardwareControllerInterface {
       const errors: ValidationError[] = await validate(itemToUpdate);
 
       if (errors.length > 0) {
-        req.session.notification = {
-          message: `Could not create item: ${errors.join(",")}`,
-          type: "danger"
-        };
+        if (req.session) {
+          req.session.notification = {
+            message: `Could not create item: ${errors.join(",")}`,
+            type: "danger"
+          };
+        }
         res.status(HttpResponseCode.BAD_REQUEST).send({
           error: true,
           message: `Could not create item: ${errors.join(",")}`
@@ -178,10 +186,12 @@ export class HardwareController implements HardwareControllerInterface {
 
       await this._hardwareService.updateHardwareItem(itemToUpdate);
 
-      req.session.notification = {
-        message: `Item ${itemToUpdate.name} updated!`,
-        type: "success"
-      };
+      if (req.session) {
+        req.session.notification = {
+          message: `Item ${itemToUpdate.name} updated!`,
+          type: "success"
+        };
+      }
       res.send({ message: "Item updated" });
     } catch (err) {
       next(err);
@@ -199,6 +209,7 @@ export class HardwareController implements HardwareControllerInterface {
     // otherwise, return that the item can't be reserved
     try {
       const reqUser: RequestUser = req.user as RequestUser;
+      if (!reqUser.authToken) throw new Error("Missing auth token");
       // First check that the team table number is set
       // Check if the team is undefined, use == instead of === since typeorm returns null for relations that are not defined
       if (reqUser.team == undefined || !(await this._teamService.checkTeamTableIsSet(reqUser.authToken, reqUser.team))) {
@@ -212,7 +223,7 @@ export class HardwareController implements HardwareControllerInterface {
         next(new ApiError(HttpResponseCode.BAD_REQUEST, "Invalid quantity provided!"));
         return;
       }
-      const token: string = await this._hardwareService.reserveItem(reqUser.hubUser, item, quantity);
+      const token: string = await this._hardwareService.reserveItem(reqUser.hubUser!, item, quantity);
       if (token) {
         res.send({
           "message": `Item${quantity > 1 ? "(s)" : ""} reserved!`,
@@ -341,7 +352,7 @@ export class HardwareController implements HardwareControllerInterface {
       if (!req.body.token) {
         throw new ApiError(HttpResponseCode.BAD_REQUEST, "No reservation token provided!");
       }
-      await this._reservedHardwareService.cancelReservation(req.body.token, reqUser.hubUser.id);
+      await this._reservedHardwareService.cancelReservation(req.body.token, reqUser.hubUser!.id);
       res.send({ message: "Success" });
     } catch (err) {
       next(err);
@@ -351,8 +362,8 @@ export class HardwareController implements HardwareControllerInterface {
   public management = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const items: HardwareItem[] = await this._hardwareService.getAllHardwareItemsWithReservations();
-      const notification = req.session.notification;
-      req.session.notification = undefined;
+      const notification = req.session?.notification;
+      if (req.session) req.session.notification = undefined;
 
       res.render("pages/hardware/management", { items, notification });
     } catch (err) {

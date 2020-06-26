@@ -10,7 +10,7 @@ import { TYPES } from "../types";
 
 export interface ScheduleControllerInterface {
   listEvents: (req: Request, res: Response, next: NextFunction) => Promise<void>;
-  createEvent: (req: Request, res: Response, next: NextFunction) => Promise<Event>;
+  createEvent: (req: Request, res: Response, next: NextFunction) => Promise<void>;
   deleteEvent: (req: Request, res: Response, next: NextFunction) => Promise<void>;
   updateEvent: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 }
@@ -38,7 +38,7 @@ export class ScheduleController implements ScheduleControllerInterface {
     }
   }
 
-  public createEvent = async (req: Request, res: Response, next: NextFunction): Promise<Event> => {
+  public createEvent = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { title, startTime, endTime, location } = req.body;
       const newEvent: Event = new Event(title, new Date(startTime), new Date(endTime), location);
@@ -48,7 +48,6 @@ export class ScheduleController implements ScheduleControllerInterface {
       if (errors.length > 0) {
         next(new ApiError(HttpResponseCode.BAD_REQUEST,
           `Could not create event: ${errors.join(",")}`));
-        return;
       }
 
       await getConnection("hub").getRepository(Event).save(newEvent);
@@ -89,7 +88,7 @@ export class ScheduleController implements ScheduleControllerInterface {
     try {
       const { id, title, startTime, endTime, location } = req.body;
 
-      let eventToUpdate: Event = this.cache.get(Event.name, Number(id));
+      let eventToUpdate = this.cache.get(Event.name, Number(id));
       if (!eventToUpdate) {
         eventToUpdate = await getConnection("hub").getRepository(Event).findOne(id);
         if (!eventToUpdate) {

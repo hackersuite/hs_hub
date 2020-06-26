@@ -50,8 +50,8 @@ export class AchievementsController implements AchievementsControllerInterface {
         progressMap.set(achievementProgress.getAchievementId(), achievementProgress);
       });
 
-      const notification = req.session.notification;
-      req.session.notification = undefined;
+      const notification = req.session?.notification;
+      if (req.session) req.session.notification = undefined;
 
       res.render("pages/achievements/index", { achievements, progress: progressMap, notification });
     } catch (err) {
@@ -77,8 +77,8 @@ export class AchievementsController implements AchievementsControllerInterface {
         }
       });
 
-      const notification = req.session.notification;
-      req.session.notification = undefined;
+      const notification = req.session?.notification;
+      if (req.session) req.session.notification = undefined;
 
       res.render("pages/achievements/volunteerControls", { users, achievements, prizesToClaim, notification });
     } catch (err) {
@@ -130,10 +130,12 @@ export class AchievementsController implements AchievementsControllerInterface {
 
       sendPushNotificationByUserID(`Congratulations you have completed the achievement ${achievement.getTitle()}!`, userId);
 
-      req.session.notification = {
-        type: "success",
-        message: `Achievement ${achievement.getTitle()} has been awarded to user ${user.getName()}!`
-      };
+      if (req.session) {
+        req.session.notification = {
+          type: "success",
+          message: `Achievement ${achievement.getTitle()} has been awarded to user ${user.getName()}!`
+        };
+      }
 
       res.send({ message: `Achievement ${achievement.getTitle()} has been awarded to user ${user.getName()}!`});
     } catch (err) {
@@ -160,17 +162,21 @@ export class AchievementsController implements AchievementsControllerInterface {
         message = `Progress for achievement "${achievement.getTitle()}" updated. Your new progress is: ${achievementProgress.getProgress()}/${achievement.getMaxProgress()}!`;
       }
 
-      req.session.notification = {
-        type: "success",
-        message
-      };
+      if (req.session) {
+        req.session.notification = {
+          type: "success",
+          message
+        };
+      }
 
       res.redirect("/achievements");
     } catch (err) {
-      req.session.notification = {
-        type: "danger",
-        message: err.message
-      };
+      if (req.session) {
+        req.session.notification = {
+          type: "danger",
+          message: err.message
+        };
+      }
 
       res.redirect("/achievements");
     }
@@ -186,17 +192,21 @@ export class AchievementsController implements AchievementsControllerInterface {
 
       await this._achievementsProgressService.giveAchievementPrizeToUser(achievement, user);
 
-      req.session.notification = {
-        type: "success",
-        message: `Prize for achievement ${achievement.getTitle()} awarded to user ${user.getName()}`
-      };
+      if (req.session) {
+        req.session.notification = {
+          type: "success",
+          message: `Prize for achievement ${achievement.getTitle()} awarded to user ${user.getName()}`
+        };
+      }
 
       res.send({ message: `Prize for achievement ${achievement.getTitle()} awarded to user ${user.getName()}`});
     } catch (err) {
-      req.session.notification = {
-        type: "danger",
-        message: err.message
-      };
+      if (req.session) {
+        req.session.notification = {
+          type: "danger",
+          message: err.message
+        };
+      }
 
       res.redirect("/achievements");
     }

@@ -61,7 +61,7 @@ export class UserController implements UserControllerInterface {
    * Gets the profile page for the currently logged in user
    */
   public profile = async (req: Request, res: Response, next: NextFunction) => {
-    let profileCookieOptions: CookieOptions = undefined;
+    let profileCookieOptions: CookieOptions|undefined = undefined;
     if (req.app.get("env") === "production") {
       profileCookieOptions = {
         domain: "greatunihack.com",
@@ -70,8 +70,9 @@ export class UserController implements UserControllerInterface {
       };
     }
 
-    res.cookie("ReturnTo", process.env.HUB_URL, profileCookieOptions)
-      .redirect(process.env.AUTH_URL);
+    (profileCookieOptions ? res.cookie("ReturnTo", process.env.HUB_URL, profileCookieOptions)
+      : res.cookie("ReturnTo", process.env.HUB_URL))
+      .redirect(process.env.AUTH_URL ?? '');
     // let reqUser: RequestUser = req.user as RequestUser;
     // let teamInfo: Team = undefined;
     // if (reqUser.team) {
@@ -88,7 +89,7 @@ export class UserController implements UserControllerInterface {
   };
 
   public discordJoin = async (req: Request, res: Response, next: NextFunction) => {
-    const state = createVerificationHmac(req.user.authId, process.env.DISCORD_HMAC_KEY);
+    const state = createVerificationHmac(req.user.authId, process.env.DISCORD_HMAC_KEY ?? '');
     const discordURL =
       `https://discordapp.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT_ID}` +
       `&redirect_uri=${encodeURIComponent(`${process.env.DISCORD_REDIRECT_URI}`)}` +

@@ -35,6 +35,7 @@ export class TeamController implements TeamControllerInterface {
   public getTeam = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const reqUser: RequestUser = req.user as RequestUser;
     if (!reqUser.team) return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Team not found"));
+    if (!reqUser.authToken) return next(new ApiError(HttpResponseCode.BAD_REQUEST, "Missing auth token"));
 
     const teamMembers: RequestTeamMembers = await this._teamService.getUsersTeamMembers(reqUser.authToken, reqUser.team);
 

@@ -71,7 +71,7 @@ export class ChallengeController implements ChallengeControllerInterface {
     try {
       const { id, title, description, company, prizes } = req.body;
 
-      let challengeToUpdate: Challenge = this._cache.get(Challenge.name, Number(id));
+      let challengeToUpdate = this._cache.get(Challenge.name, Number(id));
       if (!challengeToUpdate) {
         challengeToUpdate = await this._challengeService.findByID(id);
       }

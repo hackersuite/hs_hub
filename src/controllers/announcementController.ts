@@ -63,7 +63,7 @@ export class AnnouncementController implements AnnouncementControllerInterface {
       const includedUsers: string = req.body.included_users;
       let userIds: string[] = [];
       if (includedUsers !== undefined) {
-        const includedUsersObj: Object = JSON.parse(includedUsers);
+        const includedUsersObj: Record<string, any> = JSON.parse(includedUsers);
         if (includedUsersObj.hasOwnProperty("users")) {
           userIds = includedUsersObj["users"];
         }
