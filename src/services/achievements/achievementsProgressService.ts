@@ -35,7 +35,7 @@ export class AchievementsProgressService {
    * @param user The user
    */
   public getAchievementProgressForUser = async (achievement: Achievement, user: User): Promise<AchievementProgress> => {
-    let achievementProgress: AchievementProgress = await this._achievementsProgressRepository
+    let achievementProgress = await this._achievementsProgressRepository
       .findOne({
         where: {
           achievementId: achievement.getId(),
@@ -71,7 +71,7 @@ export class AchievementsProgressService {
 
     // Mapping Achievement objects to the AchievementProgress objects
     achievements.forEach((achievement: Achievement) => {
-      const progressForCurrentAchievement: AchievementProgress = achievementsProgress
+      const progressForCurrentAchievement = achievementsProgress
         .find((progress: AchievementProgress) => progress.getAchievementId() == achievement.getId());
       if (progressForCurrentAchievement) {
         progressForCurrentAchievement.setAchievement(achievement);
@@ -105,7 +105,7 @@ export class AchievementsProgressService {
     achievements.forEach((achievement: Achievement) => achievementsMap.set(achievement.getId(), achievement));
 
     achievementsProgress = achievementsProgress.filter((achievementProgress: AchievementProgress) => {
-      achievementProgress.setAchievement(achievementsMap.get(achievementProgress.getAchievementId()));
+      achievementProgress.setAchievement(achievementsMap.get(achievementProgress.getAchievementId())!);
       return achievementProgress.achievementIsCompleted();
     });
 
