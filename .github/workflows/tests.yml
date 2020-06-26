@@ -17,6 +17,7 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
+    - run: npm install -g npm@latest
     - run: npm ci
     - run: npm i -g codeclimate-test-reporter
     - run: npm run test:coverage
