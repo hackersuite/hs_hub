@@ -9,7 +9,7 @@ export class QueryLogger implements Logger {
 
   protected writeToFile(message: string, file?: string) {
     if (Number(process.env.ENABLE_LOGGING) === 0) return;
-    const fileName: string = file ?? process.env.HUB_LOG_FILE_NAME ?? 'logfile';
+    const fileName: string = file ?? process.env.HUB_LOG_FILE_NAME ?? 'hub.log';
 
     const basePath: string = PlatformTools.load("app-root-path").path;
     PlatformTools.appendFileSync(basePath + "/" + fileName, message + "\n");
