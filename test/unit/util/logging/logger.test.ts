@@ -1,13 +1,11 @@
 import fs from "fs";
-import dotenv from "dotenv";
 
 import { PlatformTools } from "typeorm/platform/PlatformTools";
 import { QueryLogger, LoggerLevels } from "../../../../src/util/logging/";
+import { initEnv } from "../../../util/testUtils";
 
 beforeAll((done: jest.DoneCallback): void => {
-  dotenv.config({ path: ".env" });
-  process.env.HARDWARE_LOG_FILE_NAME = "hardware.log";
-  process.env.HUB_LOG_FILE_NAME = "hub.log";
+  initEnv();
   done();
 });
 
