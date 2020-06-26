@@ -29,10 +29,12 @@ export class LocalAchievementsRepository implements AchievementsRepository {
   }
 
   /**
-   * Returns an achievement with the given id. Returns undefined if not found
+   * Returns an achievement with the given id.
    * @param id The id of the achievement to search for
    */
   public async findOne(id: number): Promise<Achievement> {
-    return this.achievements.find((achievement: Achievement) => achievement.getId() === id);
+    const achievement = this.achievements.find((achievement: Achievement) => achievement.getId() === id);
+    if (!achievement) throw new Error("Could not find an achievement with given id!");
+    return achievement;
   }
 }

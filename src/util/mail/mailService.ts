@@ -1,7 +1,7 @@
 import sgMail from "@sendgrid/mail";
 
 // Sends an email to specified recipient with specified sender credentials and specified content
-export const sendEmail = (sender, recipient, subject, content) => {
+export const sendEmail = (sender: string, recipient: string|string[], subject: string, content: string) => {
   const msg = {
     to: recipient,
     from: sender,
@@ -9,7 +9,7 @@ export const sendEmail = (sender, recipient, subject, content) => {
     text: content
   };
 
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY ?? '');
 
   sgMail.send(msg, false, (error) => {
     if (error) {

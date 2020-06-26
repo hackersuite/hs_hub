@@ -47,9 +47,9 @@ export class Achievement {
     this.description = description;
     this.prizeURL = prizeURL;
     this.maxProgress = maxProgress;
-    this.requiresToken = requiresToken;
-    this.isManual = isManual;
-    this.mustCompleteStepsInOrder = mustCompleteStepsInOrder;
+    this.requiresToken = Boolean(requiresToken);
+    this.isManual = Boolean(isManual);
+    this.mustCompleteStepsInOrder = Boolean(mustCompleteStepsInOrder);
   }
 
   /**
@@ -130,7 +130,7 @@ export class Achievement {
   public generateToken(step?: number): string {
     const token: string = pbkdf2Sync(
       `${this.id}->${this.maxProgress > 1 && step ? step.toString() : ""}`,
-      process.env.ACHIEVEMENT_TOKEN_SALT,
+      process.env.ACHIEVEMENT_TOKEN_SALT ?? '',
       1,
       10
     ).toString("base64")

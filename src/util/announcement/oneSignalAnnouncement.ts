@@ -51,13 +51,13 @@ export function sendOneSignalNotification(text: string, onlyThesePushIds?: strin
     });
 
     const message: OneSignalData = {
-      app_id: process.env.ONE_SIGNAL_API_KEY,
+      app_id: process.env.ONE_SIGNAL_API_KEY ?? '',
       contents: {"en": text},
       headings: {"en": process.env.ONE_SIGNAL_NOTIFICATION_HEADING}
     };
 
     if (onlyThesePushIds === undefined) {
-      message.included_segments = [process.env.ONE_SIGNAL_USER_SEGMENTS];
+      message.included_segments = [process.env.ONE_SIGNAL_USER_SEGMENTS ?? ''];
     } else {
       message.include_player_ids = onlyThesePushIds;
     }

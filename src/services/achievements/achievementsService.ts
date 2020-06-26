@@ -28,11 +28,7 @@ export class AchievementsService implements AchievementsServiceInterface {
    * Throws error if no achievement with given id can be found
    * @param id The id of the achievement to search for
    */
-  public getAchievementWithId = async (id: number): Promise<Achievement> => {
-    const achievement: Achievement = await this._achievementsRepository.findOne(id);
-    if (!achievement) {
-      throw new Error("Could not find an achievement with given id!");
-    }
-    return achievement;
+  public getAchievementWithId = (id: number): Promise<Achievement> => {
+    return this._achievementsRepository.findOne(id);
   }
 }

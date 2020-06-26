@@ -33,13 +33,13 @@ export class Cache implements CacheInterface {
    * @param className The name of the class of the stored object
    * @param id The id of the object
    */
-  public get<T extends Cacheable>(className: string, id: number): T {
-    const selectedCollection: Map<number, Cacheable> = this.items.get(className);
+  public get<T extends Cacheable>(className: string, id: number): T|undefined {
+    const selectedCollection: Map<number, Cacheable>|undefined = this.items.get(className);
 
     if (!selectedCollection)
       return undefined;
 
-    const selectedElement: Cacheable = selectedCollection.get(id);
+    const selectedElement: Cacheable|undefined = selectedCollection.get(id);
     if (!selectedElement || this.objectIsExpired(selectedElement)) {
       selectedCollection.delete(id);
       return undefined;
@@ -54,7 +54,7 @@ export class Cache implements CacheInterface {
    * @param className The class of the objects to fetch
    */
   public getAll<T extends Cacheable>(className: string): T[] {
-    const selectedCollection: Map<number, Cacheable> = this.items.get(className);
+    const selectedCollection: Map<number, Cacheable>|undefined = this.items.get(className);
 
     if (!selectedCollection)
       return [];
@@ -86,11 +86,11 @@ export class Cache implements CacheInterface {
    * @param obj The object to be stored
    */
   public set(className: string, obj: Cacheable): void {
-    let selectedCollection: Map<number, Cacheable> = this.items.get(className);
+    let selectedCollection: Map<number, Cacheable>|undefined = this.items.get(className);
 
     if (!selectedCollection) {
-      this.items.set(className, new Map<number, Cacheable>());
-      selectedCollection = this.items.get(className);
+      selectedCollection = new Map<number, Cacheable>();
+      this.items.set(className, selectedCollection);
     }
 
     obj.syncedAt = Date.now();
@@ -105,19 +105,19 @@ export class Cache implements CacheInterface {
    * @param objects The objects to be stored
    */
   public setAll(className: string, objects: Cacheable[]): void {
-    let selectedCollection: Map<number, Cacheable> = this.items.get(className);
+    let selectedCollection: Map<number, Cacheable>|undefined = this.items.get(className);
 
     if (!selectedCollection) {
-      this.items.set(className, new Map<number, Cacheable>());
-      selectedCollection = this.items.get(className);
+      selectedCollection = new Map<number, Cacheable>();
+      this.items.set(className, selectedCollection);
     }
 
     const syncTime: number = Date.now();
 
-    objects.forEach((obj: Cacheable) => {
+    for (const obj of objects) {
       obj.syncedAt = syncTime;
       selectedCollection.set(obj.id, obj);
-    });
+    }
   }
 
   /**
@@ -126,7 +126,7 @@ export class Cache implements CacheInterface {
    * @param obj The object to be deleted
    */
   public delete(className: string, id: number): void {
-    const selectedCollection: Map<number, Cacheable> = this.items.get(className);
+    const selectedCollection: Map<number, Cacheable>|undefined = this.items.get(className);
 
     if (!selectedCollection)
       return;
@@ -149,6 +149,6 @@ export class Cache implements CacheInterface {
   private objectIsExpired(obj: Cacheable): boolean {
     if (obj.expiresIn < 0)
       return false;
-    return obj.syncedAt + obj.expiresIn <= Date.now();
+    return (obj.syncedAt ?? 0) + obj.expiresIn <= Date.now();
   }
 }

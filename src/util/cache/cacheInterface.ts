@@ -1,7 +1,7 @@
 import { Cacheable } from "./cacheable";
 
 export interface CacheInterface {
-  get<T extends Cacheable>(className: string, id: number): T;
+  get<T extends Cacheable>(className: string, id: number): T|undefined;
   getAll<T extends Cacheable>(className: string): T[];
   set(className: string, obj: Cacheable): void;
   setAll(className: string, objects: Cacheable[]): void;

@@ -39,7 +39,7 @@ const checkAuthLevel = (req: Request, res: Response, user: RequestUser, required
   if (!user || user.authLevel < requiredAuth) {
     const queryParam: string = querystring.stringify({ returnto: `${process.env.HUB_URL}${req.originalUrl}` });
     res.redirect(`${process.env.AUTH_URL}/login?${queryParam}`);
-    return;
+    return false;
   }
   return true;
 };
