@@ -25,6 +25,7 @@
   "license": "MIT",
   "dependencies": {
     "@sendgrid/mail": "^6.3.1",
+    "@types/cookie-parser": "^1.4.2",
     "@types/dotenv": "^4.0.3",
     "@types/express": "^4.16.1",
     "@types/express-session": "^1.15.12",
@@ -33,6 +34,7 @@
     "@types/passport-local": "^1.0.33",
     "@types/pbkdf2": "^3.0.0",
     "@types/request": "^2.48.1",
+    "@types/request-promise-native": "^1.0.17",
     "@types/uuid": "^3.4.4",
     "@unicsmcr/hs_discord_bot_api_client": "0.0.1",
     "body-parser": "^1.19.0",
