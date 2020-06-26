@@ -34,7 +34,7 @@ export class UserService {
    * @return Promise of a user
    */
   public getUserByIDFromHub = async (submittedID: string): Promise<User> => {
-    const user: User = await this.userRepository
+    const user: User|undefined = await this.userRepository
       .createQueryBuilder("user")
       .where("id = :id", { id: submittedID })
       .getOne();
@@ -50,7 +50,7 @@ export class UserService {
    * @return Promise of a user
    */
   public getUserByAuthIDFromHub = async (authID: string): Promise<User> => {
-    const user: User = await this.userRepository
+    const user: User|undefined = await this.userRepository
       .createQueryBuilder("user")
       .where("authId = :id", { id: authID })
       .getOne();
