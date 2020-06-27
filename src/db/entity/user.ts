@@ -17,7 +17,7 @@ export class User {
 	authId!: string;
 
 	@Column('simple-array', { nullable: true })
-	push_id!: string[];
+	push_id?: string[];
 
 	/**
    * Every user is able to have many different achievements so create a typeorm relationship

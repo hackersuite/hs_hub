@@ -38,7 +38,7 @@ export class Achievement {
    *
    * @param options The options of the achievement
    */
-	constructor(id: number, options: AchievementOptions) {
+	public constructor(id: number, options: AchievementOptions) {
 		const {
 			title, description, prizeURL, maxProgress,
 			requiresToken, isManual, mustCompleteStepsInOrder

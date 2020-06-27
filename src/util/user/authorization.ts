@@ -11,7 +11,7 @@ export const checkIsLoggedIn = (req: Request, res: Response, next: NextFunction)
 		{
 			session: false
 		},
-		(err, user, info) => {
+		(err, user) => {
 			if (err) {
 				return next(err);
 			}
@@ -19,9 +19,9 @@ export const checkIsLoggedIn = (req: Request, res: Response, next: NextFunction)
 			// There is not authenticated user, so redirect to logins
 			if (!user) {
 				const queryParam: string = querystring.stringify({
-					returnto: `${process.env.HUB_URL}${req.originalUrl}`
+					returnto: `${process.env.HUB_URL ?? ''}${req.originalUrl}`
 				});
-				res.redirect(`${process.env.AUTH_URL}/login?${queryParam}`);
+				res.redirect(`${process.env.AUTH_URL ?? ''}/login?${queryParam}`);
 				return;
 			}
 			if (user.authLevel >= AuthLevels.Volunteer) { res.locals.isVolunteer = true; }
@@ -33,10 +33,10 @@ export const checkIsLoggedIn = (req: Request, res: Response, next: NextFunction)
 	)(req, res, next);
 };
 
-const checkAuthLevel = (req: Request, res: Response, user: RequestUser, requiredAuth: AuthLevels): boolean => {
+const checkAuthLevel = (req: Request, res: Response, user: RequestUser|undefined, requiredAuth: AuthLevels): boolean => {
 	if (!user || user.authLevel < requiredAuth) {
-		const queryParam: string = querystring.stringify({ returnto: `${process.env.HUB_URL}${req.originalUrl}` });
-		res.redirect(`${process.env.AUTH_URL}/login?${queryParam}`);
+		const queryParam: string = querystring.stringify({ returnto: `${process.env.HUB_URL ?? ''}${req.originalUrl}` });
+		res.redirect(`${process.env.AUTH_URL ?? ''}/login?${queryParam}`);
 		return false;
 	}
 	return true;

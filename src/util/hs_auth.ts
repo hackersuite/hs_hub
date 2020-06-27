@@ -1,6 +1,6 @@
 import request from 'request-promise-native';
 import { Express, Request, Response, CookieOptions } from 'express';
-import passport = require('passport');
+import passport from 'passport';
 import { injectable, inject } from 'inversify';
 import CookieStrategy from 'passport-cookie';
 
@@ -9,7 +9,6 @@ import { Cache } from './cache';
 import { TYPES } from '../types';
 import { UserService } from '../services/users';
 import { User } from '../db/entity';
-import { AuthLevels } from './user';
 
 // The done function has the parameters (error, user, info)
 
@@ -87,7 +86,7 @@ export class RequestAuthentication {
 				async (req: Request, token: string, done: (error?: string, user?: any) => void): Promise<void> => {
 					let apiResult: string;
 					try {
-						apiResult = await request.get(`${process.env.AUTH_URL}/api/v1/users/me`, {
+						apiResult = await request.get(`${process.env.AUTH_URL ?? ''}/api/v1/users/me`, {
 							headers: {
 								Authorization: `${token}`,
 								Referer: req.originalUrl

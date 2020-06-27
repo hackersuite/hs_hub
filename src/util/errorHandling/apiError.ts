@@ -21,7 +21,7 @@ export class ApiError {
    * @param _statusCode The HTTP status code of the error
    * @param _message The reason of the error
    */
-	constructor(_statusCode: HttpResponseCode, _message?: any) {
+	public constructor(_statusCode: HttpResponseCode, _message?: any) {
 		this.statusCode = _statusCode;
 		this.message = _message;
 

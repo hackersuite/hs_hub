@@ -11,9 +11,9 @@ export const sendEmail = (sender: string, recipient: string|string[], subject: s
 
 	sgMail.setApiKey(process.env.SENDGRID_API_KEY ?? '');
 
-	sgMail.send(msg, false, error => {
+	void sgMail.send(msg, false, (error?: Error) => {
 		if (error) {
-			console.log(`Email for ${recipient} failed:`);
+			console.log(`Email for ${recipient.toString()} failed:`);
 			console.log(error);
 		}
 	});

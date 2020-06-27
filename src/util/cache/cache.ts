@@ -17,8 +17,8 @@ export class Cache implements CacheInterface {
    * 1st level key is the name of the collection and the 2nd level key
    * is the id of the object.
    */
-	constructor(preloadedItems?: Map<string, Map<number, Cacheable>>) {
-		this.items = preloadedItems || new Map<string, Map<number, Cacheable>>();
+	public constructor(preloadedItems?: Map<string, Map<number, Cacheable>>) {
+		this.items = preloadedItems ?? new Map<string, Map<number, Cacheable>>();
 		this.get = this.get.bind(this);
 		this.getAll = this.getAll.bind(this);
 		this.set = this.set.bind(this);

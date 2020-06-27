@@ -1,10 +1,10 @@
-import { Logger, QueryRunner } from 'typeorm';
+import { Logger } from 'typeorm';
 import { LoggerOptions } from 'typeorm/logger/LoggerOptions';
 import { PlatformTools } from 'typeorm/platform/PlatformTools';
 import { LoggerLevels } from './LoggerLevelsEnum';
 
 export class QueryLogger implements Logger {
-	constructor(private readonly options?: LoggerOptions) {}
+	public constructor(private readonly options?: LoggerOptions) {}
 
 	protected writeToFile(message: string, file?: string) {
 		if (Number(process.env.ENABLE_LOGGING) === 0) return;
@@ -14,12 +14,12 @@ export class QueryLogger implements Logger {
 		PlatformTools.appendFileSync(`${basePath}/${fileName}`, `${message}\n`);
 	}
 
-	logQuery(query: string, parameters?: any[], queryRunner?: QueryRunner): any {
+	public logQuery(query: string): any {
 		const message = `[INFO]: (${query})`;
 		this.writeToFile(message);
 	}
 
-	logQueryError(error: string, query: string, parameters?: any[], queryRunner?: QueryRunner): any {
+	public logQueryError(error: string, query: string): any {
 		const message = `[ERR]: ${error} (${query})`;
 		this.writeToFile(message);
 	}
@@ -27,7 +27,7 @@ export class QueryLogger implements Logger {
 	/**
    * Logs query that is slow.
    */
-	logQuerySlow(time: number, query: string, parameters?: any[], queryRunner?: QueryRunner): any {
+	public logQuerySlow(time: number, query: string): any {
 		const message = `[SLOW ~ ${time}]: ${query}`;
 		this.writeToFile(message);
 	}
@@ -35,14 +35,14 @@ export class QueryLogger implements Logger {
 	/**
    * Logs events from the schema build process.
    */
-	logSchemaBuild(message: string, queryRunner?: QueryRunner): any {
+	public logSchemaBuild(): any {
 		// Not implemented
 	}
 
 	/**
    * Logs events from the migrations run process.
    */
-	logMigration(message: string, queryRunner?: QueryRunner): any {
+	public logMigration(): any {
 		// Not implemented
 	}
 
@@ -50,11 +50,11 @@ export class QueryLogger implements Logger {
    * Perform logging using given logger, or by default to the console.
    * Log has its own level and message.
    */
-	log(level: LoggerLevels, message: any, queryRunner?: QueryRunner): any {
-		this.writeToFile(`[${level.toUpperCase()}]: ${message}`);
+	public log(level: LoggerLevels, message: any): any {
+		this.writeToFile(`[${level.toUpperCase()}]: ${String(message)}`);
 	}
 
-	hardwareLog(level: LoggerLevels, message: string) {
+	public hardwareLog(level: LoggerLevels, message: string) {
 		this.writeToFile(`[${level.toUpperCase()}]: ${message}`, process.env.HARDWARE_LOG_FILE_NAME);
 	}
 }
