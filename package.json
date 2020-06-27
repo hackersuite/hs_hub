@@ -14,8 +14,8 @@
     "test:coverage": "npx jest --coverage",
     "start": "ts-node src/server.ts",
     "start:watch": "node ./node_modules/nodemon/bin/nodemon.js",
-    "lint": "eslint src test --ignore-pattern \"src/public/**/*\" --ext .ts",
-    "lint:fix": "eslint src test --ignore-pattern \"src/public/**/*\" --ext .ts --fix"
+    "lint": "eslint src --ignore-pattern \"src/public/**/*\" --ext .ts",
+    "lint:fix": "eslint src --ignore-pattern \"src/public/**/*\" --ext .ts --fix"
   },
   "repository": {
     "type": "GitHub",
