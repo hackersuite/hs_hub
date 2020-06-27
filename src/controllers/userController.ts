@@ -2,9 +2,7 @@ import { Request, Response, CookieOptions } from 'express';
 import { NextFunction } from 'connect';
 import { TeamService } from '../services/teams/teamService';
 import { injectable, inject } from 'inversify';
-import { RequestUser, RequestTeam, RequestTeamMembers, Team } from '../util/hs_auth';
 import { TYPES } from '../types';
-import { UserService } from '../services/users';
 import { createVerificationHmac, linkAccount } from '@unicsmcr/hs_discord_bot_api_client';
 
 export interface UserControllerInterface {
@@ -18,7 +16,7 @@ export interface UserControllerInterface {
 export class UserController implements UserControllerInterface {
 	private readonly _teamService: TeamService;
 
-	constructor(
+	public constructor(
 	@inject(TYPES.TeamService) teamService: TeamService
 	) {
 		this._teamService = teamService;
@@ -60,7 +58,7 @@ export class UserController implements UserControllerInterface {
 	/**
    * Gets the profile page for the currently logged in user
    */
-	public profile = async (req: Request, res: Response, next: NextFunction) => {
+	public profile = (req: Request, res: Response) => {
 		let profileCookieOptions: CookieOptions|undefined = undefined;
 		if (req.app.get('env') === 'production') {
 			profileCookieOptions = {
@@ -70,7 +68,8 @@ export class UserController implements UserControllerInterface {
 			};
 		}
 
-		(profileCookieOptions ? res.cookie('ReturnTo', process.env.HUB_URL, profileCookieOptions)
+		(profileCookieOptions
+			? res.cookie('ReturnTo', process.env.HUB_URL, profileCookieOptions)
 			: res.cookie('ReturnTo', process.env.HUB_URL))
 			.redirect(process.env.AUTH_URL ?? '');
 		// let reqUser: RequestUser = req.user as RequestUser;
@@ -88,16 +87,16 @@ export class UserController implements UserControllerInterface {
 		// res.render("pages/profile", { user: reqUser, teamMembers: teamInfo.users, teamInfo: teamInfo });
 	};
 
-	public discordJoin = async (req: Request, res: Response, next: NextFunction) => {
+	public discordJoin = (req: Request, res: Response) => {
 		const state = createVerificationHmac(req.user.authId, process.env.DISCORD_HMAC_KEY ?? '');
 		const discordURL =
-      `https://discordapp.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT_ID}` +
-      `&redirect_uri=${encodeURIComponent(`${process.env.DISCORD_REDIRECT_URI}`)}` +
+      `https://discordapp.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT_ID ?? ''}` +
+      `&redirect_uri=${encodeURIComponent(`${process.env.DISCORD_REDIRECT_URI ?? ''}`)}` +
       `&response_type=code&scope=identify%20guilds.join&state=${state}`;
 		res.redirect(302, discordURL);
 	};
 
-	public discordAuth = async (req: Request, res: Response, next: NextFunction) => {
+	public discordAuth = async (req: Request, res: Response) => {
 		try {
 			await linkAccount(req.user.authId, req.query.code, req.query.state);
 			res.render('pages/discord', { error: false });

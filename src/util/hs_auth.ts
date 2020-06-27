@@ -23,7 +23,7 @@ export interface RequestUser {
 	authLevel: number;
 	name: string;
 	email: string;
-	team: string;
+	team?: string;
 }
 
 export interface Team extends RequestTeamMembers {

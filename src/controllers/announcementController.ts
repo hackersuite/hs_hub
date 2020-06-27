@@ -22,7 +22,7 @@ export class AnnouncementController implements AnnouncementControllerInterface {
 	private readonly _announcementService: AnnouncementService;
 	private readonly _userService: UserService;
 
-	constructor(
+	public constructor(
 	@inject(TYPES.AnnouncementService) announcementService: AnnouncementService,
 		@inject(TYPES.UserService) userService: UserService
 	) {
@@ -59,7 +59,7 @@ export class AnnouncementController implements AnnouncementControllerInterface {
 	public pushNotification = async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const text: string = req.body.message;
-			const includedUsers: string = req.body.included_users;
+			const includedUsers: string|undefined = req.body.included_users;
 			let userIds: string[] = [];
 			if (includedUsers !== undefined) {
 				const includedUsersObj: Record<string, any> = JSON.parse(includedUsers);
@@ -68,8 +68,12 @@ export class AnnouncementController implements AnnouncementControllerInterface {
 				}
 			}
 
-			const result: Object = await sendOneSignalNotification(text, userIds);
-			if (!result.hasOwnProperty('errors')) { res.send(result); } else { res.status(HttpResponseCode.INTERNAL_ERROR).send(`Failed to send the push notification!. ${JSON.stringify(result)}`); }
+			const result = await sendOneSignalNotification(text, userIds);
+			if (result.hasOwnProperty('errors')) {
+				res.status(HttpResponseCode.INTERNAL_ERROR).send(`Failed to send the push notification!. ${JSON.stringify(result)}`);
+			} else {
+				res.send(result);
+			}
 		} catch (error) {
 			next(error);
 		}

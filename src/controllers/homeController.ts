@@ -23,7 +23,7 @@ export class HomeController implements HomeControllerInterface {
 	private readonly _announcementService: AnnouncementService;
 	private readonly _eventService: EventService;
 	private readonly _challengeService: ChallengeService;
-	constructor(
+	public constructor(
 	@inject(TYPES.Cache) cache: Cache,
 		@inject(TYPES.AnnouncementService) announcementService: AnnouncementService,
 		@inject(TYPES.EventService) eventService: EventService,
@@ -35,7 +35,7 @@ export class HomeController implements HomeControllerInterface {
 		this._challengeService = challengeService;
 	}
 
-	public dashboard = async (req: Request, res: Response, next: NextFunction) => {
+	public dashboard = async (req: Request, res: Response) => {
 		let events: Event[] = this._cache.getAll(Event.name); // await this.eventService.findAllEvents();
 		if (events.length === 0) {
 			events = await this._eventService.findAllEvents();
@@ -46,12 +46,12 @@ export class HomeController implements HomeControllerInterface {
 		res.render('pages/dashboard', { events, announcements });
 	};
 
-	public challenges = async (req: Request, res: Response, next: NextFunction) => {
+	public challenges = async (req: Request, res: Response) => {
 		const challenges: Challenge[] = await this._challengeService.getAll();
 		res.render('pages/challenges', { challenges: challenges });
 	};
 
-	public contacts = (req: Request, res: Response, next: NextFunction): void => {
+	public contacts = (req: Request, res: Response): void => {
 		res.render('pages/contacts');
 	};
 }

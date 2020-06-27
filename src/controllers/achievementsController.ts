@@ -29,7 +29,7 @@ export class AchievementsController implements AchievementsControllerInterface {
 	private readonly _achievementsProgressService: AchievementsProgressService;
 	private readonly _userService: UserService;
 
-	constructor(
+	public constructor(
 	@inject(TYPES.AchievementsService) achievementsService: AchievementsService,
 		@inject(TYPES.AchievementsProgressService) achievementsProgressService: AchievementsProgressService,
 		@inject(TYPES.UserService) userService: UserService
@@ -50,7 +50,7 @@ export class AchievementsController implements AchievementsControllerInterface {
 				progressMap.set(achievementProgress.getAchievementId(), achievementProgress);
 			});
 
-			const notification = req.session.notification;
+			const notification = req.session?.notification;
 			if (req.session) req.session.notification = undefined;
 
 			res.render('pages/achievements/index', { achievements, progress: progressMap, notification });
@@ -76,7 +76,7 @@ export class AchievementsController implements AchievementsControllerInterface {
 				return achievementsComparison;
 			});
 
-			const notification = req.session.notification;
+			const notification = req.session?.notification;
 			if (req.session) req.session.notification = undefined;
 
 			res.render('pages/achievements/volunteerControls', { users, achievements, prizesToClaim, notification });
@@ -126,7 +126,7 @@ export class AchievementsController implements AchievementsControllerInterface {
 			const user: User = await this._userService.getUserByIDFromHub(req.body.userId);
 			await this._achievementsProgressService.setAchievementCompleteForUser(achievement, user);
 
-			sendPushNotificationByUserID(`Congratulations you have completed the achievement ${achievement.getTitle()}!`, userId);
+			await sendPushNotificationByUserID(`Congratulations you have completed the achievement ${achievement.getTitle()}!`, userId);
 
 			if (req.session) {
 				req.session.notification = {
@@ -141,7 +141,7 @@ export class AchievementsController implements AchievementsControllerInterface {
 		}
 	};
 
-	public completeAchievementStep = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+	public completeAchievementStep = async (req: Request, res: Response): Promise<void> => {
 		try {
 			const achievement: Achievement = await this._achievementsService.getAchievementWithId(Number(req.params.id));
 
@@ -179,7 +179,7 @@ export class AchievementsController implements AchievementsControllerInterface {
 		}
 	};
 
-	public givePrizeToUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+	public givePrizeToUser = async (req: Request, res: Response): Promise<void> => {
 		try {
 			// const achievementId: number = req.params.id;
 			const achievement: Achievement = await this._achievementsService.getAchievementWithId(Number(req.params.id));

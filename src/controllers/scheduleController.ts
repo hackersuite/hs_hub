@@ -19,7 +19,7 @@ export interface ScheduleControllerInterface {
 export class ScheduleController implements ScheduleControllerInterface {
 	private readonly cache: Cache;
 
-	constructor(@inject(TYPES.Cache) _cache: Cache) {
+	public constructor(@inject(TYPES.Cache) _cache: Cache) {
 		this.cache = _cache;
 	}
 
@@ -79,7 +79,7 @@ export class ScheduleController implements ScheduleControllerInterface {
 
 			this.cache.delete(Event.name, Number(id));
 
-			res.send(`Event ${id} deleted`);
+			res.send(`Event ${String(id)} deleted`);
 		} catch (err) {
 			return next(err);
 		}

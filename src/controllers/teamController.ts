@@ -16,7 +16,7 @@ export interface TeamControllerInterface {
 @injectable()
 export class TeamController implements TeamControllerInterface {
 	private readonly _teamService: TeamService;
-	constructor(
+	public constructor(
 	@inject(TYPES.TeamService) teamService: TeamService
 	) {
 		this._teamService = teamService;
@@ -26,7 +26,7 @@ export class TeamController implements TeamControllerInterface {
    * Redirect the user to manage their team on hs_auth
    */
 	public manage = (req: Request, res: Response): void => {
-		res.redirect(`${process.env.AUTH_URL}`);
+		res.redirect(`${process.env.AUTH_URL ?? ''}`);
 	};
 
 	/**
@@ -39,7 +39,7 @@ export class TeamController implements TeamControllerInterface {
 
 		const teamMembers: RequestTeamMembers = await this._teamService.getUsersTeamMembers(reqUser.authToken, reqUser.team);
 
-		const team: Array<Object> = [];
+		const team: { name: string }[] = [];
 		teamMembers.users.forEach((user: RequestUser) => {
 			team.push({
 				name: user.name

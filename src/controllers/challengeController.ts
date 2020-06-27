@@ -20,7 +20,7 @@ export class ChallengeController implements ChallengeControllerInterface {
 	private readonly _cache: Cache;
 	private readonly _challengeService: ChallengeService;
 
-	constructor(
+	public constructor(
 	@inject(TYPES.Cache) cache: Cache,
 		@inject(TYPES.ChallengeService) challengeService: ChallengeService
 	) {
@@ -56,7 +56,7 @@ export class ChallengeController implements ChallengeControllerInterface {
 				return;
 			}
 
-			this._challengeService.saveChallenge(newChallenge);
+			await this._challengeService.saveChallenge(newChallenge);
 			// Clearing the cache since all challenges in the cache must have
 			// the same lifetime and a new item in the cache would have a
 			// longer lifetime than the other challenges
@@ -108,10 +108,10 @@ export class ChallengeController implements ChallengeControllerInterface {
 				return;
 			}
 
-			this._challengeService.deleteChallengeByID(id);
+			await this._challengeService.deleteChallengeByID(id);
 			this._cache.delete(Challenge.name, Number(id));
 
-			res.send(`Chalenge ${id} deleted`);
+			res.send(`Challenge ${String(id)} deleted`);
 		} catch (err) {
 			next(err);
 		}
