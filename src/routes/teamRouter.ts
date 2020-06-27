@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { TeamController } from '../controllers/teamController';
-import { checkIsLoggedIn, checkIsVolunteer } from '../util/user';
+import { checkIsLoggedIn } from '../util/user';
 import { injectable, inject } from 'inversify';
 import { TYPES } from '../types';
 import { RouterInterface } from '.';

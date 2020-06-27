@@ -7,13 +7,14 @@ decorate(injectable(), Repository);
 
 @injectable()
 export class BaseRepository<T> {
+	// eslint-disable-next-line @typescript-eslint/ban-types
 	protected connect(type: (new () => T) | string | Function): Repository<T> {
 		let repository: Repository<T>;
 		const connectionManager: ConnectionManager = getConnectionManager();
 		if (connectionManager.connections.length > 0) {
 			repository = connectionManager.get('hub').getRepository<T>(type);
 		} else {
-			throw 'Connection to the database is not setup!';
+			throw new Error('Connection to the database is not setup!');
 		}
 		return repository;
 	}
