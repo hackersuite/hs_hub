@@ -16,7 +16,7 @@ export interface ChallengeServiceInterface {
 export class ChallengeService implements ChallengeServiceInterface {
 	private readonly challengeRepository: Repository<Challenge>;
 
-	constructor(@inject(TYPES.ChallengeRepository) _challengeRepository: ChallengeRepository) {
+	public constructor(@inject(TYPES.ChallengeRepository) _challengeRepository: ChallengeRepository) {
 		this.challengeRepository = _challengeRepository.getRepository();
 	}
 

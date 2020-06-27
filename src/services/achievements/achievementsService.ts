@@ -1,7 +1,6 @@
-import { Achievement, LocalAchievementsRepository, AchievementsRepository } from '../../util/achievements';
+import { Achievement, LocalAchievementsRepository } from '../../util/achievements';
 import { injectable, inject } from 'inversify';
 import { TYPES } from '../../types';
-import { Repository } from 'typeorm';
 
 export interface AchievementsServiceInterface {
 	getAchievements: () => Promise<Achievement[]>;
@@ -12,14 +11,14 @@ export interface AchievementsServiceInterface {
 export class AchievementsService implements AchievementsServiceInterface {
 	private readonly _achievementsRepository: LocalAchievementsRepository;
 
-	constructor(@inject(TYPES.LocalAchievementsRepository) achievementsRepository: LocalAchievementsRepository) {
+	public constructor(@inject(TYPES.LocalAchievementsRepository) achievementsRepository: LocalAchievementsRepository) {
 		this._achievementsRepository = achievementsRepository;
 	}
 
 	/**
    * Returns all achievements
    */
-	public getAchievements = async (): Promise<Achievement[]> => await this._achievementsRepository.getAll();
+	public getAchievements = (): Promise<Achievement[]> => this._achievementsRepository.getAll();
 
 	/**
    * Returns an achievement with the given id.

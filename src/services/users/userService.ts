@@ -17,7 +17,7 @@ export interface UserServiceInterface {
 export class UserService {
 	private readonly userRepository: Repository<User>;
 
-	constructor(@inject(TYPES.UserRepository)_userRepository: UserRepository) {
+	public constructor(@inject(TYPES.UserRepository)_userRepository: UserRepository) {
 		this.userRepository = _userRepository.getRepository();
 	}
 
@@ -79,11 +79,15 @@ export class UserService {
 
 	public addPushIDToUser = async (user: User, pushID: string): Promise<void> => {
 		try {
-			if (!user.push_id) { user.push_id = [pushID]; } else { user.push_id.push(pushID); }
+			if (user.push_id) {
+				user.push_id.push(pushID);
+			} else {
+				user.push_id = [pushID];
+			}
 
 			await this.userRepository.save(user);
 		} catch (err) {
-			throw new ApiError(HttpResponseCode.INTERNAL_ERROR, `Lost connection to database (hub)! ${err}`);
+			throw new ApiError(HttpResponseCode.INTERNAL_ERROR, `Lost connection to database (hub)! ${(err as Error).message}`);
 		}
 	};
 
@@ -96,7 +100,7 @@ export class UserService {
 			// Insert the user to the database
 			return await this.userRepository.save(hubUser);
 		} catch (err) {
-			throw new ApiError(HttpResponseCode.INTERNAL_ERROR, `Lost connection to database! ${err}`);
+			throw new ApiError(HttpResponseCode.INTERNAL_ERROR, `Lost connection to database! ${(err as Error).message}`);
 		}
 	};
 }

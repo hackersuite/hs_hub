@@ -15,7 +15,7 @@ export class AnnouncementService {
 	private readonly _announcementRepository: Repository<Announcement>;
 	private readonly _cache: Cache;
 
-	constructor(
+	public constructor(
 	@inject(TYPES.AnnouncementRepository) announcementRepository: AnnouncementRepository,
 		@inject(TYPES.Cache) cache: Cache
 	) {
@@ -44,12 +44,10 @@ export class AnnouncementService {
 					.orderBy('announcement.createdAt', 'DESC')
 					.limit(mostRecent)
 					.getMany();
-				if (mostRecentAnnouncements !== undefined) {
-					this._cache.setAll(Announcement.name, mostRecentAnnouncements);
-				}
+				this._cache.setAll(Announcement.name, mostRecentAnnouncements);
 				return mostRecentAnnouncements;
 			} catch (err) {
-				throw new Error(`Failed to get the most recent announcements: ${err}`);
+				throw new Error(`Failed to get the most recent announcements: ${(err as Error).message}`);
 			}
 		} else {
 			return cachedAnnouncements;

@@ -20,7 +20,7 @@ export interface ReservedHardwareServiceInterface {
 export class ReservedHardwareService implements ReservedHardwareServiceInterface {
 	private readonly reservedHardwareRepository: Repository<ReservedHardwareItem>;
 
-	constructor(
+	public constructor(
 	@inject(TYPES.ReservedHardwareRepository)_reservedHardwareRepository: ReservedHardwareRepository
 	) {
 		this.reservedHardwareRepository = _reservedHardwareRepository.getRepository();
@@ -31,7 +31,7 @@ export class ReservedHardwareService implements ReservedHardwareServiceInterface
    *
    * Gets both taken and reserved items
    */
-	public getAll = async (): Promise<ReservedHardwareItem[]> => await this.getAllReservationsRemoveExpired();
+	public getAll = (): Promise<ReservedHardwareItem[]> => this.getAllReservationsRemoveExpired();
 
 	private readonly getAllReservationsRemoveExpired = async (): Promise<ReservedHardwareItem[]> => {
 		const allReservations: ReservedHardwareItem[] = await this.getAllReservations();
@@ -60,7 +60,7 @@ export class ReservedHardwareService implements ReservedHardwareServiceInterface
 				.getMany();
 			return reservations;
 		} catch (err) {
-			throw new Error(`Lost connection to database (hub)! ${err}`);
+			throw new Error(`Lost connection to database (hub)! ${(err as Error).message}`);
 		}
 	};
 
@@ -75,7 +75,7 @@ export class ReservedHardwareService implements ReservedHardwareServiceInterface
 			if (!reservation) throw new Error('Could not get reservation with specified token!');
 			return reservation;
 		} catch (err) {
-			throw new Error(`Lost connection to database (hub)! ${err}`);
+			throw new Error(`Lost connection to database (hub)! ${(err as Error).message}`);
 		}
 	};
 
@@ -105,7 +105,7 @@ export class ReservedHardwareService implements ReservedHardwareServiceInterface
 		await this.reservedHardwareRepository.manager.transaction(async transaction => {
 			const response: DeleteResult = await this.removeReservation(token, transaction);
 
-			if (response.raw.affectedRows != 1) {
+			if (response.raw.affectedRows !== 1) {
 				// The delete result isn't defined, so manually check the deletion
 				const reservationForToken = await transaction
 					.getRepository(ReservedHardwareItem)
@@ -128,7 +128,7 @@ export class ReservedHardwareService implements ReservedHardwareServiceInterface
 	public deleteReservation = async (tokenToDelete?: string, reservation?: ReservedHardwareItem): Promise<void> => {
 		try {
 			await this.reservedHardwareRepository.manager.transaction(async transaction => {
-				const itemReservation: ReservedHardwareItem = reservation || await this.getReservationFromToken(tokenToDelete, transaction);
+				const itemReservation: ReservedHardwareItem = reservation ?? await this.getReservationFromToken(tokenToDelete, transaction);
 				const itemID: number = itemReservation.hardwareItem.id;
 				const itemQuantity: number = itemReservation.reservationQuantity;
 
@@ -140,14 +140,14 @@ export class ReservedHardwareService implements ReservedHardwareServiceInterface
 					.decrement({ id: itemID }, 'reservedStock', itemQuantity);
 			});
 		} catch (err) {
-			throw new Error(`Lost connection to database (hub)! ${err}`);
+			throw new Error(`Lost connection to database (hub)! ${(err as Error).message}`);
 		}
 	};
 
 	/**
    * Remove reservation is used to just directly remove a reservation entry from the database
    */
-	public removeReservation = async (tokenToRemove: string, transaction?: EntityManager): Promise<DeleteResult> => await (transaction ? transaction.getRepository(ReservedHardwareItem) : this.reservedHardwareRepository)
+	public removeReservation = async (tokenToRemove: string, transaction?: EntityManager): Promise<DeleteResult> => (transaction ? transaction.getRepository(ReservedHardwareItem) : this.reservedHardwareRepository)
 		.createQueryBuilder()
 		.delete()
 		.from(ReservedHardwareItem)
@@ -182,7 +182,7 @@ export class ReservedHardwareService implements ReservedHardwareServiceInterface
 			if (!reservation) throw new Error('Could not find reservation from token!');
 			return reservation;
 		} catch (err) {
-			throw new Error(`Lost connection to database (hub)! ${err}`);
+			throw new Error(`Lost connection to database (hub)! ${(err as Error).message}`);
 		}
 	};
 

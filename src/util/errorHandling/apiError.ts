@@ -1,6 +1,6 @@
 import { HttpResponseCode } from './';
 
-export class ApiError {
+export class ApiError extends Error {
 	/**
    * The HTTP status code of the error
    */
@@ -22,6 +22,7 @@ export class ApiError {
    * @param _message The reason of the error
    */
 	public constructor(_statusCode: HttpResponseCode, _message?: any) {
+		super(`Error ${_statusCode}: ${String(_message)}`);
 		this.statusCode = _statusCode;
 		this.message = _message;
 

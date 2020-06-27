@@ -20,7 +20,7 @@ export interface HardwareServiceInterface {
 	itemToBeReturnedToLibrary: (userID: string, hardwareItemID: number, token: string, itemQuantity: number) => Promise<void>;
 	getAllHardwareItemsWithReservations: () => Promise<HardwareItem[]>;
 	getAllHardwareItems: () => Promise<HardwareItem[]>;
-	addAllHardwareItems: (items: HardwareObject[]) => Promise<void>;
+	addAllHardwareItems: (items: Required<HardwareObject>[]) => Promise<void>;
 	deleteHardwareItem: (id: number) => Promise<void>;
 	updateHardwareItem: (itemToUpdate: HardwareItem) => Promise<void>;
 }
@@ -30,7 +30,7 @@ export class HardwareService implements HardwareServiceInterface {
 	private readonly hardwareRepository: Repository<HardwareItem>;
 	private readonly reservedHardwareService: ReservedHardwareService;
 
-	constructor(
+	public constructor(
 	@inject(TYPES.HardwareRepository) _hardwareRepository: HardwareRepository,
 		@inject(TYPES.ReservedHardwareService) _reservedHardwareService: ReservedHardwareService
 	) {
@@ -47,7 +47,7 @@ export class HardwareService implements HardwareServiceInterface {
 		if (!requestedQuantity) requestedQuantity = 1;
 		const hardwareItem: HardwareItem = await this.getHardwareItemByID(Number(itemToReserve));
 		if (await this.isItemReservable(user, hardwareItem, requestedQuantity)) {
-			return await this.reserveItemQuery(user, hardwareItem, requestedQuantity);
+			return this.reserveItemQuery(user, hardwareItem, requestedQuantity);
 		}
 		throw new Error('This item is not reservable');
 	};
@@ -63,7 +63,7 @@ export class HardwareService implements HardwareServiceInterface {
 			if (!item) throw new Error('Item with given ID not found');
 			return item;
 		} catch (err) {
-			throw new Error(`Lost connection to database (hub)! ${err}`);
+			throw new Error(`Lost connection to database (hub)! ${(err as Error).message}`);
 		}
 	};
 
@@ -99,7 +99,7 @@ export class HardwareService implements HardwareServiceInterface {
 
 			return newItemReservation.reservationToken;
 		} catch (err) {
-			throw new Error(`Lost connection to database (hub)! ${err}`);
+			throw new Error(`Lost connection to database (hub)! ${(err as Error).message}`);
 		}
 	};
 
@@ -118,7 +118,7 @@ export class HardwareService implements HardwareServiceInterface {
 		if (!hasStock) {
 			throw new ApiError(HttpResponseCode.BAD_REQUEST, 'Not enough items in stock!');
 		}
-		return hasStock && !hasUserReserved;
+		return !hasUserReserved;
 	};
 
 	/**
@@ -127,9 +127,6 @@ export class HardwareService implements HardwareServiceInterface {
    */
 	public takeItem = async (token: string): Promise<boolean> => {
 		const reservation = await this.reservedHardwareService.getReservationFromToken(token);
-		if (!reservation) {
-			throw new Error('Reservation does not exist');
-		}
 
 		const userID: string = reservation.user.id;
 		const itemID: number = reservation.hardwareItem.id;
@@ -158,17 +155,16 @@ export class HardwareService implements HardwareServiceInterface {
    */
 	public returnItem = async (token: string): Promise<boolean> => {
 		const reservation: ReservedHardwareItem = await this.reservedHardwareService.getReservationFromToken(token);
-		if (!reservation) return false;
 
 		const userID: string = reservation.user.id;
 		const itemID: number = reservation.hardwareItem.id;
 		const isReserved: boolean = reservation.isReserved;
 		const itemQuantity: number = reservation.reservationQuantity;
 
-		if (!isReserved) {
-			await this.itemToBeReturnedToLibrary(userID, itemID, token, itemQuantity);
-		} else {
+		if (isReserved) {
 			throw new ApiError(HttpResponseCode.BAD_REQUEST, 'This has not been taken yet');
+		} else {
+			await this.itemToBeReturnedToLibrary(userID, itemID, token, itemQuantity);
 		}
 
 		return true;
@@ -200,7 +196,7 @@ export class HardwareService implements HardwareServiceInterface {
 				new QueryLogger().hardwareLog(LoggerLevels.LOG, message);
 			});
 		} catch (err) {
-			throw new Error(`Lost connection to database (hub)! ${err}`);
+			throw new Error(`Lost connection to database (hub)! ${(err as Error).message}`);
 		}
 	};
 
@@ -222,7 +218,7 @@ export class HardwareService implements HardwareServiceInterface {
 			const message = `UID ${userID} returned ${itemQuantity} of ${hardwareItemID}`;
 			new QueryLogger().hardwareLog(LoggerLevels.LOG, message);
 		} catch (err) {
-			throw new Error(`Lost connection to database (hub)! ${err}`);
+			throw new Error(`Lost connection to database (hub)! ${(err as Error).message}`);
 		}
 	};
 
@@ -258,10 +254,10 @@ export class HardwareService implements HardwareServiceInterface {
    *
    * @param items
    */
-	public addAllHardwareItems = async (items: HardwareObject[]): Promise<void> => {
-		const hardwareItems: Array<HardwareItem> = new Array<HardwareItem>();
+	public addAllHardwareItems = async (items: Required<HardwareObject>[]): Promise<void> => {
+		const hardwareItems: Array<Required<HardwareItem>> = new Array<Required<HardwareItem>>();
 
-		items.forEach((item: HardwareObject) => {
+		items.forEach(item => {
 			const newHardwareItem = new HardwareItem();
 			newHardwareItem.name = item.name;
 			newHardwareItem.itemURL = item.itemURL;
@@ -275,7 +271,7 @@ export class HardwareService implements HardwareServiceInterface {
 		try {
 			await this.hardwareRepository.save(hardwareItems);
 		} catch (err) {
-			throw new Error(`Lost connection to database (hub)! ${err}`);
+			throw new Error(`Lost connection to database (hub)! ${(err as Error).message}`);
 		}
 	};
 
@@ -300,7 +296,7 @@ export class HardwareService implements HardwareServiceInterface {
 		try {
 			await this.hardwareRepository.save(itemToUpdate);
 		} catch (err) {
-			throw new Error(`Lost connection to database (hub)! ${err}`);
+			throw new Error(`Lost connection to database (hub)! ${(err as Error).message}`);
 		}
 	};
 }

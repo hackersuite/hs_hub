@@ -21,7 +21,7 @@ export class AchievementsProgressService {
 	private readonly _achievementsProgressRepository: Repository<AchievementProgress>;
 	private readonly _achievementsService: AchievementsService;
 
-	constructor(
+	public constructor(
 	@inject(TYPES.AchievementsProgressRepository) achievementsProgressRepository: AchievementProgressRepository,
 		@inject(TYPES.AchievementsService) achievementsService: AchievementsService
 	) {
@@ -72,7 +72,7 @@ export class AchievementsProgressService {
 		// Mapping Achievement objects to the AchievementProgress objects
 		achievements.forEach((achievement: Achievement) => {
 			const progressForCurrentAchievement = achievementsProgress
-				.find((progress: AchievementProgress) => progress.getAchievementId() == achievement.getId());
+				.find((progress: AchievementProgress) => progress.getAchievementId() === achievement.getId());
 			if (progressForCurrentAchievement) {
 				progressForCurrentAchievement.setAchievement(achievement);
 			} else {

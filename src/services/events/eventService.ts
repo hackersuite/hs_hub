@@ -14,13 +14,13 @@ export interface EventServiceInterface {
 export class EventService {
 	private readonly eventRepository: Repository<HubEvent>;
 
-	constructor(
+	public constructor(
 	@inject(TYPES.EventRepository) _eventRepository: EventRepository
 	) {
 		this.eventRepository = _eventRepository.getRepository();
 	}
 
-	public findAllEvents = async (): Promise<HubEvent[]> => await this.eventRepository.find();
+	public findAllEvents = (): Promise<HubEvent[]> => this.eventRepository.find();
 
 	/**
    * @returns Event ID

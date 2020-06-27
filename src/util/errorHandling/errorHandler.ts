@@ -9,7 +9,9 @@ const toEmails: string[] = ['admin@unicsmcr.com'];
  * Handles errors thrown by requests
  */
 export const errorHandler = (err: ApiError|Error, req: Request, res: Response) => {
-	if (err instanceof Error) {
+	if (err instanceof ApiError) {
+		res.status(err.statusCode).send(err);
+	} else {
 		if (process.env.ENVIRONMENT === 'production') {
 			// Send notification to admins when an uncaught error occurs
 			sendEmail('noreply@unicsmcr.com',
@@ -20,8 +22,6 @@ export const errorHandler = (err: ApiError|Error, req: Request, res: Response) =
 
 		console.error(err.stack);
 		res.status(HttpResponseCode.INTERNAL_ERROR).send(new ApiError(HttpResponseCode.INTERNAL_ERROR, err.stack));
-	} else {
-		res.status(err.statusCode).send(err);
 	}
 };
 

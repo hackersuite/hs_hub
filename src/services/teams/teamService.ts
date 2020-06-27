@@ -1,7 +1,6 @@
 import request from 'request-promise-native';
 import { Team, RequestTeam, RequestTeamMembers } from '../../util/hs_auth';
 import { injectable } from 'inversify';
-import { AdvancedConsoleLogger } from 'typeorm';
 
 export interface TeamServiceInterface {
 	checkTeamExists: (authToken: string, teamCode: string) => Promise<boolean>;
@@ -21,9 +20,9 @@ export class TeamService implements TeamServiceInterface {
 	public checkTeamExists = async (authToken: string, teamCode: string): Promise<boolean> => {
 		try {
 			const team: Team = await this.getTeam(authToken, teamCode);
-			return team ? true : false;
+			return Boolean(team);
 		} catch (err) {
-			throw new Error(`Lost connection to database (hub)! ${err}`);
+			throw new Error(`Lost connection to database (hub)! ${(err as Error).message}`);
 		}
 	};
 
@@ -34,7 +33,7 @@ export class TeamService implements TeamServiceInterface {
    * @returns The Team object if found in the database
    */
 	public getTeam = async (authToken: string, teamCode: string): Promise<Team> => {
-		const apiResult = await request.get(`${process.env.AUTH_URL}/api/v1/teams/${teamCode}`, {
+		const apiResult = await request.get(`${process.env.AUTH_URL ?? ''}/api/v1/teams/${teamCode}`, {
 			headers: {
 				Authorization: authToken
 			}
@@ -62,7 +61,7 @@ export class TeamService implements TeamServiceInterface {
    * @param teamCode Team code for the team that we want to find
    */
 	public getUsersTeamMembers = async (authToken: string, teamCode: string): Promise<RequestTeamMembers> => {
-		const apiResult: string = await request.get(`${process.env.AUTH_URL}/api/v1/teams/${teamCode}/members`, {
+		const apiResult: string = await request.get(`${process.env.AUTH_URL ?? ''}/api/v1/teams/${teamCode}/members`, {
 			headers: {
 				Authorization: authToken
 			}
