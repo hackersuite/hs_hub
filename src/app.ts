@@ -1,12 +1,11 @@
 import 'reflect-metadata';
-import express from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
 import morgan from 'morgan';
 import expressSession from 'express-session';
 import cookieParser from 'cookie-parser';
 import { RequestAuthentication } from './util/hs_auth';
-import { Express, Request, Response, NextFunction } from 'express';
+import express, { Express, Request, Response, NextFunction } from 'express';
 import { Connection, createConnections, ConnectionOptions } from 'typeorm';
 import { errorHandler, error404Handler } from './util/errorHandling';
 import { RouterInterface } from './routes';
@@ -29,7 +28,8 @@ export function buildApp(callback: (app: Express, err?: Error) => void, connecti
 
 	// Connecting to database
 	const databaseConnectionSettings: ConnectionOptions[] = connectionOptions
-		? connectionOptions : createDatabaseSettings();
+		? connectionOptions
+		: createDatabaseSettings();
 
 	createConnections(databaseConnectionSettings).then((connections: Connection[]) => {
 		connections.forEach(element => {
@@ -72,8 +72,8 @@ const expressSetup = (): Express => {
 	app.set('view engine', 'ejs');
 
 	// Express configuration
-	app.set('port', process.env.PORT || 3000);
-	app.set('env', process.env.ENVIRONMENT || 'production');
+	app.set('port', process.env.PORT ?? 3000);
+	app.set('env', process.env.ENVIRONMENT ?? 'production');
 	if (process.env.ENVIRONMENT === 'production') {
 		app.set('trust proxy', 1);
 	}
@@ -88,7 +88,7 @@ const expressSetup = (): Express => {
 const middlewareSetup = (app: Express): void => {
 	app.use((req, res, next) => {
 		if (req.get('X-Forwarded-Proto') !== 'https' && process.env.USE_SSL) {
-			res.redirect(`https://${req.headers.host}${req.url}`);
+			res.redirect(`https://${req.headers.host ?? ''}${req.url}`);
 		} else {
 			return next();
 		}

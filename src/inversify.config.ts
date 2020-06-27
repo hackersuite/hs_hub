@@ -1,3 +1,5 @@
+/* eslint-disable no-duplicate-imports */
+
 import { Container } from 'inversify';
 import { TYPES } from './types';
 
