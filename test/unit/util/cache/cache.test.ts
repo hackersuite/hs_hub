@@ -1,12 +1,12 @@
 import { Cache, Cacheable } from '../../../../src/util/cache';
 
 class MockCacheableA implements Cacheable {
-	id: number;
-	expiresIn = 100;
-	syncedAt: number;
-	testA: string;
+	public id: number;
+	public expiresIn = 100;
+	public syncedAt: number;
+	public testA: string;
 
-	constructor(id: number, testA: string) {
+	public constructor(id: number, testA: string) {
 		this.id = id;
 		this.testA = testA;
 		this.syncedAt = Date.now();
@@ -14,12 +14,12 @@ class MockCacheableA implements Cacheable {
 }
 
 class MockCacheableB implements Cacheable {
-	id: number;
-	expiresIn = 100;
-	syncedAt: number;
-	testB: number;
+	public id: number;
+	public expiresIn = 100;
+	public syncedAt: number;
+	public testB: number;
 
-	constructor(id: number, testB: number) {
+	public constructor(id: number, testB: number) {
 		this.id = id;
 		this.testB = testB;
 		this.syncedAt = Date.now();

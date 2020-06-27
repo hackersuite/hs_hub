@@ -17,4 +17,4 @@ buildApp((app: Express, err?: Error) => {
 			console.log('  Press CTRL-C to stop\n');
 		});
 	}
-});
+}).catch(console.error);

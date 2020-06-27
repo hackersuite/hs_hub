@@ -55,8 +55,7 @@ describe('LocalAchievementsRepository tests', (): void => {
 
 	describe('Test findOne', (): void => {
 		test('Should ensure that all achievements are found by their ids', async (): Promise<void> => {
-			for (let i = 0; i < testAchievements.length; i++) {
-				const achievement: Achievement = testAchievements[i];
+			for (const achievement of testAchievements) {
 				expect(await achievementsRepository.findOne(achievement.getId())).toEqual(achievement);
 			}
 		});
