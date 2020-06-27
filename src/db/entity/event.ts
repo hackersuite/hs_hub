@@ -5,29 +5,29 @@ import { IsDefined, MaxLength, IsDate } from 'class-validator';
 @Entity()
 export class Event implements Cacheable {
 	@PrimaryGeneratedColumn()
-	id!: number;
+	public id!: number;
 
 	@IsDefined({ message: 'The title must be defined' })
 	@MaxLength(127)
 	@Column('varchar', { length: 127 })
-	title!: string;
+	public title!: string;
 
 	@IsDefined({ message: 'The start time must be defined' })
 	@IsDate()
 	@Column()
-	startTime!: Date;
+	public startTime!: Date;
 
 	@Column()
 	@IsDate()
-	endTime!: Date;
+	public endTime!: Date;
 
 	@Column('varchar', { length: 127 })
-	location!: string;
+	public location!: string;
 
 	// The lifetime of this object in the cache is 10 seconds
-	expiresIn = 10000;
+	public expiresIn = 10000;
 
-	constructor(title: string, startTime: Date, endTime: Date, location: string) {
+	public constructor(title: string, startTime: Date, endTime: Date, location: string) {
 		this.title = title;
 		this.startTime = startTime;
 		this.endTime = endTime;

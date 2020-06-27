@@ -5,20 +5,20 @@ import { User } from './user';
 @Entity()
 export class ReservedHardwareItem {
 	@ManyToOne(() => User, { primary: true })
-	user!: User;
+	public user!: User;
 
 	@ManyToOne(() => HardwareItem, { primary: true })
-	hardwareItem!: HardwareItem;
+	public hardwareItem!: HardwareItem;
 
 	@Column()
-	isReserved!: boolean;
+	public isReserved!: boolean;
 
 	@Column('varchar', { unique: true })
-	reservationToken!: string;
+	public reservationToken!: string;
 
 	@Column('datetime')
-	reservationExpiry!: Date;
+	public reservationExpiry!: Date;
 
 	@Column()
-	reservationQuantity!: number;
+	public reservationQuantity!: number;
 }

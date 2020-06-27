@@ -11,16 +11,16 @@ export class AchievementProgress {
    * The id of the achievement
    */
 	@PrimaryColumn()
-	achievementId!: number;
+	public achievementId!: number;
 
 	/**
    * The user
    */
-	@ManyToOne(type => User, user => user.achievementsProgress, {
+	@ManyToOne(() => User, user => user.achievementsProgress, {
 		eager: true,
 		primary: true
 	})
-	user!: User;
+	public user!: User;
 
 	/**
    * The progress that has been made
@@ -28,7 +28,7 @@ export class AchievementProgress {
 	@Column({
 		nullable: false
 	})
-	progress!: number;
+	public progress!: number;
 
 	/**
    * All completed steps stored in a JSON array as a string
@@ -37,18 +37,18 @@ export class AchievementProgress {
 		nullable: false,
 		type: 'simple-json'
 	})
-	completedSteps!: number[];
+	public completedSteps!: number[];
 
 	/**
    * Wether or not the user has claimed their prize for the achievement
    */
 	@Column()
-	prizeClaimed!: boolean;
+	public prizeClaimed!: boolean;
 
 	/**
    * The achievement (not stored on the database)
    */
-	achievement!: Achievement;
+	public achievement!: Achievement;
 
 	/**
    *
@@ -58,12 +58,12 @@ export class AchievementProgress {
    * @param stepsCompleted (optional) The steps the user has completed
    * @param prizeClaimed (optional) Wether or not the user has claimed their prize for the achievement
    */
-	constructor(achievement: Achievement, user: User, progress?: number, stepsCompleted?: number[], prizeClaimed?: boolean) {
+	public constructor(achievement: Achievement, user: User, progress?: number, stepsCompleted?: number[], prizeClaimed?: boolean) {
 		this.achievementId = achievement.getId();
 		this.user = user;
-		this.progress = progress || 0;
-		this.completedSteps = stepsCompleted || [];
-		this.prizeClaimed = prizeClaimed || false;
+		this.progress = progress ?? 0;
+		this.completedSteps = stepsCompleted ?? [];
+		this.prizeClaimed = prizeClaimed ?? false;
 		this.achievement = achievement;
 	}
 
@@ -152,7 +152,7 @@ export class AchievementProgress {
    * @param step The step
    */
 	public stepIsCompleted(step: number): boolean {
-		if (this.completedSteps.find((s: number) => s == step)) { return true; }
+		if (this.completedSteps.find((s: number) => s === step)) { return true; }
 		return false;
 	}
 
