@@ -1,2 +1,2 @@
-export * from "./authLevels";
-export * from "./authorization";
+export * from './authLevels';
+export * from './authorization';
