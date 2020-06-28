@@ -1,5 +1,9 @@
 import 'reflect-metadata';
+
 import dotenv from 'dotenv';
+// Load environment variables from .env file
+dotenv.config({ path: '.env' });
+
 import path from 'path';
 import morgan from 'morgan';
 import expressSession from 'express-session';
@@ -11,9 +15,6 @@ import { errorHandler, error404Handler } from './util/errorHandling';
 import { RouterInterface } from './routes';
 import { TYPES } from './types';
 import container from './inversify.config';
-
-// Load environment variables from .env file
-dotenv.config({ path: '.env' });
 
 
 // codebeat:disable[LOC]
