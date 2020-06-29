@@ -1,49 +1,51 @@
-import { Container } from "inversify";
-import { TYPES } from "./types";
+/* eslint-disable no-duplicate-imports */
+
+import { Container } from 'inversify';
+import { TYPES } from './types';
 
 // Routers
-import { RequestAuthenticationInterface, RequestAuthentication } from "./util/hs_auth";
-import { CacheInterface, Cache } from "./util/cache";
-import { RouterInterface, HomeRouter } from "./routes";
+import { RequestAuthenticationInterface, RequestAuthentication } from './util/hs_auth';
+import { CacheInterface, Cache } from './util/cache';
+import { RouterInterface, HomeRouter } from './routes';
 
 // Users
-import { UserRouter } from "./routes"
-import { UserController, UserControllerInterface, HomeControllerInterface, HomeController } from "./controllers"
-import { UserService, UserServiceInterface } from "./services/users";
+import { UserRouter } from './routes';
+import { UserController, UserControllerInterface, HomeControllerInterface, HomeController } from './controllers';
+import { UserService, UserServiceInterface } from './services/users';
 
 // Teams
-import { TeamRouter } from "./routes"
-import { TeamController, TeamControllerInterface } from "./controllers"
-import { TeamService, TeamServiceInterface } from "./services/teams";
+import { TeamRouter } from './routes';
+import { TeamController, TeamControllerInterface } from './controllers';
+import { TeamService, TeamServiceInterface } from './services/teams';
 
 // Schedule
-import { ScheduleRouter } from "./routes"
-import { ScheduleController, ScheduleControllerInterface } from "./controllers"
+import { ScheduleRouter } from './routes';
+import { ScheduleController, ScheduleControllerInterface } from './controllers';
 
 // Hardware
-import { HardwareRouter } from "./routes"
-import { HardwareController, HardwareControllerInterface } from "./controllers"
-import { HardwareService, ReservedHardwareService, HardwareServiceInterface, ReservedHardwareServiceInterface } from "./services/hardware";
+import { HardwareRouter } from './routes';
+import { HardwareController, HardwareControllerInterface } from './controllers';
+import { HardwareService, ReservedHardwareService, HardwareServiceInterface, ReservedHardwareServiceInterface } from './services/hardware';
 
 // Challenges
-import { ChallengeRouter } from "./routes"
-import { ChallengeController, ChallengeControllerInterface } from "./controllers"
-import { ChallengeService, ChallengeServiceInterface } from "./services/challenges";
+import { ChallengeRouter } from './routes';
+import { ChallengeController, ChallengeControllerInterface } from './controllers';
+import { ChallengeService, ChallengeServiceInterface } from './services/challenges';
 
 // Announcements
-import { AnnouncementRouter } from "./routes"
-import { AnnouncementController, AnnouncementControllerInterface } from "./controllers"
-import { AnnouncementService, AnnouncementServiceInterface } from "./services/announcement";
+import { AnnouncementRouter } from './routes';
+import { AnnouncementController, AnnouncementControllerInterface } from './controllers';
+import { AnnouncementService, AnnouncementServiceInterface } from './services/announcement';
 
 // Achievements
-import { AchievementsRouter } from "./routes"
-import { AchievementsController, AchievementsControllerInterface } from "./controllers"
-import { AchievementsService, AchievementsServiceInterface, AchievementsProgressService, AchievementsProgressServiceInterface } from "./services/achievements";
+import { AchievementsRouter } from './routes';
+import { AchievementsController, AchievementsControllerInterface } from './controllers';
+import { AchievementsService, AchievementsServiceInterface, AchievementsProgressService, AchievementsProgressServiceInterface } from './services/achievements';
 
 // Events
-import { EventService, EventServiceInterface } from "./services/events";
-import { UserRepository, HardwareRepository, ReservedHardwareRepository, EventRepository, AnnouncementRepository, AchievementProgressRepository, ChallengeRepository } from "./repositories";
-import { LocalAchievementsRepository, localAchievements } from "./util/achievements";
+import { EventService, EventServiceInterface } from './services/events';
+import { UserRepository, HardwareRepository, ReservedHardwareRepository, EventRepository, AnnouncementRepository, AchievementProgressRepository, ChallengeRepository } from './repositories';
+import { LocalAchievementsRepository, localAchievements } from './util/achievements';
 
 const container = new Container();
 

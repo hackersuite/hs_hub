@@ -1,1 +1,1 @@
-export * from "./challengeService";
+export * from './challengeService';

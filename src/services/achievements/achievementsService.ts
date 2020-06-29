@@ -1,34 +1,29 @@
-import { Achievement, LocalAchievementsRepository, AchievementsRepository } from "../../util/achievements";
-import { injectable, inject } from "inversify";
-import { TYPES } from "../../types";
-import { Repository } from "typeorm";
+import { Achievement, LocalAchievementsRepository } from '../../util/achievements';
+import { injectable, inject } from 'inversify';
+import { TYPES } from '../../types';
 
 export interface AchievementsServiceInterface {
-  getAchievements: () => Promise<Achievement[]>;
-  getAchievementWithId: (id: number) => Promise<Achievement>;
+	getAchievements: () => Promise<Achievement[]>;
+	getAchievementWithId: (id: number) => Promise<Achievement>;
 }
 
 @injectable()
 export class AchievementsService implements AchievementsServiceInterface {
-  private _achievementsRepository: LocalAchievementsRepository;
+	private readonly _achievementsRepository: LocalAchievementsRepository;
 
-  constructor(@inject(TYPES.LocalAchievementsRepository) achievementsRepository: LocalAchievementsRepository) {
-    this._achievementsRepository = achievementsRepository;
-  }
+	public constructor(@inject(TYPES.LocalAchievementsRepository) achievementsRepository: LocalAchievementsRepository) {
+		this._achievementsRepository = achievementsRepository;
+	}
 
-  /**
+	/**
    * Returns all achievements
    */
-  public getAchievements = async (): Promise<Achievement[]> => {
-    return await this._achievementsRepository.getAll();
-  }
+	public getAchievements = (): Promise<Achievement[]> => this._achievementsRepository.getAll();
 
-  /**
+	/**
    * Returns an achievement with the given id.
    * Throws error if no achievement with given id can be found
    * @param id The id of the achievement to search for
    */
-  public getAchievementWithId = (id: number): Promise<Achievement> => {
-    return this._achievementsRepository.findOne(id);
-  }
+	public getAchievementWithId = (id: number): Promise<Achievement> => this._achievementsRepository.findOne(id);
 }
