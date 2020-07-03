@@ -59,7 +59,7 @@ export class AchievementProgress {
    * @param prizeClaimed (optional) Wether or not the user has claimed their prize for the achievement
    */
 	public constructor(achievement: Achievement, user: User, progress?: number, stepsCompleted?: number[], prizeClaimed?: boolean) {
-		this.achievementId = achievement.getId();
+		this.achievementId = achievement?.getId();
 		this.user = user;
 		this.progress = progress ?? 0;
 		this.completedSteps = stepsCompleted ?? [];
