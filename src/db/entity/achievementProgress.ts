@@ -58,12 +58,14 @@ export class AchievementProgress {
    * @param stepsCompleted (optional) The steps the user has completed
    * @param prizeClaimed (optional) Wether or not the user has claimed their prize for the achievement
    */
-	public constructor(achievement: Achievement, user: User, progress?: number, stepsCompleted?: number[], prizeClaimed?: boolean) {
-		this.achievementId = achievement?.getId();
+	public constructor(achievement: Achievement, user: User, progress = 0, stepsCompleted: number[] = [], prizeClaimed = false) {
+		// This is sometimes called with no arguments? Might be how TypeORM works when loading the entity?
+		if (arguments.length === 0) return;
+		this.achievementId = achievement.getId();
 		this.user = user;
-		this.progress = progress ?? 0;
-		this.completedSteps = stepsCompleted ?? [];
-		this.prizeClaimed = prizeClaimed ?? false;
+		this.progress = progress;
+		this.completedSteps = stepsCompleted;
+		this.prizeClaimed = prizeClaimed;
 		this.achievement = achievement;
 	}
 
