@@ -117,7 +117,7 @@ export class RequestAuthentication {
 						authToken: token,
 						authId,
 						authLevel: user.authLevel,
-						name: name,
+						name,
 						email: user.email,
 						team: user.team
 					};
