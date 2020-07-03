@@ -1,61 +1,60 @@
-import { Logger, QueryRunner } from "typeorm";
-import { LoggerOptions } from "typeorm/logger/LoggerOptions";
-import { PlatformTools } from "typeorm/platform/PlatformTools";
-import { LoggerLevels } from "./LoggerLevelsEnum";
+import { Logger } from 'typeorm';
+import { LoggerOptions } from 'typeorm/logger/LoggerOptions';
+import { PlatformTools } from 'typeorm/platform/PlatformTools';
+import { LoggerLevels } from './LoggerLevelsEnum';
 
 export class QueryLogger implements Logger {
+	public constructor(private readonly options?: LoggerOptions) {}
 
-  constructor(private options?: LoggerOptions) {}
+	protected writeToFile(message: string, file?: string) {
+		if (Number(process.env.ENABLE_LOGGING) === 0) return;
+		const fileName: string = file ?? process.env.HUB_LOG_FILE_NAME ?? 'hub.log';
 
-  protected writeToFile(message: string, file?: string) {
-    if (Number(process.env.ENABLE_LOGGING) === 0) return;
-    const fileName: string = file !== undefined ? file : process.env.HUB_LOG_FILE_NAME;
+		const basePath: string = PlatformTools.load('app-root-path').path;
+		PlatformTools.appendFileSync(`${basePath}/${fileName}`, `${message}\n`);
+	}
 
-    const basePath: string = PlatformTools.load("app-root-path").path;
-    PlatformTools.appendFileSync(basePath + "/" + fileName, message + "\n");
-  }
+	public logQuery(query: string): any {
+		const message = `[INFO]: (${query})`;
+		this.writeToFile(message);
+	}
 
-  logQuery(query: string, parameters?: any[], queryRunner?: QueryRunner): any {
-    const message: string = `[INFO]: (${query})`;
-    this.writeToFile(message);
-  }
+	public logQueryError(error: string, query: string): any {
+		const message = `[ERR]: ${error} (${query})`;
+		this.writeToFile(message);
+	}
 
-  logQueryError(error: string, query: string, parameters?: any[], queryRunner?: QueryRunner): any {
-    const message: string = `[ERR]: ${error} (${query})`;
-    this.writeToFile(message);
-  }
-
-  /**
+	/**
    * Logs query that is slow.
    */
-  logQuerySlow(time: number, query: string, parameters?: any[], queryRunner?: QueryRunner): any {
-    const message: string = `[SLOW ~ ${time}]: ${query}`;
-    this.writeToFile(message);
-  }
+	public logQuerySlow(time: number, query: string): any {
+		const message = `[SLOW ~ ${time}]: ${query}`;
+		this.writeToFile(message);
+	}
 
-  /**
+	/**
    * Logs events from the schema build process.
    */
-  logSchemaBuild(message: string, queryRunner?: QueryRunner): any {
-    // Not implemented
-  }
+	public logSchemaBuild(): any {
+		// Not implemented
+	}
 
-  /**
+	/**
    * Logs events from the migrations run process.
    */
-  logMigration(message: string, queryRunner?: QueryRunner): any {
-    // Not implemented
-  }
+	public logMigration(): any {
+		// Not implemented
+	}
 
-  /**
+	/**
    * Perform logging using given logger, or by default to the console.
    * Log has its own level and message.
    */
-  log(level: LoggerLevels, message: any, queryRunner?: QueryRunner): any {
-    this.writeToFile(`[${level.toUpperCase()}]: ${message}`);
-  }
+	public log(level: LoggerLevels, message: any): any {
+		this.writeToFile(`[${level.toUpperCase()}]: ${String(message)}`);
+	}
 
-  hardwareLog(level: LoggerLevels, message: string) {
-    this.writeToFile(`[${level.toUpperCase()}]: ${message}`, process.env.HARDWARE_LOG_FILE_NAME);
-  }
+	public hardwareLog(level: LoggerLevels, message: string) {
+		this.writeToFile(`[${level.toUpperCase()}]: ${message}`, process.env.HARDWARE_LOG_FILE_NAME);
+	}
 }

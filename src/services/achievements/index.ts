@@ -1,2 +1,2 @@
-export * from "./achievementsService";
-export * from "./achievementsProgressService";
+export * from './achievementsService';
+export * from './achievementsProgressService';

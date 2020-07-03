@@ -1,4 +1,4 @@
-import * as express from "express";
+import express from 'express';
 
 /**
  * In order to add a new route for requests, make sure you have done the following:
@@ -10,13 +10,13 @@ import * as express from "express";
  * 6. Create your `@injectable()` controller!
  */
 export interface RouterInterface {
-  /**
+	/**
    * The initial route for requests to intercept in the router
    */
-  getPathRoot(): string;
+	getPathRoot(): string;
 
-  /**
+	/**
    * Router setup function that registers all the routes
    */
-  register(): express.Router;
+	register(): express.Router;
 }

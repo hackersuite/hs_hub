@@ -1,1 +1,1 @@
-export * from "./oneSignalAnnouncement";
+export * from './oneSignalAnnouncement';

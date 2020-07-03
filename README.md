@@ -1,6 +1,7 @@
 # Hacker Suite Hub
 
 [![Build Status](https://travis-ci.org/unicsmcr/hs_hub.svg?branch=master)](https://travis-ci.org/unicsmcr/hs_hub)
+![Lint](https://github.com/unicsmcr/hs_hub/workflows/Lint/badge.svg)
 ![GitHub](https://img.shields.io/github/license/unicsmcr/hs_hub.svg)
 
 ## Dependencies

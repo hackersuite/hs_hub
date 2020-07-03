@@ -1,2 +1,2 @@
-export * from "./LoggerLevelsEnum";
-export * from "./QueryLogger";
+export * from './LoggerLevelsEnum';
+export * from './QueryLogger';
