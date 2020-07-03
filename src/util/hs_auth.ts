@@ -31,7 +31,7 @@ export interface Team extends RequestTeamMembers {
 	id: string;
 	name: string;
 	creator: string;
-	tableNumber: number;
+	tableNumber?: number;
 }
 
 export interface RequestTeam {

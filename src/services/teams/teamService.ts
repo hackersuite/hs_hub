@@ -1,6 +1,7 @@
 import request from 'request-promise-native';
-import { Team, RequestTeam, RequestTeamMembers } from '../../util/hs_auth';
+import { Team, RequestTeamMembers } from '../../util/hs_auth';
 import { injectable } from 'inversify';
+import * as authClient from '@unicsmcr/hs_auth_client';
 
 export interface TeamServiceInterface {
 	checkTeamExists: (authToken: string, teamCode: string) => Promise<boolean>;
@@ -33,22 +34,12 @@ export class TeamService implements TeamServiceInterface {
    * @returns The Team object if found in the database
    */
 	public getTeam = async (authToken: string, teamCode: string): Promise<Team> => {
-		const apiResult = await request.get(`${process.env.AUTH_URL ?? ''}/api/v1/teams/${teamCode}`, {
-			headers: {
-				Authorization: authToken
-			}
-		});
-
-		const team: RequestTeam = JSON.parse(apiResult).team;
-
+		const team = await authClient.getTeam(authToken, teamCode);
 		const teamMembers: any = await this.getUsersTeamMembers(authToken, teamCode);
 
 		// Form new team object
 		const returnValue: Team = {
-			id: team._id,
-			name: team.name,
-			creator: team.creator,
-			tableNumber: team.table_no,
+			...team,
 			users: teamMembers
 		};
 
