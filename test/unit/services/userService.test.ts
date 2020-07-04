@@ -253,7 +253,7 @@ describe('User service tests', (): void => {
 			await userRepository.save(testHubUser);
 			await userRepository.save({ ...testHubUser, id: testHubUser.id + 1, email: 'test@test.com' });
 
-			const teamMembers: User[] = await userService.getUsersTeamMembers(testHubUser.team.teamCode);
+			const teamMembers = await userService.getUsersTeamMembers(testHubUser.team.teamCode);
 			expect(teamMembers).toBeDefined();
 			expect(teamMembers.length).toBe(2);
 		});
