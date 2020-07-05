@@ -31,6 +31,7 @@ export function getTestDatabaseOptions(entities?: (string | Function)[], name?: 
 }
 
 export function initEnv(): void {
+	process.env.ENABLE_LOGGING = '1';
 	process.env.SALT = 'random';
 	process.env.ITERATIONS = '30000';
 	process.env.KEY_LENGTH = '32';

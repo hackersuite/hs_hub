@@ -1,4 +1,3 @@
-import { Express } from 'express';
 import { buildApp } from '../../src/app';
 import { getConnection } from 'typeorm';
 import { getTestDatabaseOptions, initEnv } from '../util/testUtils';
