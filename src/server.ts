@@ -1,13 +1,11 @@
 import { buildApp } from './app';
-import { Express } from 'express';
 
 /**
  * Start Express server.
  */
-buildApp((app: Express, err?: Error) => {
-	if (err) {
-		console.error('Could not start server!');
-	} else {
+
+buildApp()
+	.then(app => {
 		app.listen(app.get('port'), () => {
 			console.log(
 				'  App is running at http://localhost:%d in %s mode',
@@ -16,5 +14,5 @@ buildApp((app: Express, err?: Error) => {
 			);
 			console.log('  Press CTRL-C to stop\n');
 		});
-	}
-}).catch(console.error);
+	})
+	.catch(console.error);

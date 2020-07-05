@@ -10,15 +10,13 @@ import expressSession from 'express-session';
 import cookieParser from 'cookie-parser';
 import { RequestAuthentication } from './util/hs_auth';
 import express, { Express, Request, Response, NextFunction } from 'express';
-import { Connection, createConnections, ConnectionOptions } from 'typeorm';
+import { createConnections, ConnectionOptions } from 'typeorm';
 import { errorHandler, error404Handler } from './util/errorHandling';
 import { RouterInterface } from './routes';
 import { TYPES } from './types';
 import container from './inversify.config';
 
-
-// codebeat:disable[LOC]
-export function buildApp<T>(callback: (app: Express, err?: Error) => T, connectionOptions?: ConnectionOptions[]): Promise<T> {
+export async function buildApp(connectionOptions?: ConnectionOptions[]): Promise<Express> {
 	const app: Express = expressSetup();
 
 	middlewareSetup(app);
@@ -32,33 +30,28 @@ export function buildApp<T>(callback: (app: Express, err?: Error) => T, connecti
 		? connectionOptions
 		: createDatabaseSettings();
 
-	return createConnections(databaseConnectionSettings).then((connections: Connection[]) => {
-		connections.forEach(element => {
-			console.log(`  Connection to database (${element.name}) established.`);
-		});
-
-		// Set up passport for authentication
-		// Also add the logout route
-		const requestAuth: RequestAuthentication = container.get(TYPES.RequestAuthentication);
-		requestAuth.passportSetup(app);
-
-		// Routes set up for express, resolving dependencies
-		// This is performed after successful DB connection since some routers use TypeORM repositories in their DI
-		const routers: RouterInterface[] = container.getAll(TYPES.Router);
-		routers.forEach(router => {
-			app.use(router.getPathRoot(), router.register());
-		});
-
-		// Setting up error handlers
-		app.use(error404Handler);
-		app.use(errorHandler);
-
-		return callback(app);
-	}).catch((err: any) => {
-		console.error('  Could not connect to database');
-		console.error(err);
-		return callback(app, err);
+	const connections = await createConnections(databaseConnectionSettings);
+	connections.forEach(element => {
+		console.log(`  Connection to database (${element.name}) established.`);
 	});
+
+	// Set up passport for authentication
+	// Also add the logout route
+	const requestAuth: RequestAuthentication = container.get(TYPES.RequestAuthentication);
+	requestAuth.passportSetup(app);
+
+	// Routes set up for express, resolving dependencies
+	// This is performed after successful DB connection since some routers use TypeORM repositories in their DI
+	const routers: RouterInterface[] = container.getAll(TYPES.Router);
+	routers.forEach(router => {
+		app.use(router.getPathRoot(), router.register());
+	});
+
+	// Setting up error handlers
+	app.use(error404Handler);
+	app.use(errorHandler);
+
+	return app;
 }
 
 /**
