@@ -25,7 +25,7 @@ export function getTestDatabaseOptions(entities?: (string | Function)[], name?: 
 		synchronize: true,
 		logging: false,
 		entities: entities || [
-			`${__dirname}/../../src/db/entity/hub/*{.js,.ts}`
+			`${__dirname}/../../src/db/entity/*{.js,.ts}`
 		]
 	}];
 }
