@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { LocalAchievementsRepository, Achievement, AchievementOptions } from '../../../../src/util/achievements';
 
 let achievementsRepository: LocalAchievementsRepository;
