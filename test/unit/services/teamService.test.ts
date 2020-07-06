@@ -231,7 +231,7 @@ describe('Team service tests', (): void => {
 	describe('Test getUsersTeamMembers', (): void => {
 		test('Should check that all the members of a team can be found', async (): Promise<void> => {
 			// Check the user does not exist in the team
-			const teamMembers: User[] = await teamService.getUsersTeamMembers(testHubTeam.teamCode);
+			const teamMembers = await teamService.getUsersTeamMembers(testHubTeam.teamCode);
 			expect(teamMembers.length).toBe(1);
 		});
 	});

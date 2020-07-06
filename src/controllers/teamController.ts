@@ -3,7 +3,7 @@ import { ApiError, HttpResponseCode } from '../util/errorHandling';
 import { TeamService } from '../services/teams';
 import { injectable, inject } from 'inversify';
 import { TYPES } from '../types';
-import { RequestUser, RequestTeamMembers } from '../util/hs_auth';
+import { RequestUser } from '../util/hs_auth';
 
 export interface TeamControllerInterface {
 	manage: (req: Request, res: Response) => void;
@@ -37,14 +37,9 @@ export class TeamController implements TeamControllerInterface {
 		if (!reqUser.team) return next(new ApiError(HttpResponseCode.BAD_REQUEST, 'Team not found'));
 		if (!reqUser.authToken) return next(new ApiError(HttpResponseCode.BAD_REQUEST, 'Missing auth token'));
 
-		const teamMembers: RequestTeamMembers = await this._teamService.getUsersTeamMembers(reqUser.authToken, reqUser.team);
+		const teamMembers = await this._teamService.getUsersTeamMembers(reqUser.authToken, reqUser.team);
 
-		const team: { name: string }[] = [];
-		teamMembers.users.forEach((user: RequestUser) => {
-			team.push({
-				name: user.name
-			});
-		});
+		const team: { name: string }[] = teamMembers.map(user => ({ name: user.name }));
 
 		res.send(team);
 	};
