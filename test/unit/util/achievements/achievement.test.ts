@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { Achievement } from '../../../../src/util/achievements';
 
 const achievementId = 0;

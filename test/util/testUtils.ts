@@ -25,12 +25,13 @@ export function getTestDatabaseOptions(entities?: (string | Function)[], name?: 
 		synchronize: true,
 		logging: false,
 		entities: entities || [
-			`${__dirname}/../../src/db/entity/hub/*{.js,.ts}`
+			`${__dirname}/../../src/db/entity/*{.js,.ts}`
 		]
 	}];
 }
 
 export function initEnv(): void {
+	process.env.ENABLE_LOGGING = '1';
 	process.env.SALT = 'random';
 	process.env.ITERATIONS = '30000';
 	process.env.KEY_LENGTH = '32';
