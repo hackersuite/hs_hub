@@ -8,13 +8,13 @@ import path from 'path';
 import morgan from 'morgan';
 import expressSession from 'express-session';
 import cookieParser from 'cookie-parser';
-import { RequestAuthentication } from './util/hs_auth';
 import express, { Express, Request, Response, NextFunction } from 'express';
 import { createConnections, ConnectionOptions } from 'typeorm';
 import { errorHandler, error404Handler } from './util/errorHandling';
 import { RouterInterface } from './routes';
 import { TYPES } from './types';
 import container from './inversify.config';
+import { RequestAuthenticationV2 } from './util/auth';
 
 export async function buildApp(connectionOptions?: ConnectionOptions[]): Promise<Express> {
 	const app: Express = expressSetup();
@@ -37,7 +37,7 @@ export async function buildApp(connectionOptions?: ConnectionOptions[]): Promise
 
 	// Set up passport for authentication
 	// Also add the logout route
-	const requestAuth: RequestAuthentication = container.get(TYPES.RequestAuthentication);
+	const requestAuth: RequestAuthenticationV2 = container.get(TYPES.RequestAuthenticationV2);
 	requestAuth.passportSetup(app);
 
 	// Routes set up for express, resolving dependencies

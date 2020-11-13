@@ -1,16 +1,19 @@
 import { Router } from 'express';
-import { checkIsOrganizer, checkIsLoggedIn } from '../util/user';
 import { AnnouncementController } from '../controllers';
 import { RouterInterface } from '.';
 import { injectable, inject } from 'inversify';
 import { TYPES } from '../types';
+import { RequestAuthenticationV2 } from '../util/auth';
 
 @injectable()
 export class AnnouncementRouter implements RouterInterface {
 	private readonly _announcementController: AnnouncementController;
+	private readonly _requestAuth: RequestAuthenticationV2;
 
-	public constructor(@inject(TYPES.AnnouncementController) announcementController: AnnouncementController) {
+	public constructor(@inject(TYPES.AnnouncementController) announcementController: AnnouncementController,
+		@inject(TYPES.RequestAuthenticationV2) requestAuth: RequestAuthenticationV2) {
 		this._announcementController = announcementController;
+		this._requestAuth = requestAuth;
 	}
 
 	public getPathRoot(): string {
@@ -20,27 +23,26 @@ export class AnnouncementRouter implements RouterInterface {
 	public register(): Router {
 		const router: Router = Router();
 
-		router.use(checkIsLoggedIn);
-
 		/**
      * POST /announcement/
      */
 		router.post('/',
-			checkIsOrganizer,
-			this._announcementController.announce);
+			this._requestAuth.withAuthMiddleware(this,
+				this._announcementController.announce));
 
 		/**
      * POST /announcement/push
      */
 		router.post('/push',
-			checkIsOrganizer,
-			this._announcementController.pushNotification);
+			this._requestAuth.withAuthMiddleware(this,
+				this._announcementController.pushNotification));
 
 		/**
      * POST /announcement/push/register
      */
 		router.post('/push/register',
-			this._announcementController.pushNotificationRegister);
+			this._requestAuth.withAuthMiddleware(this,
+				this._announcementController.pushNotificationRegister));
 
 		return router;
 	}

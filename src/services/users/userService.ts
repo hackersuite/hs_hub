@@ -42,21 +42,6 @@ export class UserService {
 	};
 
 	/**
-   * Gets the whole user object if it exists based on the user id
-   * @param authID
-   * @return Promise of a user
-   */
-	public getUserByAuthIDFromHub = async (authID: string): Promise<User> => {
-		const user: User|undefined = await this.userRepository
-			.createQueryBuilder('user')
-			.where('authId = :id', { id: authID })
-			.getOne();
-
-		if (!user) { throw new ApiError(HttpResponseCode.BAD_REQUEST, `User does not exist with auth id ${authID}`); }
-		return user;
-	};
-
-	/**
    * Gets all the push ids of the users that we want to send notifications
    * @param userIDs An array of all users to who the notificaiton will be sent
    */

@@ -4,7 +4,8 @@ import { Container } from 'inversify';
 import { TYPES } from './types';
 
 // Routers
-import { RequestAuthenticationInterface, RequestAuthentication } from './util/hs_auth';
+import { RequestAuthenticationV2Interface, RequestAuthenticationV2 } from './util/auth';
+import { AuthApi, AuthApiInterface } from '@unicsmcr/hs_auth_client';
 import { CacheInterface, Cache } from './util/cache';
 import { RouterInterface, HomeRouter } from './routes';
 
@@ -13,19 +14,14 @@ import { UserRouter } from './routes';
 import { UserController, UserControllerInterface, HomeControllerInterface, HomeController } from './controllers';
 import { UserService, UserServiceInterface } from './services/users';
 
-// Teams
-import { TeamRouter } from './routes';
-import { TeamController, TeamControllerInterface } from './controllers';
-import { TeamService, TeamServiceInterface } from './services/teams';
-
 // Schedule
 import { ScheduleRouter } from './routes';
 import { ScheduleController, ScheduleControllerInterface } from './controllers';
 
 // Hardware
-import { HardwareRouter } from './routes';
-import { HardwareController, HardwareControllerInterface } from './controllers';
-import { HardwareService, ReservedHardwareService, HardwareServiceInterface, ReservedHardwareServiceInterface } from './services/hardware';
+// import { HardwareRouter } from './routes';
+// import { HardwareController, HardwareControllerInterface } from './controllers';
+// import { HardwareService, ReservedHardwareService, HardwareServiceInterface, ReservedHardwareServiceInterface } from './services/hardware';
 
 // Challenges
 import { ChallengeRouter } from './routes';
@@ -44,17 +40,16 @@ import { AchievementsService, AchievementsServiceInterface, AchievementsProgress
 
 // Events
 import { EventService, EventServiceInterface } from './services/events';
-import { UserRepository, HardwareRepository, ReservedHardwareRepository, EventRepository, AnnouncementRepository, AchievementProgressRepository, ChallengeRepository } from './repositories';
+import { UserRepository, EventRepository, AnnouncementRepository, AchievementProgressRepository, ChallengeRepository } from './repositories';
 import { LocalAchievementsRepository, localAchievements } from './util/achievements';
 
 const container = new Container();
 
 // Routers
 container.bind<RouterInterface>(TYPES.Router).to(UserRouter);
-container.bind<RouterInterface>(TYPES.Router).to(TeamRouter);
 container.bind<RouterInterface>(TYPES.Router).to(ScheduleRouter);
 container.bind<RouterInterface>(TYPES.Router).to(HomeRouter);
-container.bind<RouterInterface>(TYPES.Router).to(HardwareRouter);
+// container.bind<RouterInterface>(TYPES.Router).to(HardwareRouter);
 container.bind<RouterInterface>(TYPES.Router).to(ChallengeRouter);
 container.bind<RouterInterface>(TYPES.Router).to(AnnouncementRouter);
 container.bind<RouterInterface>(TYPES.Router).to(AchievementsRouter);
@@ -67,19 +62,15 @@ container.bind<UserControllerInterface>(TYPES.UserController).to(UserController)
 container.bind<UserServiceInterface>(TYPES.UserService).to(UserService);
 container.bind<UserRepository>(TYPES.UserRepository).to(UserRepository);
 
-// Team
-container.bind<TeamControllerInterface>(TYPES.TeamController).to(TeamController);
-container.bind<TeamServiceInterface>(TYPES.TeamService).to(TeamService);
-
 // Schedule
 container.bind<ScheduleControllerInterface>(TYPES.ScheduleController).to(ScheduleController);
 
 // Hardware
-container.bind<HardwareControllerInterface>(TYPES.HardwareController).to(HardwareController);
-container.bind<HardwareServiceInterface>(TYPES.HardwareService).to(HardwareService);
-container.bind<ReservedHardwareServiceInterface>(TYPES.ReservedHardwareService).to(ReservedHardwareService);
-container.bind<HardwareRepository>(TYPES.HardwareRepository).to(HardwareRepository);
-container.bind<ReservedHardwareRepository>(TYPES.ReservedHardwareRepository).to(ReservedHardwareRepository);
+// container.bind<HardwareControllerInterface>(TYPES.HardwareController).to(HardwareController);
+// container.bind<HardwareServiceInterface>(TYPES.HardwareService).to(HardwareService);
+// container.bind<ReservedHardwareServiceInterface>(TYPES.ReservedHardwareService).to(ReservedHardwareService);
+// container.bind<HardwareRepository>(TYPES.HardwareRepository).to(HardwareRepository);
+// container.bind<ReservedHardwareRepository>(TYPES.ReservedHardwareRepository).to(ReservedHardwareRepository);
 
 // Challenges
 container.bind<ChallengeControllerInterface>(TYPES.ChallengeController).to(ChallengeController);
@@ -104,8 +95,9 @@ container.bind<EventServiceInterface>(TYPES.EventService).to(EventService);
 container.bind<EventRepository>(TYPES.EventRepository).to(EventRepository);
 
 // Request Authentication
-container.bind<RequestAuthenticationInterface>(TYPES.RequestAuthentication).to(RequestAuthentication);
+container.bind<RequestAuthenticationV2Interface>(TYPES.RequestAuthenticationV2).to(RequestAuthenticationV2);
 // Constants
 container.bind<CacheInterface>(TYPES.Cache).toConstantValue(new Cache());
+container.bind<AuthApiInterface>(TYPES.AuthApi).toConstantValue(new AuthApi("hs_hub"))
 
 export default container;

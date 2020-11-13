@@ -51,7 +51,7 @@ export class HomeController implements HomeControllerInterface {
 		res.render('pages/challenges', { challenges: challenges });
 	};
 
-	public contacts = (req: Request, res: Response): void => {
+	public contacts = async (req: Request, res: Response) => {
 		res.render('pages/contacts');
 	};
 }

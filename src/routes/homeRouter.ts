@@ -1,16 +1,19 @@
 import { Router } from 'express';
 import { HomeController } from '../controllers';
-import { checkIsLoggedIn } from '../util/user/authorization';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '../types';
 import { RouterInterface } from '.';
+import { RequestAuthenticationV2 } from '../util/auth';
 
 @injectable()
 export class HomeRouter implements RouterInterface {
 	private readonly _homeController: HomeController;
+	private readonly _requestAuth: RequestAuthenticationV2;
 
-	public constructor(@inject(TYPES.HomeController) homeController: HomeController) {
+	public constructor(@inject(TYPES.HomeController) homeController: HomeController,
+		@inject(TYPES.RequestAuthenticationV2) requestAuth: RequestAuthenticationV2) {
 		this._homeController = homeController;
+		this._requestAuth = requestAuth;
 	}
 
 	public getPathRoot(): string {
@@ -21,16 +24,16 @@ export class HomeRouter implements RouterInterface {
 		const router: Router = Router();
 
 		router.get('/contacts',
-			checkIsLoggedIn,
-			this._homeController.contacts);
+			this._requestAuth.withAuthMiddleware(this, 
+				this._homeController.contacts));
 
 		router.get('/challenges',
-			checkIsLoggedIn,
-			this._homeController.challenges);
+			this._requestAuth.withAuthMiddleware(this, 
+				this._homeController.challenges));
 
 		router.get('/',
-			checkIsLoggedIn,
-			this._homeController.dashboard);
+			this._requestAuth.withAuthMiddleware(this, 
+				this._homeController.dashboard));
 
 		return router;
 	}

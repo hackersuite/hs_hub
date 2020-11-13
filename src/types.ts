@@ -1,3 +1,5 @@
+import { AuthApi } from "@unicsmcr/hs_auth_client";
+
 export const TYPES = {
 	Router: Symbol.for('Router'),
 
@@ -11,7 +13,6 @@ export const TYPES = {
 	AchievementsController: Symbol.for('AchievementsController'),
 
 	UserService: Symbol.for('UserService'),
-	TeamService: Symbol.for('TeamService'),
 	HardwareService: Symbol.for('HardwareService'),
 	ReservedHardwareService: Symbol.for('ReservedHardwareService'),
 	ChallengeService: Symbol.for('ChallengeService'),
@@ -30,5 +31,7 @@ export const TYPES = {
 	AchievementsProgressRepository: Symbol.for('AchievementsProgressRepository'),
 
 	RequestAuthentication: Symbol.for('RequestAuthentication'),
-	Cache: Symbol.for('Cache')
+	RequestAuthenticationV2: Symbol.for('RequestAuthenticationV2'),
+	Cache: Symbol.for('Cache'),
+	AuthApi: Symbol.for('AuthApi')
 };

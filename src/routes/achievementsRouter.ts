@@ -1,16 +1,19 @@
 import { Router } from 'express';
-import { checkIsLoggedIn, checkIsOrganizer, checkIsVolunteer } from '../util/user';
 import { RouterInterface } from '.';
 import { injectable, inject } from 'inversify';
 import { TYPES } from '../types';
 import { AchievementsController } from '../controllers';
+import { RequestAuthenticationV2 } from '../util/auth';
 
 @injectable()
 export class AchievementsRouter implements RouterInterface {
 	private readonly _achievementsController: AchievementsController;
+	private readonly _requestAuth: RequestAuthenticationV2;
 
-	public constructor(@inject(TYPES.AchievementsController) achievementsController: AchievementsController) {
+	public constructor(@inject(TYPES.AchievementsController) achievementsController: AchievementsController,
+		@inject(TYPES.RequestAuthenticationV2) requestAuth: RequestAuthenticationV2) {
 		this._achievementsController = achievementsController;
+		this._requestAuth = requestAuth;
 	}
 
 	public getPathRoot(): string {
@@ -20,13 +23,13 @@ export class AchievementsRouter implements RouterInterface {
 	public register(): Router {
 		const router: Router = Router();
 
-		router.use(checkIsLoggedIn);
-
 		/**
      * GET /achievements
      * Returns all implemented achievements
      */
-		router.get('/', this._achievementsController.getAchievementsPage);
+		router.get('/',
+			this._requestAuth.withAuthMiddleware(this,
+				this._achievementsController.getAchievementsPage));
 
 
 		/**
@@ -34,50 +37,56 @@ export class AchievementsRouter implements RouterInterface {
      * Returns all implemented achievements
      */
 		router.get('/volunteercontrols',
-			checkIsVolunteer,
-			this._achievementsController.getVolunteersPage);
+			this._requestAuth.withAuthMiddleware(this,
+				this._achievementsController.getVolunteersPage));
 
 		/**
      * GET /achievements/progress
      * Returns the user's progress on all achievements
      */
-		router.get('/progress', this._achievementsController.getProgressForAllAchievements);
+		router.get('/progress', 
+			this._requestAuth.withAuthMiddleware(this,
+				this._achievementsController.getProgressForAllAchievements));
 
 		/**
      * GET /achievements/:id/progress
      * Returns the user's progress on a specific achievement
      */
-		router.get('/:id/progress', this._achievementsController.getProgressForAchievement);
+		router.get('/:id/progress', 
+			this._requestAuth.withAuthMiddleware(this,
+				this._achievementsController.getProgressForAchievement));
 
 		/**
      * PUT /achievements/:id/complete
      * Sets the user's progress on the achievement to completed
      */
 		router.put('/:id/complete',
-			checkIsVolunteer,
-			this._achievementsController.completeAchievementForUser);
+			this._requestAuth.withAuthMiddleware(this,
+				this._achievementsController.completeAchievementForUser));
 
 		/**
      * GET /achievements/:id/step/:step?token=:token
      * Increments the user's progress on a specific achievement
      */
-		router.get('/:id/step/:step', this._achievementsController.completeAchievementStep);
+		router.get('/:id/step/:step', 
+			this._requestAuth.withAuthMiddleware(this,
+				this._achievementsController.completeAchievementStep));
 
 		/**
      * PUT /achievements/:id/complete
      * Sets the user's prizeClaimed on the achievement to true
      */
 		router.put('/:id/giveprize',
-			checkIsVolunteer,
-			this._achievementsController.givePrizeToUser);
+			this._requestAuth.withAuthMiddleware(this,
+				this._achievementsController.givePrizeToUser));
 
 		/**
      * PUT /achievements/:id/complete
      * Sets the user's prizeClaimed on the achievement to true
      */
 		router.get('/token/:id/:step',
-			checkIsOrganizer,
-			this._achievementsController.getAchievementToken);
+			this._requestAuth.withAuthMiddleware(this,
+				this._achievementsController.getAchievementToken));
 
 		return router;
 	}

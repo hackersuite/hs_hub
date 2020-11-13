@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { checkIsOrganizer, checkIsLoggedIn } from '../util/user';
 import { ScheduleController } from '../controllers';
 import { injectable, inject } from 'inversify';
 import { RouterInterface } from '.';
 import { TYPES } from '../types';
+import { RequestAuthenticationV2 } from '../util/auth';
 
 /**
  * A router for handling the schedule
@@ -11,9 +11,12 @@ import { TYPES } from '../types';
 @injectable()
 export class ScheduleRouter implements RouterInterface {
 	private readonly _scheduleController: ScheduleController;
+	private readonly _requestAuth: RequestAuthenticationV2;
 
-	public constructor(@inject(TYPES.ScheduleController) scheduleController: ScheduleController) {
+	public constructor(@inject(TYPES.ScheduleController) scheduleController: ScheduleController,
+		@inject(TYPES.RequestAuthenticationV2) requestAuth: RequestAuthenticationV2) {
 		this._scheduleController = scheduleController;
+		this._requestAuth = requestAuth;
 	}
 
 	public getPathRoot(): string {
@@ -23,27 +26,33 @@ export class ScheduleRouter implements RouterInterface {
 	public register(): Router {
 		const router: Router = Router();
 
-		router.use(checkIsLoggedIn);
-
 		/**
      * POST /schedule/create
      */
-		router.post('/create', checkIsOrganizer, this._scheduleController.createEvent);
+		router.post('/create', 
+			this._requestAuth.withAuthMiddleware(this, 
+				this._scheduleController.createEvent));
 
 		/**
      * POST /schedule/delete
      */
-		router.delete('/delete', checkIsOrganizer, this._scheduleController.deleteEvent);
+		router.delete('/delete', 
+			this._requestAuth.withAuthMiddleware(this, 
+				this._scheduleController.deleteEvent));
 
 		/**
      * POST /schedule/update
      */
-		router.put('/update', checkIsOrganizer, this._scheduleController.updateEvent);
+		router.put('/update', 
+			this._requestAuth.withAuthMiddleware(this, 
+				this._scheduleController.updateEvent));
 
 		/**
      * GET /schedule/
      */
-		router.get('/', this._scheduleController.listEvents);
+		router.get('/', 
+			this._requestAuth.withAuthMiddleware(this, 
+					this._scheduleController.listEvents));
 
 		return router;
 	}

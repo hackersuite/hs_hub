@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Entity, Column, OneToMany, PrimaryColumn } from 'typeorm';
 import { AchievementProgress } from './achievementProgress';
 import { ReservedHardwareItem } from './reservedHardwareItem';
 
@@ -7,14 +7,11 @@ import { ReservedHardwareItem } from './reservedHardwareItem';
  */
 @Entity()
 export class User {
-	@PrimaryGeneratedColumn('uuid')
-	public id!: string;
-
 	@Column('varchar')
 	public name!: string;
 
-	@Column('varchar', { unique: true })
-	public authId!: string;
+	@PrimaryColumn('varchar')
+	public id!: string;
 
 	@Column('simple-array', { nullable: true })
 	public push_id?: string[];
