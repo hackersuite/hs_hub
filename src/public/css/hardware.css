@@ -22,6 +22,8 @@
 
 .number-input {
   width: 40px;
+  margin-left: 10px;
+  display: inline-block;
 }
 
 #reservation-qr-panel {

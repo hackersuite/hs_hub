@@ -3,7 +3,7 @@
 
 <head>
   <% include ../partials/head.ejs %>
-  <title>SHVII Hub - Dashboard</title>
+  <title>GUH19 Hub - Dashboard</title>
   <link rel="stylesheet" href="/css/dashboard.css">
 </head>
 
@@ -28,7 +28,7 @@
             </div>
             <!-- USEFUL LINKS -->
             <div class="col-xl-3 col-lg-4 col-sm-6">
-              <a href="https://join.slack.com/t/studenthackvii/shared_invite/enQtNTgyMTI3MjI0MzcyLTViZTdhYzVlMGY2M2ViNzkxM2YwMWVmOGFkNGZmMTNlNDc0MTQyYjNiNjI1OTY3MjJkMjAwNjE5NjViZjA0MmU" target="_blank" rel="noopener noreferrer">
+              <a href="https://join.slack.com/t/guh2019/shared_invite/enQtODEwOTExMDcyMzg4LTU1MDlmMDMzYTU3NTJiODE4MWFkZDlkYWUxMzM1OTYyNjYwMmZjNjA3NmE0NGMzZjhiYjI0ZjRlODIzOTY1ZjA" target="_blank" rel="noopener noreferrer">
                 <div class="card card-stats">
                   <div class="card-header card-header-success card-header-icon">
                     <div class="card-icon">
@@ -44,7 +44,7 @@
               </a>
             </div>
             <div class="col-xl-3 col-lg-4 col-sm-6">
-              <a href="https://studenthack7.devpost.com/" target="_blank" rel="noopener noreferrer">
+              <a href="https://greatunihack19.devpost.com/" target="_blank" rel="noopener noreferrer">
                 <div class="card card-stats">
                   <div class="card-header card-header-warning card-header-icon">
                     <div class="card-icon">
@@ -60,7 +60,7 @@
               </a>
             </div>
             <div class="col-xl-3 col-lg-4 col-sm-6">
-              <a href="https://drive.google.com/file/d/1jwF92jYwOk0CVjrZ3HvwAablDX9gaXBN/view" target="_blank" rel="noopener noreferrer">
+              <a href="https://drive.google.com/open?id=1eM-eOYCESmGml0ro-o8xmK0Tv6M0b8W_na7J5Mwe8g0" target="_blank" rel="noopener noreferrer">
                 <div class="card card-stats">
                   <div class="card-header card-header-danger card-header-icon">
                     <div class="card-icon">
@@ -132,8 +132,8 @@
                       <table class="table">
                         <thead class="text-warning">
                           <th>Time</th>
-                          <th>Location</th>
                           <th>Event</th>
+                          <th>Location</th>
                         </thead>
                         <tbody>
                           <% events.forEach(event => { %>
@@ -210,13 +210,13 @@
                           <ul class="nav nav-tabs" data-tabs="tabs">
                             <li class="nav-item">
                               <a class="nav-link active" href="#ground-floor" data-toggle="tab">
-                                Floor C
+                                Ground Floor
                                 <div class="ripple-container"></div>
                               </a>
                             </li>
                             <li class="nav-item">
                               <a class="nav-link" href="#first-floor" data-toggle="tab">
-                                Floor D
+                                First Floor
                                 <div class="ripple-container"></div>
                               </a>
                             </li>
@@ -227,10 +227,10 @@
                     <div class="card-body">
                       <div class="tab-content">
                         <div class="tab-pane active" id="ground-floor">
-                          <img src="/img/floorplan/Floor_Plan_C.png" class="floor-plan">
+                          <img src="/img/floorplan/GroundFloor.jpg" class="floor-plan">
                         </div>
                         <div class="tab-pane" id="first-floor">
-                          <img src="/img/floorplan/Floor_Plan_D.png" class="floor-plan">
+                          <img src="/img/floorplan/FirstFloor.jpg" class="floor-plan">
                         </div>
                       </div>
                     </div>

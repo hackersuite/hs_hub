@@ -11,3 +11,7 @@
 h3 {
   margin-left: 15px;
 }
+
+.challenge-card-content {
+  overflow-y: scroll;
+}

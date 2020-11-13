@@ -1,44 +1,49 @@
-import { Router } from "express";
-import { checkIsOrganizer, checkIsLoggedIn } from "../util/user";
-import { AnnouncementController } from "../controllers";
-import { AnnouncementService } from "../services/announcement/announcementService";
-import { getConnection } from "typeorm";
-import { Announcement, User } from "../db/entity/hub";
-import { UserService } from "../services/users";
-import { Cache } from "../util/cache";
+import { Router } from 'express';
+import { AnnouncementController } from '../controllers';
+import { RouterInterface } from '.';
+import { injectable, inject } from 'inversify';
+import { TYPES } from '../types';
+import { RequestAuthenticationV2 } from '../util/auth';
 
-export const announcementRouter = (cache: Cache): Router => {
-  const announcementService: AnnouncementService = new AnnouncementService(
-    getConnection("hub").getRepository(Announcement), cache
-  );
-  const userService: UserService = new UserService(
-    getConnection("hub").getRepository(User)
-  );
+@injectable()
+export class AnnouncementRouter implements RouterInterface {
+	private readonly _announcementController: AnnouncementController;
+	private readonly _requestAuth: RequestAuthenticationV2;
 
-  // Initialize router
-  const router = Router();
-  const announcementController = new AnnouncementController(announcementService, userService);
+	public constructor(@inject(TYPES.AnnouncementController) announcementController: AnnouncementController,
+		@inject(TYPES.RequestAuthenticationV2) requestAuth: RequestAuthenticationV2) {
+		this._announcementController = announcementController;
+		this._requestAuth = requestAuth;
+	}
 
-  /**
-   * POST /announcement/
-   */
-  router.post("/",
-    checkIsOrganizer,
-    announcementController.announce);
+	public getPathRoot(): string {
+		return '/announcement';
+	}
 
-  /**
-   * POST /announcement/push
-   */
-  router.post("/push",
-    checkIsOrganizer,
-    announcementController.pushNotification);
+	public register(): Router {
+		const router: Router = Router();
 
-  /**
-   * POST /announcement/push/register
-   */
-  router.post("/push/register",
-    checkIsLoggedIn,
-    announcementController.pushNotificationRegister);
+		/**
+     * POST /announcement/
+     */
+		router.post('/',
+			this._requestAuth.withAuthMiddleware(this,
+				this._announcementController.announce));
 
-  return router;
-};
+		/**
+     * POST /announcement/push
+     */
+		router.post('/push',
+			this._requestAuth.withAuthMiddleware(this,
+				this._announcementController.pushNotification));
+
+		/**
+     * POST /announcement/push/register
+     */
+		router.post('/push/register',
+			this._requestAuth.withAuthMiddleware(this,
+				this._announcementController.pushNotificationRegister));
+
+		return router;
+	}
+}

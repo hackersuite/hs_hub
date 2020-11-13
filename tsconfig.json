@@ -1,20 +1,32 @@
 {
-    "compilerOptions": {
-        "module": "commonjs",
-        "target": "es2016",
-        "noImplicitAny": false,
-        "outDir": "dist",
-        "inlineSourceMap": true,
-        "inlineSources": true,
-        "emitDecoratorMetadata": true,
-        "experimentalDecorators": true
-    },
-    "exclude": [
-        "node_modules",
-        "**/*.spec.ts",
-        "**/*.test.ts"
-    ],
-    "include": [
-        "src/**/*.ts"
-    ]
+	"compilerOptions": {
+		"allowJs": true,
+		"checkJs": true,
+		"declaration": false,
+		"lib": [
+			"ES2019",
+			"ESNext.AsyncIterable"
+		],
+		"module": "CommonJS",
+		"outDir": "dist",
+		"rootDir": "src",
+		"inlineSourceMap": true,
+		"target": "ES2019",
+		"esModuleInterop": true,
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+		"skipLibCheck": true,
+		"strict": true
+	},
+	"include": [
+		"src/**/*.ts",
+		"src/**/*.js"
+	],
+	"exclude": [
+		"node_modules",
+		"dist",
+		"src/public",
+		"src/**/*.test.ts",
+		"src/**/*.spec.ts",
+	]
 }

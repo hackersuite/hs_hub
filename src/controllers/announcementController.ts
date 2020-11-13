@@ -1,41 +1,52 @@
-import { Request, Response } from "express";
-import { NextFunction } from "connect";
-import { ApiError, HttpResponseCode } from "../util/errorHandling";
-import { Announcement } from "../db/entity/hub";
-import { sendOneSignalNotification } from "../util/announcement";
-import { AnnouncementService } from "../services/announcement/announcementService";
-import { UserService } from "../services/users";
+import { Request, Response } from 'express';
+import { NextFunction } from 'connect';
+import { ApiError, HttpResponseCode } from '../util/errorHandling';
+import { Announcement, User } from '../db/entity';
+import { sendOneSignalNotification } from '../util/announcement';
+import { AnnouncementService } from '../services/announcement/announcementService';
+import { UserService } from '../services/users';
+import { injectable, inject } from 'inversify';
+import { TYPES } from '../types';
+
+export interface AnnouncementControllerInterface {
+	announce: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+	pushNotification: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+	pushNotificationRegister: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+}
 
 /**
  * A controller for the announcement methods
  */
-export class AnnouncementController {
+@injectable()
+export class AnnouncementController implements AnnouncementControllerInterface {
+	private readonly _announcementService: AnnouncementService;
+	private readonly _userService: UserService;
 
-  private announcementService: AnnouncementService;
-  private userService: UserService;
+	public constructor(
+	@inject(TYPES.AnnouncementService) announcementService: AnnouncementService,
+		@inject(TYPES.UserService) userService: UserService
+	) {
+		this._announcementService = announcementService;
+		this._userService = userService;
+	}
 
-  constructor(_announcementService: AnnouncementService, _userService: UserService) {
-    this.announcementService = _announcementService;
-    this.userService = _userService;
-  }
+	public announce = async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const message = req.body.message;
+			if (!message) {
+				throw new ApiError(HttpResponseCode.BAD_REQUEST, 'No message provided!');
+			} else if (message.length > 255) {
+				throw new ApiError(HttpResponseCode.BAD_REQUEST, 'Message too long!');
+			}
+			const announcement = new Announcement(message);
+			await this._announcementService.createAnnouncement(announcement);
+			res.send(announcement);
+		} catch (error) {
+			next(error);
+		}
+	};
 
-  public announce = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const message = req.body.message;
-      if (!message) {
-        throw new ApiError(HttpResponseCode.BAD_REQUEST, "No message provided!");
-      } else if (message.length > 255) {
-        throw new ApiError(HttpResponseCode.BAD_REQUEST, "Message too long!");
-      }
-      const announcement = new Announcement(message);
-      await this.announcementService.createAnnouncement(announcement);
-      res.send(announcement);
-    } catch (error) {
-      return next(error);
-    }
-  };
-
-  /**
+	/**
    * This function will either send a push notifation to all users subscribed to push notifications
    * or to only those users whose ids are provided.
    *
@@ -45,35 +56,36 @@ export class AnnouncementController {
    * @param res
    * @param next
    */
-  public pushNotification = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const text: string = req.body.message;
-      const includedUsers: string = req.body.included_users;
-      let userIds: string[] = [];
-      if (includedUsers !== undefined) {
-        const includedUsersObj: Object = JSON.parse(includedUsers);
-        if (includedUsersObj.hasOwnProperty("users")) {
-          userIds = includedUsersObj["users"];
-        }
-      }
+	public pushNotification = async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const text: string = req.body.message;
+			const includedUsers: string|undefined = req.body.included_users;
+			let userIds: string[] = [];
+			if (includedUsers !== undefined) {
+				const includedUsersObj: Record<string, any> = JSON.parse(includedUsers);
+				if (includedUsersObj.hasOwnProperty('users')) {
+					userIds = includedUsersObj.users;
+				}
+			}
 
-      const result: Object = await sendOneSignalNotification(text, userIds);
-      if (result.hasOwnProperty("errors") === false)
-        res.send(result);
-      else
-        res.status(HttpResponseCode.INTERNAL_ERROR).send(`Failed to send the push notification!. ${JSON.stringify(result)}`);
-    } catch (error) {
-      return next(error);
-    }
-  };
+			const result = await sendOneSignalNotification(text, userIds);
+			if (result.hasOwnProperty('errors')) {
+				res.status(HttpResponseCode.INTERNAL_ERROR).send(`Failed to send the push notification!. ${JSON.stringify(result)}`);
+			} else {
+				res.send(result);
+			}
+		} catch (error) {
+			next(error);
+		}
+	};
 
-  public pushNotificationRegister = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const playerID: string = req.body.data;
-      await this.userService.addPushIDToUser(req.user, playerID);
-      res.status(200).send(`Updated with player ID: ${playerID}`);
-    } catch (error) {
-      return next(error);
-    }
-  };
+	public pushNotificationRegister = async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const playerID: string = req.body.data;
+			await this._userService.addPushIDToUser(req.user as User, playerID);
+			res.status(200).send(`Updated with player ID: ${playerID}`);
+		} catch (error) {
+			next(error);
+		}
+	};
 }

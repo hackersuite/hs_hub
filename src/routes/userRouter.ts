@@ -1,62 +1,46 @@
-import { Router } from "express";
-import { UserController } from "../controllers/userController";
-import { checkIsLoggedIn, checkIsVolunteer, checkIsOrganizer } from "../util/user";
-import { UserService } from "../services/users";
-import { getConnection } from "typeorm";
-import { User, Team } from "../db/entity/hub";
-import { TeamService } from "../services/teams/teamService";
+import { Router } from 'express';
+import { UserController } from '../controllers/userController';
+import { RouterInterface } from '.';
+import { injectable, inject } from 'inversify';
+import { TYPES } from '../types';
+import { RequestAuthenticationV2 } from '../util/auth';
 
 /**
- * A router for handling the sign in of a user
+ * A router for handling the user
  */
-export const userRouter = (): Router => {
-  const userService: UserService = new UserService(
-    getConnection("hub").getRepository(User)
-  );
-  const teamService: TeamService = new TeamService(
-    getConnection("hub").getRepository(Team), userService
-  );
+@injectable()
+export class UserRouter implements RouterInterface {
+	private readonly _userController: UserController;
+	private readonly _requestAuth: RequestAuthenticationV2;
 
-  const router = Router();
-  const userController = new UserController(userService, teamService);
+	public constructor(@inject(TYPES.UserController) userController: UserController,
+		@inject(TYPES.RequestAuthenticationV2) requestAuth: RequestAuthenticationV2) {
+		this._userController = userController;
+		this._requestAuth = requestAuth;
+	}
 
-  /**
-   * POST /user/login
-   */
-  router.post("/login", userController.login);
+	public getPathRoot(): string {
+		return '/user';
+	}
 
-  /**
-   * GET /user/profile
-   */
-  router.get("/profile", checkIsLoggedIn, userController.profile);
+	public register(): Router {
+		const router: Router = Router();
 
-  /**
-   * GET /user/[any valid number]
-   */
-  router.get(/[0-9]+/, checkIsVolunteer, userController.profile);
+		/**
+	 * GET /user/profile
+	 */
+		router.get('/profile',
+			this._requestAuth.withAuthMiddleware(this, 
+				this._userController.profile));
 
-  /**
-   * GET /user/checkVolunteer
-   * Used only to test out checkIsVolunteer, to be removed in next pull request
-   */
-  router.get("/checkVolunteer", checkIsVolunteer, userController.test);
+		router.get('/join_discord',
+			this._requestAuth.withAuthMiddleware(this,
+				this._userController.discordJoin)); 
 
-  /**
-   * GET /user/checkOrganizer
-   * Used of only to test out checkIsOrganizer, to be removed in next pull request
-   */
-  router.get("/checkOrganizer", checkIsOrganizer, userController.test);
+		router.get('/discord_authentication',
+		this._requestAuth.withAuthMiddleware(this,
+			this._userController.discordAuth));
 
-  /**
-   * GET /user/checkAttendee
-   * Used of only to test out checkIsLoggedIn, to be removed in next pull request
-   */
-  router.get("/checkAttendee", checkIsLoggedIn, userController.test);
-
-  /**
-   * GET /user/logout
-   */
-  router.get("/logout", checkIsLoggedIn, userController.logout);
-
-  return router;
-};
+		return router;
+	}
+}

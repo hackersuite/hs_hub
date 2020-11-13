@@ -5,31 +5,17 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "node", // TODO: set up lauch task for the entire hub
-      "request": "launch",
-      "name": "Launch Hub",
-      "program": "${file}"
-    },
-    {
+      "name": "Node Inspector",
       "type": "node",
       "request": "launch",
-      "name": "Launch Hub Back-end",
-      "preLaunchTask": "build_back-end",
-      "program": "${workspaceFolder}/back-end/dist/server.js"
-    },
-    {
-      "type": "node", // TODO: set up launch task for front-end
-      "request": "launch",
-      "name": "Launch Hub Front-end",
-      "program": "${file}"
-    },
-    {
-      "type": "node",
-      "request": "attach",
-      "name": "Attach to Back-End Process",
-      "port": 5858,
-      "restart": true,
-      "protocol": "inspector"
+      "args": ["${workspaceRoot}/src/server.ts"],
+      "runtimeArgs": ["-r", "ts-node/register"],
+      "cwd": "${workspaceRoot}",
+      "protocol": "inspector",
+      "internalConsoleOptions": "openOnSessionStart",
+      "env": {
+        "TS_NODE_IGNORE": "false"
+      }
     }
   ]
 }

@@ -1,98 +1,84 @@
-import { AchievementOptions } from "./";
+import { AchievementOptions } from './';
 
 /**
  * An array of hard-coded achievements to be loaded to a in-memory store
  */
 export const localAchievements: AchievementOptions[] = [
-  {
-    title: "George the curious",
-    description: "Went to all the workshops",
-    prizeURL: "/img/achievements/push.png",
-    maxProgress: 2,
-    requiresToken: true
-  },
-  {
-    title: "Big Mouth",
-    description: "Most active communicating with other people via Slack",
-    prizeURL: "/img/achievements/bart.png",
-    maxProgress: 1,
-    isManual: true
-  },
-  {
-    title: "Looney Toons",
-    description: "Project with the most cartoon puns",
-    prizeURL: "/img/achievements/looneytoones.png",
-    maxProgress: 1,
-    isManual: true
-  },
-  {
-    title: "Courage the cowardly dog",
-    description: "Demoed a hack",
-    prizeURL: "/img/achievements/any.png",
-    maxProgress: 1,
-    isManual: true
-  },
-  {
-    title: "Elmer Fudd",
-    description: "Completed the treasure hunt",
-    prizeURL: "/img/achievements/perry.png",
-    maxProgress: 10,
-    requiresToken: true
-  },
-  {
-    title: "The Flintstones",
-    description: "The most retro looking hack",
-    prizeURL: "/img/achievements/pinkpanther.png",
-    maxProgress: 1,
-    isManual: true
-  },
-  {
-    title: "Samurai Jack",
-    description: "Hacked solo",
-    prizeURL: "/img/achievements/tmnt.png",
-    maxProgress: 1,
-    isManual: true
-  },
-  {
-    title: "Johnny Bravo",
-    description: "Appeared most at the photo booth",
-    prizeURL: "/img/achievements/comic3.png",
-    maxProgress: 1,
-    isManual: true
-  },
-  {
-    title: "Yoda",
-    description: "Spent the most time in the Zen room",
-    prizeURL: "/img/achievements/stitch.png",
-    maxProgress: 1,
-    isManual: true
-  },
-  {
-    title: "Dexter’s Laboratory",
-    description: "Used a hardware piece in an imaginative way",
-    prizeURL: "/img/achievements/dexter.png",
-    maxProgress: 1,
-    isManual: true
-  },
-  {
-    title: "Adventure time",
-    description: "Travelled from furthest away for the hackathon",
-    prizeURL: "/img/achievements/buzz.png",
-    maxProgress: 1,
-    isManual: true
-  },
-  {
-    title: "The greatest waaaaaa",
-    description: "The winner of the ultimate smash tourney",
-    prizeURL: "/img/achievements/wa.png",
-    maxProgress: 1,
-    isManual: true
-  },
-  {
-    title: "Scooby doo",
-    description: "Took part in midnight mafia and won",
-    prizeURL: "/img/achievements/stitchblue.png",
-    maxProgress: 1,
-    isManual: true
-  }
+	{
+		title: 'Honey, honey',
+		description: 'Appeared the most at the photo booth',
+		prizeURL: '/img/achievements/honeyhoney.png',
+		maxProgress: 1,
+		isManual: true
+	},
+	{
+		title: 'Vulture',
+		description: 'Win the scavenger hunt',
+		prizeURL: '/img/achievements/scavenger.png',
+		maxProgress: 1,
+		isManual: true
+	},
+	{
+		title: 'Buzziest Bee',
+		description: 'Most active on Slack',
+		prizeURL: '/img/achievements/buzziestbee.png',
+		maxProgress: 1,
+		isManual: true
+	},
+	{
+		title: "Don't bee shy",
+		description: 'Demoed a hack',
+		prizeURL: '/img/achievements/demoed.png',
+		maxProgress: 1,
+		isManual: true
+	},
+	{
+		title: 'Lone wolf',
+		description: 'Hack as a team of one',
+		prizeURL: '/img/achievements/lonewolf.png',
+		maxProgress: 1,
+		isManual: true
+	},
+	{
+		title: "Chilling in the bee's nest",
+		description: 'Spent the most time in zen room',
+		prizeURL: '/img/achievements/beenest.png',
+		maxProgress: 1,
+		isManual: true
+	},
+	{
+		title: 'Roadrunner',
+		description: 'Attend every workshop',
+		prizeURL: '/img/achievements/roadrunner.png',
+		maxProgress: 1,
+		isManual: true
+	},
+	{
+		title: 'Night Owl',
+		description: 'Didn’t sleep at all during the whole hackathon',
+		prizeURL: '/img/achievements/nightowl.png',
+		maxProgress: 1,
+		isManual: true
+	},
+	{
+		title: 'Migrating swallow',
+		description: 'Travelled the furthest to get here',
+		prizeURL: '/img/achievements/migratingswallow.png',
+		maxProgress: 1,
+		isManual: true
+	},
+	{
+		title: 'Fantastic Mr Fox',
+		description: 'Took part in midnight mafia and won',
+		prizeURL: '/img/achievements/fox.png',
+		maxProgress: 1,
+		isManual: true
+	},
+	{
+		title: 'Leader of the pack',
+		description: 'Came first in a games tournament',
+		prizeURL: '/img/achievements/leaderofpack.png',
+		maxProgress: 1,
+		isManual: true
+	}
 ];

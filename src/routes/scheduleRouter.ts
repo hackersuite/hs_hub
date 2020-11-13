@@ -1,37 +1,59 @@
-import { Router } from "express";
-import { Cache } from "../util/cache";
-import { checkIsOrganizer } from "../util/user";
-import { ScheduleController } from "../controllers";
-
+import { Router } from 'express';
+import { ScheduleController } from '../controllers';
+import { injectable, inject } from 'inversify';
+import { RouterInterface } from '.';
+import { TYPES } from '../types';
+import { RequestAuthenticationV2 } from '../util/auth';
 
 /**
- * A router for handling the sign in of a user
+ * A router for handling the schedule
  */
-export const scheduleRouter = (cache: Cache): Router => {
-  // Initializing the router
-  const router = Router();
+@injectable()
+export class ScheduleRouter implements RouterInterface {
+	private readonly _scheduleController: ScheduleController;
+	private readonly _requestAuth: RequestAuthenticationV2;
 
-  const scheduleController = new ScheduleController(cache);
+	public constructor(@inject(TYPES.ScheduleController) scheduleController: ScheduleController,
+		@inject(TYPES.RequestAuthenticationV2) requestAuth: RequestAuthenticationV2) {
+		this._scheduleController = scheduleController;
+		this._requestAuth = requestAuth;
+	}
 
-  /**
-   * POST /schedule/create
-   */
-  router.post("/create", checkIsOrganizer, scheduleController.createEvent);
+	public getPathRoot(): string {
+		return '/schedule';
+	}
 
-  /**
-   * POST /schedule/delete
-   */
-  router.delete("/delete", checkIsOrganizer, scheduleController.deleteEvent);
+	public register(): Router {
+		const router: Router = Router();
 
-  /**
-   * POST /schedule/update
-   */
-  router.put("/update", checkIsOrganizer, scheduleController.updateEvent);
+		/**
+     * POST /schedule/create
+     */
+		router.post('/create', 
+			this._requestAuth.withAuthMiddleware(this, 
+				this._scheduleController.createEvent));
 
-  /**
-   * GET /schedule/
-   */
-  router.get("/", scheduleController.listEvents.bind(scheduleController));
+		/**
+     * POST /schedule/delete
+     */
+		router.delete('/delete', 
+			this._requestAuth.withAuthMiddleware(this, 
+				this._scheduleController.deleteEvent));
 
-  return router;
-};
+		/**
+     * POST /schedule/update
+     */
+		router.put('/update', 
+			this._requestAuth.withAuthMiddleware(this, 
+				this._scheduleController.updateEvent));
+
+		/**
+     * GET /schedule/
+     */
+		router.get('/', 
+			this._requestAuth.withAuthMiddleware(this, 
+					this._scheduleController.listEvents));
+
+		return router;
+	}
+}

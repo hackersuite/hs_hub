@@ -3,7 +3,7 @@
 
 <head>
   <% include ../partials/head.ejs %>
-  <title>SHVII Hub - Challenges</title>
+  <title>GUH19 Hub - Challenges</title>
   <link rel="stylesheet" href="/css/challenges.css">
 </head>
 
@@ -19,14 +19,14 @@
             </div>
           <div class="row">
             <% challenges.forEach(challenge => { %>
-            <div class="col-lg-3 col-md-6">
+            <div class="col-md-6 col-lg-6 col-xl-6">
               <div class="card h-75">
                 <div class="card-header card-header-success">
                   <h4 class="card-title text-center">
                     <%- challenge.title %>
                   </h4>
                 </div>
-                <div class="item-content">
+                <div class="card-body challenge-card-content item-content">
                   <ul class="list-group list-group-flush">
                     <li class="list-group-item">
                       <div class="card-text text-center">
@@ -35,14 +35,14 @@
                         </h5>
                       </div>
                     </li>
-                    <li class="list-group-item">
-                      <div class="card-text text-center">
-                        <h5><b>Prizes:</b>
-                          <%- challenge.prizes %>
-                        </h5>
-                      </div>
-                    </li>
                   </ul>
+                </div>
+                <div class="card-footer">
+                  <div class="card-text text-center">
+                    <h5><b>Prizes:</b>
+                      <%- challenge.prizes %>
+                    </h5>
+                  </div>
                 </div>
               </div>
             </div>

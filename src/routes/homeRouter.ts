@@ -1,41 +1,40 @@
-import { Router } from "express";
-import { HomeController } from "../controllers";
-import { checkIsLoggedIn } from "../util/user/authorization";
-import { AnnouncementService } from "../services/announcement";
-import { Announcement, Event, Challenge } from "../db/entity/hub";
-import { getConnection } from "typeorm";
-import { EventService } from "../services/events";
-import { ChallengeService } from "../services/challenges";
-import { Cache } from "../util/cache";
+import { Router } from 'express';
+import { HomeController } from '../controllers';
+import { inject, injectable } from 'inversify';
+import { TYPES } from '../types';
+import { RouterInterface } from '.';
+import { RequestAuthenticationV2 } from '../util/auth';
 
-export const homeRouter = (cache: Cache): Router => {
-  const announcementService: AnnouncementService = new AnnouncementService(
-    getConnection("hub").getRepository(Announcement), cache
-  );
-  const eventService: EventService = new EventService(
-    getConnection("hub").getRepository(Event)
-  );
-  const challengeService: ChallengeService = new ChallengeService(
-    getConnection("hub").getRepository(Challenge)
-  );
+@injectable()
+export class HomeRouter implements RouterInterface {
+	private readonly _homeController: HomeController;
+	private readonly _requestAuth: RequestAuthenticationV2;
 
-  const router = Router();
-  const homeController = new HomeController(cache, announcementService, eventService, challengeService);
+	public constructor(@inject(TYPES.HomeController) homeController: HomeController,
+		@inject(TYPES.RequestAuthenticationV2) requestAuth: RequestAuthenticationV2) {
+		this._homeController = homeController;
+		this._requestAuth = requestAuth;
+	}
 
-  router.get("/login",
-    homeController.login);
+	public getPathRoot(): string {
+		return '/';
+	}
 
-  router.get("/contacts",
-    checkIsLoggedIn,
-    homeController.contacts);
+	public register(): Router {
+		const router: Router = Router();
 
-  router.get("/challenges",
-    checkIsLoggedIn,
-    homeController.challenges);
+		router.get('/contacts',
+			this._requestAuth.withAuthMiddleware(this, 
+				this._homeController.contacts));
 
-  router.get("/",
-    checkIsLoggedIn,
-    homeController.dashboard);
+		router.get('/challenges',
+			this._requestAuth.withAuthMiddleware(this, 
+				this._homeController.challenges));
 
-  return router;
-};
+		router.get('/',
+			this._requestAuth.withAuthMiddleware(this, 
+				this._homeController.dashboard));
+
+		return router;
+	}
+}
