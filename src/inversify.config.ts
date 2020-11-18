@@ -40,8 +40,13 @@ import { AchievementsService, AchievementsServiceInterface, AchievementsProgress
 
 // Events
 import { EventService, EventServiceInterface } from './services/events';
-import { UserRepository, EventRepository, AnnouncementRepository, AchievementProgressRepository, ChallengeRepository } from './repositories';
+import { UserRepository, EventRepository, AnnouncementRepository, AchievementProgressRepository, ChallengeRepository, MapRepository } from './repositories';
 import { LocalAchievementsRepository, localAchievements } from './util/achievements';
+
+// Map
+import { MapController, MapControllerInterface } from "./controllers/mapController";
+import { MapRouter } from "./routes/mapRouter";
+import { MapService, MapServiceInterface } from "./services/map";
 
 const container = new Container();
 
@@ -53,6 +58,7 @@ container.bind<RouterInterface>(TYPES.Router).to(HomeRouter);
 container.bind<RouterInterface>(TYPES.Router).to(ChallengeRouter);
 container.bind<RouterInterface>(TYPES.Router).to(AnnouncementRouter);
 container.bind<RouterInterface>(TYPES.Router).to(AchievementsRouter);
+container.bind<RouterInterface>(TYPES.Router).to(MapRouter);
 
 // Home
 container.bind<HomeControllerInterface>(TYPES.HomeController).to(HomeController);
@@ -93,6 +99,11 @@ container.bind<AchievementProgressRepository>(TYPES.AchievementsProgressReposito
 // Events
 container.bind<EventServiceInterface>(TYPES.EventService).to(EventService);
 container.bind<EventRepository>(TYPES.EventRepository).to(EventRepository);
+
+// Map
+container.bind<MapServiceInterface>(TYPES.MapService).to(MapService);
+container.bind<MapControllerInterface>(TYPES.MapController).to(MapController);
+container.bind<MapRepository>(TYPES.MapRepository).to(MapRepository);
 
 // Request Authentication
 container.bind<RequestAuthenticationV2Interface>(TYPES.RequestAuthenticationV2).to(RequestAuthenticationV2);

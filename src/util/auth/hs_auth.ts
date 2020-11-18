@@ -84,7 +84,6 @@ export class RequestAuthenticationV2 {
 
 			try {
         const [user, permissions] = await Promise.all([userAuth, resourceAuth]);
-        console.log(user, permissions);
 				if (permissions.length === 0) {
 					return this.handleUnauthorized(req, res);
 				}

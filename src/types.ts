@@ -11,6 +11,7 @@ export const TYPES = {
 	ChallengeController: Symbol.for('ChallengeController'),
 	AnnouncementController: Symbol.for('AnnouncementController'),
 	AchievementsController: Symbol.for('AchievementsController'),
+	MapController: Symbol.for("MapController"),
 
 	UserService: Symbol.for('UserService'),
 	HardwareService: Symbol.for('HardwareService'),
@@ -20,6 +21,7 @@ export const TYPES = {
 	AchievementsService: Symbol.for('AchievementsService'),
 	AchievementsProgressService: Symbol.for('AchievementsProgressService'),
 	EventService: Symbol.for('EventService'),
+	MapService: Symbol.for("MapService"),
 
 	UserRepository: Symbol.for('UserRepository'),
 	HardwareRepository: Symbol.for('HardwareRepository'),
@@ -29,6 +31,7 @@ export const TYPES = {
 	AnnouncementRepository: Symbol.for('AnnouncementRepository'),
 	LocalAchievementsRepository: Symbol.for('LocalAchievementsRepository'),
 	AchievementsProgressRepository: Symbol.for('AchievementsProgressRepository'),
+	MapRepository: Symbol.for("MapRepository"),
 
 	RequestAuthentication: Symbol.for('RequestAuthentication'),
 	RequestAuthenticationV2: Symbol.for('RequestAuthenticationV2'),
