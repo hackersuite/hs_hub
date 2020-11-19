@@ -5,3 +5,4 @@ export * from './scheduleController';
 export * from './hardwareController';
 export * from './challengeController';
 export * from './announcementController';
+export * from './mapController';

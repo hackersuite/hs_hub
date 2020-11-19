@@ -5,6 +5,8 @@
   <% include ../partials/head.ejs %>
   <title>GUH19 Hub - Dashboard</title>
   <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jvectormap/2.0.5/jquery-jvectormap.min.css"
+    integrity="sha256-iNez126P4WKiZigolYleAWMkO7xVsmNDnNSYc9Tdacc=" crossorigin="anonymous" />
 </head>
 
 <body>
@@ -202,6 +204,21 @@
               <div class="row">
                 <!-- FLOOR PLAN -->
                 <div class="col-lg-12">
+                  <div class="card card-stats">
+                    <div class="card-header card-header-success card-header-icon">
+                      <div class="card-icon">
+                        <i class="fas fa-map-marked-alt"></i>
+                      </div>
+                      <h3 class="card-title">Hacker Map
+                      </h3>
+                    </div>
+                    <div class="card-body">
+                      <div id="hackermap">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-12">
                   <div class="card">
                     <div class="card-header card-header-tabs card-header-danger">
                       <div class="nav-tabs-navigation">
@@ -290,7 +307,13 @@
         <% include ../partials/footer.ejs %>
       </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js" integrity="sha256-AdQN98MVZs44Eq2yTwtoKufhnU+uZ7v2kXnD5vqzZVo=" crossorigin="anonymous"></script>
+    <script src="/js/plugins/moment.min.js"></script>
     <script src="/js/timer.js"></script>
+    <script src="/js/dashboard.js"></script>
+    <script src="/js/plugins/jvectormap.min.js"></script>
+    <script src="https://jvectormap.com/js/jquery-jvectormap-world-mill.js"></script>
+    <script src="/js/locationmap.js"></script>
 </body>
 
 </html>

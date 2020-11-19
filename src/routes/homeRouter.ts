@@ -24,15 +24,15 @@ export class HomeRouter implements RouterInterface {
 		const router: Router = Router();
 
 		router.get('/contacts',
-			this._requestAuth.withAuthMiddleware(this, 
+			this._requestAuth.withAuthMiddleware(this,
 				this._homeController.contacts));
 
 		router.get('/challenges',
-			this._requestAuth.withAuthMiddleware(this, 
+			this._requestAuth.withAuthMiddleware(this,
 				this._homeController.challenges));
 
 		router.get('/',
-			this._requestAuth.withAuthMiddleware(this, 
+			this._requestAuth.withAuthMiddleware(this,
 				this._homeController.dashboard));
 
 		return router;

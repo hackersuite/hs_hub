@@ -44,7 +44,7 @@ export class AchievementsRouter implements RouterInterface {
      * GET /achievements/progress
      * Returns the user's progress on all achievements
      */
-		router.get('/progress', 
+		router.get('/progress',
 			this._requestAuth.withAuthMiddleware(this,
 				this._achievementsController.getProgressForAllAchievements));
 
@@ -52,7 +52,7 @@ export class AchievementsRouter implements RouterInterface {
      * GET /achievements/:id/progress
      * Returns the user's progress on a specific achievement
      */
-		router.get('/:id/progress', 
+		router.get('/:id/progress',
 			this._requestAuth.withAuthMiddleware(this,
 				this._achievementsController.getProgressForAchievement));
 
@@ -68,7 +68,7 @@ export class AchievementsRouter implements RouterInterface {
      * GET /achievements/:id/step/:step?token=:token
      * Increments the user's progress on a specific achievement
      */
-		router.get('/:id/step/:step', 
+		router.get('/:id/step/:step',
 			this._requestAuth.withAuthMiddleware(this,
 				this._achievementsController.completeAchievementStep));
 

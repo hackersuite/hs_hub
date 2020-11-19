@@ -29,30 +29,30 @@ export class ScheduleRouter implements RouterInterface {
 		/**
      * POST /schedule/create
      */
-		router.post('/create', 
-			this._requestAuth.withAuthMiddleware(this, 
+		router.post('/create',
+			this._requestAuth.withAuthMiddleware(this,
 				this._scheduleController.createEvent));
 
 		/**
      * POST /schedule/delete
      */
-		router.delete('/delete', 
-			this._requestAuth.withAuthMiddleware(this, 
+		router.delete('/delete',
+			this._requestAuth.withAuthMiddleware(this,
 				this._scheduleController.deleteEvent));
 
 		/**
      * POST /schedule/update
      */
-		router.put('/update', 
-			this._requestAuth.withAuthMiddleware(this, 
+		router.put('/update',
+			this._requestAuth.withAuthMiddleware(this,
 				this._scheduleController.updateEvent));
 
 		/**
      * GET /schedule/
      */
-		router.get('/', 
-			this._requestAuth.withAuthMiddleware(this, 
-					this._scheduleController.listEvents));
+		router.get('/',
+			this._requestAuth.withAuthMiddleware(this,
+				this._scheduleController.listEvents));
 
 		return router;
 	}
