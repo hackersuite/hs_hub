@@ -1,10 +1,10 @@
 $(document).ready(function () {
     // Check every 20 seconds
-    // setInterval(function () {
-    //   checkTwitchStatus();
-    // }, 1000 * 20);
+    setInterval(function () {
+      checkTwitchStatus();
+    }, 1000 * 20);
     // Perform first update
-    // checkTwitchStatus();
+    checkTwitchStatus();
     // Add countries to modal select
     for (const country of countries) {
       if (country["alpha-2"] == "GB") {
