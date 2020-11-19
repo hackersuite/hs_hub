@@ -4,26 +4,26 @@ import { Cacheable } from '../../util/cache';
 @Entity()
 export class MapLocation implements Cacheable {
 	@PrimaryGeneratedColumn()
-	id!: number;
+	public id!: number;
 
 	@Column()
-	createdAt: string;
+	public createdAt: string;
 
 	@Column('point')
 	// Typeorm handles in the "well-known text" format
 	// POINT (10 30)
-	latLng: string;
+	public latLng: string;
 
 	@Column('varchar')
-	placeName: string;
+	public placeName: string;
 
 	// Expires in 5 minutes
-	expiresIn = 60000;
+	public expiresIn = 60000;
 
 	/**
    * Creates new Location object
    */
-	constructor(lat: number, lng: number, placeName: string) {
+	public constructor(lat: number, lng: number, placeName: string) {
 		this.createdAt = String(Date.now());
 		this.latLng = `POINT(${lat} ${lng})`;
 		this.placeName = placeName;

@@ -1,6 +1,6 @@
 import { Request, Response, CookieOptions } from 'express';
 import { NextFunction } from 'connect';
-import { injectable, inject } from 'inversify';
+import { injectable } from 'inversify';
 import { createVerificationHmac, linkAccount } from '@unicsmcr/hs_discord_bot_api_client';
 
 export interface UserControllerInterface {
@@ -12,13 +12,10 @@ export interface UserControllerInterface {
  */
 @injectable()
 export class UserController implements UserControllerInterface {
-	public constructor() {
-	}
-
 	/**
    * Gets the profile page for the currently logged in user
    */
-	public profile = async (req: Request, res: Response) => {
+	public profile = (req: Request, res: Response) => {
 		let profileCookieOptions: CookieOptions|undefined = undefined;
 		if (req.app.get('env') === 'production') {
 			profileCookieOptions = {
@@ -35,7 +32,7 @@ export class UserController implements UserControllerInterface {
 			.redirect(process.env.AUTH_URL ?? '');
 	};
 
-	public discordJoin = async (req: Request, res: Response) => {
+	public discordJoin = (req: Request, res: Response) => {
 		const state = createVerificationHmac(req.user.id, process.env.DISCORD_HMAC_KEY ?? '');
 		const discordURL =
       `https://discordapp.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT_ID ?? ''}` +

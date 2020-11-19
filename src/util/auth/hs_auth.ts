@@ -9,8 +9,8 @@ import { AuthApi, User } from '@unicsmcr/hs_auth_client';
 import { RouterInterface } from '../../routes';
 
 const AUTH_COOKIE = 'Authorization';
-const HS_AUTH = process.env.AUTH_URL;
-const HS_HUB = process.env.HUB_URL;
+const HS_AUTH = process.env.AUTH_URL ?? '';
+const HS_HUB = process.env.HUB_URL ?? '';
 
 export interface RequestAuthenticationV2Interface {
 	passportSetup(app: Express): void;

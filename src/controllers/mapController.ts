@@ -18,7 +18,7 @@ export class MapController implements MapControllerInterface {
 	private readonly cache: Cache;
 	private readonly mapService: MapService;
 
-	constructor(@inject(TYPES.Cache) _cache: Cache, @inject(TYPES.MapService) _mapService: MapService) {
+	public constructor(@inject(TYPES.Cache) _cache: Cache, @inject(TYPES.MapService) _mapService: MapService) {
 		this.cache = _cache;
 		this.mapService = _mapService;
 	}

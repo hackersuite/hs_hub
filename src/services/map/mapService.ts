@@ -15,7 +15,7 @@ export interface MapServiceInterface {
 export class MapService {
 	private readonly mapRepository: Repository<MapLocation>;
 
-	constructor(@inject(TYPES.MapRepository) _mapRepository: MapRepository) {
+	public constructor(@inject(TYPES.MapRepository) _mapRepository: MapRepository) {
 		this.mapRepository = _mapRepository.getRepository();
 	}
 

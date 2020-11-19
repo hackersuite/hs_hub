@@ -1,5 +1,3 @@
-import { AuthApi } from '@unicsmcr/hs_auth_client';
-
 export const TYPES = {
 	Router: Symbol.for('Router'),
 
