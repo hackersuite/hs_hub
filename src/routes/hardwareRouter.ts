@@ -26,106 +26,106 @@ export class HardwareRouter implements RouterInterface {
 		/**
      * GET /hardware
      */
-		router.get('/', 
-			this._requestAuth.withAuthMiddleware(this, 
+		router.get('/',
+			this._requestAuth.withAuthMiddleware(this,
 				this._hardwareController.library));
 
 		/**
      * POST /hardware
      */
-		router.post('/',  
-			this._requestAuth.withAuthMiddleware(this, 
+		router.post('/',
+			this._requestAuth.withAuthMiddleware(this,
 				this._hardwareController.addItem));
 
 		/**
      * GET /hardware/loancontrols
      */
-		router.get('/loancontrols',  
-			this._requestAuth.withAuthMiddleware(this, 
+		router.get('/loancontrols',
+			this._requestAuth.withAuthMiddleware(this,
 				this._hardwareController.loanControls));
 
 		/**
      * GET /hardware/management
      */
-		router.get('/management',  
-			this._requestAuth.withAuthMiddleware(this, 
+		router.get('/management',
+			this._requestAuth.withAuthMiddleware(this,
 				this._hardwareController.management));
 
 		/**
      * GET /hardware/add
      */
-		router.get('/add',  
-			this._requestAuth.withAuthMiddleware(this, 
+		router.get('/add',
+			this._requestAuth.withAuthMiddleware(this,
 				this._hardwareController.addPage));
 
 		/**
      * POST /hardware/reserve
      */
-		// router.post('/reserve',  
-		// 	this._requestAuth.withAuthMiddleware(this, 
+		// router.post('/reserve',
+		// 	this._requestAuth.withAuthMiddleware(this,
 		// 		this._hardwareController.reserve));
 
 		/**
      * POST /hardware/cancelReservation
      */
-		// router.post('/cancelReservation',  
-		// 	this._requestAuth.withAuthMiddleware(this, 
+		// router.post('/cancelReservation',
+		// 	this._requestAuth.withAuthMiddleware(this,
 		// 		this._hardwareController.cancelReservation));
 
 		/**
      * POST /hardware/take
      */
-		router.post('/take',  
-			this._requestAuth.withAuthMiddleware(this, 
+		router.post('/take',
+			this._requestAuth.withAuthMiddleware(this,
 				this._hardwareController.take));
 
 		/**
      * POST /hardware/return
      */
-		router.post('/return',  
-			this._requestAuth.withAuthMiddleware(this, 
+		router.post('/return',
+			this._requestAuth.withAuthMiddleware(this,
 				this._hardwareController.return));
 
 		/**
      * POST /hardware/addItems
      */
-		router.post('/addItems',  
-			this._requestAuth.withAuthMiddleware(this, 
+		router.post('/addItems',
+			this._requestAuth.withAuthMiddleware(this,
 				this._hardwareController.addAllItems));
 
 		/**
      * GET /hardware/allItems
      */
-		router.get('/allItems',   
-			this._requestAuth.withAuthMiddleware(this, 
+		router.get('/allItems',
+			this._requestAuth.withAuthMiddleware(this,
 				this._hardwareController.getAllItems));
 
 		/**
      * GET /hardware/reservation
      */
-		router.get('/reservation/:token',   
-			this._requestAuth.withAuthMiddleware(this, 
+		router.get('/reservation/:token',
+			this._requestAuth.withAuthMiddleware(this,
 				this._hardwareController.getReservation));
 
 		/**
      * GET /hardware/reservations
      */
-		router.get('/reservations',  
-			this._requestAuth.withAuthMiddleware(this, 
+		router.get('/reservations',
+			this._requestAuth.withAuthMiddleware(this,
 				this._hardwareController.getAllReservations));
 
 		/**
      * PUT /hardware/:id
      */
-		router.put('/:id',   
-			this._requestAuth.withAuthMiddleware(this, 
+		router.put('/:id',
+			this._requestAuth.withAuthMiddleware(this,
 				this._hardwareController.updateItem));
 
 		/**
      * DELETE /hardware/:id
      */
-		router.delete('/:id',   
-			this._requestAuth.withAuthMiddleware(this, 
+		router.delete('/:id',
+			this._requestAuth.withAuthMiddleware(this,
 				this._hardwareController.deleteItem));
 
 		return router;

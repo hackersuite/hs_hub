@@ -14,7 +14,6 @@ export class ChallengeRouter implements RouterInterface {
 		@inject(TYPES.RequestAuthenticationV2) requestAuth: RequestAuthenticationV2) {
 		this._challengeController = challengeController;
 		this._requestAuth = requestAuth;
-
 	}
 
 	public getPathRoot(): string {
@@ -27,21 +26,21 @@ export class ChallengeRouter implements RouterInterface {
 		/**
      * GET /challenges/all
      */
-		router.get('/all', 
-			this._requestAuth.withAuthMiddleware(this, 
+		router.get('/all',
+			this._requestAuth.withAuthMiddleware(this,
 				this._challengeController.listChallenges));
 
 		/**
      * POST /challenges/create
      */
-		router.post('/create', 			
-			this._requestAuth.withAuthMiddleware(this, 
-			this._challengeController.createChallenge));
+		router.post('/create',
+			this._requestAuth.withAuthMiddleware(this,
+				this._challengeController.createChallenge));
 
 		/**
      * PUT /challenges/update
      */
-		router.put('/update', 
+		router.put('/update',
 			this._requestAuth.withAuthMiddleware(this,
 				this._challengeController.updateChallenge));
 
@@ -49,7 +48,7 @@ export class ChallengeRouter implements RouterInterface {
      * DELETE /challenges/delete
      */
 		router.delete('/delete',
-			this._requestAuth.withAuthMiddleware(this, 
+			this._requestAuth.withAuthMiddleware(this,
 				this._challengeController.deleteChallenge));
 
 		return router;

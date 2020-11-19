@@ -44,9 +44,9 @@ import { UserRepository, EventRepository, AnnouncementRepository, AchievementPro
 import { LocalAchievementsRepository, localAchievements } from './util/achievements';
 
 // Map
-import { MapController, MapControllerInterface } from "./controllers/mapController";
-import { MapRouter } from "./routes/mapRouter";
-import { MapService, MapServiceInterface } from "./services/map";
+import { MapController, MapControllerInterface } from './controllers/mapController';
+import { MapRouter } from './routes/mapRouter';
+import { MapService, MapServiceInterface } from './services/map';
 
 const container = new Container();
 
@@ -109,6 +109,6 @@ container.bind<MapRepository>(TYPES.MapRepository).to(MapRepository);
 container.bind<RequestAuthenticationV2Interface>(TYPES.RequestAuthenticationV2).to(RequestAuthenticationV2);
 // Constants
 container.bind<CacheInterface>(TYPES.Cache).toConstantValue(new Cache());
-container.bind<AuthApiInterface>(TYPES.AuthApi).toConstantValue(new AuthApi("hs_hub"))
+container.bind<AuthApiInterface>(TYPES.AuthApi).toConstantValue(new AuthApi('hs_hub'));
 
 export default container;

@@ -4,11 +4,11 @@ import querystring from 'querystring';
 import { injectable, inject } from 'inversify';
 import CookieStrategy from 'passport-cookie';
 
-import { TYPES } from '../../types'; 
+import { TYPES } from '../../types';
 import { AuthApi, User } from '@unicsmcr/hs_auth_client';
 import { RouterInterface } from '../../routes';
 
-const AUTH_COOKIE = "Authorization";
+const AUTH_COOKIE = 'Authorization';
 const HS_AUTH = process.env.AUTH_URL;
 const HS_HUB = process.env.HUB_URL;
 
@@ -24,18 +24,16 @@ type ExpressOpHandlerFunction = (req: Request, res: Response, next: NextFunction
 
 @injectable()
 export class RequestAuthenticationV2 {
-  private readonly _authApi: AuthApi;
+	private readonly _authApi: AuthApi;
 
 	public constructor(
-    @inject(TYPES.AuthApi) authApi: AuthApi
-    ) {
-      this._authApi = authApi;
-    }
+	@inject(TYPES.AuthApi) authApi: AuthApi
+	) {
+		this._authApi = authApi;
+	}
 
 	private logout(app: Express): void {
-		app.get('/logout', (req: Request, res: Response) => {
-			return res.redirect(`${HS_AUTH}/logout`);
-		});
+		app.get('/logout', (req: Request, res: Response) => res.redirect(`${HS_AUTH}/logout`));
 	}
 
 	public passportSetup(app: Express): void {
@@ -63,8 +61,8 @@ export class RequestAuthenticationV2 {
 			)
 		);
 	}
-  
-  private authenticate(req: Request, res: Response): Promise<User> {
+
+	private authenticate(req: Request, res: Response): Promise<User> {
 		return new Promise((resolve, reject) => {
 			passport.authenticate('cookie', { session: false }, (err: any, user?: User) => {
 				if (err) reject(new Error(err));
@@ -76,14 +74,14 @@ export class RequestAuthenticationV2 {
 
 	public withAuthMiddleware(router: RouterInterface, operationHandler: ExpressOpHandlerFunction): AuthMiddlewareFunction<unknown> {
 		return async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
-      const userAuth = this.authenticate(req, res);
+			const userAuth = this.authenticate(req, res);
 
 			const requestedUri = this.getUriFromRequest(router, operationHandler, req);
-      const resourceAuth = this._authApi.getAuthorizedResources(this.getUserAuthToken(req), [requestedUri]);
-      
+			const resourceAuth = this._authApi.getAuthorizedResources(this.getUserAuthToken(req), [requestedUri]);
+
 
 			try {
-        const [user, permissions] = await Promise.all([userAuth, resourceAuth]);
+				const [user, permissions] = await Promise.all([userAuth, resourceAuth]);
 				if (permissions.length === 0) {
 					return this.handleUnauthorized(req, res);
 				}

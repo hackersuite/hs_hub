@@ -30,16 +30,16 @@ export class UserRouter implements RouterInterface {
 	 * GET /user/profile
 	 */
 		router.get('/profile',
-			this._requestAuth.withAuthMiddleware(this, 
+			this._requestAuth.withAuthMiddleware(this,
 				this._userController.profile));
 
 		router.get('/join_discord',
 			this._requestAuth.withAuthMiddleware(this,
-				this._userController.discordJoin)); 
+				this._userController.discordJoin));
 
 		router.get('/discord_authentication',
-		this._requestAuth.withAuthMiddleware(this,
-			this._userController.discordAuth));
+			this._requestAuth.withAuthMiddleware(this,
+				this._userController.discordAuth));
 
 		return router;
 	}

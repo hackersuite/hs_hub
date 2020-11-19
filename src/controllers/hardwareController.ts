@@ -34,7 +34,7 @@ export class HardwareController implements HardwareControllerInterface {
 	private readonly _reservedHardwareService: ReservedHardwareService;
 	public constructor(
 	@inject(TYPES.HardwareService) hardwareService: HardwareService,
-		@inject(TYPES.ReservedHardwareService) reservedHardwareService: ReservedHardwareService,
+		@inject(TYPES.ReservedHardwareService) reservedHardwareService: ReservedHardwareService
 	) {
 		this._hardwareService = hardwareService;
 		this._reservedHardwareService = reservedHardwareService;

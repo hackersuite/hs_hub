@@ -33,7 +33,6 @@ export class UserController implements UserControllerInterface {
 			? res.cookie('ReturnTo', process.env.HUB_URL, profileCookieOptions)
 			: res.cookie('ReturnTo', process.env.HUB_URL))
 			.redirect(process.env.AUTH_URL ?? '');
-
 	};
 
 	public discordJoin = async (req: Request, res: Response) => {

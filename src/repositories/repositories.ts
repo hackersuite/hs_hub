@@ -54,8 +54,7 @@ export class AchievementProgressRepository extends BaseRepository<AchievementPro
 
 @injectable()
 export class MapRepository extends BaseRepository<MapLocation> {
-  public getRepository(): Repository<MapLocation> {
-    return super.connect(MapLocation);
-  }
-
+	public getRepository(): Repository<MapLocation> {
+		return super.connect(MapLocation);
+	}
 }
