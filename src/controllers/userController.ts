@@ -1,9 +1,9 @@
-import axios from "axios";
+import axios from 'axios';
 import { Request, Response, CookieOptions } from 'express';
 import { NextFunction } from 'connect';
 import { inject, injectable } from 'inversify';
 import { createVerificationHmac, linkAccount } from '@unicsmcr/hs_discord_bot_api_client';
-import { Cache, Cacheable } from '../util/cache';
+import { Cache } from '../util/cache';
 import { TYPES } from '../types';
 import { HttpResponseCode } from '../util/errorHandling';
 
@@ -61,36 +61,35 @@ export class UserController implements UserControllerInterface {
 	};
 
 	public twitchStatus = async (req: Request, res: Response) => {
-		const twitchCache = "twitch_status";
+		const twitchCache = 'twitch_status';
 		const twitchStatus: any = this._cache.getAll(twitchCache);
 	
 		// Use the stream status from cache
 		if (twitchStatus && twitchStatus.length > 0) {
-		  res.send(twitchStatus[0]["isOnline"]);
-		  return;
+		  res.send(twitchStatus[0]['isOnline']);	
 		} else {
 		  // Get the most up to date stream status
 		  let response;
 		  try {
-			response = await axios.get("https://api.twitch.tv/helix/streams", {
-			  headers: {
-				"Client-ID": process.env.TWITCH_CLIENT_ID,
-				"Authorization": "Bearer " + process.env.TWITCH_TOKEN
-			  },
-			  params: {
-				user_login: "greatunihack"
-			  }
+				response = await axios.get('https://api.twitch.tv/helix/streams', {
+			  	headers: {
+					'Client-ID': process.env.TWITCH_CLIENT_ID,
+					'Authorization': 'Bearer ' + process.env.TWITCH_TOKEN
+			  	},
+			  	params: {
+					user_login: 'greatunihack'
+			  	}
 			});
 		  } catch (err) {
-			res.status(HttpResponseCode.INTERNAL_ERROR).send("Failed to get twitch status");
+			res.status(HttpResponseCode.INTERNAL_ERROR).send('Failed to get twitch status');
 			return;
 		  }
 		  const obj: any = {
 			id: 1,
 			expiresIn: 1000 * 60
 		  };
-		  const streamOnline = response.data.data && response.data.data.length > 0 && response.data.data[0].type === "live";
-		  obj["isOnline"] = streamOnline;
+		  const streamOnline = response.data.data && response.data.data.length > 0 && response.data.data[0].type === 'live';
+		  obj['isOnline'] = streamOnline;
 		  this._cache.set(twitchCache, obj);
 	
 		  res.send(streamOnline);
