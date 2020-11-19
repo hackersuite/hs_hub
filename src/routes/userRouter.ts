@@ -41,6 +41,11 @@ export class UserRouter implements RouterInterface {
 			this._requestAuth.withAuthMiddleware(this,
 				this._userController.discordAuth));
 
+		router.get('/twitch',
+			this._requestAuth.withAuthMiddleware(this,
+				this._userController.twitchStatus));
+	
+
 		return router;
 	}
 }

@@ -16,6 +16,9 @@
 
       <div class="content">
         <div class="container-fluid">
+          <div id="twitch-player" class="text-center" style="display: none;">
+            <iframe src="https://player.twitch.tv/?channel=greatunihack&parent=hub.greatunihack.com" frameborder="0" allowfullscreen="true" scrolling="no" height="378" width="620"></iframe>
+          </div>
           <div class="row">
             <!-- TIMER -->
             <div class="col-xl-3 col-lg-12">
@@ -29,6 +32,24 @@
               </div>
             </div>
             <!-- USEFUL LINKS -->
+            <div class="col-xl-3 col-lg-4 col-sm-6">
+              <a href="https://twitch.com/greatunihack" target="_blank" rel="noopener noreferrer">
+                <div class="card card-stats">
+                  <div class="card-header card-header-primary card-header-icon">
+                    <div class="card-icon">
+                      <i class="fab fa-twitch"></i>
+                    </div>
+                    <p class="card-category">Ceremonies</p>
+                    <h3 class="card-title">Twitch
+                    </h3>
+                  </div>
+                  <div class="card-footer">
+                    <div id="twitch-status-container" class="twitch-status">
+                    </div>
+                  </div>
+                </div>
+              </a>
+            </div>
             <div class="col-xl-3 col-lg-4 col-sm-6">
               <a href="https://join.slack.com/t/guh2019/shared_invite/enQtODEwOTExMDcyMzg4LTU1MDlmMDMzYTU3NTJiODE4MWFkZDlkYWUxMzM1OTYyNjYwMmZjNjA3NmE0NGMzZjhiYjI0ZjRlODIzOTY1ZjA" target="_blank" rel="noopener noreferrer">
                 <div class="card card-stats">
