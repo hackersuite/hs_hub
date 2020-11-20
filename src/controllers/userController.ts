@@ -6,6 +6,10 @@ import { createVerificationHmac, linkAccount } from '@unicsmcr/hs_discord_bot_ap
 import { Cache } from '../util/cache';
 import { TYPES } from '../types';
 import { HttpResponseCode } from '../util/errorHandling';
+import { UserContactDetailsService } from '../services/userContactDetails';
+import { MapService } from '../services/map';
+import { User } from '@unicsmcr/hs_auth_client';
+import { MapLocation, UserContactDetails } from '../db/entity';
 
 export interface UserControllerInterface {
 	profile: (req: Request, res: Response, next: NextFunction) => void;
@@ -17,15 +21,23 @@ export interface UserControllerInterface {
 @injectable()
 export class UserController implements UserControllerInterface {
 	private readonly _cache: Cache;
+	private readonly _contactDetailsService: UserContactDetailsService;
+	private readonly _mapService: MapService;
 
-	public constructor(@inject(TYPES.Cache) cache: Cache) {
+	public constructor(
+		@inject(TYPES.Cache) cache: Cache,
+		@inject(TYPES.UserContactDetailsService) contactDetailsService: UserContactDetailsService,
+		@inject(TYPES.MapService) mapService: MapService
+	) {
 		this._cache = cache;
+		this._contactDetailsService = contactDetailsService;
+		this._mapService = mapService;
 	}
 
 	/**
    * Gets the profile page for the currently logged in user
    */
-	public profile = (req: Request, res: Response) => {
+	public profile = async (req: Request, res: Response) => {
 		let profileCookieOptions: CookieOptions|undefined = undefined;
 		if (req.app.get('env') === 'production') {
 			profileCookieOptions = {
@@ -42,7 +54,7 @@ export class UserController implements UserControllerInterface {
 			.redirect(process.env.AUTH_URL ?? '');
 	};
 
-	public discordJoin = (req: Request, res: Response) => {
+	public discordJoin = async (req: Request, res: Response) => {
 		const state = createVerificationHmac(req.user.id, process.env.DISCORD_HMAC_KEY ?? '');
 		const discordURL =
       `https://discordapp.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT_ID ?? ''}` +
@@ -63,7 +75,7 @@ export class UserController implements UserControllerInterface {
 	public twitchStatus = async (req: Request, res: Response) => {
 		const twitchCache = 'twitch_status';
 		const twitchStatus: any = this._cache.getAll(twitchCache);
-	
+
 		// Use the stream status from cache
 		if (twitchStatus && twitchStatus.length > 0) {
 		  res.send(twitchStatus[0]['isOnline']);	
@@ -89,10 +101,34 @@ export class UserController implements UserControllerInterface {
 			expiresIn: 1000 * 60
 		  };
 		  const streamOnline = response.data.data && response.data.data.length > 0 && response.data.data[0].type === 'live';
-		  obj['isOnline'] = streamOnline;
+		  obj.isOnline = streamOnline;
 		  this._cache.set(twitchCache, obj);
-	
+
 		  res.send(streamOnline);
 		}
 	  };
+
+	  public intro = async (req: Request, res: Response) => {
+		const contactDetails: UserContactDetails = new UserContactDetails();
+		contactDetails.userId = (req.user as User).id;
+		contactDetails.phone = req.body.phone;
+		contactDetails.addr1 = req.body.addrline1;
+		contactDetails.addr2 = req.body.addrline2;
+		contactDetails.addr3 = req.body.addrline3;
+		contactDetails.city = req.body.city;
+		contactDetails.spr = req.body.spr;
+		contactDetails.zip = req.body.zip;
+		contactDetails.country = req.body.country;
+		contactDetails.tshirt = req.body.tshirt;
+	
+		try {
+		  await this._contactDetailsService.save(contactDetails);
+		  await this._mapService.add(req.body.city, req.body.country);
+		  this._cache.deleteAll(MapLocation.name);
+		} catch (err) {
+		  res.status(HttpResponseCode.INTERNAL_ERROR).send("Failed");
+		  return;
+		}
+		res.send("Done");
+	};
 }

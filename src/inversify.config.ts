@@ -40,13 +40,14 @@ import { AchievementsService, AchievementsServiceInterface, AchievementsProgress
 
 // Events
 import { EventService, EventServiceInterface } from './services/events';
-import { UserRepository, EventRepository, AnnouncementRepository, AchievementProgressRepository, ChallengeRepository, MapRepository } from './repositories';
+import { UserRepository, EventRepository, AnnouncementRepository, AchievementProgressRepository, ChallengeRepository, MapRepository, UserContactDetailsRepository } from './repositories';
 import { LocalAchievementsRepository, localAchievements } from './util/achievements';
 
 // Map
 import { MapController, MapControllerInterface } from './controllers/mapController';
 import { MapRouter } from './routes/mapRouter';
 import { MapService, MapServiceInterface } from './services/map';
+import { UserContactDetailsService, UserContactDetailsServiceInterface } from './services/userContactDetails';
 
 const container = new Container();
 
@@ -67,6 +68,8 @@ container.bind<HomeControllerInterface>(TYPES.HomeController).to(HomeController)
 container.bind<UserControllerInterface>(TYPES.UserController).to(UserController);
 container.bind<UserServiceInterface>(TYPES.UserService).to(UserService);
 container.bind<UserRepository>(TYPES.UserRepository).to(UserRepository);
+container.bind<UserContactDetailsServiceInterface>(TYPES.UserContactDetailsService).to(UserContactDetailsService);
+container.bind<UserContactDetailsRepository>(TYPES.UserContactDetailsRepository).to(UserContactDetailsRepository);
 
 // Schedule
 container.bind<ScheduleControllerInterface>(TYPES.ScheduleController).to(ScheduleController);

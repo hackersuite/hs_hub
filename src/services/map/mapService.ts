@@ -26,7 +26,7 @@ export class MapService {
 			await axios.get('http://api.positionstack.com/v1/forward', {
 				params: {
 					access_key: process.env.POSITIONSTACK_API_KEY,
-					query: `${city} ${country}`,
+					query: `${city}, ${country}`,
 					limit: 1
 				}
 			})
@@ -35,7 +35,7 @@ export class MapService {
 		if (result.data[0]) {
 			const lat = result.data[0].latitude;
 			const lng = result.data[0].longitude;
-			const newLocation: MapLocation = new MapLocation(lat, lng, city);
+			const newLocation: MapLocation = new MapLocation(lat, lng, result.data[0].name);
 			try {
 				await this.mapRepository.save(newLocation);
 			} catch (err) {

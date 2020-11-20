@@ -6,3 +6,4 @@ export * from './challenge';
 export * from './event';
 export * from './announcement';
 export * from './mapLocation';
+export * from './userContactDetails';

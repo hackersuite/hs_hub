@@ -1,4 +1,4 @@
-import { User, HardwareItem, ReservedHardwareItem, Event as HubEvent, Challenge, Announcement, AchievementProgress, MapLocation } from '../db/entity';
+import { User, HardwareItem, ReservedHardwareItem, Event as HubEvent, Challenge, Announcement, AchievementProgress, MapLocation, UserContactDetails } from '../db/entity';
 import { BaseRepository } from './baseRepository';
 import { injectable } from 'inversify';
 import { Repository } from 'typeorm';
@@ -56,5 +56,12 @@ export class AchievementProgressRepository extends BaseRepository<AchievementPro
 export class MapRepository extends BaseRepository<MapLocation> {
 	public getRepository(): Repository<MapLocation> {
 		return super.connect(MapLocation);
+	}
+}
+
+@injectable()
+export class UserContactDetailsRepository extends BaseRepository<UserContactDetails> {
+	public getRepository(): Repository<UserContactDetails> {
+		return super.connect(UserContactDetails);
 	}
 }
