@@ -130,4 +130,5 @@ export class UserController implements UserControllerInterface {
 		  return;
 		}
 		res.send("Done");
-	
+	};
+}
