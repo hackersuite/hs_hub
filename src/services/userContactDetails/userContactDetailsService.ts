@@ -19,7 +19,7 @@ export class UserContactDetailsService implements UserContactDetailsServiceInter
 	}
 
     public getContactDetailsForUser = async (userId: string): Promise<UserContactDetails|undefined> =>  {
-        return await this.contactDetailsRepo.findOne(userId);
+        return this.contactDetailsRepo.findOne(userId);
     }
 
     public save = async (details: UserContactDetails): Promise<void> =>  {

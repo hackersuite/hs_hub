@@ -22,13 +22,12 @@ export interface UserControllerInterface {
 export class UserController implements UserControllerInterface {
 	private readonly _cache: Cache;
 	private readonly _contactDetailsService: UserContactDetailsService;
-	private readonly _mapService: MapService; 
+	private readonly _mapService: MapService;
 
 	public constructor(
-		@inject(TYPES.Cache) cache: Cache,
-		@inject(TYPES.UserContactDetailsService) contactDetailsService: UserContactDetailsService,
-		@inject(TYPES.MapService) mapService: MapService
-	) {
+	@inject(TYPES.Cache) cache: Cache,
+	@inject(TYPES.UserContactDetailsService) contactDetailsService: UserContactDetailsService,
+	@inject(TYPES.MapService) mapService: MapService) {
 		this._cache = cache;
 		this._contactDetailsService = contactDetailsService;
 		this._mapService = mapService;
