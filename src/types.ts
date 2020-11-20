@@ -20,6 +20,7 @@ export const TYPES = {
 	AchievementsProgressService: Symbol.for('AchievementsProgressService'),
 	EventService: Symbol.for('EventService'),
 	MapService: Symbol.for('MapService'),
+	UserContactDetailsService: Symbol.for('UserContactDetailsService'),
 
 	UserRepository: Symbol.for('UserRepository'),
 	HardwareRepository: Symbol.for('HardwareRepository'),
@@ -30,6 +31,7 @@ export const TYPES = {
 	LocalAchievementsRepository: Symbol.for('LocalAchievementsRepository'),
 	AchievementsProgressRepository: Symbol.for('AchievementsProgressRepository'),
 	MapRepository: Symbol.for('MapRepository'),
+	UserContactDetailsRepository: Symbol.for('UserContactDetailsRepository'),
 
 	RequestAuthentication: Symbol.for('RequestAuthentication'),
 	RequestAuthenticationV2: Symbol.for('RequestAuthenticationV2'),

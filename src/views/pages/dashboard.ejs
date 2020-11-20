@@ -15,6 +15,106 @@
     <div class="main-panel">
 
       <div class="content">
+        <!-- Model for website introduction -->
+        <div id="introModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Participant Address</h5>
+            </div>
+            <div class="modal-body">
+              <form id="beforestartform" class="form" method="" action="">
+                <div class="card-body">
+                  Please enter your details so we can send you prizes!
+
+                  <div class="form-group bmd-form-group">
+                    <div class="input-group">
+                      <label class="form-check-label" for="phone">Phone Number: <span class="red">*</span></label>
+                      <input id="phone" type="text" name="phone" class="form-control" placeholder="" required>
+                    </div>
+                  </div>
+
+                  <div class="form-group bmd-form-group">
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                      </div>
+                      <label class="form-check-label" for="tshirt">T-Shirt Size (Unisex): <span class="red">*</span></label>
+                      <select id="tshirt" name="tshirt" class="form-control" required>
+                        <option value="xs">XS</option>
+                        <option value="s">S</option>
+                        <option value="m">M</option>
+                        <option value="l">L</option>
+                        <option value="xl">XL</option>
+                        <option value="xxl">XXL</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="form-group bmd-form-group">
+                    <div class="input-group">
+                      <label class="form-check-label" for="addrline1">Address line 1: <span class="red">*</span></label>
+                      <input id="addrline1" type="text" name="addrline1" class="form-control" placeholder="" required>
+                    </div>
+                  </div>
+
+                  <div class="form-group bmd-form-group">
+                    <div class="input-group">
+                      <label class="form-check-label" for="addrline1">Address line 2: </label>
+                      <input id="addrline2" type="text" name="addrline2" class="form-control" placeholder="">
+                    </div>
+                  </div>
+
+                  <div class="form-group bmd-form-group">
+                    <div class="input-group">
+                      <label class="form-check-label" for="addrline1">Address line 3: </label>
+                      <input id="addrline3" type="text" name="addrline3" class="form-control" placeholder="">
+                    </div>
+                  </div>
+
+                  <div class="form-group bmd-form-group">
+                    <div class="input-group">
+                      <label class="form-check-label" for="city">City / Town: <span class="red">*</span></label>
+                      <input type="text" name="city" class="form-control" placeholder="" required>
+                    </div>
+                  </div>
+
+                  <div class="form-group bmd-form-group">
+                    <div class="input-group">
+                      <label class="form-check-label" for="spr">State / Province / Region: </label>
+                      <input type="text" name="spr" class="form-control" placeholder="">
+                    </div>
+                  </div>
+
+                  <div class="form-group bmd-form-group">
+                    <div class="input-group">
+                      <label class="form-check-label" for="zip">ZIP / Postal Code: <span class="red">*</span></label>
+                      <input type="text" name="zip" class="form-control" placeholder="" required>
+                    </div>
+                  </div>
+
+                  <div class="form-group bmd-form-group">
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                      </div>
+                      <select id="countrySelect" name="country" class="form-control" required>
+                      </select>
+                    </div>
+                  </div>
+
+                  
+                </div>
+                <p id="error-msg" class="red" style="display: none;">Please fill in all the fields</p>
+              </form>
+            </div>
+
+            <div class="modal-footer justify-content-center">
+              <a href="javascript:sendUserIntroForm()" class="btn btn-primary btn-link btn-wd btn-lg">Submit</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
         <div class="container-fluid">
           <div id="twitch-player" class="text-center" style="display: none;">
             <iframe src="https://player.twitch.tv/?channel=greatunihack&parent=hub.greatunihack.com" frameborder="0" allowfullscreen="true" scrolling="no" height="378" width="620"></iframe>
@@ -335,6 +435,15 @@
     <script src="/js/plugins/jvectormap.min.js"></script>
     <script src="https://jvectormap.com/js/jquery-jvectormap-world-mill.js"></script>
     <script src="/js/locationmap.js"></script>
+    <script>
+      var needIntro = <%- shouldShowIntro %>;
+      if (needIntro) {
+        $('#introModal').modal({
+          backdrop: 'static',
+          keyboard: false
+        });
+      }
+    </script>
 </body>
 
 </html>

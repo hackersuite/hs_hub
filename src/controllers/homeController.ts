@@ -6,6 +6,8 @@ import { EventService } from '../services/events';
 import { ChallengeService } from '../services/challenges';
 import { injectable, inject } from 'inversify';
 import { TYPES } from '../types';
+import { User } from '@unicsmcr/hs_auth_client';
+import { UserContactDetailsService } from '../services/userContactDetails/userContactDetailsService';
 
 export interface HomeControllerInterface {
 	dashboard: (req: Request, res: Response, next: NextFunction) => Promise<void>;
@@ -23,16 +25,20 @@ export class HomeController implements HomeControllerInterface {
 	private readonly _announcementService: AnnouncementService;
 	private readonly _eventService: EventService;
 	private readonly _challengeService: ChallengeService;
+	private readonly _contactDetailsService: UserContactDetailsService;
+
 	public constructor(
 	@inject(TYPES.Cache) cache: Cache,
 		@inject(TYPES.AnnouncementService) announcementService: AnnouncementService,
 		@inject(TYPES.EventService) eventService: EventService,
-		@inject(TYPES.ChallengeService) challengeService: ChallengeService
+		@inject(TYPES.ChallengeService) challengeService: ChallengeService,
+		@inject(TYPES.UserContactDetailsService) contactDetailsService: UserContactDetailsService
 	) {
 		this._cache = cache;
 		this._announcementService = announcementService;
 		this._eventService = eventService;
 		this._challengeService = challengeService;
+		this._contactDetailsService = contactDetailsService;
 	}
 
 	public dashboard = async (req: Request, res: Response) => {
@@ -43,7 +49,9 @@ export class HomeController implements HomeControllerInterface {
 		}
 		const announcements: Announcement[] = await this._announcementService.getMostRecentAnnouncements(5);
 
-		res.render('pages/dashboard', { events, announcements });
+		const shouldShowIntro: boolean = await this._contactDetailsService.getContactDetailsForUser((req.user as User).id) === undefined;
+
+		res.render('pages/dashboard', { events, announcements, shouldShowIntro });
 	};
 
 	public challenges = async (req: Request, res: Response) => {
@@ -51,7 +59,7 @@ export class HomeController implements HomeControllerInterface {
 		res.render('pages/challenges', { challenges: challenges });
 	};
 
-	public contacts = (req: Request, res: Response) => {
+	public contacts = async (req: Request, res: Response) => {
 		res.render('pages/contacts');
 	};
 }

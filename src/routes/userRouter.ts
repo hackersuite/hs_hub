@@ -44,7 +44,10 @@ export class UserRouter implements RouterInterface {
 		router.get('/twitch',
 			this._requestAuth.withAuthMiddleware(this,
 				this._userController.twitchStatus));
-	
+
+		router.post("/intro",
+			this._requestAuth.withAuthMiddleware(this,
+				this._userController.intro));
 
 		return router;
 	}
