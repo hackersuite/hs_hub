@@ -25,9 +25,10 @@ export class UserController implements UserControllerInterface {
 	private readonly _mapService: MapService;
 
 	public constructor(
-	@inject(TYPES.Cache) cache: Cache,
-	@inject(TYPES.UserContactDetailsService) contactDetailsService: UserContactDetailsService,
-	@inject(TYPES.MapService) mapService: MapService) {
+		@inject(TYPES.Cache) cache: Cache,
+		@inject(TYPES.UserContactDetailsService) contactDetailsService: UserContactDetailsService,
+		@inject(TYPES.MapService) mapService: MapService
+	) {
 		this._cache = cache;
 		this._contactDetailsService = contactDetailsService;
 		this._mapService = mapService;
@@ -74,7 +75,7 @@ export class UserController implements UserControllerInterface {
 	public twitchStatus = async (req: Request, res: Response) => {
 		const twitchCache = 'twitch_status';
 		const twitchStatus: any = this._cache.getAll(twitchCache);
-	
+
 		// Use the stream status from cache
 		if (twitchStatus && twitchStatus.length > 0) {
 		  res.send(twitchStatus[0]['isOnline']);	
@@ -100,9 +101,9 @@ export class UserController implements UserControllerInterface {
 			expiresIn: 1000 * 60
 		  };
 		  const streamOnline = response.data.data && response.data.data.length > 0 && response.data.data[0].type === 'live';
-		  obj['isOnline'] = streamOnline;
+		  obj.isOnline = streamOnline;
 		  this._cache.set(twitchCache, obj);
-	
+
 		  res.send(streamOnline);
 		}
 	  };
@@ -129,5 +130,4 @@ export class UserController implements UserControllerInterface {
 		  return;
 		}
 		res.send("Done");
-	  };
-}
+	
