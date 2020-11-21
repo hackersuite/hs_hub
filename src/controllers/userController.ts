@@ -39,7 +39,7 @@ export class UserController implements UserControllerInterface {
 	/**
 		* Gets the profile page for the currently logged in user
 		*/
-	public profile(req: Request, res: Response) {
+	public async profile(req: Request, res: Response) {
 		let profileCookieOptions: CookieOptions|undefined = undefined;
 		if (req.app.get('env') === 'production') {
 			profileCookieOptions = {
@@ -56,7 +56,7 @@ export class UserController implements UserControllerInterface {
 			.redirect(process.env.AUTH_URL ?? '');
 	}
 
-	public discordJoin(req: Request, res: Response) {
+	public async discordJoin(req: Request, res: Response) {
 		const state = createVerificationHmac(req.user.id, process.env.DISCORD_HMAC_KEY ?? '');
 		const discordURL =
 				`https://discordapp.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT_ID ?? ''}` +
