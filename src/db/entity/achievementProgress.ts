@@ -15,7 +15,7 @@ export class AchievementProgress {
 	/**
    * The user
    */
-	@Column("uuid")
+	@Column('uuid')
 	public userId!: string;
 
 	/**

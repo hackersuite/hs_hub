@@ -14,7 +14,7 @@ export class UserService {
 
 	public constructor(@inject(TYPES.AuthApi) authApi: AuthApi) {
 		this._hsAuth = authApi;
-		this._hsAuthServiceToken = process.env.HS_AUTH_SERVICE_TOKEN || '';
+		this._hsAuthServiceToken = process.env.HS_AUTH_SERVICE_TOKEN ?? '';
 	}
 
 	/**
