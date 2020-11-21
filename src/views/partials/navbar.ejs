@@ -2,30 +2,11 @@
 <div class="sidebar" data-color="azure" data-background-color="black" data-image="/img/sidebar.jpg">
   <div class="logo">
     <a href="http://www.greatunihack.com" class="simple-text logo-normal">
-      GUH19 Hub
+      GUH2020 Hub
     </a>
   </div>
   <div class="sidebar-wrapper">
     <ul class="nav">
-        <%if (locals.isOrganizer || locals.isVolunteer) { %>
-          <li class="nav-item">
-            <a class="nav-link" href="/hardware/loancontrols">
-              <p>Hardware library - loan controls</p>
-            </a>
-          </li>
-          <%if (locals.isOrganizer) { %>
-            <li class="nav-item">
-              <a class="nav-link" href="/hardware/management">
-                <p>Hardware library - management</p>
-              </a>
-            </li>
-          <% } %>
-          <li class="nav-item">
-            <a class="nav-link" href="/achievements/volunteercontrols">
-              <p>Achievements - volunteer controls</p>
-            </a>
-          </li>
-        <% } %>
       <li class="nav-item">
         <a class="nav-link" href="/user/profile">
           <i class="material-icons">person</i>
@@ -50,12 +31,6 @@
           <p>Achievements</p>
         </a>
       </li>
-      <!-- <li class="nav-item">
-        <a class="nav-link" href="/hardware">
-          <i class="material-icons">usb</i>
-          <p>Hardware</p>
-        </a>
-      </li> -->
       <li class="nav-item">
         <a class="nav-link" href="/contacts">
           <i class="material-icons">contacts</i>
@@ -96,14 +71,6 @@
           </li>
           <% } %>
           <li class="nav-item">
-            <a class="nav-link" href="javascript:startScanner()">
-              <i class="fas fa-qrcode fa-3x"></i>
-              <p class="d-lg-none d-md-block">
-                QR Scanner
-              </p>
-            </a>
-          </li>
-          <li class="nav-item">
             <a class="nav-link" href="/logout">
               <i class="fas fa-sign-out-alt fa-3x"></i>
               <p class="d-lg-none d-md-block">
@@ -137,7 +104,4 @@
       </div>
     </div>
 </div>
-<script src="/js/pushNotification.js"></script>
-<script src="/js/qrInterface.js"></script>
-<% include ./qrScanner %>
 <!-- End Navbar -->

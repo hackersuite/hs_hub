@@ -3,7 +3,7 @@
 
 <head>
   <% include ../partials/head.ejs %>
-  <title>GUH19 Hub - Dashboard</title>
+  <title>Hub | Dashboard</title>
   <link rel="stylesheet" href="/css/dashboard.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jvectormap/2.0.5/jquery-jvectormap.min.css"
     integrity="sha256-iNez126P4WKiZigolYleAWMkO7xVsmNDnNSYc9Tdacc=" crossorigin="anonymous" />
@@ -151,22 +151,6 @@
               </a>
             </div>
             <div class="col-xl-3 col-lg-4 col-sm-6">
-              <a href="https://join.slack.com/t/guh2019/shared_invite/enQtODEwOTExMDcyMzg4LTU1MDlmMDMzYTU3NTJiODE4MWFkZDlkYWUxMzM1OTYyNjYwMmZjNjA3NmE0NGMzZjhiYjI0ZjRlODIzOTY1ZjA" target="_blank" rel="noopener noreferrer">
-                <div class="card card-stats">
-                  <div class="card-header card-header-success card-header-icon">
-                    <div class="card-icon">
-                      <i class="fab fa-slack"></i>
-                    </div>
-                    <p class="card-category">Communication</p>
-                    <h3 class="card-title">Slack
-                    </h3>
-                  </div>
-                  <div class="card-footer">
-                  </div>
-                </div>
-              </a>
-            </div>
-            <div class="col-xl-3 col-lg-4 col-sm-6">
               <a href="https://greatunihack19.devpost.com/" target="_blank" rel="noopener noreferrer">
                 <div class="card card-stats">
                   <div class="card-header card-header-warning card-header-icon">
@@ -282,48 +266,9 @@
                 </div>
               </div>
             </div>
-            <div class="col-lg-7 col-md-12">
+            </div>
               <div class="row">
-                <!-- ANNOUNCEMENTS -->
-                <div class="col-lg-8 col-md-12">
-                  <div class="card">
-                    <div class="card-header card-header-tabs card-header-success">
-                      <div class="nav-tabs-navigation">
-                        <div class="nav-tabs-wrapper">
-                          <span class="nav-tabs-title"></span>
-                          <ul class="nav nav-tabs" data-tabs="tabs">
-                            <li class="nav-item">
-                              <a class="nav-link active" href="#profile" data-toggle="tab">
-                                <i class="material-icons">today</i> Announcements
-                                <div class="ripple-container"></div>
-                              </a>
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="card-body">
-                      <div class="tab-content">
-                        <div class="tab-pane active" id="profile">
-                          <table class="table">
-                            <tbody>
-                              <% announcements.forEach(announcement => { %>
-                              <tr>
-                                <td>
-                                  <%- announcement.message %>
-                                </td>
-                              </tr>
-                              <% }) %>
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <!-- FLOOR PLAN -->
+                <!-- HACKER PLAN -->
                 <div class="col-lg-12">
                   <div class="card card-stats">
                     <div class="card-header card-header-success card-header-icon">
@@ -339,90 +284,8 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-lg-12">
-                  <div class="card">
-                    <div class="card-header card-header-tabs card-header-danger">
-                      <div class="nav-tabs-navigation">
-                        <div class="nav-tabs-wrapper">
-                          <span class="nav-tabs-title">Floor Plan:</span>
-                          <ul class="nav nav-tabs" data-tabs="tabs">
-                            <li class="nav-item">
-                              <a class="nav-link active" href="#ground-floor" data-toggle="tab">
-                                Ground Floor
-                                <div class="ripple-container"></div>
-                              </a>
-                            </li>
-                            <li class="nav-item">
-                              <a class="nav-link" href="#first-floor" data-toggle="tab">
-                                First Floor
-                                <div class="ripple-container"></div>
-                              </a>
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="card-body">
-                      <div class="tab-content">
-                        <div class="tab-pane active" id="ground-floor">
-                          <img src="/img/floorplan/GroundFloor.jpg" class="floor-plan">
-                        </div>
-                        <div class="tab-pane" id="first-floor">
-                          <img src="/img/floorplan/FirstFloor.jpg" class="floor-plan">
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
-            <!-- TODO list -->
-            <!-- <div class="col-lg-3 col-md-12">
-              <div class="card">
-                <div class="card-header card-header-tabs card-header-danger">
-                  <div class="nav-tabs-navigation">
-                    <div class="nav-tabs-wrapper">
-                      <span class="nav-tabs-title">To-do:</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="card-body">
-                  <div id="profile">
-                    <table class="table">
-                      <tbody>
-                        <tr>
-                          <td>
-                            <div class="form-check">
-                              <label class="form-check-label">
-                                <input class="form-check-input" type="checkbox" value="">
-                                <span class="form-check-sign">
-                                  <span class="check"></span>
-                                </span>
-                              </label>
-                            </div>
-                          </td>
-                          <td>Create your team on the <a href="/profile">profile page</a>.</td>
-                        </tr>
-                        <tr>
-                          <td>
-                            <div class="form-check">
-                              <label class="form-check-label">
-                                <input class="form-check-input" type="checkbox" value="">
-                                <span class="form-check-sign">
-                                  <span class="check"></span>
-                                </span>
-                              </label>
-                            </div>
-                          </td>
-                          <td>Add a link to your team git repository on the <a href="/profile">profile page</a>.
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div> -->
           </div>
         </div>
         <% include ../partials/footer.ejs %>
