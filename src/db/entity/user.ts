@@ -1,5 +1,4 @@
 import { Entity, Column, OneToMany, PrimaryColumn } from 'typeorm';
-import { AchievementProgress } from './achievementProgress';
 import { ReservedHardwareItem } from './reservedHardwareItem';
 
 /**
@@ -15,12 +14,6 @@ export class User {
 
 	@Column('simple-array', { nullable: true })
 	public push_id?: string[];
-
-	/**
-   * Every user is able to have many different achievements so create a typeorm relationship
-   */
-	@OneToMany(() => AchievementProgress, aProgress => aProgress.user)
-	public achievementsProgress!: AchievementProgress;
 
 	/**
    * Also, users are able to reserve many different hardware items
