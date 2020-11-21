@@ -7,6 +7,7 @@ import { UserService } from '../services/users';
 import { injectable, inject } from 'inversify';
 import { TYPES } from '../types';
 import { User } from '@unicsmcr/hs_auth_client';
+import autoBind from 'auto-bind';
 
 export interface AchievementsControllerInterface {
 	getAchievementsPage: (req: Request, res: Response, next: NextFunction) => Promise<void>;
@@ -37,9 +38,10 @@ export class AchievementsController implements AchievementsControllerInterface {
 		this._achievementsService = achievementsService;
 		this._achievementsProgressService = achievementsProgressService;
 		this._userService = userService;
+		autoBind(this);
 	}
 
-	public getAchievementsPage = async (req: Request, res: Response, next: NextFunction) => {
+	public async getAchievementsPage(req: Request, res: Response, next: NextFunction) {
 		try {
 			let achievements: Achievement[] = await this._achievementsService.getAchievements();
 			achievements = achievements.sort((a: Achievement, b: Achievement) => a.getTitle().localeCompare(b.getTitle()));
@@ -57,9 +59,9 @@ export class AchievementsController implements AchievementsControllerInterface {
 		} catch (err) {
 			next(err);
 		}
-	};
+	}
 
-	public getVolunteersPage = async (req: Request, res: Response, next: NextFunction) => {
+	public async getVolunteersPage(req: Request, res: Response, next: NextFunction) {
 		try {
 			let users: User[] = await this._userService.getAllUsers();
 			users = users.sort((a: User, b: User) => a.name.localeCompare(b.name));
@@ -88,19 +90,19 @@ export class AchievementsController implements AchievementsControllerInterface {
 		} catch (err) {
 			next(err);
 		}
-	};
+	}
 
 
-	public getAllAchievements = async (req: Request, res: Response, next: NextFunction) => {
+	public async getAllAchievements(req: Request, res: Response, next: NextFunction) {
 		try {
 			const achievements: Achievement[] = await this._achievementsService.getAchievements();
 			res.send(achievements);
 		} catch (err) {
 			next(err);
 		}
-	};
+	}
 
-	public getProgressForAllAchievements = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+	public async getProgressForAllAchievements(req: Request, res: Response, next: NextFunction) {
 		try {
 			const progress: AchievementProgress[] =
         await this._achievementsProgressService.getAchievementsProgressForUser((req.user as User).id);
@@ -108,9 +110,9 @@ export class AchievementsController implements AchievementsControllerInterface {
 		} catch (err) {
 			next(err);
 		}
-	};
+	}
 
-	public getProgressForAchievement = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+	public async getProgressForAchievement(req: Request, res: Response, next: NextFunction) {
 		try {
 			const achievement: Achievement = await this._achievementsService.getAchievementWithId(Number(req.params.id));
 			const progress: AchievementProgress = await this._achievementsProgressService.getAchievementProgressForUser(achievement, (req.user as User).id);
@@ -119,9 +121,9 @@ export class AchievementsController implements AchievementsControllerInterface {
 		} catch (err) {
 			next(err);
 		}
-	};
+	}
 
-	public completeAchievementForUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+	public async completeAchievementForUser(req: Request, res: Response, next: NextFunction) {
 		try {
 			const achievement: Achievement = await this._achievementsService.getAchievementWithId(Number(req.params.id));
 
@@ -144,9 +146,9 @@ export class AchievementsController implements AchievementsControllerInterface {
 		} catch (err) {
 			next(err);
 		}
-	};
+	}
 
-	public completeAchievementStep = async (req: Request, res: Response): Promise<void> => {
+	public async completeAchievementStep(req: Request, res: Response) {
 		try {
 			const achievement: Achievement = await this._achievementsService.getAchievementWithId(Number(req.params.id));
 
@@ -182,9 +184,9 @@ export class AchievementsController implements AchievementsControllerInterface {
 
 			res.redirect('/achievements');
 		}
-	};
+	}
 
-	public givePrizeToUser = async (req: Request, res: Response): Promise<void> => {
+	public async givePrizeToUser(req: Request, res: Response) {
 		try {
 			const achievement: Achievement = await this._achievementsService.getAchievementWithId(Number(req.params.id));
 
@@ -210,9 +212,9 @@ export class AchievementsController implements AchievementsControllerInterface {
 
 			res.redirect('/achievements');
 		}
-	};
+	}
 
-	public getAchievementToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+	public async getAchievementToken(req: Request, res: Response, next: NextFunction) {
 		try {
 			const achievement: Achievement = await this._achievementsService.getAchievementWithId(Number(req.params.id));
 
@@ -220,5 +222,5 @@ export class AchievementsController implements AchievementsControllerInterface {
 		} catch (err) {
 			next(err);
 		}
-	};
+	}
 }

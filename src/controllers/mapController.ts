@@ -5,6 +5,7 @@ import { Cache } from '../util/cache';
 import { MapLocation } from '../db/entity';
 import { HttpResponseCode } from '../util/errorHandling';
 import { MapService } from '../services/map';
+import autoBind from 'auto-bind';
 
 export interface MapControllerInterface {
 	getAllLocations: (req: Request, res: Response) => Promise<void>;
@@ -21,9 +22,10 @@ export class MapController implements MapControllerInterface {
 	public constructor(@inject(TYPES.Cache) _cache: Cache, @inject(TYPES.MapService) _mapService: MapService) {
 		this.cache = _cache;
 		this.mapService = _mapService;
+		autoBind(this);
 	}
 
-	public getAllLocations = async (req: Request, res: Response): Promise<void> => {
+	public async getAllLocations(req: Request, res: Response) {
 		try {
 			let locations: MapLocation[] = this.cache.getAll(MapLocation.name);
 
@@ -36,9 +38,9 @@ export class MapController implements MapControllerInterface {
 		} catch (err) {
 			res.status(HttpResponseCode.INTERNAL_ERROR).send('Failed to find locations');
 		}
-	};
+	}
 
-	public addLocation = async (req: Request, res: Response): Promise<void> => {
+	public async addLocation(req: Request, res: Response) {
 		try {
 			await this.mapService.add(req.body.city, req.body.country);
 			this.cache.deleteAll(MapLocation.name);
@@ -46,5 +48,5 @@ export class MapController implements MapControllerInterface {
 		} catch (err) {
 			res.status(HttpResponseCode.INTERNAL_ERROR).send('Failed to add location');
 		}
-	};
+	}
 }

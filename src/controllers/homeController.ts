@@ -8,6 +8,7 @@ import { injectable, inject } from 'inversify';
 import { TYPES } from '../types';
 import { User } from '@unicsmcr/hs_auth_client';
 import { UserContactDetailsService } from '../services/userContactDetails/userContactDetailsService';
+import autoBind from 'auto-bind';
 
 export interface HomeControllerInterface {
 	dashboard: (req: Request, res: Response, next: NextFunction) => Promise<void>;
@@ -39,9 +40,10 @@ export class HomeController implements HomeControllerInterface {
 		this._eventService = eventService;
 		this._challengeService = challengeService;
 		this._contactDetailsService = contactDetailsService;
+		autoBind(this);
 	}
 
-	public dashboard = async (req: Request, res: Response) => {
+	public async dashboard(req: Request, res: Response) {
 		let events: Event[] = this._cache.getAll(Event.name); // await this.eventService.findAllEvents();
 		if (events.length === 0) {
 			events = await this._eventService.findAllEvents();
@@ -52,14 +54,14 @@ export class HomeController implements HomeControllerInterface {
 		const shouldShowIntro: boolean = await this._contactDetailsService.getContactDetailsForUser((req.user as User).id) === undefined;
 
 		res.render('pages/dashboard', { events, announcements, shouldShowIntro });
-	};
+	}
 
-	public challenges = async (req: Request, res: Response) => {
+	public async challenges(req: Request, res: Response) {
 		const challenges: Challenge[] = await this._challengeService.getAll();
 		res.render('pages/challenges', { challenges: challenges });
-	};
+	}
 
-	public contacts = async (req: Request, res: Response) => {
+	public async contacts(req: Request, res: Response) {
 		res.render('pages/contacts');
-	};
+	}
 }
