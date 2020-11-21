@@ -1,5 +1,4 @@
-import { Entity, ManyToOne, PrimaryColumn, Column } from 'typeorm';
-import { User } from './';
+import { Entity, PrimaryColumn, Column } from 'typeorm';
 import { Achievement } from '../../util/achievements';
 
 /**
@@ -16,11 +15,8 @@ export class AchievementProgress {
 	/**
    * The user
    */
-	@ManyToOne(() => User, user => user.achievementsProgress, {
-		eager: true,
-		primary: true
-	})
-	public user!: User;
+	@Column('uuid')
+	public userId!: string;
 
 	/**
    * The progress that has been made
@@ -53,16 +49,16 @@ export class AchievementProgress {
 	/**
    *
    * @param achievement The achievement
-   * @param user The user
+   * @param user The id of the user
    * @param progress (optional) The progress the user has made on this achievement
    * @param stepsCompleted (optional) The steps the user has completed
    * @param prizeClaimed (optional) Wether or not the user has claimed their prize for the achievement
    */
-	public constructor(achievement: Achievement, user: User, progress = 0, stepsCompleted: number[] = [], prizeClaimed = false) {
+	public constructor(achievement: Achievement, userId: string, progress = 0, stepsCompleted: number[] = [], prizeClaimed = false) {
 		// This is sometimes called with no arguments? Might be how TypeORM works when loading the entity?
 		if (arguments.length === 0) return;
 		this.achievementId = achievement.getId();
-		this.user = user;
+		this.userId = userId;
 		this.progress = progress;
 		this.completedSteps = stepsCompleted;
 		this.prizeClaimed = prizeClaimed;
@@ -93,15 +89,15 @@ export class AchievementProgress {
 	/**
    * Returns the user
    */
-	public getUser() {
-		return this.user;
+	public getUserId() {
+		return this.userId;
 	}
 
 	/**
    * Sets the user
    */
-	public setUser(user: User) {
-		this.user = user;
+	public setUserId(userId: string) {
+		this.userId = userId;
 	}
 
 
