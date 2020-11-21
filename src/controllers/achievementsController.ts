@@ -77,7 +77,7 @@ export class AchievementsController implements AchievementsControllerInterface {
 			let prizesToClaim: AchievementProgress[] = await this._achievementsProgressService.getAchievementsProgressThatCanClaimPrize();
 			prizesToClaim = prizesToClaim.sort((a: AchievementProgress, b: AchievementProgress) => {
 				const achievementsComparison: number = a.getAchievement().getTitle().localeCompare(b.getAchievement().getTitle());
-				if (achievementsComparison === 0 && usersMap.get(a.userId) !== undefined && usersMap.get(b.userId) !== undefined) {
+				if (achievementsComparison === 0 && typeof usersMap.get(a.userId) !== 'undefined' && typeof usersMap.get(b.userId) !== 'undefined') {
 					return usersMap.get(a.userId)!.name.localeCompare(usersMap.get(b.userId)!.name);
 				}
 				return achievementsComparison;

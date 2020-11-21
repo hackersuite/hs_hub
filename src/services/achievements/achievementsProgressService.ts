@@ -39,7 +39,7 @@ export class AchievementsProgressService {
 			.findOne({
 				where: {
 					achievementId: achievement.getId(),
-					userId: userId
+					userId
 				}
 			});
 
