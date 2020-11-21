@@ -26,7 +26,7 @@ export class UserController implements UserControllerInterface {
 	private readonly _mapService: MapService;
 
 	public constructor(
-		@inject(TYPES.Cache) cache: Cache,
+	@inject(TYPES.Cache) cache: Cache,
 		@inject(TYPES.UserContactDetailsService) contactDetailsService: UserContactDetailsService,
 		@inject(TYPES.MapService) mapService: MapService
 	) {
@@ -54,7 +54,7 @@ export class UserController implements UserControllerInterface {
 			? res.cookie('ReturnTo', process.env.HUB_URL, profileCookieOptions)
 			: res.cookie('ReturnTo', process.env.HUB_URL))
 			.redirect(process.env.AUTH_URL ?? '');
-	};
+	}
 
 	public async discordJoin(req: Request, res: Response) {
 		const state = createVerificationHmac(req.user.id, process.env.DISCORD_HMAC_KEY ?? '');
@@ -63,7 +63,7 @@ export class UserController implements UserControllerInterface {
       `&redirect_uri=${encodeURIComponent(`${process.env.DISCORD_REDIRECT_URI ?? ''}`)}` +
       `&response_type=code&scope=identify%20guilds.join&state=${state}`;
 		res.redirect(302, discordURL);
-	};
+	}
 
 	public async discordAuth(req: Request, res: Response) {
 		try {
@@ -72,7 +72,7 @@ export class UserController implements UserControllerInterface {
 		} catch (err) {
 			res.render('pages/discord', { error: true });
 		}
-	};
+	}
 
 	public async twitchStatus(req: Request, res: Response) {
 		const twitchCache = 'twitch_status';
@@ -80,27 +80,27 @@ export class UserController implements UserControllerInterface {
 
 		// Use the stream status from cache
 		if (twitchStatus && twitchStatus.length > 0) {
-		  res.send(twitchStatus[0]['isOnline']);	
+		  res.send(twitchStatus[0].isOnline);
 		} else {
 		  // Get the most up to date stream status
 		  let response;
 		  try {
 				response = await axios.get('https://api.twitch.tv/helix/streams', {
 			  	headers: {
-					'Client-ID': process.env.TWITCH_CLIENT_ID,
-					'Authorization': 'Bearer ' + process.env.TWITCH_TOKEN
+						'Client-ID': process.env.TWITCH_CLIENT_ID,
+						'Authorization': `Bearer ${process.env.TWITCH_TOKEN}`
 			  	},
 			  	params: {
-					user_login: 'greatunihack'
+						user_login: 'greatunihack'
 			  	}
-			});
+				});
 		  } catch (err) {
-			res.status(HttpResponseCode.INTERNAL_ERROR).send('Failed to get twitch status');
-			return;
+				res.status(HttpResponseCode.INTERNAL_ERROR).send('Failed to get twitch status');
+				return;
 		  }
 		  const obj: any = {
-			id: 1,
-			expiresIn: 1000 * 60
+				id: 1,
+				expiresIn: 1000 * 60
 		  };
 		  const streamOnline = response.data.data && response.data.data.length > 0 && response.data.data[0].type === 'live';
 		  obj.isOnline = streamOnline;
@@ -108,7 +108,7 @@ export class UserController implements UserControllerInterface {
 
 		  res.send(streamOnline);
 		}
-	  };
+	  }
 
 	  public async intro(req: Request, res: Response) {
 		const contactDetails: UserContactDetails = new UserContactDetails();
@@ -122,15 +122,15 @@ export class UserController implements UserControllerInterface {
 		contactDetails.zip = req.body.zip;
 		contactDetails.country = req.body.country;
 		contactDetails.tshirt = req.body.tshirt;
-	
+
 		try {
 		  await this._contactDetailsService.save(contactDetails);
 		  await this._mapService.add(req.body.city, req.body.country);
 		  this._cache.deleteAll(MapLocation.name);
 		} catch (err) {
-		  res.status(HttpResponseCode.INTERNAL_ERROR).send("Failed");
+		  res.status(HttpResponseCode.INTERNAL_ERROR).send('Failed');
 		  return;
 		}
-		res.send("Done");
-	};
+		res.send('Done');
+	}
 }

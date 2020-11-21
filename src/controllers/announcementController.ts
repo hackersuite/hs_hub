@@ -46,7 +46,7 @@ export class AnnouncementController implements AnnouncementControllerInterface {
 		} catch (error) {
 			next(error);
 		}
-	};
+	}
 
 	/**
    * This function will either send a push notifation to all users subscribed to push notifications
@@ -79,7 +79,7 @@ export class AnnouncementController implements AnnouncementControllerInterface {
 		} catch (error) {
 			next(error);
 		}
-	};
+	}
 
 	public async pushNotificationRegister(req: Request, res: Response, next: NextFunction) {
 		try {
@@ -89,5 +89,5 @@ export class AnnouncementController implements AnnouncementControllerInterface {
 		} catch (error) {
 			next(error);
 		}
-	};
+	}
 }

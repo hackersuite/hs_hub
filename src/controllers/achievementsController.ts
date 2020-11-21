@@ -59,7 +59,7 @@ export class AchievementsController implements AchievementsControllerInterface {
 		} catch (err) {
 			next(err);
 		}
-	};
+	}
 
 	public async getVolunteersPage(req: Request, res: Response, next: NextFunction) {
 		try {
@@ -85,7 +85,7 @@ export class AchievementsController implements AchievementsControllerInterface {
 		} catch (err) {
 			next(err);
 		}
-	};
+	}
 
 
 	public async getAllAchievements(req: Request, res: Response, next: NextFunction) {
@@ -95,7 +95,7 @@ export class AchievementsController implements AchievementsControllerInterface {
 		} catch (err) {
 			next(err);
 		}
-	};
+	}
 
 	public async getProgressForAllAchievements(req: Request, res: Response, next: NextFunction) {
 		try {
@@ -105,7 +105,7 @@ export class AchievementsController implements AchievementsControllerInterface {
 		} catch (err) {
 			next(err);
 		}
-	};
+	}
 
 	public async getProgressForAchievement(req: Request, res: Response, next: NextFunction) {
 		try {
@@ -116,7 +116,7 @@ export class AchievementsController implements AchievementsControllerInterface {
 		} catch (err) {
 			next(err);
 		}
-	};
+	}
 
 	public async completeAchievementForUser(req: Request, res: Response, next: NextFunction) {
 		try {
@@ -141,7 +141,7 @@ export class AchievementsController implements AchievementsControllerInterface {
 		} catch (err) {
 			next(err);
 		}
-	};
+	}
 
 	public async completeAchievementStep(req: Request, res: Response) {
 		try {
@@ -179,7 +179,7 @@ export class AchievementsController implements AchievementsControllerInterface {
 
 			res.redirect('/achievements');
 		}
-	};
+	}
 
 	public async givePrizeToUser(req: Request, res: Response) {
 		try {
@@ -209,7 +209,7 @@ export class AchievementsController implements AchievementsControllerInterface {
 
 			res.redirect('/achievements');
 		}
-	};
+	}
 
 	public async getAchievementToken(req: Request, res: Response, next: NextFunction) {
 		try {
@@ -219,5 +219,5 @@ export class AchievementsController implements AchievementsControllerInterface {
 		} catch (err) {
 			next(err);
 		}
-	};
+	}
 }

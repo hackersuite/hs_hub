@@ -38,7 +38,7 @@ export class ScheduleController implements ScheduleControllerInterface {
 		} catch (err) {
 			return next(err);
 		}
-	};
+	}
 
 	public async createEvent(req: Request, res: Response, next: NextFunction) {
 		try {
@@ -61,7 +61,7 @@ export class ScheduleController implements ScheduleControllerInterface {
 		} catch (err) {
 			next(err);
 		}
-	};
+	}
 
 	public async deleteEvent(req: Request, res: Response, next: NextFunction) {
 		try {
@@ -85,7 +85,7 @@ export class ScheduleController implements ScheduleControllerInterface {
 		} catch (err) {
 			return next(err);
 		}
-	};
+	}
 
 	public async updateEvent(req: Request, res: Response, next: NextFunction) {
 		try {
@@ -119,5 +119,5 @@ export class ScheduleController implements ScheduleControllerInterface {
 		} catch (err) {
 			return next(err);
 		}
-	};
+	}
 }

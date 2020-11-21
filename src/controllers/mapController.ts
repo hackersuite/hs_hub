@@ -38,7 +38,7 @@ export class MapController implements MapControllerInterface {
 		} catch (err) {
 			res.status(HttpResponseCode.INTERNAL_ERROR).send('Failed to find locations');
 		}
-	};
+	}
 
 	public async addLocation(req: Request, res: Response) {
 		try {
@@ -48,5 +48,5 @@ export class MapController implements MapControllerInterface {
 		} catch (err) {
 			res.status(HttpResponseCode.INTERNAL_ERROR).send('Failed to add location');
 		}
-	};
+	}
 }

@@ -54,14 +54,14 @@ export class HomeController implements HomeControllerInterface {
 		const shouldShowIntro: boolean = await this._contactDetailsService.getContactDetailsForUser((req.user as User).id) === undefined;
 
 		res.render('pages/dashboard', { events, announcements, shouldShowIntro });
-	};
+	}
 
 	public async challenges(req: Request, res: Response) {
 		const challenges: Challenge[] = await this._challengeService.getAll();
 		res.render('pages/challenges', { challenges: challenges });
-	};
+	}
 
 	public async contacts(req: Request, res: Response) {
 		res.render('pages/contacts');
-	};
+	}
 }

@@ -43,7 +43,7 @@ export class ChallengeController implements ChallengeControllerInterface {
 		} catch (err) {
 			next(err);
 		}
-	};
+	}
 
 	public async createChallenge(req: Request, res: Response, next: NextFunction) {
 		try {
@@ -67,7 +67,7 @@ export class ChallengeController implements ChallengeControllerInterface {
 		} catch (err) {
 			next(err);
 		}
-	};
+	}
 
 	public async updateChallenge(req: Request, res: Response, next: NextFunction) {
 		try {
@@ -98,7 +98,7 @@ export class ChallengeController implements ChallengeControllerInterface {
 		} catch (err) {
 			next(err);
 		}
-	};
+	}
 
 	public async deleteChallenge(req: Request, res: Response, next: NextFunction) {
 		try {
@@ -117,5 +117,5 @@ export class ChallengeController implements ChallengeControllerInterface {
 		} catch (err) {
 			next(err);
 		}
-	};
+	}
 }
