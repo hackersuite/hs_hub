@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { NextFunction } from 'connect';
 import { ApiError, HttpResponseCode } from '../util/errorHandling';
-import { Announcement, User } from '../db/entity';
+import { Announcement } from '../db/entity';
 import { sendOneSignalNotification } from '../util/announcement';
 import { AnnouncementService } from '../services/announcement/announcementService';
 import { UserService } from '../services/users';
@@ -11,7 +11,7 @@ import { TYPES } from '../types';
 export interface AnnouncementControllerInterface {
 	announce: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 	pushNotification: (req: Request, res: Response, next: NextFunction) => Promise<void>;
-	pushNotificationRegister: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+	pushNotificationRegister: (req: Request, res: Response) => Promise<void>;
 }
 
 /**
@@ -79,8 +79,8 @@ export class AnnouncementController implements AnnouncementControllerInterface {
 		}
 	};
 
-	public async pushNotificationRegister(req: Request, res: Response, next: NextFunction) {
-		res.status(501).send("Not Implemented");
+	public async pushNotificationRegister(req: Request, res: Response) {
+		res.status(501).send('Not Implemented');
 		// try {
 		// 	const playerID: string = req.body.data;
 		// 	await this._userService.addPushIDToUser(req.user as User, playerID);
@@ -88,5 +88,5 @@ export class AnnouncementController implements AnnouncementControllerInterface {
 		// } catch (error) {
 		// 	next(error);
 		// }
-	};
+	}
 }

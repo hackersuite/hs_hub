@@ -25,7 +25,7 @@ export class UserController implements UserControllerInterface {
 	private readonly _mapService: MapService;
 
 	public constructor(
-		@inject(TYPES.Cache) cache: Cache,
+	@inject(TYPES.Cache) cache: Cache,
 		@inject(TYPES.UserContactDetailsService) contactDetailsService: UserContactDetailsService,
 		@inject(TYPES.MapService) mapService: MapService
 	) {

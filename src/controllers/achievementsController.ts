@@ -67,7 +67,7 @@ export class AchievementsController implements AchievementsControllerInterface {
 			const usersMap: Map<string, User> = new Map();
 			users.forEach((user: User) => {
 				usersMap.set(user.id, user);
-			})
+			});
 
 			let achievements: Achievement[] = await this._achievementsService.getAchievements();
 			achievements = achievements.sort((a: Achievement, b: Achievement) => a.getTitle().localeCompare(b.getTitle()));
