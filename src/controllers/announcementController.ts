@@ -7,6 +7,7 @@ import { AnnouncementService } from '../services/announcement/announcementServic
 import { UserService } from '../services/users';
 import { injectable, inject } from 'inversify';
 import { TYPES } from '../types';
+import autoBind from 'auto-bind';
 
 export interface AnnouncementControllerInterface {
 	announce: (req: Request, res: Response, next: NextFunction) => Promise<void>;
@@ -28,9 +29,10 @@ export class AnnouncementController implements AnnouncementControllerInterface {
 	) {
 		this._announcementService = announcementService;
 		this._userService = userService;
+		autoBind(this);
 	}
 
-	public announce = async (req: Request, res: Response, next: NextFunction) => {
+	public async announce(req: Request, res: Response, next: NextFunction) {
 		try {
 			const message = req.body.message;
 			if (!message) {
@@ -56,7 +58,7 @@ export class AnnouncementController implements AnnouncementControllerInterface {
    * @param res
    * @param next
    */
-	public pushNotification = async (req: Request, res: Response, next: NextFunction) => {
+	public async pushNotification(req: Request, res: Response, next: NextFunction) {
 		try {
 			const text: string = req.body.message;
 			const includedUsers: string|undefined = req.body.included_users;
@@ -79,7 +81,7 @@ export class AnnouncementController implements AnnouncementControllerInterface {
 		}
 	};
 
-	public pushNotificationRegister = async (req: Request, res: Response, next: NextFunction) => {
+	public async pushNotificationRegister(req: Request, res: Response, next: NextFunction) {
 		try {
 			const playerID: string = req.body.data;
 			await this._userService.addPushIDToUser(req.user as User, playerID);

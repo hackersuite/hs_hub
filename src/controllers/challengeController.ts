@@ -7,6 +7,7 @@ import { ValidationError, validate } from 'class-validator';
 import { ChallengeService } from '../services/challenges';
 import { injectable, inject } from 'inversify';
 import { TYPES } from '../types';
+import autoBind from 'auto-bind';
 
 export interface ChallengeControllerInterface {
 	listChallenges: (req: Request, res: Response, next: NextFunction) => Promise<void>;
@@ -26,9 +27,10 @@ export class ChallengeController implements ChallengeControllerInterface {
 	) {
 		this._cache = cache;
 		this._challengeService = challengeService;
+		autoBind(this);
 	}
 
-	public listChallenges = async (req: Request, res: Response, next: NextFunction) => {
+	public async listChallenges(req: Request, res: Response, next: NextFunction) {
 		try {
 			let challenges: Challenge[] = this._cache.getAll(Challenge.name);
 
@@ -43,7 +45,7 @@ export class ChallengeController implements ChallengeControllerInterface {
 		}
 	};
 
-	public createChallenge = async (req: Request, res: Response, next: NextFunction) => {
+	public async createChallenge(req: Request, res: Response, next: NextFunction) {
 		try {
 			const { title, description, company, prizes } = req.body;
 			const newChallenge: Challenge = new Challenge(title, description, company, prizes);
@@ -67,7 +69,7 @@ export class ChallengeController implements ChallengeControllerInterface {
 		}
 	};
 
-	public updateChallenge = async (req: Request, res: Response, next: NextFunction) => {
+	public async updateChallenge(req: Request, res: Response, next: NextFunction) {
 		try {
 			const { id, title, description, company, prizes } = req.body;
 
@@ -98,7 +100,7 @@ export class ChallengeController implements ChallengeControllerInterface {
 		}
 	};
 
-	public deleteChallenge = async (req: Request, res: Response, next: NextFunction) => {
+	public async deleteChallenge(req: Request, res: Response, next: NextFunction) {
 		try {
 			const { id } = req.body;
 

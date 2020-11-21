@@ -7,6 +7,7 @@ import { Cache } from '../util/cache';
 import { ValidationError, validate } from 'class-validator';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '../types';
+import autoBind from 'auto-bind';
 
 export interface ScheduleControllerInterface {
 	listEvents: (req: Request, res: Response, next: NextFunction) => Promise<void>;
@@ -21,9 +22,10 @@ export class ScheduleController implements ScheduleControllerInterface {
 
 	public constructor(@inject(TYPES.Cache) _cache: Cache) {
 		this.cache = _cache;
+		autoBind(this);
 	}
 
-	public listEvents = async (req: Request, res: Response, next: NextFunction) => {
+	public async listEvents(req: Request, res: Response, next: NextFunction) {
 		try {
 			let events: Event[] = this.cache.getAll(Event.name);
 
@@ -38,7 +40,7 @@ export class ScheduleController implements ScheduleControllerInterface {
 		}
 	};
 
-	public createEvent = async (req: Request, res: Response, next: NextFunction) => {
+	public async createEvent(req: Request, res: Response, next: NextFunction) {
 		try {
 			const { title, startTime, endTime, location } = req.body;
 			const newEvent: Event = new Event(title, new Date(startTime), new Date(endTime), location);
@@ -61,7 +63,7 @@ export class ScheduleController implements ScheduleControllerInterface {
 		}
 	};
 
-	public deleteEvent = async (req: Request, res: Response, next: NextFunction) => {
+	public async deleteEvent(req: Request, res: Response, next: NextFunction) {
 		try {
 			const { id } = req.body;
 
@@ -85,7 +87,7 @@ export class ScheduleController implements ScheduleControllerInterface {
 		}
 	};
 
-	public updateEvent = async (req: Request, res: Response, next: NextFunction) => {
+	public async updateEvent(req: Request, res: Response, next: NextFunction) {
 		try {
 			const { id, title, startTime, endTime, location } = req.body;
 

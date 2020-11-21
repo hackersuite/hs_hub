@@ -10,6 +10,7 @@ import { UserContactDetailsService } from '../services/userContactDetails';
 import { MapService } from '../services/map';
 import { User } from '@unicsmcr/hs_auth_client';
 import { MapLocation, UserContactDetails } from '../db/entity';
+import autoBind from 'auto-bind';
 
 export interface UserControllerInterface {
 	profile: (req: Request, res: Response, next: NextFunction) => void;
@@ -32,12 +33,13 @@ export class UserController implements UserControllerInterface {
 		this._cache = cache;
 		this._contactDetailsService = contactDetailsService;
 		this._mapService = mapService;
+		autoBind(this);
 	}
 
 	/**
    * Gets the profile page for the currently logged in user
    */
-	public profile = async (req: Request, res: Response) => {
+	public async profile(req: Request, res: Response) {
 		let profileCookieOptions: CookieOptions|undefined = undefined;
 		if (req.app.get('env') === 'production') {
 			profileCookieOptions = {
@@ -54,7 +56,7 @@ export class UserController implements UserControllerInterface {
 			.redirect(process.env.AUTH_URL ?? '');
 	};
 
-	public discordJoin = async (req: Request, res: Response) => {
+	public async discordJoin(req: Request, res: Response) {
 		const state = createVerificationHmac(req.user.id, process.env.DISCORD_HMAC_KEY ?? '');
 		const discordURL =
       `https://discordapp.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT_ID ?? ''}` +
@@ -63,7 +65,7 @@ export class UserController implements UserControllerInterface {
 		res.redirect(302, discordURL);
 	};
 
-	public discordAuth = async (req: Request, res: Response) => {
+	public async discordAuth(req: Request, res: Response) {
 		try {
 			await linkAccount(req.user.id, req.query.code, req.query.state);
 			res.render('pages/discord', { error: false });
@@ -72,7 +74,7 @@ export class UserController implements UserControllerInterface {
 		}
 	};
 
-	public twitchStatus = async (req: Request, res: Response) => {
+	public async twitchStatus(req: Request, res: Response) {
 		const twitchCache = 'twitch_status';
 		const twitchStatus: any = this._cache.getAll(twitchCache);
 
@@ -108,7 +110,7 @@ export class UserController implements UserControllerInterface {
 		}
 	  };
 
-	  public intro = async (req: Request, res: Response) => {
+	  public async intro(req: Request, res: Response) {
 		const contactDetails: UserContactDetails = new UserContactDetails();
 		contactDetails.userId = (req.user as User).id;
 		contactDetails.phone = req.body.phone;
