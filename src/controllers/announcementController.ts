@@ -79,13 +79,14 @@ export class AnnouncementController implements AnnouncementControllerInterface {
 		}
 	};
 
-	public pushNotificationRegister = async (req: Request, res: Response, next: NextFunction) => {
-		try {
-			const playerID: string = req.body.data;
-			await this._userService.addPushIDToUser(req.user as User, playerID);
-			res.status(200).send(`Updated with player ID: ${playerID}`);
-		} catch (error) {
-			next(error);
-		}
+	public async pushNotificationRegister(req: Request, res: Response, next: NextFunction) {
+		res.status(501).send("Not Implemented");
+		// try {
+		// 	const playerID: string = req.body.data;
+		// 	await this._userService.addPushIDToUser(req.user as User, playerID);
+		// 	res.status(200).send(`Updated with player ID: ${playerID}`);
+		// } catch (error) {
+		// 	next(error);
+		// }
 	};
 }
