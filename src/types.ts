@@ -2,7 +2,6 @@ export const TYPES = {
 	Router: Symbol.for('Router'),
 
 	UserController: Symbol.for('UserController'),
-	TeamController: Symbol.for('TeamController'),
 	ScheduleController: Symbol.for('ScheduleController'),
 	HomeController: Symbol.for('HomeController'),
 	HardwareController: Symbol.for('HardwareController'),
