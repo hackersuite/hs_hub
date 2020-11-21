@@ -23,7 +23,7 @@ const paths = {
     dest: 'dist/views/'
   },
   images: {
-    src: ['src/public/img/**/*.jpg', 'src/public/img/**/*.png', , 'src/public/img/**/*.ico'],
+    src: ['src/public/img/**/*.jpg', 'src/public/img/**/*.png', 'src/public/img/**/*.ico'],
     dest: 'dist/public/img/'
   },
   publicRoot: {
