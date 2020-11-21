@@ -17,8 +17,8 @@ export interface UserControllerInterface {
 }
 
 /**
- * A controller for user methods
- */
+* A controller for user methods
+*/
 @injectable()
 export class UserController implements UserControllerInterface {
 	private readonly _cache: Cache;
@@ -37,9 +37,9 @@ export class UserController implements UserControllerInterface {
 	}
 
 	/**
-   * Gets the profile page for the currently logged in user
-   */
-	public async profile(req: Request, res: Response) {
+		* Gets the profile page for the currently logged in user
+		*/
+	public profile(req: Request, res: Response) {
 		let profileCookieOptions: CookieOptions|undefined = undefined;
 		if (req.app.get('env') === 'production') {
 			profileCookieOptions = {
@@ -56,12 +56,12 @@ export class UserController implements UserControllerInterface {
 			.redirect(process.env.AUTH_URL ?? '');
 	}
 
-	public async discordJoin(req: Request, res: Response) {
+	public discordJoin(req: Request, res: Response) {
 		const state = createVerificationHmac(req.user.id, process.env.DISCORD_HMAC_KEY ?? '');
 		const discordURL =
-      `https://discordapp.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT_ID ?? ''}` +
-      `&redirect_uri=${encodeURIComponent(`${process.env.DISCORD_REDIRECT_URI ?? ''}`)}` +
-      `&response_type=code&scope=identify%20guilds.join&state=${state}`;
+				`https://discordapp.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT_ID ?? ''}` +
+				`&redirect_uri=${encodeURIComponent(`${process.env.DISCORD_REDIRECT_URI ?? ''}`)}` +
+				`&response_type=code&scope=identify%20guilds.join&state=${state}`;
 		res.redirect(302, discordURL);
 	}
 
@@ -80,37 +80,37 @@ export class UserController implements UserControllerInterface {
 
 		// Use the stream status from cache
 		if (twitchStatus && twitchStatus.length > 0) {
-		  res.send(twitchStatus[0].isOnline);
+			res.send(twitchStatus[0].isOnline);
 		} else {
-		  // Get the most up to date stream status
-		  let response;
-		  try {
+			// Get the most up to date stream status
+			let response;
+			try {
 				response = await axios.get('https://api.twitch.tv/helix/streams', {
-			  	headers: {
+					headers: {
 						'Client-ID': process.env.TWITCH_CLIENT_ID,
-						'Authorization': `Bearer ${process.env.TWITCH_TOKEN}`
-			  	},
-			  	params: {
+						'Authorization': `Bearer ${process.env.TWITCH_TOKEN ?? ''}`
+					},
+					params: {
 						user_login: 'greatunihack'
-			  	}
+					}
 				});
-		  } catch (err) {
+			} catch (err) {
 				res.status(HttpResponseCode.INTERNAL_ERROR).send('Failed to get twitch status');
 				return;
-		  }
-		  const obj: any = {
+			}
+			const obj: any = {
 				id: 1,
 				expiresIn: 1000 * 60
-		  };
-		  const streamOnline = response.data.data && response.data.data.length > 0 && response.data.data[0].type === 'live';
-		  obj.isOnline = streamOnline;
-		  this._cache.set(twitchCache, obj);
+			};
+			const streamOnline = response.data.data && response.data.data.length > 0 && response.data.data[0].type === 'live';
+			obj.isOnline = streamOnline;
+			this._cache.set(twitchCache, obj);
 
-		  res.send(streamOnline);
+			res.send(streamOnline);
 		}
-	  }
+	}
 
-	  public async intro(req: Request, res: Response) {
+	public async intro(req: Request, res: Response) {
 		const contactDetails: UserContactDetails = new UserContactDetails();
 		contactDetails.userId = (req.user as User).id;
 		contactDetails.phone = req.body.phone;
@@ -124,12 +124,12 @@ export class UserController implements UserControllerInterface {
 		contactDetails.tshirt = req.body.tshirt;
 
 		try {
-		  await this._contactDetailsService.save(contactDetails);
-		  await this._mapService.add(req.body.city, req.body.country);
-		  this._cache.deleteAll(MapLocation.name);
+			await this._contactDetailsService.save(contactDetails);
+			await this._mapService.add(req.body.city, req.body.country);
+			this._cache.deleteAll(MapLocation.name);
 		} catch (err) {
-		  res.status(HttpResponseCode.INTERNAL_ERROR).send('Failed');
-		  return;
+			res.status(HttpResponseCode.INTERNAL_ERROR).send('Failed');
+			return;
 		}
 		res.send('Done');
 	}
