@@ -2,9 +2,9 @@ version: '2.1'
 services:
   hs_hub:
     image: hs_hub:latest
-    depends_on:
-      mysql_db:
-        condition: service_healthy
+    # depends_on:
+    #   mysql_db:
+    #     condition: service_healthy
     volumes:
       - .:/home/node/app/
       - /home/node/app/node_modules
