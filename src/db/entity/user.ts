@@ -28,7 +28,7 @@ export class User {
 	@OneToMany(() => ReservedHardwareItem, reservedHardwareItem => reservedHardwareItem.user)
 	public hardwareItems!: ReservedHardwareItem[];
 
-	@Column("boolean", { default: false })
+	@Column('boolean', { 'default': false })
 	public completed_intro!: boolean;
 
 	public getId() {
