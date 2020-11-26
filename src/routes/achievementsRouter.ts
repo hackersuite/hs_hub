@@ -64,6 +64,16 @@ export class AchievementsRouter implements RouterInterface {
 			this._requestAuth.withAuthMiddleware(this,
 				this._achievementsController.completeAchievementForUser));
 
+
+		/**
+     * PUT /api/achievements/:id/complete
+     * Sets the user's progress on the achievement to completed (meant for API access)
+     */
+	router.put('/:id/api/complete',
+	this._requestAuth.withAPIAuthMiddleware(this,
+		this._achievementsController.apiCompleteAchievementForUser));
+
+
 		/**
      * GET /achievements/:id/step/:step?token=:token
      * Increments the user's progress on a specific achievement

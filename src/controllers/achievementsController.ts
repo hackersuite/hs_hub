@@ -148,6 +148,23 @@ export class AchievementsController implements AchievementsControllerInterface {
 		}
 	}
 
+
+	public async apiCompleteAchievementForUser(req: Request, res: Response, next: NextFunction) {
+		try {
+			const achievement: Achievement = await this._achievementsService.getAchievementWithId(Number(req.params.id));
+
+			const { userId } = req.body;
+			if (userId === undefined) { throw new ApiError(HttpResponseCode.BAD_REQUEST, `Please provide a userId!`); }
+			await this._achievementsProgressService.setAchievementCompleteForUser(achievement, userId);
+			const user: User = await this._userService.getUserWithId(req.body.userId);
+
+			res.send({ message: `Achievement ${achievement.getTitle()} has been awarded to user ${user.name}!` });
+		} catch (err) {
+			next(err);
+		}
+	}
+
+
 	public async completeAchievementStep(req: Request, res: Response) {
 		try {
 			const achievement: Achievement = await this._achievementsService.getAchievementWithId(Number(req.params.id));

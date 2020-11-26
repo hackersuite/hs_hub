@@ -9,12 +9,14 @@ import { AuthApi, User } from '@unicsmcr/hs_auth_client';
 import { RouterInterface } from '../../routes';
 
 const AUTH_COOKIE = 'Authorization';
+const AUTH_HEADER = 'Authorization';
 const HS_AUTH = process.env.AUTH_URL ?? '';
 const HS_HUB = process.env.HUB_URL ?? '';
 
 export interface RequestAuthenticationV2Interface {
 	passportSetup(app: Express): void;
 	withAuthMiddleware(router: RouterInterface, operationHandler: ExpressOpHandlerFunction): AuthMiddlewareFunction<unknown>;
+	withAPIAuthMiddleware(router: RouterInterface, operationHandler: ExpressOpHandlerFunction): AuthMiddlewareFunction<unknown>;
 	handleUnauthorized(req: Request, res: Response): void;
 	getUserAuthToken(req: Request): string;
 }
@@ -94,6 +96,28 @@ export class RequestAuthenticationV2 {
 		};
 	}
 
+	public withAPIAuthMiddleware(router: RouterInterface, operationHandler: ExpressOpHandlerFunction): AuthMiddlewareFunction<unknown> {
+		return async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
+			const token = this.getAPIAuthToken(req);
+			if (typeof token === 'undefined') {
+				return this.handleUnauthorized(req, res);
+			}
+			const requestedUri = this.getUriFromRequest(router, operationHandler, req);
+
+			try {
+				const permissions = await this._authApi.getAuthorizedResources(token, [requestedUri]);
+				if (permissions.length === 0) {
+					return this.handleUnauthorized(req, res);
+				}
+				req.user = token;
+			} catch (err) {
+				return this.handleUnauthorized(req, res);
+			}
+
+			return operationHandler(req, res, next);
+		};
+	}
+
 	public handleUnauthorized(req: Request, res: Response): void {
 		const queryParam: string = querystring.stringify({ returnto: `${HS_HUB}${req.originalUrl}` });
 		res.redirect(`${HS_AUTH}/login?${queryParam}`);
@@ -101,6 +125,10 @@ export class RequestAuthenticationV2 {
 
 	public getUserAuthToken(req: Request): string {
 		return req.cookies[AUTH_COOKIE];
+	}
+
+	private getAPIAuthToken(req: Request): string | undefined {
+		return req.header(AUTH_HEADER);
 	}
 
 	// TODO: Add arguments to the URI (See https://github.com/unicsmcr/hs_apply/issues/75)
