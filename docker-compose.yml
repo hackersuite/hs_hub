@@ -11,8 +11,9 @@ services:
     ports:
       - "${PORT}:${PORT}"
     networks:
-      - internal
+      - internal_hackathon
       - hacker_suite
+    env_file: .env
 
   # mysql_db:
   #   container_name: mysql_db
@@ -40,9 +41,8 @@ volumes:
 # The network allows multiple containers to connect together
 networks:
   # internal network for hs_hub services
-  internal:
+  internal_hackathon:
     driver: bridge
-    name: internal
   # external network for consumer-facing hacker suite services
   hacker_suite:
     external:
