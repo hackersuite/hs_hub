@@ -8,36 +8,42 @@ export const localAchievements: AchievementOptions[] = [
 		title: 'Bridge between worlds',
 		description: 'Attend all workshops',
 		maxProgress: 1,
+		prizeURL: '/img/achievements/attendAllWorkshopsSquare.png',
 		isManual: true
 	},
 	{
 		title: 'Wan Shi Tong’s Library',
 		description: 'Scavenger hunt/trivia quiz questions - get all the questions right or winner of the game',
 		maxProgress: 1,
+		prizeURL: '/img/achievements/triviaSquare.png',
 		isManual: true
 	},
 	{
 		title: 'The Last Codebender',
 		description: 'Solo hacking',
 		maxProgress: 1,
+		prizeURL: '/img/achievements/Hacker.png',
 		isManual: true
 	},
 	{
 		title: "Snoozles",
 		description: 'Secret condition, will be revealed at the end of the hackathon',
 		maxProgress: 1,
+		prizeURL: '/img/achievements/sleeplogh.png',
 		isManual: true
 	},
 	{
 		title: 'Balance restored',
 		description: 'Submitted a project',
 		maxProgress: 1,
+		prizeURL: '/img/achievements/checkMark.png',
 		isManual: true
 	},
 	{
 		title: "Team Avatar",
 		description: 'Demoed a project',
 		maxProgress: 1,
+		prizeURL: '/img/achievements/AANG.png',
 		isManual: true
 	},
 	{
@@ -46,4 +52,10 @@ export const localAchievements: AchievementOptions[] = [
 		maxProgress: 1,
 		isManual: true
 	},
+	{
+		title: "Messenger Hawk",
+		description: 'Demoed a project',
+		maxProgress: 1,
+		isManual: true
+	}
 ];
