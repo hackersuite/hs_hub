@@ -156,7 +156,7 @@ export class AchievementsController implements AchievementsControllerInterface {
 			const { userId } = req.body;
 			if (userId === undefined) { throw new ApiError(HttpResponseCode.BAD_REQUEST, `Please provide a userId!`); }
 			await this._achievementsProgressService.setAchievementCompleteForUser(achievement, userId);
-			const user: User = await this._userService.getUserWithId(req.body.userId);
+			const user: User = await this._userService.getUserWithId(userId);
 
 			res.send({ message: `Achievement ${achievement.getTitle()} has been awarded to user ${user.name}!` });
 		} catch (err) {
