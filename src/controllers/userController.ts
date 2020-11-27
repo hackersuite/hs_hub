@@ -122,12 +122,15 @@ export class UserController implements UserControllerInterface {
 		contactDetails.zip = req.body.zip;
 		contactDetails.country = req.body.country;
 		contactDetails.tshirt = req.body.tshirt;
+		contactDetails.foodFromDeliveroo = req.body.foodDeliveryPreference === "deliveroo";
 
 		try {
 			await this._contactDetailsService.save(contactDetails);
-			await this._mapService.add(req.body.city, req.body.country);
+			if (req.body.showCity === "yes")
+				await this._mapService.add(req.body.city, req.body.country);
 			this._cache.deleteAll(MapLocation.name);
 		} catch (err) {
+			console.log(err)
 			res.status(HttpResponseCode.INTERNAL_ERROR).send('Failed');
 			return;
 		}

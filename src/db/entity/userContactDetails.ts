@@ -31,4 +31,7 @@ export class UserContactDetails {
 
 	@Column('varchar', { nullable: true })
 	public tshirt!: string;
+
+	@Column('boolean', { default: false })
+	public foodFromDeliveroo!: boolean;
 }

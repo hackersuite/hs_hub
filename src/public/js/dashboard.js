@@ -51,6 +51,9 @@ $(document).ready(function () {
     $("#introModal form .form-control").each(function (index) {
       formData[$(this)[0].name] = $(this)[0].value;
     });
+
+    const chosenDeliveryOption = $(".food-delivery-preference:checked")[0];
+    formData[chosenDeliveryOption.name] = chosenDeliveryOption.value;
     $.post({
       url: "/user/intro",
       data: formData
