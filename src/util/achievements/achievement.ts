@@ -12,7 +12,7 @@ export class Achievement {
 	/**
    * The URL to the image of the prize for the achievement
    */
-	private readonly prizeURL: string;
+	private readonly prizeURL?: string;
 
 	/**
    * The maximum progress of this achievement
