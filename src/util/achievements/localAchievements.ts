@@ -24,7 +24,7 @@ export const localAchievements: AchievementOptions[] = [
 	},
 	{
 		title: "Snoozles",
-		description: 'Secret ',
+		description: 'Secret condition, will be revealed at the end of the hackathon',
 		maxProgress: 1,
 		isManual: true
 	},
@@ -37,6 +37,12 @@ export const localAchievements: AchievementOptions[] = [
 	{
 		title: "Team Avatar",
 		description: 'Demoed a project',
+		maxProgress: 1,
+		isManual: true
+	},
+	{
+		title: "[TODO] The coding challenge achivement",
+		description: 'successfully complete the coding challenge',
 		maxProgress: 1,
 		isManual: true
 	},

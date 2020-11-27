@@ -51,8 +51,6 @@
                     <% } else if (complete) { %>
                       <div class="achievement-description">
                           <b>Congratulations you have completed this achievement!</b>
-                          <br>
-                          Check out the schedule for information about when you can claim your prize!
                       </div>
                     <% } else { %>
                       <% const progressPercent = Math.round(progress.get(achievement.getId()).getProgress() * 100 / achievement.getMaxProgress()) %>
