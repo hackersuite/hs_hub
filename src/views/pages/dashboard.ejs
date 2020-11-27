@@ -21,7 +21,7 @@
         <div class="modal-dialog modal-lg">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title">Participant Address</h5>
+              <h5 class="modal-title"><b>Check-in Form</b></h5>
             </div>
             <div class="modal-body">
               <form id="beforestartform" class="form" method="" action="">
@@ -102,6 +102,37 @@
                     </div>
                   </div>
 
+                  <div class="form-check">
+                    <label class="form-check-label">
+                      <input class="form-control form-check-input" type="checkbox" value="yes" name="showCity">
+                      Can we show your city/town to other attendees? (your name and address will not be shown)
+                      <span class="form-check-sign">
+                        <span class="check"></span>
+                      </span>
+                    </label>
+                  </div>
+
+                  <div class="form-group bmd-form-group">
+                    <label class="md-label-floating" for="foodDeliveryPreference">How would you like us to pay for your dinner? (up to £10) <span class="red">*</span></label>
+                    <div class="form-check form-check-radio">
+                      <label class="form-check-label">
+                        <input class="form-check-input food-delivery-preference" type="radio" name="foodDeliveryPreference" value="deliveroo" checked>
+                        I would like to receive a <b>Deliveroo voucher</b> on Saturday
+                        <span class="circle">
+                          <span class="check"></span>
+                        </span>
+                      </label>
+                    </div>
+                    <div class="form-check form-check-radio">
+                      <label class="form-check-label">
+                        <input class="form-check-input food-delivery-preference" type="radio" name="foodDeliveryPreference" value="reimbursement">
+                        I will contact reimbursement@greatunihack.com for a <b>reimbursement</b> (may take up to 2 months)
+                        <span class="circle">
+                          <span class="check"></span>
+                        </span>
+                      </label>
+                    </div>
+                  </div>
                   
                 </div>
                 <p id="error-msg" class="red" style="display: none;">Please fill in all the fields</p>
