@@ -128,8 +128,8 @@ export class UserController implements UserControllerInterface {
 			await this._contactDetailsService.save(contactDetails);
 			if (req.body.showCity === 'yes') {
 				await this._mapService.add(req.body.city, req.body.country);
+				this._cache.deleteAll(MapLocation.name);
 			}
-			this._cache.deleteAll(MapLocation.name);
 		} catch (err) {
 			res.status(HttpResponseCode.INTERNAL_ERROR).send('Failed');
 			return;

@@ -4,7 +4,7 @@
 export interface AchievementOptions {
 	title: string;
 	description: string;
-	prizeURL: string;
+	prizeURL?: string;
 	maxProgress: number;
 	requiresToken?: boolean;
 	isManual?: boolean;

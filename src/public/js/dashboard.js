@@ -52,6 +52,7 @@ $(document).ready(function () {
       formData[$(this)[0].name] = $(this)[0].value;
     });
 
+    formData["showCity"] = $("#showCity:checked").length > 0 ? "yes" : "";
     const chosenDeliveryOption = $(".food-delivery-preference:checked")[0];
     formData[chosenDeliveryOption.name] = chosenDeliveryOption.value;
     $.post({
