@@ -267,7 +267,7 @@
                           <% if (event.startTime.getDay() == 6) { %>
                           <tr>
                             <td>
-                              <%- event.startTime.getHours() %>:
+                              <%- event.startTime.getHours() < 10 ? "0" + event.startTime.getHours() : event.startTime.getHours()%>:
                               <%- event.startTime.getMinutes() < 10 ? "0" + event.startTime.getMinutes() : event.startTime.getMinutes() %>
                             </td>
                             <td>
@@ -294,7 +294,7 @@
                           <% if (event.startTime.getDay() == 0) { %>
                           <tr>
                             <td>
-                              <%- event.startTime.getHours() %>:
+                              <%- event.startTime.getHours() < 10 ? "0" + event.startTime.getHours() : event.startTime.getHours()%>:
                               <%- event.startTime.getMinutes() < 10 ?  "0" + event.startTime.getMinutes() : event.startTime.getMinutes() %>
                             </td>
                             <td>
