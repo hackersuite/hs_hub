@@ -47,17 +47,17 @@ export const localAchievements: AchievementOptions[] = [
 		isManual: true
 	},
 	{
-		title: "Cabbage Man",
-		description: 'Successfully complete the food challenge',
-		maxProgress: 1,
-		prizeURL: '/img/achievements/cabbageMan.png',
-		isManual: true
-	},
-	{
 		title: "The First Wordbender",
 		description: 'Tweet about your experience during the hackathon and use one of our hashtags #guh #guh2020 #greatunihack. Message @Caitlin on Discord with a link to your tweet to claim the reward',
 		maxProgress: 1,
 		prizeURL: '/img/achievements/messengerHawk.png',
+		isManual: true
+	},
+	{
+		title: "Cabbage Man",
+		description: 'Successfully complete the food challenge',
+		maxProgress: 1,
+		prizeURL: '/img/achievements/cabbageMan.png',
 		isManual: true
 	}
 ];
