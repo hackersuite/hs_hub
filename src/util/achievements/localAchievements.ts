@@ -53,7 +53,7 @@ export const localAchievements: AchievementOptions[] = [
 	// 	isManual: true
 	// },
 	{
-		title: "Messenger Hawk",
+		title: "The First Wordbender",
 		description: 'Tweet about your experience during the hackathon and use one of our hashtags #guh #guh2020 #greatunihack. Message @Caitlin on Discord with a link to your tweet to claim the reward',
 		maxProgress: 1,
 		prizeURL: '/img/achievements/messengerHawk.png',
